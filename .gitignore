@@ -34,7 +34,7 @@ rust/kcl-lib/bindings
 rust/kcl-language-server/server
 public/kcl_wasm_lib_bg.wasm
 rust/lcov.info
-rust/kcl-wasm-lib/pkg
+rust/kcl-wasm-lib/pkg/src
 *.snap.new
 rust/kcl-lib/fuzz/Cargo.lock
 rust/kcl-language-server-release/Cargo.lock
