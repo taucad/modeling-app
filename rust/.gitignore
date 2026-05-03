@@ -3,7 +3,8 @@ target
 
 /kcl-lib/fuzz/Cargo.lock
 /kcl-language-server-release/Cargo.lock
-/kcl-wasm-lib/pkg
+/kcl-wasm-lib/pkg/src
+/kcl-wasm-lib/pkg/*.tgz
 /lcov.info
 
 # ts-rs
