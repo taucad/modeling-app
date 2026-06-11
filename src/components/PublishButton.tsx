@@ -1,7 +1,8 @@
 import { Popover } from '@headlessui/react'
+import { useSignals } from '@preact/signals-react/runtime'
 import { CustomIcon } from '@src/components/CustomIcon'
 import { PublishDialog } from '@src/components/PublishDialog'
-import { useApp, useSingletons } from '@src/lib/boot'
+import type { App } from '@src/lib/app'
 import type { Project } from '@src/lib/project'
 import {
   type CurrentProjectPublicationDetails,
@@ -11,24 +12,28 @@ import {
 import { err } from '@src/lib/trap'
 import { withSiteBaseURL } from '@src/lib/withBaseURL'
 import {
-  memo,
   type ComponentProps,
+  memo,
   useCallback,
   useEffect,
   useState,
 } from 'react'
 
 type PublishButtonProps = {
-  project: Project | undefined
+  app: App
 }
 
 export const PublishButton = memo(function PublishButton({
-  project,
+  app,
 }: PublishButtonProps) {
+  useSignals()
+  const project = app.projectSignal.value?.projectIORefSignal.value
+
   return (
     <Popover className="relative hidden sm:flex">
       {(popover) => (
         <PublishPopoverContent
+          app={app}
           project={project}
           close={() => popover.close()}
           open={popover.open}
@@ -39,16 +44,19 @@ export const PublishButton = memo(function PublishButton({
 })
 
 function PublishPopoverContent({
+  app,
   project,
   close,
   open,
 }: {
+  app: App
   project: Project | undefined
   close: () => void
   open: boolean
 }) {
-  const { auth } = useApp()
-  const { kclManager } = useSingletons()
+  useSignals()
+  const { auth } = app
+  const { kclManager } = app.singletons
   const ast = kclManager.astSignal.value
   const kclEmpty = kclManager.isAstBodyEmpty(ast)
   const hasKclErrors = kclManager.hasErrors()

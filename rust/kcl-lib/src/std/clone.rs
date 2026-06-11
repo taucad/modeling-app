@@ -86,6 +86,7 @@ async fn inner_clone(
 
                 let mut new_solid = solid.clone();
                 new_solid.id = new_id;
+                new_solid.value_id = new_id;
                 if let Some(sketch) = new_solid.sketch_mut() {
                     sketch.original_id = new_id;
                 }
@@ -119,7 +120,7 @@ async fn inner_clone(
     Ok(res)
 }
 /// Fix the tags and references of the cloned geometry.
-async fn fix_tags_and_references(
+pub(super) async fn fix_tags_and_references(
     new_geometry: &mut GeometryWithImportedGeometry,
     old_geometry_id: uuid::Uuid,
     exec_state: &mut ExecState,

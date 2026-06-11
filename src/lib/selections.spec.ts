@@ -1,18 +1,25 @@
-import { expect, describe, test, vi } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
+import type { Plane } from '@rust/kcl-lib/bindings/Plane'
+import type { PlaneInfo } from '@rust/kcl-lib/bindings/PlaneInfo'
+import type { Point3d } from '@rust/kcl-lib/bindings/Point3d'
+import type { SceneInfra } from '@src/clientSideScene/sceneInfra'
 import { getNodePathFromSourceRange } from '@src/lang/queryAstNodePathUtils'
 import type { Artifact } from '@src/lang/std/artifactGraph'
-import type { ArtifactGraph, SourceRange } from '@src/lang/wasm'
+import type { ArtifactGraph, ExecState, SourceRange } from '@src/lang/wasm'
 import { assertParse } from '@src/lang/wasm'
 import type { ArtifactIndex } from '@src/lib/artifactIndex'
 import { buildArtifactIndex } from '@src/lib/artifactIndex'
-import type { Selection } from '@src/machines/modelingSharedTypes'
 import {
   codeToIdSelections,
   findLastRangeStartingBefore,
   getSelectionTypeDisplayText,
+  getStableOffsetPlaneData,
+  handleSelectionBatch,
+  selectSketchPlane,
 } from '@src/lib/selections'
-import { selectSketchPlane } from '@src/hooks/useEngineConnectionSubscriptions'
+import { enginelessExecutor } from '@src/lib/testHelpers'
+import type { Selection } from '@src/machines/modelingSharedTypes'
 import { buildTheWorldAndNoEngineConnection } from '@src/unitTestUtils'
 
 describe('testing source range to artifact conversion', () => {
@@ -1410,6 +1417,76 @@ describe('findLastRangeStartingBefore', () => {
   })
 })
 
+describe('pattern copy selection highlighting', () => {
+  const selectionCodeRef = {
+    range: [10, 20, 0] as SourceRange,
+    pathToNode: [],
+  }
+  const patternArtifact = {
+    type: 'pattern',
+    id: 'pattern-command-id',
+    subType: 'transform',
+    sourceId: 'source-body-id',
+    copyIds: ['copy-body-id'],
+    copyFaceIds: ['copy-face-id'],
+    copyEdgeIds: ['copy-edge-id'],
+    codeRef: {
+      range: selectionCodeRef.range,
+      nodePath: [],
+    },
+  } as unknown as Artifact
+  const artifactGraph = new Map([[patternArtifact.id, patternArtifact]])
+
+  test('maps pattern code selections to copied engine entities', () => {
+    const selections: Selection[] = [
+      { artifact: patternArtifact, codeRef: selectionCodeRef },
+    ]
+
+    const result = codeToIdSelections(selections, artifactGraph, [])
+
+    expect(result.map(({ id }) => id)).toEqual([
+      'copy-body-id',
+      'copy-face-id',
+      'copy-edge-id',
+    ])
+  })
+
+  test('keeps a selected copied pattern entity highlighted through selection batching', () => {
+    const result = handleSelectionBatch({
+      selections: {
+        graphSelections: [
+          {
+            artifact: patternArtifact,
+            codeRef: selectionCodeRef,
+            engineEntityId: 'copy-face-id',
+          },
+        ],
+        otherSelections: [],
+      },
+      artifactGraph,
+      code: 'patternLinear3d(body, instances = 3)',
+      ast: {} as any,
+      systemDeps: {
+        engineCommandManager: {
+          connection: { pingIntervalId: 1 },
+        } as any,
+        sceneEntitiesManager: { activeSegments: {} } as any,
+        wasmInstance: {} as any,
+      },
+    })
+
+    const selectAdd = result.engineEvents.find(
+      (event) =>
+        event.type === 'modeling_cmd_req' && event.cmd.type === 'select_add'
+    )
+    expect(selectAdd?.type).toBe('modeling_cmd_req')
+    if (selectAdd?.type !== 'modeling_cmd_req') return
+    expect(selectAdd.cmd.type).toBe('select_add')
+    if (selectAdd.cmd.type !== 'select_add') return
+    expect(selectAdd.cmd.entities).toEqual(['copy-face-id'])
+  })
+})
+
 describe('getSelectionTypeDisplayText', () => {
   test('coalesces face-like selections under face', () => {
     const codeRef = { range: [0, 0, 0], pathToNode: [] } as any
@@ -1491,6 +1568,139 @@ describe('getSelectionTypeDisplayText', () => {
     expect(getSelectionTypeDisplayText({} as any, selection as any)).toBe(
       '4 edges'
     )
+  })
+})
+
+describe('getStableOffsetPlaneData', () => {
+  const code = (
+    on: string,
+    planeDefinition = 'offsetPlane(XZ, offset = 0mm)'
+  ) =>
+    `plane001 = ${planeDefinition}
+sketch001 = sketch(on = ${on}) {
+  line1 = line(start = [var 0mm, var 0mm], end = [var 1mm, var 0mm])
+}`
+
+  const normalizeSignedZero = (value: number) =>
+    Object.is(value, -0) ? 0 : value
+
+  const normalizeAxis = (axis: readonly number[]) =>
+    axis.map(normalizeSignedZero)
+
+  const axis = (point: Point3d) => normalizeAxis([point.x, point.y, point.z])
+
+  const getPlaneVariable = (
+    variables: ExecState['variables'],
+    name: string
+  ) => {
+    const variable = variables[name]
+    if (variable?.type !== 'Plane') {
+      throw new Error(`Expected ${name} to be a Plane variable`)
+    }
+    return variable.value
+  }
+
+  const setupStableOffsetPlaneData = async (
+    source: string
+  ): Promise<{
+    result: ReturnType<typeof getStableOffsetPlaneData>
+    plane001: Plane
+    sketchBlockPlaneInfo: PlaneInfo
+    effectiveArtifactHasVariable: boolean
+  }> => {
+    const { instance, rustContext } = await buildTheWorldAndNoEngineConnection()
+    const ast = assertParse(source, instance)
+    const execState = await enginelessExecutor(ast, rustContext)
+    const sketchBlock = [...execState.artifactGraph.values()].find(
+      (artifact): artifact is Extract<Artifact, { type: 'sketchBlock' }> =>
+        artifact.type === 'sketchBlock'
+    )
+    if (!sketchBlock?.planeId) {
+      throw new Error('Expected sketch block with a planeId')
+    }
+    const artifact = execState.artifactGraph.get(sketchBlock.planeId)
+    if (artifact?.type !== 'plane') {
+      throw new Error('Expected sketch block planeId to point to a plane')
+    }
+    if (!sketchBlock.planeInfo) {
+      throw new Error('Expected sketch block with evaluated planeInfo')
+    }
+    const result = getStableOffsetPlaneData(artifact, {
+      execState,
+      sceneInfra: {
+        baseUnitMultiplier: 1,
+      } as Pick<SceneInfra, 'baseUnitMultiplier'> as SceneInfra,
+      sketchBlock,
+    })
+
+    return {
+      result,
+      plane001: getPlaneVariable(execState.variables, 'plane001'),
+      sketchBlockPlaneInfo: sketchBlock.planeInfo,
+      effectiveArtifactHasVariable: Object.values(execState.variables).some(
+        (value) =>
+          value?.type === 'Plane' && value.value.artifactId === artifact.id
+      ),
+    }
+  }
+
+  test('uses the Rust-provided zAxis for variable-level plane negation', async () => {
+    const { result, plane001, sketchBlockPlaneInfo } =
+      await setupStableOffsetPlaneData(
+        code('plane001', '-offsetPlane(XZ, offset = 0mm)')
+      )
+
+    expect(axis(plane001.xAxis)).toEqual([-1, 0, 0])
+    expect(axis(plane001.zAxis)).toEqual([0, 1, 0])
+    expect(axis(sketchBlockPlaneInfo.xAxis)).toEqual([-1, 0, 0])
+    expect(axis(sketchBlockPlaneInfo.zAxis)).toEqual([0, 1, 0])
+
+    if (result === false || result instanceof Error) {
+      throw new Error(`Expected offset plane data, got ${String(result)}`)
+    }
+    expect(normalizeAxis(result.zAxis)).toEqual([0, 1, 0])
+  })
+
+  test('keeps the same zAxis for non-negated offset planes', async () => {
+    const {
+      result,
+      plane001,
+      sketchBlockPlaneInfo,
+      effectiveArtifactHasVariable,
+    } = await setupStableOffsetPlaneData(code('plane001'))
+
+    expect(axis(plane001.xAxis)).toEqual([1, 0, 0])
+    expect(axis(plane001.zAxis)).toEqual([0, -1, 0])
+    expect(axis(sketchBlockPlaneInfo.xAxis)).toEqual([1, 0, 0])
+    expect(axis(sketchBlockPlaneInfo.zAxis)).toEqual([0, -1, 0])
+    expect(effectiveArtifactHasVariable).toBe(true)
+
+    if (result === false || result instanceof Error) {
+      throw new Error(`Expected offset plane data, got ${String(result)}`)
+    }
+    expect(result.negated).toBe(false)
+    expect(normalizeAxis(result.zAxis)).toEqual([0, -1, 0])
+  })
+
+  test('resolves sketch use-site negation when the effective plane artifact is not in variables', async () => {
+    const {
+      result,
+      plane001,
+      sketchBlockPlaneInfo,
+      effectiveArtifactHasVariable,
+    } = await setupStableOffsetPlaneData(code('-plane001'))
+
+    expect(axis(plane001.xAxis)).toEqual([1, 0, 0])
+    expect(axis(plane001.zAxis)).toEqual([0, -1, 0])
+    expect(axis(sketchBlockPlaneInfo.xAxis)).toEqual([-1, 0, 0])
+    expect(axis(sketchBlockPlaneInfo.zAxis)).toEqual([0, 1, 0])
+    expect(effectiveArtifactHasVariable).toBe(false)
+
+    if (result === false || result instanceof Error) {
+      throw new Error(`Expected offset plane data, got ${String(result)}`)
+    }
+    expect(result.negated).toBe(false)
+    expect(normalizeAxis(result.zAxis)).toEqual([0, 1, 0])
   })
 })
 

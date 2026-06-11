@@ -1,7 +1,7 @@
 [package]
 name = "kcl-lib"
 description = "KittyCAD Language implementation and tools"
-version = "0.2.148"
+version = "0.2.163"
 edition = "2024"
 license = "MIT"
 repository = "https://github.com/KittyCAD/modeling-app"
@@ -27,6 +27,8 @@ bench = false
 
 [features]
 default = ["cli", "engine", "artifact-graph"]
+# This is a legacy feature that has no effect. It has been replaced with a
+# runtime flag of execution. See `skip_artifact_graph`.
 artifact-graph = []
 benchmark-execution = []
 cli = ["dep:clap", "kittycad/clap"]
@@ -38,6 +40,7 @@ engine = []
 pyo3 = ["dep:pyo3", "dep:pyo3-stub-gen"]
 # Helper functions also used in benchmarks.
 lsp-test-util = []
+new-scanner = ["dep:kcl-syntax"]
 # For debugging.
 snapshot-engine-responses = []
 tabled = ["dep:tabled"]
@@ -68,8 +71,9 @@ image = { version = "0.25.10", default-features = false, features = ["png"] }
 image-compare = "0.5.0"
 indexmap = { workspace = true, features = ["serde", "rayon"] }
 itertools = "0.14.0"
-kcl-derive-docs = { version = "0.2.148", path = "../kcl-derive-docs" }
-kcl-error = { version = "0.2.148", path = "../kcl-error" }
+kcl-derive-docs = { version = "0.2.163", path = "../kcl-derive-docs" }
+kcl-error = { version = "0.2.163", path = "../kcl-error" }
+kcl-syntax = { version = "0.2.163", path = "../kcl-syntax", optional = true }
 ezpz = { workspace = true }
 kittycad = { workspace = true }
 kittycad-modeling-cmds = { workspace = true }
@@ -78,8 +82,9 @@ libm = "0.2.16"
 measurements = "0.11.1"
 miette = { workspace = true }
 mime_guess = "2.0.5"
-nalgebra-glm = "0.20.0"
-parse-display = "0.10.0"
+nalgebra-glm = "0.21.0"
+num-traits = "0.2"
+parse-display = "0.11.0"
 pyo3 = { workspace = true, optional = true }
 pyo3-stub-gen = { workspace = true, optional = true }
 rayon = { workspace = true }
@@ -87,6 +92,7 @@ regex = "1.12.3"
 reqwest = { version = "0.12", default-features = false, features = [
   "stream",
   "rustls-tls",
+  "rustls-tls-native-roots",
 ] }
 rgba_simple = "0.10.0"
 rmp-serde = { workspace = true }
@@ -120,7 +126,7 @@ uuid = { workspace = true, features = ["v4", "v5", "js", "serde"] }
 validator = { version = "0.20.0", features = ["derive"] }
 walkdir = "2.5.0"
 web-time = "1.1"
-winnow = "0.7"
+winnow = "1.0"
 zip = { workspace = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
@@ -147,13 +153,14 @@ approx = "0.5"
 base64 = "0.22.1"
 criterion = { version = "0.8.2", features = ["async_tokio"] }
 expectorate = "1.2.0"
-handlebars = "6.4.0"
+handlebars = "6.4.1"
 image = { version = "0.25.10", default-features = false, features = ["png"] }
 insta = { version = "1.47.0", features = ["json", "filters", "redactions"] }
 kcl-directory-test-macro = { version = "0.1", path = "../kcl-directory-test-macro" }
 miette = { version = "7.6.0", features = ["fancy"] }
 pretty_assertions = "1.4.1"
-tokio = { version = "1.52.1", features = ["rt-multi-thread", "macros", "time"] }
+proptest = { workspace = true }
+tokio = { version = "1.52.3", features = ["rt-multi-thread", "macros", "time"] }
 twenty-twenty = "0.8.3"
 
 [lints]
@@ -179,6 +186,15 @@ required-features = ["lsp-test-util"]
 [[bench]]
 name = "benchmark_kcl_samples"
 harness = false
+
+[[bench]]
+name = "memory_benchmark_criterion"
+harness = false
+
+[[bench]]
+name = "memory_profile"
+harness = false
+required-features = ["dhat-heap"]
 
 [[test]]
 name = "executor"

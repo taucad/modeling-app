@@ -1,4 +1,3 @@
-#[cfg(feature = "artifact-graph")]
 use std::collections::BTreeMap;
 
 use indexmap::IndexMap;
@@ -15,20 +14,15 @@ use uuid::Uuid;
 
 use crate::ExecOutcome;
 use crate::ModuleId;
+use crate::NodePath;
 use crate::SourceRange;
 use crate::exec::KclValue;
-#[cfg(feature = "artifact-graph")]
 use crate::execution::ArtifactCommand;
-#[cfg(feature = "artifact-graph")]
 use crate::execution::ArtifactGraph;
 use crate::execution::DefaultPlanes;
-#[cfg(feature = "artifact-graph")]
-use crate::execution::Operation;
-#[cfg(feature = "artifact-graph")]
+use crate::execution::OperationsByModule;
 use crate::front::Number;
-#[cfg(feature = "artifact-graph")]
 use crate::front::Object;
-#[cfg(feature = "artifact-graph")]
 use crate::front::ObjectId;
 use crate::lsp::IntoDiagnostic;
 use crate::lsp::ToLspRange;
@@ -198,6 +192,19 @@ impl IsRetryable for KclError {
     }
 }
 
+const RETRYABLE_ENGINE_MESSAGE_MARKER_SETS: &[&[&str]] = &[
+    &["modeling connection", "interrupted", "please reconnect"],
+    &["modeling connection", "heartbeats", "please reconnect"],
+];
+
+fn is_retryable_engine_message(message: &str) -> bool {
+    // TODO: Replace string matching with structured engine/API retry metadata once it is available.
+    let message = message.to_ascii_lowercase();
+    RETRYABLE_ENGINE_MESSAGE_MARKER_SETS
+        .iter()
+        .any(|markers| markers.iter().all(|marker| message.contains(marker)))
+}
+
 #[derive(Error, Debug, Serialize, ts_rs::TS, Clone, PartialEq)]
 #[error("{error}")]
 #[ts(export)]
@@ -208,23 +215,17 @@ pub struct KclErrorWithOutputs {
     /// Variables in the top-level of the root module. Note that functions will
     /// have an invalid env ref.
     pub variables: IndexMap<String, KclValue>,
-    #[cfg(feature = "artifact-graph")]
-    pub operations: Vec<Operation>,
+    pub operations: OperationsByModule,
     // TODO: Remove this field.  Doing so breaks the ts-rs output for some
     // reason.
-    #[cfg(feature = "artifact-graph")]
     pub _artifact_commands: Vec<ArtifactCommand>,
-    #[cfg(feature = "artifact-graph")]
     pub artifact_graph: ArtifactGraph,
-    #[cfg(feature = "artifact-graph")]
     #[serde(skip)]
     pub scene_objects: Vec<Object>,
-    #[cfg(feature = "artifact-graph")]
     #[serde(skip)]
     pub source_range_to_object: BTreeMap<SourceRange, ObjectId>,
-    #[cfg(feature = "artifact-graph")]
     #[serde(skip)]
-    pub var_solutions: Vec<(SourceRange, Number)>,
+    pub var_solutions: Vec<(SourceRange, Option<NodePath>, Number)>,
     pub scene_graph: Option<crate::front::SceneGraph>,
     pub filenames: IndexMap<ModuleId, ModulePath>,
     pub source_files: IndexMap<ModuleId, ModuleSource>,
@@ -237,12 +238,12 @@ impl KclErrorWithOutputs {
         error: KclError,
         non_fatal: Vec<CompilationIssue>,
         variables: IndexMap<String, KclValue>,
-        #[cfg(feature = "artifact-graph")] operations: Vec<Operation>,
-        #[cfg(feature = "artifact-graph")] artifact_commands: Vec<ArtifactCommand>,
-        #[cfg(feature = "artifact-graph")] artifact_graph: ArtifactGraph,
-        #[cfg(feature = "artifact-graph")] scene_objects: Vec<Object>,
-        #[cfg(feature = "artifact-graph")] source_range_to_object: BTreeMap<SourceRange, ObjectId>,
-        #[cfg(feature = "artifact-graph")] var_solutions: Vec<(SourceRange, Number)>,
+        operations: OperationsByModule,
+        artifact_commands: Vec<ArtifactCommand>,
+        artifact_graph: ArtifactGraph,
+        scene_objects: Vec<Object>,
+        source_range_to_object: BTreeMap<SourceRange, ObjectId>,
+        var_solutions: Vec<(SourceRange, Option<NodePath>, Number)>,
         filenames: IndexMap<ModuleId, ModulePath>,
         source_files: IndexMap<ModuleId, ModuleSource>,
         default_planes: Option<DefaultPlanes>,
@@ -251,17 +252,11 @@ impl KclErrorWithOutputs {
             error,
             non_fatal,
             variables,
-            #[cfg(feature = "artifact-graph")]
             operations,
-            #[cfg(feature = "artifact-graph")]
             _artifact_commands: artifact_commands,
-            #[cfg(feature = "artifact-graph")]
             artifact_graph,
-            #[cfg(feature = "artifact-graph")]
             scene_objects,
-            #[cfg(feature = "artifact-graph")]
             source_range_to_object,
-            #[cfg(feature = "artifact-graph")]
             var_solutions,
             scene_graph: Default::default(),
             filenames,
@@ -275,17 +270,11 @@ impl KclErrorWithOutputs {
             error,
             non_fatal: Default::default(),
             variables: Default::default(),
-            #[cfg(feature = "artifact-graph")]
             operations: Default::default(),
-            #[cfg(feature = "artifact-graph")]
             _artifact_commands: Default::default(),
-            #[cfg(feature = "artifact-graph")]
             artifact_graph: Default::default(),
-            #[cfg(feature = "artifact-graph")]
             scene_objects: Default::default(),
-            #[cfg(feature = "artifact-graph")]
             source_range_to_object: Default::default(),
-            #[cfg(feature = "artifact-graph")]
             var_solutions: Default::default(),
             scene_graph: Default::default(),
             filenames: Default::default(),
@@ -300,17 +289,11 @@ impl KclErrorWithOutputs {
             error,
             non_fatal: outcome.issues,
             variables: outcome.variables,
-            #[cfg(feature = "artifact-graph")]
             operations: outcome.operations,
-            #[cfg(feature = "artifact-graph")]
             _artifact_commands: Default::default(),
-            #[cfg(feature = "artifact-graph")]
             artifact_graph: outcome.artifact_graph,
-            #[cfg(feature = "artifact-graph")]
             scene_objects: outcome.scene_objects,
-            #[cfg(feature = "artifact-graph")]
             source_range_to_object: outcome.source_range_to_object,
-            #[cfg(feature = "artifact-graph")]
             var_solutions: outcome.var_solutions,
             scene_graph: Default::default(),
             filenames: outcome.filenames,
@@ -319,7 +302,6 @@ impl KclErrorWithOutputs {
         }
     }
 
-    #[cfg(feature = "artifact-graph")]
     pub fn sketch_constraint_report(&self) -> crate::SketchConstraintReport {
         crate::execution::sketch_constraint_report_from_scene_objects(&self.scene_objects)
     }
@@ -540,6 +522,62 @@ impl miette::Diagnostic for Report {
     }
 }
 
+#[derive(thiserror::Error, Debug)]
+#[error("{}", self.issue.message)]
+pub struct CompilationIssueReport {
+    pub issue: CompilationIssue,
+    pub kcl_source: String,
+    pub filename: String,
+}
+
+impl miette::Diagnostic for CompilationIssueReport {
+    fn code<'a>(&'a self) -> Option<Box<dyn std::fmt::Display + 'a>> {
+        let tag = match self.issue.tag {
+            Tag::Deprecated => "deprecated",
+            Tag::Unnecessary => "unnecessary",
+            Tag::UnknownNumericUnits => "unknown-numeric-units",
+            Tag::None => return None,
+        };
+        Some(Box::new(format!("KCL {tag}")))
+    }
+
+    fn severity(&self) -> Option<miette::Severity> {
+        Some(match self.issue.severity {
+            Severity::Warning => miette::Severity::Warning,
+            Severity::Error | Severity::Fatal => miette::Severity::Error,
+        })
+    }
+
+    fn help<'a>(&'a self) -> Option<Box<dyn std::fmt::Display + 'a>> {
+        self.issue
+            .suggestion
+            .as_ref()
+            .map(|s| Box::new(s.title.clone()) as Box<dyn std::fmt::Display>)
+    }
+
+    fn source_code(&self) -> Option<&dyn miette::SourceCode> {
+        Some(&self.kcl_source)
+    }
+
+    fn labels(&self) -> Option<Box<dyn Iterator<Item = miette::LabeledSpan> + '_>> {
+        let span = miette::SourceSpan::from(self.issue.source_range);
+        let label = miette::LabeledSpan::new_with_span(Some(self.filename.to_string()), span);
+        Some(Box::new(std::iter::once(label)))
+    }
+}
+
+/// Render a [`CompilationIssue`] as a miette report string, mirroring the
+/// formatting used for [`Report`].
+pub fn render_compilation_issue_miette(filename: &str, source: &str, issue: CompilationIssue) -> String {
+    let report = CompilationIssueReport {
+        issue,
+        kcl_source: source.to_owned(),
+        filename: filename.to_owned(),
+    };
+    let report = miette::Report::new(report);
+    format!("{report:?}")
+}
+
 #[derive(Debug, Serialize, Deserialize, ts_rs::TS, Clone, PartialEq, Eq, thiserror::Error, miette::Diagnostic)]
 #[serde(rename_all = "camelCase")]
 #[error("{message}")]
@@ -625,6 +663,11 @@ impl KclError {
     pub fn new_engine(details: KclErrorDetails) -> KclError {
         if details.message.eq_ignore_ascii_case("internal error") {
             KclError::EngineInternal { details }
+        } else if is_retryable_engine_message(&details.message) {
+            KclError::EngineHangup {
+                details,
+                api_call_id: None,
+            }
         } else {
             KclError::Engine { details }
         }

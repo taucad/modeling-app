@@ -1,3 +1,4 @@
+import { useSignals } from '@preact/signals-react/runtime'
 import type { FormEvent, HTMLProps } from 'react'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
@@ -9,9 +10,9 @@ import {
   useSearchParams,
 } from 'react-router-dom'
 
+import { BillingDialog } from '@kittycad/ui-components'
 import { ActionButton } from '@src/components/ActionButton'
 import { AppHeader } from '@src/components/AppHeader'
-import { BillingDialog } from '@kittycad/react-shared'
 import Loading from '@src/components/Loading'
 import { useNetworkMachineStatus } from '@src/components/NetworkMachineIndicator'
 import ProjectCard from '@src/components/ProjectCard/ProjectCard'
@@ -26,17 +27,21 @@ import {
   defaultLocalStatusBarItems,
 } from '@src/components/StatusBar/defaultStatusBarItems'
 import Tooltip from '@src/components/Tooltip'
+import { useAbsoluteFilePath } from '@src/hooks/useAbsoluteFilePath'
 import { useMenuListener } from '@src/hooks/useMenu'
 import { useQueryParamEffects } from '@src/hooks/useQueryParamEffects'
 import {
   autoUpdateDownloadProgressSignal,
   autoUpdateReadySignal,
 } from '@src/lib/autoUpdate'
+import { useApp, useSingletons } from '@src/lib/boot'
+import { createRouteCommands } from '@src/lib/commandBarConfigs/routeCommandConfig'
 import { isDesktop } from '@src/lib/isDesktop'
 import { openExternalBrowserIfDesktop } from '@src/lib/openWindow'
 import { PATHS } from '@src/lib/paths'
 import { markOnce } from '@src/lib/performance'
 import type { Project } from '@src/lib/project'
+import type { SettingsType } from '@src/lib/settings/initialSettings'
 import {
   getNextSearchParams,
   getSortFunction,
@@ -50,23 +55,23 @@ import {
   useFolders,
   useState as useSystemIOState,
 } from '@src/machines/systemIO/hooks'
+import type { systemIOMachine } from '@src/machines/systemIO/systemIOMachine'
 import {
   SystemIOMachineEvents,
   SystemIOMachineStates,
 } from '@src/machines/systemIO/utils'
 import type { WebContentSendPayload } from '@src/menu/channels'
 import {
+  filterStatusBarItemsForScopes,
+  statusBarGlobalItemsValueSpec,
+  statusBarLocalItemsValueSpec,
+} from '@src/registry/contracts/statusBar'
+import {
   acceptOnboarding,
   needsToOnboard,
   onDismissOnboardingInvite,
 } from '@src/routes/Onboarding/utils'
-import { useApp, useSingletons } from '@src/lib/boot'
-import type { SettingsType } from '@src/lib/settings/initialSettings'
-import type { systemIOMachine } from '@src/machines/systemIO/systemIOMachine'
 import type { ActorRefFrom } from 'xstate'
-import { waitFor } from 'xstate'
-import { useAbsoluteFilePath } from '@src/hooks/useAbsoluteFilePath'
-import { statusBarGlobalItemsValueSpec } from '@src/registry/contracts/statusBar'
 
 type ReadWriteProjectState = {
   value: boolean
@@ -76,6 +81,7 @@ type ReadWriteProjectState = {
 // This route only opens in the desktop context for now,
 // as defined in Router.tsx, so we can use the desktop APIs and types.
 const Home = () => {
+  useSignals()
   const { auth, billing, commands, settings, systemIOActor, registry } =
     useApp()
   const { kclManager } = useSingletons()
@@ -83,12 +89,14 @@ const Home = () => {
   const settingsActor = settings.actor
   useQueryParamEffects(kclManager)
   const navigate = useNavigate()
+  const location = useLocation()
   const readWriteProjectDir = useCanReadWriteProjectDirectory()
   const [nativeFileMenuCreated, setNativeFileMenuCreated] = useState(false)
   const apiToken = auth.useToken()
   const networkMachineStatus = useNetworkMachineStatus()
   const billingContext = billing.useContext()
   const hasUnlimitedCredits = billingContext.balance === Infinity
+  const openBillingLinkExternally = openExternalBrowserIfDesktop()
 
   const projects = useFolders()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -96,6 +104,30 @@ const Home = () => {
   const sort = searchParams.get('sort_by') ?? 'modified:desc'
   const sidebarButtonClasses =
     'flex items-center p-2 gap-2 leading-tight border-transparent dark:border-transparent enabled:dark:border-transparent enabled:hover:border-primary/50 enabled:dark:hover:border-inherit active:border-primary dark:bg-transparent hover:bg-transparent'
+
+  useEffect(() => {
+    const { RouteTelemetryCommand, RouteSettingsCommand } = createRouteCommands(
+      navigate,
+      location,
+      ''
+    )
+
+    commands.send({
+      type: 'Add commands',
+      data: {
+        commands: [RouteTelemetryCommand, RouteSettingsCommand],
+      },
+    })
+
+    return () => {
+      commands.send({
+        type: 'Remove commands',
+        data: {
+          commands: [RouteTelemetryCommand, RouteSettingsCommand],
+        },
+      })
+    }
+  }, [navigate, location, commands])
 
   // Only create the native file menus on desktop
   useEffect(() => {
@@ -111,34 +143,11 @@ const Home = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- TODO: blanket-ignored fix me!
   }, [])
 
-  const location = useLocation()
   const autoUpdateDownloadProgress = autoUpdateDownloadProgressSignal.value
   const autoUpdateReady = autoUpdateReadySignal.value
   const settingsValues = settings.useSettings()
   const machineApiEnabled = settingsValues.app.machineApi.current
   const onboardingStatus = settingsValues.app.onboardingStatus.current
-
-  useEffect(() => {
-    systemIOActor.send({
-      type: SystemIOMachineEvents.setProjectDirectoryPath,
-      data: {
-        requestedProjectDirectoryPath:
-          settingsValues.app?.projectDirectory?.current,
-      },
-    })
-    void waitFor(systemIOActor, (state) =>
-      state.matches(SystemIOMachineStates.idle)
-    ).then(() => {
-      systemIOActor.send({
-        type: SystemIOMachineEvents.setProjectDirectoryPath,
-        data: {
-          requestedProjectDirectoryPath:
-            settingsValues.app?.projectDirectory?.current,
-        },
-      })
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- TODO: blanket-ignored fix me!
-  }, [settingsValues.app?.projectDirectory?.current])
 
   // Menu listeners
   const cb = (data: WebContentSendPayload) => {
@@ -357,10 +366,12 @@ const Home = () => {
                 <div className="my-2">
                   <BillingDialog
                     upgradeHref={withSiteBaseURL('/design-studio-pricing')}
-                    upgradeClick={openExternalBrowserIfDesktop()}
+                    accountHref={withSiteBaseURL('/account/billing')}
+                    billingClick={openBillingLinkExternally}
                     error={billingContext.error}
                     balance={billingContext.balance}
                     allowance={billingContext.allowance}
+                    userPaymentBalance={billingContext.userPaymentBalance}
                   />
                 </div>
               </li>
@@ -423,9 +434,18 @@ const Home = () => {
               window.electron?.appRestart()
             },
           }),
-          ...registry.signal(statusBarGlobalItemsValueSpec).value,
+          ...filterStatusBarItemsForScopes(
+            registry.signal(statusBarGlobalItemsValueSpec).value,
+            ['home']
+          ),
         ]}
-        localItems={defaultLocalStatusBarItems}
+        localItems={[
+          ...filterStatusBarItemsForScopes(
+            registry.signal(statusBarLocalItemsValueSpec).value,
+            ['home']
+          ),
+          ...defaultLocalStatusBarItems,
+        ]}
       />
     </div>
   )
@@ -554,35 +574,50 @@ function ProjectGrid({
 }: ProjectGridProps) {
   const { systemIOActor } = useApp()
   const state = useSystemIOState()
+  const isReadingFolders = state.matches(SystemIOMachineStates.readingFolders)
+  const sortedSearchResults = searchResults.toSorted(getSortFunction(sort))
 
   return (
     <section data-testid="home-section" {...rest}>
-      {state.matches(SystemIOMachineStates.readingFolders) ||
-      projects === undefined ? (
+      {projects === undefined || (isReadingFolders && projects.length === 0) ? (
         <Loading isDummy={true}>Loading your Projects...</Loading>
       ) : (
         <>
           {searchResults.length > 0 ? (
-            <ul className="grid w-full sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {searchResults.sort(getSortFunction(sort)).map((project) => (
-                <ProjectCard
-                  key={project.name}
-                  project={project}
-                  handleRenameProject={handleRenameProject}
-                  handleDeleteProject={handleDeleteProject(systemIOActor)}
-                />
-              ))}
-            </ul>
+            <>
+              <ul className="grid w-full sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {sortedSearchResults.map((project) => (
+                  <ProjectCard
+                    key={project.name}
+                    project={project}
+                    handleRenameProject={handleRenameProject}
+                    handleDeleteProject={handleDeleteProject(systemIOActor)}
+                  />
+                ))}
+              </ul>
+              {isReadingFolders && (
+                <div className="py-4">
+                  <Loading isDummy={true}>Loading more projects...</Loading>
+                </div>
+              )}
+            </>
           ) : (
-            <p
-              data-testid="projects-none"
-              className="p-4 my-8 border border-dashed rounded border-chalkboard-30 dark:border-chalkboard-70"
-            >
-              No projects found
-              {projects !== undefined && projects.length === 0
-                ? ', ready to make your first one?'
-                : ` with the search term "${query}"`}
-            </p>
+            <>
+              <p
+                data-testid="projects-none"
+                className="p-4 my-8 border border-dashed rounded border-chalkboard-30 dark:border-chalkboard-70"
+              >
+                No projects found
+                {projects !== undefined && projects.length === 0
+                  ? ', ready to make your first one?'
+                  : ` with the search term "${query}"`}
+              </p>
+              {isReadingFolders && (
+                <div className="py-4">
+                  <Loading isDummy={true}>Loading more projects...</Loading>
+                </div>
+              )}
+            </>
           )}
         </>
       )}

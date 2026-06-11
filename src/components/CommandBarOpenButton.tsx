@@ -1,13 +1,19 @@
-import { memo } from 'react'
-import { COMMAND_PALETTE_HOTKEY } from '@src/components/CommandBar/CommandBar'
+import { COMMAND_PALETTE_HOTKEY } from '@src/components/CommandBar/constants'
 import { CustomIcon } from '@src/components/CustomIcon'
 import usePlatform from '@src/hooks/usePlatform'
+import type { App } from '@src/lib/app'
 import { hotkeyDisplay } from '@src/lib/hotkeys'
-import { useApp } from '@src/lib/boot'
+import { memo } from 'react'
 
-export const CommandBarOpenButton = memo(function CommandBarOpenButton() {
+type CommandBarOpenButtonProps = {
+  app: App
+}
+
+export const CommandBarOpenButton = memo(function CommandBarOpenButton({
+  app,
+}: CommandBarOpenButtonProps) {
   const platform = usePlatform()
-  const { commands } = useApp()
+  const { commands } = app
 
   return (
     <button

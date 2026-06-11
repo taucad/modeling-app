@@ -1,6 +1,7 @@
-import fsZds from '@src/lib/fs-zds'
-import { fsZdsConstants } from '@src/lib/fs-zds/constants'
+import { newKclFile } from '@src/lang/project'
+import { DEFAULT_DEFAULT_LENGTH_UNIT, FILE_EXT } from '@src/lib/constants'
 import {
+  canReadWriteDirectory,
   createNewProjectDirectory,
   ensureProjectDirectoryExists,
   getAppSettingsFilePath,
@@ -8,8 +9,6 @@ import {
   mkdirOrNOOP,
   readAppSettingsFile,
   renameProjectDirectory,
-  canReadWriteDirectory,
-  statIsDirectory,
 } from '@src/lib/desktop'
 import {
   doesProjectNameNeedInterpolated,
@@ -18,30 +17,102 @@ import {
   getUniqueProjectName,
   interpolateProjectNameWithIndex,
 } from '@src/lib/desktopFS'
+import fsZds from '@src/lib/fs-zds'
+import { fsZdsConstants } from '@src/lib/fs-zds/constants'
 import {
   getProjectDirectoryFromKCLFilePath,
   getStringAfterLastSeparator,
   parentPathRelativeToProject,
 } from '@src/lib/paths'
-import type { Project } from '@src/lib/project'
+import type { FileEntry, Project } from '@src/lib/project'
+import { err, isErr } from '@src/lib/trap'
 import type { ModuleType } from '@src/lib/wasm_lib_wrapper'
 import { systemIOMachine } from '@src/machines/systemIO/systemIOMachine'
 import type {
   RequestedKCLFile,
+  RequestedKCLFileDelete,
   RequestedProjectFile,
   SystemIOContext,
 } from '@src/machines/systemIO/utils'
 import {
   NO_PROJECT_DIRECTORY,
   SystemIOMachineActors,
+  SystemIOMachineEvents,
+  collectProjectFiles,
   jsonToMlConversations,
   mlConversationsToJson,
-  collectProjectFiles,
+  normalizeKCLFileDeletePath,
 } from '@src/machines/systemIO/utils'
 import { fromPromise } from 'xstate'
-import { isErr } from '@src/lib/trap'
 
 const ML_CONVERSATIONS_FILE_NAME = 'ml-conversations.json'
+
+async function getProjectDirectoryEntryNames(projectDirectoryPath?: string) {
+  if (!projectDirectoryPath) {
+    return []
+  }
+
+  try {
+    return await fsZds.readdir(projectDirectoryPath)
+  } catch (error) {
+    if (error === 'ENOENT') {
+      return []
+    }
+    return Promise.reject(error)
+  }
+}
+
+async function getUniqueProjectNameForCreate({
+  context,
+  requestedProjectName,
+  projectDirectoryPath,
+}: {
+  context: SystemIOContext
+  requestedProjectName: string
+  projectDirectoryPath?: string
+}) {
+  const knownProjectNames = new Set<string>()
+  for (const folder of context.folders ?? []) {
+    knownProjectNames.add(folder.name)
+  }
+  for (const entryName of await getProjectDirectoryEntryNames(
+    projectDirectoryPath
+  )) {
+    knownProjectNames.add(entryName)
+  }
+
+  const existingEntries: FileEntry[] = Array.from(
+    knownProjectNames,
+    (name) => ({
+      name,
+      path: projectDirectoryPath
+        ? fsZds.join(projectDirectoryPath, name)
+        : name,
+      children: [],
+    })
+  )
+  return getUniqueProjectName(requestedProjectName, existingEntries)
+}
+
+export function shouldSendProjectFolderReadProgress(
+  folders: SystemIOContext['folders']
+) {
+  return !folders?.length
+}
+
+type ProjectDirectoryEntry = {
+  name: string
+  path: string
+  modified: number
+}
+
+export function sortProjectDirectoryEntriesByModifiedDesc(
+  entries: ProjectDirectoryEntry[]
+) {
+  return entries.toSorted(
+    (a, b) => b.modified - a.modified || a.name.localeCompare(b.name)
+  )
+}
 
 const prepareBulkProjectWrite = async ({
   context,
@@ -240,6 +311,7 @@ const sharedBulkDeleteWorkflow = async ({
     requestedProjectName: string
     context: SystemIOContext
     files: RequestedKCLFile[]
+    filesToDelete?: RequestedKCLFileDelete[]
     wasmInstance: ModuleType
   }
 }) => {
@@ -260,51 +332,89 @@ const sharedBulkDeleteWorkflow = async ({
     projectContext: project,
   })
 
-  // requestedFileName is the relative path too.
-  const filesToDelete = filesInProject.filter(
-    (f1) =>
-      input.files.some((f2) => f1.relPath === f2.requestedFileName) === false
+  const requestedFilesToDelete = new Set(
+    (input.filesToDelete ?? []).map((file) =>
+      normalizeKCLFileDeletePath(file.requestedFileName)
+    )
   )
 
+  // requestedFileName is the relative path too.
+  const filesToDelete = filesInProject.filter(
+    (file) =>
+      requestedFilesToDelete.has(normalizeKCLFileDeletePath(file.relPath)) ===
+      true
+  )
+
+  let totalDeleted = 0
   for (const file of filesToDelete) {
     if (file.type === 'other') continue
     await fsZds.rm(file.absPath)
+    totalDeleted += 1
   }
 
   // How many files we deleted successfully
-  return filesToDelete.length
+  return totalDeleted
 }
 
 export const systemIOMachineImpl = systemIOMachine.provide({
   actors: {
     [SystemIOMachineActors.readFoldersFromProjectDirectory]: fromPromise(
-      async ({ input: context }: { input: SystemIOContext }) => {
-        const projects = []
+      async ({ input: context, signal }) => {
+        const PROJECT_FOLDER_PROGRESS_CHUNK_SIZE = 12
+        const projects: Project[] = []
         const projectDirectoryPath = context.projectDirectoryPath
+        const canSendProgress = shouldSendProjectFolderReadProgress(
+          context.folders
+        )
         if (projectDirectoryPath === NO_PROJECT_DIRECTORY) {
           return []
         }
+        const sendFoldersProgress = (folders: Project[]) => {
+          if (signal.aborted) {
+            return
+          }
+          context.app.systemIOActor.send({
+            type: SystemIOMachineEvents.setFolders,
+            data: { folders },
+          })
+        }
+
         await mkdirOrNOOP(projectDirectoryPath)
         // Gotcha: readdir will list all folders at this project directory even if you do not have readwrite access on the directory path
-        const entries = await fsZds.readdir(projectDirectoryPath)
-        const { value: canReadWriteProjectDirectory } =
-          await canReadWriteDirectory(projectDirectoryPath)
-
-        for (let entry of entries) {
-          // Skip directories that start with a dot
+        const entries: ProjectDirectoryEntry[] = []
+        for (const entry of await fsZds.readdir(projectDirectoryPath)) {
           if (entry.startsWith('.')) {
             continue
           }
-          const projectPath = fsZds.join(projectDirectoryPath, entry)
 
-          // if it's not a directory ignore.
-          // Gotcha: statIsDirectory will work even if you do not have read write permissions on the project path
-          const isDirectory = await statIsDirectory(projectPath)
-          if (!isDirectory) {
+          const projectPath = fsZds.join(projectDirectoryPath, entry)
+          let stat: Awaited<ReturnType<typeof fsZds.stat>>
+          try {
+            stat = await fsZds.stat(projectPath)
+          } catch {
             continue
           }
+          if (!(stat.mode & fsZdsConstants.S_IFDIR)) {
+            continue
+          }
+
+          entries.push({
+            name: entry,
+            path: projectPath,
+            modified: stat.mtimeMs,
+          })
+        }
+        const { value: canReadWriteProjectDirectory } =
+          await canReadWriteDirectory(projectDirectoryPath)
+
+        for (const entry of sortProjectDirectoryEntriesByModifiedDesc(
+          entries
+        )) {
+          if (signal.aborted) {
+            return projects
+          }
           const project: Project = await getProjectInfo(
-            projectPath,
+            entry.path,
             await context.wasmInstancePromise
           )
           if (
@@ -315,7 +425,14 @@ export const systemIOMachineImpl = systemIOMachine.provide({
             continue
           }
           projects.push(project)
+          if (
+            canSendProgress &&
+            projects.length % PROJECT_FOLDER_PROGRESS_CHUNK_SIZE === 0
+          ) {
+            sendFoldersProgress([...projects])
+          }
         }
+        sendFoldersProgress(projects)
         return projects
       }
     ),
@@ -325,16 +442,24 @@ export const systemIOMachineImpl = systemIOMachine.provide({
       }: {
         input: { context: SystemIOContext; requestedProjectName: string }
       }) => {
-        const folders = input.context.folders
-        if (!folders) {
-          return Promise.reject(new Error('no folders'))
-        }
-
         const requestedProjectName = input.requestedProjectName
-        const uniqueName = getUniqueProjectName(requestedProjectName, folders)
+        const projectDirectoryPath =
+          input.context.projectDirectoryPath &&
+          input.context.projectDirectoryPath !== NO_PROJECT_DIRECTORY
+            ? input.context.projectDirectoryPath
+            : undefined
+        const uniqueName = await getUniqueProjectNameForCreate({
+          context: input.context,
+          requestedProjectName,
+          projectDirectoryPath,
+        })
         await createNewProjectDirectory(
           uniqueName,
-          await input.context.wasmInstancePromise
+          await input.context.wasmInstancePromise,
+          undefined,
+          undefined,
+          undefined,
+          projectDirectoryPath
         )
         return {
           message: `Successfully created "${uniqueName}"`,
@@ -594,6 +719,7 @@ export const systemIOMachineImpl = systemIOMachine.provide({
           input: {
             context: SystemIOContext
             files: RequestedKCLFile[]
+            filesToDelete?: RequestedKCLFileDelete[]
             requestedProjectName: string
             override?: boolean
             requestedFileNameWithExtension: string
@@ -621,6 +747,7 @@ export const systemIOMachineImpl = systemIOMachine.provide({
           return {
             ...message,
             projectName: input.requestedProjectName,
+            fileName: input.requestedFileNameWithExtension || '',
             subRoute: input.requestedSubRoute || '',
           }
         }
@@ -815,7 +942,25 @@ export const systemIOMachineImpl = systemIOMachine.provide({
         } catch (e) {
           console.error(e)
         }
-        await fsZds.writeFile(input.requestedAbsolutePath, new Uint8Array())
+        let fileContents = new Uint8Array()
+        if (fsZds.extname(input.requestedAbsolutePath) === FILE_EXT) {
+          const wasmInstance = await input.context.wasmInstancePromise
+          const configuration = await readAppSettingsFile(wasmInstance)
+          if (err(configuration)) {
+            return Promise.reject(configuration)
+          }
+          const codeToWrite = newKclFile(
+            undefined,
+            configuration?.settings?.modeling?.base_unit ??
+              DEFAULT_DEFAULT_LENGTH_UNIT,
+            wasmInstance
+          )
+          if (err(codeToWrite)) {
+            return Promise.reject(codeToWrite)
+          }
+          fileContents = new TextEncoder().encode(codeToWrite)
+        }
+        await fsZds.writeFile(input.requestedAbsolutePath, fileContents)
         return {
           message: `File ${fileNameWithExtension} written successfully`,
           requestedAbsolutePath: input.requestedAbsolutePath,
@@ -944,21 +1089,36 @@ export const systemIOMachineImpl = systemIOMachine.provide({
       async (args: {
         input: {
           context: SystemIOContext
-          event: {
-            data: {
-              projectId: string
-              conversationId: string
-            }
-          }
+          event:
+            | {
+                type: SystemIOMachineEvents.saveMlEphantConversations
+                data: {
+                  projectId: string
+                  conversationId: string
+                }
+              }
+            | {
+                type: SystemIOMachineEvents.deleteMlEphantConversation
+                data: {
+                  projectId: string
+                }
+              }
         }
       }) => {
-        const next: Map<any, any> = new Map(
+        const next = new Map<string, string>(
           args.input.context.mlEphantConversations
         )
-        next.set(
-          args.input.event.data.projectId,
-          args.input.event.data.conversationId
-        )
+        if (
+          args.input.event.type ===
+          SystemIOMachineEvents.deleteMlEphantConversation
+        ) {
+          next.delete(args.input.event.data.projectId)
+        } else {
+          next.set(
+            args.input.event.data.projectId,
+            args.input.event.data.conversationId
+          )
+        }
         const json = mlConversationsToJson(next)
         const te = new TextEncoder()
         await fsZds.writeFile(

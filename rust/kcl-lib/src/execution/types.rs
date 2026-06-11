@@ -108,6 +108,18 @@ impl RuntimeType {
         RuntimeType::Primitive(PrimitiveType::Solid)
     }
 
+    pub fn gdt() -> Self {
+        RuntimeType::Primitive(PrimitiveType::GdtAnnotation)
+    }
+
+    /// `[GdtAnnotation; 1+]`
+    pub fn gdts() -> Self {
+        RuntimeType::Array(
+            Box::new(RuntimeType::Primitive(PrimitiveType::GdtAnnotation)),
+            ArrayLen::Minimum(1),
+        )
+    }
+
     /// `[Helix; 1+]`
     pub fn helices() -> Self {
         RuntimeType::Array(
@@ -121,6 +133,14 @@ impl RuntimeType {
 
     pub fn plane() -> Self {
         RuntimeType::Primitive(PrimitiveType::Plane)
+    }
+
+    /// `[Plane; 1+]`
+    pub fn planes() -> Self {
+        RuntimeType::Array(
+            Box::new(RuntimeType::Primitive(PrimitiveType::Plane)),
+            ArrayLen::Minimum(1),
+        )
     }
 
     pub fn face() -> Self {
@@ -270,10 +290,10 @@ impl RuntimeType {
                 value, experimental, ..
             } => {
                 let result = match value {
-                    TypeDef::RustRepr(ty, _) => RuntimeType::Primitive(ty.clone()),
-                    TypeDef::Alias(ty) => ty.clone(),
+                    TypeDef::RustRepr(ty, _) => RuntimeType::Primitive(ty),
+                    TypeDef::Alias(ty) => ty,
                 };
-                if *experimental && !suppress_warnings {
+                if experimental && !suppress_warnings {
                     exec_state.warn_experimental(&format!("the type `{alias}`"), source_range);
                 }
                 result
@@ -2556,12 +2576,12 @@ mod test {
         let mem = result.exec_state.stack();
         match mem
             .memory
-            .get_from(name, result.mem_env, SourceRange::default(), 0)
+            .get_from_owned(name, result.mem_env, SourceRange::default(), 0)
             .unwrap()
         {
             KclValue::Number { value, ty, .. } => {
                 assert_eq!(value.round(), expected);
-                assert_eq!(*ty, expected_ty);
+                assert_eq!(ty, expected_ty);
             }
             _ => unreachable!(),
         }

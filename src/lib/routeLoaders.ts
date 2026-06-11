@@ -1,11 +1,13 @@
-import { PROJECT_ENTRYPOINT } from '@src/lib/constants'
-import type { LoaderFunction } from 'react-router-dom'
-import fsZds from '@src/lib/fs-zds'
-import { redirect } from 'react-router-dom'
-import { waitFor } from 'xstate'
+import { projectSkeletonCreate } from '@src/lang/project'
 import { projectFsManager } from '@src/lang/std/fileSystemManager'
-import { getProjectInfo, getInitialDefaultDir } from '@src/lib/desktop'
+import type { App } from '@src/lib/app'
+import {
+  DEFAULT_DEFAULT_LENGTH_UNIT,
+  PROJECT_ENTRYPOINT,
+} from '@src/lib/constants'
+import { getInitialDefaultDir, getProjectInfo } from '@src/lib/desktop'
 import { readAppSettingsFile } from '@src/lib/desktop'
+import fsZds from '@src/lib/fs-zds'
 import {
   PATHS,
   getParentAbsolutePath,
@@ -14,14 +16,15 @@ import {
   safeEncodeForRouterPaths,
 } from '@src/lib/paths'
 import { loadAndValidateSettings } from '@src/lib/settings/settingsUtils'
-import type { App } from '@src/lib/app'
 import type {
   FileLoaderData,
   HomeLoaderData,
   IndexLoaderData,
 } from '@src/lib/types'
 import { SystemIOMachineEvents } from '@src/machines/systemIO/utils'
-import { projectSkeletonCreate } from '@src/lang/project'
+import type { LoaderFunction } from 'react-router-dom'
+import { redirect } from 'react-router-dom'
+import { waitFor } from 'xstate'
 
 export const DEFAULT_WEB_PROJECT_NAME = 'demo-project'
 
@@ -77,7 +80,10 @@ export const baseLoader =
           await getInitialDefaultDir(),
           DEFAULT_WEB_PROJECT_NAME,
           'main.kcl'
-        )
+        ),
+        settings.settings.modeling.defaultUnit.current ??
+          DEFAULT_DEFAULT_LENGTH_UNIT,
+        wasmInstance
       )
 
       const fileURLPath =

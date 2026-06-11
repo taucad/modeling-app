@@ -57,7 +57,6 @@ macro_rules! eprint {
 static ALLOC: dhat::Alloc = dhat::Alloc;
 
 pub mod collections;
-mod coredump;
 mod docs;
 mod engine;
 mod errors;
@@ -89,26 +88,32 @@ pub mod walk;
 #[cfg(target_arch = "wasm32")]
 mod wasm;
 
-pub use coredump::CoreDump;
 pub use engine::AsyncTasks;
+pub use engine::EngineBatchContext;
 pub use engine::EngineManager;
 pub use engine::EngineStats;
 pub use errors::BacktraceItem;
 pub use errors::CompilationIssue;
+pub use errors::CompilationIssueReport;
 pub use errors::ConnectionError;
 pub use errors::ExecError;
+pub use errors::IsRetryable;
 pub use errors::KclError;
 pub use errors::KclErrorWithOutputs;
 pub use errors::Report;
 pub use errors::ReportWithOutputs;
+pub use errors::render_compilation_issue_miette;
 pub use execution::ConstraintKind;
 pub use execution::ExecOutcome;
 pub use execution::ExecState;
+pub use execution::ExecutionCallbacks;
 pub use execution::ExecutorContext;
 pub use execution::ExecutorSettings;
 pub use execution::MetaSettings;
 pub use execution::MockConfig;
+pub use execution::OperationCallbackArgs;
 pub use execution::Point2d;
+pub use execution::SegmentDragAnchor;
 pub use execution::SketchConstraintReport;
 pub use execution::SketchConstraintStatus;
 pub use execution::bust_cache;
@@ -119,6 +124,7 @@ pub use execution::transpile_old_sketch_to_new;
 pub use execution::transpile_old_sketch_to_new_ast;
 pub use execution::transpile_old_sketch_to_new_with_execution;
 pub use execution::typed_path::TypedPath;
+pub use kcl_error;
 pub use kcl_error::SourceRange;
 pub use lsp::ToLspRange;
 pub use lsp::copilot::Backend as CopilotLspBackend;
@@ -139,12 +145,10 @@ pub use unparser::walk_dir;
 // Rather than make executor public and make lots of it pub(crate), just re-export into a new module.
 // Ideally we wouldn't export these things at all, they should only be used for testing.
 pub mod exec {
-    #[cfg(feature = "artifact-graph")]
     pub use crate::execution::ArtifactCommand;
     pub use crate::execution::DefaultPlanes;
     pub use crate::execution::IdGenerator;
     pub use crate::execution::KclValue;
-    #[cfg(feature = "artifact-graph")]
     pub use crate::execution::Operation;
     pub use crate::execution::PlaneKind;
     pub use crate::execution::Sketch;
@@ -157,8 +161,6 @@ pub mod exec {
 
 #[cfg(target_arch = "wasm32")]
 pub mod wasm_engine {
-    pub use crate::coredump::wasm::CoreDumpManager;
-    pub use crate::coredump::wasm::CoreDumper;
     pub use crate::engine::conn_wasm::EngineCommandManager;
     pub use crate::engine::conn_wasm::EngineConnection;
     pub use crate::engine::conn_wasm::ResponseContext;
@@ -195,6 +197,8 @@ pub mod front {
     pub(crate) use crate::frontend::modify::next_free_name_using_max;
     pub use crate::frontend::sketch::ExecResult;
     pub use crate::frontend::{
+        EditDistanceConstraintLabelPositionOptions,
+        EditSegmentsOptions,
         FrontendState,
         SetProgramOutcome,
         api::{
@@ -204,10 +208,10 @@ pub mod front {
             Wall,
         },
         sketch::{
-            Angle, Arc, ArcCtor, Circle, CircleCtor, Coincident, Constraint, Distance, EqualRadius,
-            ExistingSegmentCtor, Fixed, FixedPoint, Freedom, Horizontal, Line, LineCtor, LinesEqualLength, Midpoint,
-            NewSegmentInfo, Parallel, Perpendicular, Point, Point2d, PointCtor, Segment, SegmentCtor, Sketch,
-            SketchApi, SketchCtor, StartOrEnd, Symmetric, Tangent, Vertical,
+            Angle, Arc, ArcCtor, Circle, CircleCtor, Coincident, Constraint, ControlPointSpline,
+            ControlPointSplineCtor, Distance, EqualRadius, ExistingSegmentCtor, Fixed, FixedPoint, Freedom, Horizontal,
+            Line, LineCtor, LinesEqualLength, Midpoint, NewSegmentInfo, Parallel, Perpendicular, Point, Point2d,
+            PointCtor, Segment, SegmentCtor, Sketch, SketchApi, SketchCtor, StartOrEnd, Symmetric, Tangent, Vertical,
         },
         // Re-export trim module items
         trim::{
@@ -316,6 +320,13 @@ impl Program {
         })
     }
 
+    pub fn change_kcl_version(&self, kcl_version: Option<String>) -> Result<Self, KclError> {
+        Ok(Self {
+            ast: self.ast.change_kcl_version(kcl_version)?,
+            original_file_contents: self.original_file_contents.clone(),
+        })
+    }
+
     pub fn change_experimental_features(&self, warning_level: Option<WarningLevel>) -> Result<Self, KclError> {
         Ok(Self {
             ast: self.ast.change_experimental_features(warning_level)?,
@@ -335,7 +346,6 @@ impl Program {
         self.ast.lint(rule)
     }
 
-    #[cfg(feature = "artifact-graph")]
     pub fn node_path_from_range(&self, cached_body_items: usize, range: SourceRange) -> Option<NodePath> {
         let module_infos = indexmap::IndexMap::new();
         let programs = crate::execution::ProgramLookup::new(self.ast.clone(), module_infos);
@@ -347,7 +357,6 @@ impl Program {
     /// parsing. Calling this is only needed after the caller invalidates the
     /// node paths such as by mutating an AST or by making a round-trip through
     /// serialization.
-    #[cfg(feature = "artifact-graph")]
     pub fn fill_node_paths(mut self) -> Program {
         parsing::ast::types::fill_node_paths(&mut self.ast);
         self

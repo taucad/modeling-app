@@ -18,11 +18,12 @@ import {
 } from '@src/lib/commandBarConfigs/settingsCommandConfig'
 import type { Command } from '@src/lib/commandTypes'
 import type { Project } from '@src/lib/project'
+import type { ResolvedExtensionSettings } from '@src/lib/settings/extensionSettings'
 import type { SettingsType } from '@src/lib/settings/initialSettings'
 import { createSettings } from '@src/lib/settings/initialSettings'
-import type { ResolvedExtensionSettings } from '@src/lib/settings/extensionSettings'
 import type {
   BaseUnit,
+  DynamicBooleanSetEvent,
   SetEventTypes,
   SettingsLevel,
   SettingsPaths,
@@ -39,8 +40,8 @@ import {
   getSystemTheme,
   setThemeClass,
 } from '@src/lib/theme'
-import type { commandBarMachine } from '@src/machines/commandBarMachine'
 import type { ModuleType } from '@src/lib/wasm_lib_wrapper'
+import type { commandBarMachine } from '@src/machines/commandBarMachine'
 
 export type SettingsActorDepsType = {
   currentProject?: Project
@@ -58,6 +59,7 @@ export const settingsMachine = setup({
     input: {} as SettingsMachineContext,
     events: {} as (
       | WildcardSetEvent<SettingsPaths>
+      | DynamicBooleanSetEvent
       | SetEventTypes
       | {
           type: 'set.modeling.units'
@@ -80,6 +82,7 @@ export const settingsMachine = setup({
           }
         }
       | { type: 'load.project'; project: Project }
+      | { type: 'reload.settings' }
       | { type: 'clear.project' }
     ) & { doNotPersist?: boolean },
   },
@@ -144,6 +147,23 @@ export const settingsMachine = setup({
         {
           extensionSettings: input.extensionSettings,
           projectPath: input.project.path,
+        }
+      )
+      return settings
+    }),
+    reloadSettings: fromPromise<
+      SettingsType,
+      {
+        currentProject?: Project
+        extensionSettings: ResolvedExtensionSettings
+        wasmInstancePromise: Promise<ModuleType>
+      }
+    >(async ({ input }) => {
+      const { settings } = await loadAndValidateSettings(
+        input.wasmInstancePromise,
+        {
+          extensionSettings: input.extensionSettings,
+          projectPath: input.currentProject?.path,
         }
       )
       return settings
@@ -237,6 +257,12 @@ export const settingsMachine = setup({
       }
       const settingPath =
         event.type === '*' ? event.data.path : event.type.replace(/^set\./, '')
+      if (
+        settingPath === 'layout.configs' ||
+        settingPath.startsWith('layout.configs.')
+      ) {
+        return
+      }
       const eventParts = settingPath.split('.') as [keyof SettingsType, string]
       const truncatedNewValue = event.data.value?.toString().slice(0, 28)
       const message =
@@ -410,6 +436,12 @@ export const settingsMachine = setup({
           actions: ['setSettingAtLevel'],
         },
 
+        'set.layout.configs': {
+          target: 'persisting settings',
+
+          actions: ['setSettingAtLevel'],
+        },
+
         'set.app.streamIdleMode': {
           target: 'persisting settings',
 
@@ -487,6 +519,10 @@ export const settingsMachine = setup({
           target: 'loadingProject',
         },
 
+        'reload.settings': {
+          target: 'reloadingSettings',
+        },
+
         'clear.project': {
           target: 'idle',
           reenter: true,
@@ -502,8 +538,43 @@ export const settingsMachine = setup({
         },
       },
     },
+    reloadingSettings: {
+      invoke: {
+        src: 'reloadSettings',
+        onDone: {
+          target: 'idle',
+          actions: [
+            'setAllSettings',
+            'sendThemeToWatcher',
+            sendTo('registerCommands', ({ context }) => ({
+              type: 'update',
+              settings: getOnlySettingsFromContext(context),
+              commandBarActor: context.commandBarActor,
+            })),
+          ],
+        },
+        onError: {
+          target: 'idle',
+          actions: ({ event }) => {
+            console.error('Error reloading settings', event)
+          },
+        },
+        input: ({ context }) => ({
+          currentProject: context.currentProject,
+          extensionSettings: context.extensionSettings,
+          wasmInstancePromise: context.wasmInstancePromise,
+        }),
+      },
+    },
 
     'persisting settings': {
+      on: {
+        'set.layout.configs': {
+          target: 'persisting settings',
+          reenter: true,
+          actions: ['setSettingAtLevel'],
+        },
+      },
       invoke: {
         src: 'persistSettings',
         onDone: {
