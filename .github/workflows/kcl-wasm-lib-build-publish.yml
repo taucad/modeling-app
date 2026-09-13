@@ -275,7 +275,7 @@ jobs:
           if [[ -n "$published" ]]; then
             test "$published" = "$EXPECTED_INTEGRITY"
           else
-            npm publish "candidate/$TARBALL" --access public --provenance --ignore-scripts
+            npm publish "./candidate/$TARBALL" --access public --provenance --ignore-scripts
           fi
 
   registry-verify:
