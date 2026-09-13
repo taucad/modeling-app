@@ -1,9 +1,18 @@
-# kcl-wasm-lib
+# @taucad/kcl-wasm-lib
 
-WASM build of the `kcl-lib` crate.
+WebAssembly bindings for the [KittyCAD Language](https://github.com/KittyCAD/modeling-app/tree/main/rust/kcl-lib) engine, built from the `taucad/modeling-app` fork for Tau.
 
-## WARNING!
+```js
+import init, { parse_wasm } from '@taucad/kcl-wasm-lib'
+import wasmUrl from '@taucad/kcl-wasm-lib/kcl.wasm'
 
-*WE OFFER THIS WITH NO BACKWARDS COMPATIBILITY GUARANTEES.*
+await init({ module_or_path: wasmUrl })
+const [program, issues] = parse_wasm('length = 12mm')
+```
 
-*USE IT AT YOUR OWN RISK.*
+The package is ESM-only and browser-first. Generated type-only bindings are available from `@taucad/kcl-wasm-lib/bindings/*`.
+
+> [!WARNING]
+> This prerelease API has no backwards-compatibility guarantee.
+
+Licensed under MIT. Releases are built by GitHub Actions and published to npm with provenance.

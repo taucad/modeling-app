@@ -1,77 +1,361 @@
-name: kcl-wasm-lib-build-and-publish
+name: KCL WASM package
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/kcl-wasm-lib-build-publish.yml"
+      - "package.json"
+      - "package-lock.json"
+      - "rust/kcl-api/**"
+      - "rust/kcl-lib/**"
+      - "rust/kcl-wasm-lib/**"
+      - "scripts/assemble-kcl-wasm-package.mjs"
+      - "scripts/build-wasm.sh"
+      - "scripts/test-kcl-wasm-package.mjs"
   push:
-    branches:
-      - main
+    branches: [main]
+    tags: ["kcl-wasm-lib-v*"]
 
 permissions:
-  id-token: write
-  contents: write
+  contents: read
+
+concurrency:
+  group: ${{ startsWith(github.ref, 'refs/tags/kcl-wasm-lib-v') && 'kcl-wasm-release' || format('kcl-wasm-{0}', github.ref) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  publish-kcl-wasm-lib:
-    name: kcl-wasm-lib-build-and-publish
+  preflight:
     runs-on: ubuntu-latest
+    outputs:
+      release: ${{ steps.admission.outputs.release }}
+      run-candidate: ${{ steps.admission.outputs.run-candidate }}
+      version: ${{ steps.admission.outputs.version }}
     steps:
-      - uses: actions/checkout@v7.0.1
-
-      - uses: actions/setup-node@v7.0.0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          # node 24 fixed OIDC npm publishing; Node 26 seems to have an issue with electron/build and
-          # it's dependency on yargs
-          node-version: "24"
-          registry-url: "https://registry.npmjs.org/"
-          cache: "npm"
+          fetch-depth: 0
 
-      - run: npm install
-
-      - name: Use correct Rust toolchain
+      - id: admission
+        name: Validate event and release tag
         shell: bash
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
         run: |
-          [ -e rust-toolchain.toml ] || cp rust/rust-toolchain.toml ./
+          set -euo pipefail
+          version=$(awk '/^\[package\]/{found=1; next} found && /^version = /{gsub(/["[:space:]]/, "", $3); print $3; exit}' rust/kcl-wasm-lib/Cargo.toml)
+          test -n "$version"
+          {
+            echo "version=$version"
+            echo "release=false"
+            echo "run-candidate=true"
+          } >> "$GITHUB_OUTPUT"
 
-      - name: Install rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1.17.0
-        with:
-          cache: false
-          rustflags: ""
-
-      - uses: taiki-e/install-action@c30ba1cbe2face7f695d394a2c95af204d417b29
-        with:
-          tool: wasm-pack
-
-      - name: Rust Cache
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: rust
-
-      - name: Build Wasm
-        run: npm run build:wasm
-
-      - name: Check if version changed
-        id: version_check
-        working-directory: rust/kcl-wasm-lib/pkg
-        run: |
-          package_name=$(jq -r .name package.json)
-          local_version=$(jq -r .version package.json)
-          published_version=$(npm view "$package_name" version 2>/dev/null || true)
-
-          echo "local_version=$local_version" >> "$GITHUB_OUTPUT"
-          echo "published_version=$published_version" >> "$GITHUB_OUTPUT"
-
-          if [ "$local_version" = "$published_version" ]; then
-            echo "should_publish=false" >> "$GITHUB_OUTPUT"
-            echo "Version unchanged; skipping publish."
-          else
-            echo "should_publish=true" >> "$GITHUB_OUTPUT"
-            echo "Version changed from '$published_version' to '$local_version'."
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            expected="kcl-wasm-lib-v${version}"
+            test "$GITHUB_REF_NAME" = "$expected"
+            test "$(git cat-file -t "refs/tags/${GITHUB_REF_NAME}")" = tag
+            git fetch --no-tags origin main
+            git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          elif [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_REF" == refs/heads/main && "$BEFORE_SHA" != 0000000000000000000000000000000000000000 ]]; then
+            if git diff --quiet "$BEFORE_SHA" "$GITHUB_SHA" -- \
+              .github/workflows/kcl-wasm-lib-build-publish.yml \
+              package.json package-lock.json rust/kcl-api rust/kcl-lib rust/kcl-wasm-lib \
+              scripts/assemble-kcl-wasm-package.mjs scripts/build-wasm.sh scripts/test-kcl-wasm-package.mjs; then
+              echo "run-candidate=false" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
-      - name: Publish package
-        if: ${{ steps.version_check.outputs.should_publish == 'true' }}
-        working-directory: rust/kcl-wasm-lib/pkg
+  candidate:
+    needs: preflight
+    if: needs.preflight.outputs.run-candidate == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      integrity: ${{ steps.pack.outputs.integrity }}
+      tarball: ${{ steps.pack.outputs.tarball }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24.11.1"
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+
+      - name: Install the pinned Rust toolchain
+        shell: bash
         run: |
-          npm pkg fix
-          npm publish --access public --provenance
+          set -euo pipefail
+          cp rust/rust-toolchain.toml rust-toolchain.toml
+          rustup show active-toolchain
+          rustup target add wasm32-unknown-unknown
+
+      - uses: taiki-e/install-action@e797ba6a25dbd8669057e123b02812e16138589e # v2.62.48
+        with:
+          tool: wasm-pack@0.15.0
+
+      - name: Build, assemble, and test
+        env:
+          KCL_WASM_EXPECTED_VERSION: ${{ needs.preflight.outputs.version }}
+        run: |
+          npm run build:wasm
+          npm run test:kcl-wasm-package
+
+      - id: pack
+        name: Pack the tested candidate once
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+          WORKFLOW_RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          mkdir candidate
+          (cd rust/kcl-wasm-lib/pkg && npm pack --json --pack-destination "$GITHUB_WORKSPACE/candidate") > candidate/npm-pack.json
+          cp -R rust/kcl-wasm-lib/pkg candidate/package
+          node <<'NODE'
+          const { createHash } = require('node:crypto')
+          const { appendFileSync, readFileSync, writeFileSync } = require('node:fs')
+          const pack = JSON.parse(readFileSync('candidate/npm-pack.json', 'utf8'))[0]
+          const tarball = `candidate/${pack.filename}`
+          const sha256 = createHash('sha256').update(readFileSync(tarball)).digest('hex')
+          const manifest = {
+            name: pack.name,
+            version: pack.version,
+            integrity: pack.integrity,
+            sha256,
+            tarball: pack.filename,
+            sourceSha: process.env.SOURCE_SHA,
+            workflowRunId: process.env.WORKFLOW_RUN_ID,
+            workflowRunAttempt: process.env.WORKFLOW_RUN_ATTEMPT,
+          }
+          writeFileSync('candidate/manifest.json', `${JSON.stringify(manifest, null, 2)}\n`)
+          appendFileSync(process.env.GITHUB_OUTPUT, `integrity=${pack.integrity}\ntarball=${pack.filename}\n`)
+          NODE
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: kcl-wasm-candidate
+          path: candidate
+          if-no-files-found: error
+          retention-days: 7
+
+  consumer:
+    needs: [preflight, candidate]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24.11.1"
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: kcl-wasm-candidate
+          path: candidate
+
+      - name: Install and test the exact tarball
+        shell: bash
+        env:
+          KCL_WASM_EXPECTED_VERSION: ${{ needs.preflight.outputs.version }}
+          TARBALL: ${{ needs.candidate.outputs.tarball }}
+        run: |
+          set -euo pipefail
+          consumer=$(mktemp -d)
+          cd "$consumer"
+          npm init -y >/dev/null
+          npm install "$GITHUB_WORKSPACE/candidate/$TARBALL" --ignore-scripts
+          node "$GITHUB_WORKSPACE/scripts/test-kcl-wasm-package.mjs" node_modules/@taucad/kcl-wasm-lib
+
+  preview:
+    needs: [preflight, candidate, consumer]
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24.11.1"
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: kcl-wasm-candidate
+          path: candidate
+
+      - name: Publish the source-directory preview once
+        run: |
+          npm exec -- pkg-pr-new publish \
+            --previewVersion \
+            --comment=update \
+            --commentWithSha \
+            --no-template \
+            --json ./candidate/pkg-pr-new.json \
+            ./candidate/package
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: kcl-wasm-preview
+          path: candidate/pkg-pr-new.json
+          if-no-files-found: error
+          retention-days: 7
+
+  preview-consumer:
+    needs: [preview]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24.11.1"
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: kcl-wasm-preview
+          path: preview
+
+      - name: Install and test the hosted SHA preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          preview_url=$(node -p "require('./preview/pkg-pr-new.json').packages.find(p => p.name === '@taucad/kcl-wasm-lib').url")
+          consumer=$(mktemp -d)
+          cd "$consumer"
+          npm init -y >/dev/null
+          npm install "$preview_url" --ignore-scripts
+          node -e "const p=require('./node_modules/@taucad/kcl-wasm-lib/package.json'); if (!p.version.startsWith('0.0.0-preview-')) process.exit(1)"
+          node "$GITHUB_WORKSPACE/scripts/test-kcl-wasm-package.mjs" node_modules/@taucad/kcl-wasm-lib
+
+  publish:
+    needs: [preflight, candidate, consumer]
+    if: needs.preflight.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24.11.1"
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: kcl-wasm-candidate
+          path: candidate
+
+      - name: Verify and publish the exact candidate
+        shell: bash
+        env:
+          EXPECTED_INTEGRITY: ${{ needs.candidate.outputs.integrity }}
+          EXPECTED_VERSION: ${{ needs.preflight.outputs.version }}
+          TARBALL: ${{ needs.candidate.outputs.tarball }}
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const { createHash } = require('node:crypto')
+          const { readFileSync } = require('node:fs')
+          const manifest = JSON.parse(readFileSync('candidate/manifest.json', 'utf8'))
+          const bytes = readFileSync(`candidate/${manifest.tarball}`)
+          if (manifest.version !== process.env.EXPECTED_VERSION) throw new Error('Candidate version changed')
+          if (manifest.integrity !== process.env.EXPECTED_INTEGRITY) throw new Error('Candidate integrity changed')
+          if (createHash('sha256').update(bytes).digest('hex') !== manifest.sha256) throw new Error('Candidate digest changed')
+          NODE
+          npm_version=$(npm --version)
+          IFS=. read -r npm_major npm_minor _ <<< "$npm_version"
+          (( npm_major > 11 || (npm_major == 11 && npm_minor >= 5) ))
+          published=$(npm view "@taucad/kcl-wasm-lib@$EXPECTED_VERSION" dist.integrity 2>/dev/null || true)
+          if [[ -n "$published" ]]; then
+            test "$published" = "$EXPECTED_INTEGRITY"
+          else
+            npm publish "candidate/$TARBALL" --access public --provenance --ignore-scripts
+          fi
+
+  registry-verify:
+    needs: [preflight, candidate, publish]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24.11.1"
+
+      - name: Verify registry bytes, signatures, provenance, and consumer behavior
+        shell: bash
+        env:
+          EXPECTED_INTEGRITY: ${{ needs.candidate.outputs.integrity }}
+          EXPECTED_VERSION: ${{ needs.preflight.outputs.version }}
+          KCL_WASM_EXPECTED_VERSION: ${{ needs.preflight.outputs.version }}
+          SOURCE_SHA: ${{ github.sha }}
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          for _ in {1..12}; do
+            published=$(npm view "@taucad/kcl-wasm-lib@$EXPECTED_VERSION" dist.integrity 2>/dev/null || true)
+            [[ "$published" == "$EXPECTED_INTEGRITY" ]] && break
+            sleep 5
+          done
+          test "$published" = "$EXPECTED_INTEGRITY"
+
+          consumer=$(mktemp -d)
+          cd "$consumer"
+          npm init -y >/dev/null
+          npm install "@taucad/kcl-wasm-lib@$EXPECTED_VERSION" --ignore-scripts
+          npm audit signatures --json --include-attestations > audit.json
+          node "$GITHUB_WORKSPACE/scripts/test-kcl-wasm-package.mjs" node_modules/@taucad/kcl-wasm-lib
+          node <<'NODE'
+          const audit = require(`${process.cwd()}/audit.json`)
+          const verified = audit.verified.find((entry) => entry.name === '@taucad/kcl-wasm-lib')
+          if (!verified || audit.invalid.length || audit.missing.length) throw new Error('Package signature or attestation is not verified')
+          const provenance = verified.attestationBundles.find((entry) => entry.predicateType === 'https://slsa.dev/provenance/v1')
+          if (!provenance) throw new Error('SLSA provenance is missing')
+          const statement = JSON.parse(Buffer.from(provenance.bundle.dsseEnvelope.payload, 'base64').toString('utf8'))
+          const workflow = statement.predicate.buildDefinition.externalParameters.workflow
+          const dependency = statement.predicate.buildDefinition.resolvedDependencies.find((entry) => entry.digest?.gitCommit)
+          const invocation = statement.predicate.runDetails.metadata.invocationId
+          if (workflow.repository !== 'https://github.com/taucad/modeling-app') throw new Error('Unexpected provenance repository')
+          if (workflow.path !== '/.github/workflows/kcl-wasm-lib-build-publish.yml') throw new Error('Unexpected provenance workflow')
+          if (dependency?.digest.gitCommit !== process.env.SOURCE_SHA) throw new Error('Unexpected provenance source SHA')
+          if (!invocation.includes(`/actions/runs/${process.env.WORKFLOW_RUN_ID}/`)) throw new Error('Unexpected provenance workflow run')
+          NODE
+
+  kcl-wasm-lib-ci:
+    if: always()
+    needs: [preflight, candidate, consumer, preview, preview-consumer, publish, registry-verify]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require the jobs selected for this event
+        shell: bash
+        env:
+          RUN_CANDIDATE: ${{ needs.preflight.outputs.run-candidate }}
+          RELEASE: ${{ needs.preflight.outputs.release }}
+          PREFLIGHT: ${{ needs.preflight.result }}
+          CANDIDATE: ${{ needs.candidate.result }}
+          CONSUMER: ${{ needs.consumer.result }}
+          PREVIEW: ${{ needs.preview.result }}
+          PREVIEW_CONSUMER: ${{ needs.preview-consumer.result }}
+          PUBLISH: ${{ needs.publish.result }}
+          REGISTRY_VERIFY: ${{ needs.registry-verify.result }}
+          SAME_REPO_PR: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+        run: |
+          set -euo pipefail
+          test "$PREFLIGHT" = success
+          if [[ "$RUN_CANDIDATE" == true ]]; then
+            test "$CANDIDATE" = success
+            test "$CONSUMER" = success
+          fi
+          if [[ "$SAME_REPO_PR" == true ]]; then
+            test "$PREVIEW" = success
+            test "$PREVIEW_CONSUMER" = success
+          fi
+          if [[ "$RELEASE" == true ]]; then
+            test "$PUBLISH" = success
+            test "$REGISTRY_VERIFY" = success
+          fi
