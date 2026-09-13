@@ -298,7 +298,7 @@ jobs:
           WORKFLOW_RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail
-          for _ in {1..12}; do
+          for _ in {1..120}; do
             published=$(npm view "@taucad/kcl-wasm-lib@$EXPECTED_VERSION" dist.integrity 2>/dev/null || true)
             [[ "$published" == "$EXPECTED_INTEGRITY" ]] && break
             sleep 5
