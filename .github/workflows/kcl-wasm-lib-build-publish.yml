@@ -54,6 +54,7 @@ jobs:
           if [[ "$GITHUB_REF" == refs/tags/* ]]; then
             expected="kcl-wasm-lib-v${version}"
             test "$GITHUB_REF_NAME" = "$expected"
+            git fetch --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
             test "$(git cat-file -t "refs/tags/${GITHUB_REF_NAME}")" = tag
             git fetch --no-tags origin main
             git merge-base --is-ancestor "$GITHUB_SHA" origin/main
