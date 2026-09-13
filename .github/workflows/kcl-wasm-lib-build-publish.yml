@@ -288,6 +288,8 @@ jobs:
         with:
           node-version: "24.11.1"
 
+      - run: npm install --global npm@11.19.0
+
       - name: Verify registry bytes, signatures, provenance, and consumer behavior
         shell: bash
         env:
