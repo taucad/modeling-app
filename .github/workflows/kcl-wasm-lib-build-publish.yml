@@ -324,7 +324,7 @@ jobs:
           const dependency = statement.predicate.buildDefinition.resolvedDependencies.find((entry) => entry.digest?.gitCommit)
           const invocation = statement.predicate.runDetails.metadata.invocationId
           if (workflow.repository !== 'https://github.com/taucad/modeling-app') throw new Error('Unexpected provenance repository')
-          if (workflow.path !== '/.github/workflows/kcl-wasm-lib-build-publish.yml') throw new Error('Unexpected provenance workflow')
+          if (workflow.path !== '.github/workflows/kcl-wasm-lib-build-publish.yml') throw new Error('Unexpected provenance workflow')
           if (dependency?.digest.gitCommit !== process.env.SOURCE_SHA) throw new Error('Unexpected provenance source SHA')
           if (!invocation.includes(`/actions/runs/${process.env.WORKFLOW_RUN_ID}/`)) throw new Error('Unexpected provenance workflow run')
           NODE
