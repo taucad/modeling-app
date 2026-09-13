@@ -16,3 +16,5 @@ The package is ESM-only and browser-first. Generated type-only bindings are avai
 > This prerelease API has no backwards-compatibility guarantee.
 
 Licensed under MIT. Releases are built by GitHub Actions and published to npm with provenance.
+
+<!-- pkg.pr.new workflow smoke test -->
