@@ -5,7 +5,7 @@ import type { JsonValue } from "./serde_json/JsonValue.js";
 /**
  * The settings for the theme of the app.
  */
-export type AppearanceSettings = { 
+export type AppearanceSettings = {
 /**
  * The overall theme of the app.
  */

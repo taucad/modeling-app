@@ -1,11 +1,11 @@
 //! Standard library plane helpers.
 
+use kcl_api::UnitLength;
 use kcmc::ModelingCmd;
 use kcmc::each_cmd as mcmd;
 use kcmc::length_unit::LengthUnit;
 use kcmc::shared::Color;
 use kittycad_modeling_cmds::ok_response::OkModelingCmdResponse;
-use kittycad_modeling_cmds::units::UnitLength;
 use kittycad_modeling_cmds::websocket::OkWebSocketResponseData;
 use kittycad_modeling_cmds::{self as kcmc};
 
@@ -226,7 +226,7 @@ async fn inner_offset_plane(
 
 // Engine-side effectful creation of an actual plane object.
 // offset planes are shown by default, and hidden by default if they
-// are used as a sketch plane. That hiding command is sent within inner_start_profile_at
+// are used as a sketch plane. That hiding command is sent within create_sketch.
 async fn make_offset_plane_in_engine(
     plane: &mut Plane,
     exec_state: &mut ExecState,

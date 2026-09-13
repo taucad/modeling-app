@@ -1,4 +1,8 @@
-import type { EntityType, Point2d } from '@kittycad/lib'
+import type {
+  EntityType,
+  Point2d,
+  RegionGetResolvableIntersectionInfo,
+} from '@kittycad/lib'
 import type { CameraProjectionType } from '@rust/kcl-lib/bindings/CameraProjectionType'
 import type { SceneGraphDelta } from '@rust/kcl-lib/bindings/FrontendApi'
 import type { KclManager } from '@src/lang/KclManager'
@@ -14,7 +18,7 @@ import type { BaseUnit } from '@src/lib/settings/settingsTypes'
 import type { ModuleType } from '@src/lib/wasm_lib_wrapper'
 import type { CommandBarActorType } from '@src/machines/commandBarMachine'
 import type { EquipTool } from '@src/machines/sketchSolve/sketchSolveImpl'
-import type { ConnectionManager } from '@src/network/connectionManager'
+import type { ConnectionManager } from '@src/lib/engineConnection/connectionManager'
 
 export type Axis = 'y-axis' | 'x-axis' | 'z-axis'
 
@@ -31,12 +35,21 @@ export type EnginePrimitiveSelection = {
   primitiveType: EntityType
 }
 
-export interface EngineRegionSelection {
+type EngineRegionSelectionBase = {
   type: 'engineRegion'
   id: string
-  point: Point2d
   sketchId: ArtifactId
 }
+
+export type EngineRegionSelection =
+  | (EngineRegionSelectionBase & {
+      point: Point2d
+      resolvableIntersectionInfo?: never
+    })
+  | (EngineRegionSelectionBase & {
+      point?: never
+      resolvableIntersectionInfo: RegionGetResolvableIntersectionInfo
+    })
 
 export type NonCodeSelection =
   | Axis
@@ -149,7 +162,7 @@ export interface SegmentOverlays {
 export interface EdgeCutInfo {
   type: 'edgeCut'
   tagName: string
-  subType: 'base' | 'opposite' | 'adjacent'
+  subType: 'base' | 'opposite' | 'adjacent' | 'previousAdjacent'
 }
 
 export interface CapInfo {
@@ -165,6 +178,9 @@ export type ExtrudeFacePlane = {
   faceInfo:
     | {
         type: 'wall'
+      }
+    | {
+        type: 'primitiveFace'
       }
     | CapInfo
     | EdgeCutInfo

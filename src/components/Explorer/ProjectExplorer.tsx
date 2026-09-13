@@ -1,3 +1,4 @@
+import { useSignals } from '@preact/signals-react/runtime'
 import type { CustomIconName } from '@src/components/CustomIcon'
 import { FileExplorer, StatusDot } from '@src/components/Explorer/FileExplorer'
 import {
@@ -10,6 +11,7 @@ import {
   copyPasteSourceAndTarget,
   flattenProject,
   isExternalFileDrag,
+  isPathWithinFileExplorerEntry,
 } from '@src/components/Explorer/utils'
 import type {
   FileExplorerEntry,
@@ -25,8 +27,7 @@ import fsZds from '@src/lib/fs-zds'
 import {
   desktopSafePathJoin,
   desktopSafePathSplit,
-  enforceFileEXT,
-  getEXTWithPeriod,
+  fileNameHasExtension,
   getParentAbsolutePath,
   joinOSPaths,
   parentPathRelativeToApplicationDirectory,
@@ -34,15 +35,21 @@ import {
   toArchivePath,
 } from '@src/lib/paths'
 import type { FileEntry, Project } from '@src/lib/project'
+import { reportRejection } from '@src/lib/trap'
 import type { MaybePressOrBlur } from '@src/lib/types'
 import type { ModuleType } from '@src/lib/wasm_lib_wrapper'
-import { SystemIOMachineEvents } from '@src/machines/systemIO/utils'
 import {
-  PROJECT_EXPLORER_FOCUSED_KEYMAP_SCOPE,
+  SystemIOMachineEvents,
+  SystemIOMachineStates,
+} from '@src/machines/systemIO/utils'
+import { PROJECT_EXPLORER_FOCUSED_COMMAND_SCOPE } from '@src/registry/contracts/commands'
+import {
   PROJECT_EXPLORER_RENAMING_KEYMAP_SCOPE,
   keymapService,
 } from '@src/registry/contracts/keymap'
+import { projectExplorerRowContextMenuItemsValueSpec } from '@src/registry/contracts/projectExplorer'
 import { PROJECT_EXPLORER_COMMAND_IDS } from '@src/registry/extensions/keymap/defaultKeymap'
+import { useSelector } from '@xstate/react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { FocusEvent as ReactFocusEvent } from 'react'
 import toast from 'react-hot-toast'
@@ -53,6 +60,18 @@ const isFileExplorerEntryOpened = (
 ): boolean => {
   return rows[entry.key]
 }
+
+const FILE_TREE_MUTATION_STATES = [
+  SystemIOMachineStates.renamingFolder,
+  SystemIOMachineStates.renamingFile,
+  SystemIOMachineStates.deletingFileOrFolder,
+  SystemIOMachineStates.renamingFileAndNavigateToFile,
+  SystemIOMachineStates.renamingFolderAndNavigateToFile,
+  SystemIOMachineStates.deletingFileOrFolderAndNavigate,
+  SystemIOMachineStates.copyingRecursive,
+  SystemIOMachineStates.movingRecursive,
+  SystemIOMachineStates.movingRecursiveAndNavigate,
+] as const
 
 const handleExternalDragEvent = (e: React.DragEvent): boolean => {
   if (!isExternalFileDrag(e)) {
@@ -175,13 +194,28 @@ export const ProjectExplorer = ({
   canNavigate: boolean
   overrideApplicationProjectDirectory?: string
 }) => {
-  const { commands, registry, settings, systemIOActor } = useApp()
+  useSignals()
+  const { commands, registry, systemIOActor } = useApp()
   const keymap = registry.optional(keymapService)
+  const rowContextMenuItems = registry.signal(
+    projectExplorerRowContextMenuItemsValueSpec
+  ).value
   const { kclManager } = useSingletons()
+  const isSystemIOIdle = useSelector(systemIOActor, (state) =>
+    state.matches(SystemIOMachineStates.idle)
+  )
+  const isSystemIOFileTreeMutation = useSelector(systemIOActor, (state) =>
+    FILE_TREE_MUTATION_STATES.some((fileTreeMutationState) =>
+      state.matches(fileTreeMutationState)
+    )
+  )
+  const lastRecursiveMoveTarget = useSelector(
+    systemIOActor,
+    (state) => state.context.lastRecursiveMoveTarget
+  )
   const errors = kclManager.errorsSignal.value
-  const settingsValues = settings.useSettings()
   const applicationProjectDirectory =
-    settingsValues.app.projectDirectory.current
+    overrideApplicationProjectDirectory || getParentAbsolutePath(project.path)
 
   /**
    * Read the file you are loading into and open all of the parent paths to that file
@@ -189,7 +223,7 @@ export const ProjectExplorer = ({
    */
   const defaultFileKey = parentPathRelativeToApplicationDirectory(
     file?.path || project.default_file,
-    overrideApplicationProjectDirectory || applicationProjectDirectory
+    applicationProjectDirectory
   )
   const defaultOpenedRows: { [key: string]: boolean } = {}
   const pathIterator = desktopSafePathSplit(defaultFileKey)
@@ -213,8 +247,8 @@ export const ProjectExplorer = ({
   const [isRenaming, setIsRenaming] = useState<boolean>(false)
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const [isCopying, setIsCopying] = useState<boolean>(false)
-  const lastIndexBeforeNothing = useRef<number>(-2)
-
+  const [isFileTreeMutationPending, setIsFileTreeMutationPending] =
+    useState<boolean>(false)
   // Store a path to copy and paste! Works for folders and files
   const copyToClipBoard = useRef<FileEntry | null>(null)
 
@@ -231,6 +265,7 @@ export const ProjectExplorer = ({
   const activeIndexRef = useRef(activeIndex)
   const selectedRowRef = useRef(selectedRow)
   const onRowEnterRef = useRef(onRowEnter)
+  const isFileTreeInteractionDisabledRef = useRef(false)
   const projectExplorerCommandHandlersRef = useRef({
     arrowLeft: () => {},
     arrowRight: () => {},
@@ -244,8 +279,33 @@ export const ProjectExplorer = ({
   })
   const previousProject = useRef(project)
   const lastSyncedFilePathRef = useRef<string | undefined>(undefined)
+  const lastRevealedRecursiveMoveTargetRef = useRef<string | undefined>(
+    undefined
+  )
 
   onRowEnterRef.current = onRowEnter
+  const isFileTreeInteractionDisabled =
+    isFileTreeMutationPending || isSystemIOFileTreeMutation
+  isFileTreeInteractionDisabledRef.current = isFileTreeInteractionDisabled
+
+  const setFileTreeMutationPending = useCallback((isPending: boolean) => {
+    isFileTreeInteractionDisabledRef.current = isPending
+    setIsFileTreeMutationPending(isPending)
+  }, [])
+
+  const sendFileTreeMutationEvent = useCallback(
+    (event: Parameters<typeof systemIOActor.send>[0]) => {
+      setFileTreeMutationPending(true)
+      systemIOActor.send(event)
+    },
+    [setFileTreeMutationPending, systemIOActor]
+  )
+
+  useEffect(() => {
+    if (isSystemIOIdle && isFileTreeMutationPending) {
+      setFileTreeMutationPending(false)
+    }
+  }, [isFileTreeMutationPending, isSystemIOIdle, setFileTreeMutationPending])
 
   // fake row is used for new files or folders, you should not be able to have multiple fake rows for creation
   const [fakeRow, setFakeRow] = useState<{
@@ -253,46 +313,48 @@ export const ProjectExplorer = ({
     isFile: boolean
   } | null>(null)
 
+  const startCreatingEntry = useCallback(
+    (entry: FileExplorerEntry | null, isFile: boolean) => {
+      setFakeRow({ entry, isFile })
+      if (entry && entry.children !== null) {
+        const newOpenedRows = { ...openedRowsRef.current }
+        newOpenedRows[entry.key] = true
+        setOpenedRows(newOpenedRows)
+      }
+    },
+    []
+  )
+
   /**
    * External state handlers since the callback logic lives here.
    * If code wants to externall trigger creating a file pass in a new timestamp.
    */
   useEffect(() => {
-    if (createFilePressed <= 0 || readOnly) {
+    if (
+      createFilePressed <= 0 ||
+      readOnly ||
+      isFileTreeInteractionDisabledRef.current
+    ) {
       return
     }
 
-    const row =
-      rowsToRenderRef.current[activeIndexRef.current] ||
-      rowsToRenderRef.current[lastIndexBeforeNothing.current] ||
-      null
-    setFakeRow({ entry: row, isFile: true })
-    if (row?.key) {
-      // If the file tree had the folder opened make the new one open.
-      const newOpenedRows = { ...openedRowsRef.current }
-      newOpenedRows[row?.key] = true
-      setOpenedRows(newOpenedRows)
-    }
+    const row = selectedRowRef.current
+    startCreatingEntry(row, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps -- TODO: blanket-ignored fix me!
-  }, [createFilePressed])
+  }, [createFilePressed, startCreatingEntry])
 
   useEffect(() => {
-    if (createFolderPressed <= 0 || readOnly) {
+    if (
+      createFolderPressed <= 0 ||
+      readOnly ||
+      isFileTreeInteractionDisabledRef.current
+    ) {
       return
     }
-    const row =
-      rowsToRenderRef.current[activeIndexRef.current] ||
-      rowsToRenderRef.current[lastIndexBeforeNothing.current] ||
-      null
-    setFakeRow({ entry: row, isFile: false })
-    if (row?.key) {
-      // If the file tree had the folder opened make the new one open.
-      const newOpenedRows = { ...openedRowsRef.current }
-      newOpenedRows[row?.key] = true
-      setOpenedRows(newOpenedRows)
-    }
+    const row = selectedRowRef.current
+    startCreatingEntry(row, false)
     // eslint-disable-next-line react-hooks/exhaustive-deps -- TODO: blanket-ignored fix me!
-  }, [createFolderPressed])
+  }, [createFolderPressed, startCreatingEntry])
 
   useEffect(() => {
     if (refreshExplorerPressed <= 0) {
@@ -331,7 +393,7 @@ export const ProjectExplorer = ({
   )
 
   const focusProjectExplorer = useCallback(() => {
-    keymap?.applyScope(PROJECT_EXPLORER_FOCUSED_KEYMAP_SCOPE)
+    keymap?.applyScope(PROJECT_EXPLORER_FOCUSED_COMMAND_SCOPE)
     fileExplorerContainer.current?.focus()
   }, [keymap])
 
@@ -359,7 +421,10 @@ export const ProjectExplorer = ({
   )
 
   const handleArrowLeftCommand = useCallback(() => {
-    if (activeIndexRef.current === CONTAINER_IS_SELECTED) {
+    if (
+      isFileTreeInteractionDisabledRef.current ||
+      activeIndexRef.current === CONTAINER_IS_SELECTED
+    ) {
       return
     }
 
@@ -392,7 +457,10 @@ export const ProjectExplorer = ({
   }, [onRowClickCallback, setOpenedRowsWrapper])
 
   const handleArrowRightCommand = useCallback(() => {
-    if (activeIndexRef.current === CONTAINER_IS_SELECTED) {
+    if (
+      isFileTreeInteractionDisabledRef.current ||
+      activeIndexRef.current === CONTAINER_IS_SELECTED
+    ) {
       return
     }
 
@@ -412,6 +480,10 @@ export const ProjectExplorer = ({
   }, [setOpenedRowsWrapper])
 
   const handleArrowUpCommand = useCallback(() => {
+    if (isFileTreeInteractionDisabledRef.current) {
+      return
+    }
+
     setActiveIndex((previous) => {
       const next =
         previous === NOTHING_IS_SELECTED
@@ -423,6 +495,10 @@ export const ProjectExplorer = ({
   }, [])
 
   const handleArrowDownCommand = useCallback(() => {
+    if (isFileTreeInteractionDisabledRef.current) {
+      return
+    }
+
     const lastRowIndex = rowsToRenderRef.current.length - 1
     if (lastRowIndex < STARTING_INDEX_TO_SELECT) {
       return
@@ -439,7 +515,10 @@ export const ProjectExplorer = ({
   }, [])
 
   const handleEnterCommand = useCallback(() => {
-    if (activeIndexRef.current < STARTING_INDEX_TO_SELECT) {
+    if (
+      isFileTreeInteractionDisabledRef.current ||
+      activeIndexRef.current < STARTING_INDEX_TO_SELECT
+    ) {
       return
     }
 
@@ -448,16 +527,21 @@ export const ProjectExplorer = ({
       return
     }
 
+    setSelectedRowWrapper(focusedEntry)
     const newOpenedRows = { ...openedRowsRef.current }
     const key = focusedEntry.key
     const value = openedRowsRef.current[key]
     newOpenedRows[key] = !value
     setOpenedRowsWrapper(newOpenedRows)
     onRowEnterRef.current(focusedEntry, activeIndexRef.current)
-  }, [setOpenedRowsWrapper])
+  }, [setOpenedRowsWrapper, setSelectedRowWrapper])
 
   const handleRenameCommand = useCallback(() => {
-    if (readOnly || activeIndexRef.current < STARTING_INDEX_TO_SELECT) {
+    if (
+      readOnly ||
+      isFileTreeInteractionDisabledRef.current ||
+      activeIndexRef.current < STARTING_INDEX_TO_SELECT
+    ) {
       return
     }
 
@@ -471,7 +555,11 @@ export const ProjectExplorer = ({
   }, [readOnly])
 
   const handleDeleteCommand = useCallback(() => {
-    if (readOnly || activeIndexRef.current < STARTING_INDEX_TO_SELECT) {
+    if (
+      readOnly ||
+      isFileTreeInteractionDisabledRef.current ||
+      activeIndexRef.current < STARTING_INDEX_TO_SELECT
+    ) {
       return
     }
 
@@ -485,7 +573,10 @@ export const ProjectExplorer = ({
   }, [readOnly])
 
   const handleCopyCommand = useCallback(() => {
-    if (activeIndexRef.current < STARTING_INDEX_TO_SELECT) {
+    if (
+      isFileTreeInteractionDisabledRef.current ||
+      activeIndexRef.current < STARTING_INDEX_TO_SELECT
+    ) {
       return
     }
 
@@ -498,7 +589,11 @@ export const ProjectExplorer = ({
   }, [])
 
   const handlePasteCommand = useCallback(() => {
-    if (readOnly || activeIndexRef.current < STARTING_INDEX_TO_SELECT) {
+    if (
+      readOnly ||
+      isFileTreeInteractionDisabledRef.current ||
+      activeIndexRef.current < STARTING_INDEX_TO_SELECT
+    ) {
       return
     }
 
@@ -524,6 +619,7 @@ export const ProjectExplorer = ({
     () => [
       {
         id: PROJECT_EXPLORER_COMMAND_IDS.arrowLeft,
+        scopes: [PROJECT_EXPLORER_FOCUSED_COMMAND_SCOPE],
         name: 'arrow-left',
         groupId: 'project-explorer',
         displayName: 'Close selected project explorer row',
@@ -533,6 +629,7 @@ export const ProjectExplorer = ({
       },
       {
         id: PROJECT_EXPLORER_COMMAND_IDS.arrowRight,
+        scopes: [PROJECT_EXPLORER_FOCUSED_COMMAND_SCOPE],
         name: 'arrow-right',
         groupId: 'project-explorer',
         displayName: 'Open selected project explorer row',
@@ -542,6 +639,7 @@ export const ProjectExplorer = ({
       },
       {
         id: PROJECT_EXPLORER_COMMAND_IDS.arrowUp,
+        scopes: [PROJECT_EXPLORER_FOCUSED_COMMAND_SCOPE],
         name: 'arrow-up',
         groupId: 'project-explorer',
         displayName: 'Move project explorer selection up',
@@ -551,6 +649,7 @@ export const ProjectExplorer = ({
       },
       {
         id: PROJECT_EXPLORER_COMMAND_IDS.arrowDown,
+        scopes: [PROJECT_EXPLORER_FOCUSED_COMMAND_SCOPE],
         name: 'arrow-down',
         groupId: 'project-explorer',
         displayName: 'Move project explorer selection down',
@@ -560,6 +659,7 @@ export const ProjectExplorer = ({
       },
       {
         id: PROJECT_EXPLORER_COMMAND_IDS.enter,
+        scopes: [PROJECT_EXPLORER_FOCUSED_COMMAND_SCOPE],
         name: 'enter',
         groupId: 'project-explorer',
         displayName: 'Open selected project explorer file',
@@ -569,6 +669,7 @@ export const ProjectExplorer = ({
       },
       {
         id: PROJECT_EXPLORER_COMMAND_IDS.rename,
+        scopes: [PROJECT_EXPLORER_FOCUSED_COMMAND_SCOPE],
         name: 'rename',
         groupId: 'project-explorer',
         displayName: 'Rename selected project explorer row',
@@ -578,6 +679,7 @@ export const ProjectExplorer = ({
       },
       {
         id: PROJECT_EXPLORER_COMMAND_IDS.delete,
+        scopes: [PROJECT_EXPLORER_FOCUSED_COMMAND_SCOPE],
         name: 'delete',
         groupId: 'project-explorer',
         displayName: 'Delete selected project explorer row',
@@ -587,6 +689,7 @@ export const ProjectExplorer = ({
       },
       {
         id: PROJECT_EXPLORER_COMMAND_IDS.copy,
+        scopes: [PROJECT_EXPLORER_FOCUSED_COMMAND_SCOPE],
         name: 'copy',
         groupId: 'project-explorer',
         displayName: 'Copy selected project explorer row',
@@ -596,6 +699,7 @@ export const ProjectExplorer = ({
       },
       {
         id: PROJECT_EXPLORER_COMMAND_IDS.paste,
+        scopes: [PROJECT_EXPLORER_FOCUSED_COMMAND_SCOPE],
         name: 'paste',
         groupId: 'project-explorer',
         displayName: 'Paste into selected project explorer row',
@@ -623,14 +727,14 @@ export const ProjectExplorer = ({
 
   useEffect(() => {
     return () => {
-      keymap?.removeScope(PROJECT_EXPLORER_FOCUSED_KEYMAP_SCOPE)
+      keymap?.removeScope(PROJECT_EXPLORER_FOCUSED_COMMAND_SCOPE)
       keymap?.removeScope(PROJECT_EXPLORER_RENAMING_KEYMAP_SCOPE)
     }
   }, [keymap])
 
   const handleExternalFileDrop = useCallback(
     async (dataTransfer: DataTransfer, target: FileExplorerEntry | null) => {
-      if (readOnly) {
+      if (readOnly || isFileTreeInteractionDisabledRef.current) {
         return
       }
 
@@ -686,6 +790,7 @@ export const ProjectExplorer = ({
 
       // Copy supported files to the target directory
       if (supportedFiles.length > 0) {
+        setFileTreeMutationPending(true)
         const targetPath = getDropTargetPath(target, project.path)
         const createdDirs = new Set<string>()
 
@@ -733,7 +838,13 @@ export const ProjectExplorer = ({
         )
       }
     },
-    [readOnly, project.path, wasmInstance, systemIOActor]
+    [
+      readOnly,
+      project.path,
+      wasmInstance,
+      systemIOActor,
+      setFileTreeMutationPending,
+    ]
   )
 
   const handleDragOverTarget = useCallback(
@@ -750,14 +861,14 @@ export const ProjectExplorer = ({
     const didProjectChange = previousProject.current.name !== project.name
     if (didProjectChange) {
       setOpenedRows({})
-      setSelectedRow(null)
+      setSelectedRowWrapper(null)
       setActiveIndexWrapper(NOTHING_IS_SELECTED)
       setRowsToRender([])
       setContextMenuRow(null)
       setIsRenaming(false)
       setIsDeleting(false)
       lastSyncedFilePathRef.current = undefined
-      keymap?.removeScope(PROJECT_EXPLORER_FOCUSED_KEYMAP_SCOPE)
+      keymap?.removeScope(PROJECT_EXPLORER_FOCUSED_COMMAND_SCOPE)
       keymap?.removeScope(PROJECT_EXPLORER_RENAMING_KEYMAP_SCOPE)
     }
 
@@ -802,6 +913,30 @@ export const ProjectExplorer = ({
         pathIterator.pop()
       }
     }
+    const recursiveMoveTargetRow = lastRecursiveMoveTarget
+      ? flattenedData.find(
+          (child) =>
+            child.path === lastRecursiveMoveTarget &&
+            rowPathMatchesTreeParent(child, project)
+        )
+      : undefined
+    const shouldRevealRecursiveMoveTarget =
+      !!recursiveMoveTargetRow &&
+      lastRecursiveMoveTarget !== lastRevealedRecursiveMoveTargetRef.current
+    if (shouldRevealRecursiveMoveTarget) {
+      const moveTargetKey =
+        recursiveMoveTargetRow.children === null
+          ? recursiveMoveTargetRow.parentPath
+          : recursiveMoveTargetRow.key
+      const pathIterator = desktopSafePathSplit(moveTargetKey)
+      while (pathIterator.length > 0) {
+        const key = desktopSafePathJoin(pathIterator)
+        openedRowsChanged = openedRowsChanged || !openedRowsForRender[key]
+        openedRowsForRender[key] = true
+        pathIterator.pop()
+      }
+      lastRevealedRecursiveMoveTargetRef.current = lastRecursiveMoveTarget
+    }
 
     const copyEntryToTarget = (src: FileEntry, target: FileEntry) => {
       const absoluteParentPath = getParentAbsolutePath(target.path)
@@ -817,7 +952,7 @@ export const ProjectExplorer = ({
         '-copy-'
       )
       if (result && result.src && result.target) {
-        systemIOActor.send({
+        sendFileTreeMutationEvent({
           type: SystemIOMachineEvents.copyRecursive,
           data: {
             src: result.src,
@@ -901,27 +1036,44 @@ export const ProjectExplorer = ({
             setActiveIndexWrapper(domIndex)
             setContextMenuRow(child)
           },
+          onCreateFile: () => {
+            if (
+              readOnly ||
+              isFileTreeInteractionDisabledRef.current ||
+              child.children === null
+            ) {
+              return
+            }
+            setSelectedRowWrapper(child)
+            startCreatingEntry(child, true)
+          },
           isFake: false,
           activeIndex: activeIndex,
           onDelete: () => {
-            if (readOnly) {
+            if (readOnly || isFileTreeInteractionDisabledRef.current) {
               return
             }
 
             const shouldWeNavigate =
-              file?.path?.startsWith(child.path) && canNavigate
+              isPathWithinFileExplorerEntry(file?.path, child.path) &&
+              canNavigate
 
             if (shouldWeNavigate && file && file.path) {
               const src = child.path
+              setFileTreeMutationPending(true)
               toArchivePath(src)
                 .then((target) => {
-                  systemIOActor.send({
+                  sendFileTreeMutationEvent({
                     type: SystemIOMachineEvents.moveRecursiveAndNavigate,
                     data: {
                       src,
                       target,
                       successMessage: 'Archived successfully',
                       requestedProjectName: project.name,
+                      requestedFileName: parentPathRelativeToProject(
+                        project.default_file,
+                        applicationProjectDirectory
+                      ),
                     },
                   })
                   kclManager.addGlobalHistoryEvent(
@@ -933,6 +1085,7 @@ export const ProjectExplorer = ({
                   )
                 })
                 .catch((e) => {
+                  setFileTreeMutationPending(false)
                   console.error(e)
                   console.warn(
                     `Error while archiving: the deletion of ${child.path} may have been unrecoverable.`
@@ -940,9 +1093,10 @@ export const ProjectExplorer = ({
                 })
             } else {
               const src = child.path
+              setFileTreeMutationPending(true)
               toArchivePath(src)
                 .then((target) => {
-                  systemIOActor.send({
+                  sendFileTreeMutationEvent({
                     type: SystemIOMachineEvents.moveRecursive,
                     data: {
                       src,
@@ -959,6 +1113,7 @@ export const ProjectExplorer = ({
                   )
                 })
                 .catch((e) => {
+                  setFileTreeMutationPending(false)
                   console.error(e)
                   console.warn(
                     `Error while archiving: the deletion of ${child.path} may have been unrecoverable.`
@@ -1020,7 +1175,7 @@ export const ProjectExplorer = ({
               )
               if (result && result.src && result.target) {
                 const { src, target } = result
-                systemIOActor.send({
+                sendFileTreeMutationEvent({
                   type: SystemIOMachineEvents.moveRecursive,
                   data: {
                     src,
@@ -1071,7 +1226,7 @@ export const ProjectExplorer = ({
               if (requestedName !== name) {
                 if (row.isFake) {
                   // create
-                  systemIOActor.send({
+                  sendFileTreeMutationEvent({
                     type: SystemIOMachineEvents.createBlankFolder,
                     data: {
                       requestedAbsolutePath: joinOSPaths(
@@ -1102,10 +1257,9 @@ export const ProjectExplorer = ({
                     const requestedFileNameWithExtension =
                       parentPathRelativeToProject(
                         file?.path?.replace(oldPath, newPath),
-                        overrideApplicationProjectDirectory ||
-                          applicationProjectDirectory
+                        applicationProjectDirectory
                       )
-                    systemIOActor.send({
+                    sendFileTreeMutationEvent({
                       type: SystemIOMachineEvents.renameFolderAndNavigateToFile,
                       data: {
                         requestedFolderName: requestedName,
@@ -1116,7 +1270,7 @@ export const ProjectExplorer = ({
                       },
                     })
                   } else {
-                    systemIOActor.send({
+                    sendFileTreeMutationEvent({
                       type: SystemIOMachineEvents.renameFolder,
                       data: {
                         requestedFolderName: requestedName,
@@ -1139,74 +1293,77 @@ export const ProjectExplorer = ({
                   }
                 }
               }
-            } else {
-              // rename a file
-              const originalExt = getEXTWithPeriod(name)
-              const fileNameForcedWithOriginalExt = enforceFileEXT(
-                requestedName,
-                originalExt
+            } else if (row.isFake) {
+              // create a new file. Respect a user-typed extension, otherwise
+              // assume the file is KCL.
+              const fileName = fileNameHasExtension(requestedName)
+                ? requestedName
+                : requestedName + FILE_EXT
+              const requestedAbsolutePath = joinOSPaths(
+                getParentAbsolutePath(row.path),
+                fileName
               )
-              if (!fileNameForcedWithOriginalExt) {
-                // TODO: OH NO!
-                return
-              }
 
-              const pathRelativeToParent = parentPathRelativeToProject(
-                joinOSPaths(
-                  getParentAbsolutePath(row.path),
-                  fileNameForcedWithOriginalExt
-                ),
-                overrideApplicationProjectDirectory ||
+              if (fileName.endsWith(FILE_EXT) && file && canNavigate) {
+                // Create the KCL file and navigate to (open) it in the editor.
+                const pathRelativeToParent = parentPathRelativeToProject(
+                  requestedAbsolutePath,
                   applicationProjectDirectory
-              )
-
-              if (row.isFake) {
-                // create a file if it is fake and navigate to that file!
-                if (file && canNavigate) {
-                  systemIOActor.send({
-                    type: SystemIOMachineEvents.importFileFromURL,
-                    data: {
-                      requestedCode: '',
-                      requestedProjectName: project.name,
-                      requestedFileNameWithExtension: pathRelativeToParent,
-                    },
-                  })
-                } else {
-                  const requestedAbsolutePath = joinOSPaths(
-                    getParentAbsolutePath(row.path),
-                    fileNameForcedWithOriginalExt
-                  )
-                  systemIOActor.send({
-                    type: SystemIOMachineEvents.createBlankFile,
-                    data: {
-                      requestedAbsolutePath,
-                    },
-                  })
-                }
-              } else {
-                const requestedAbsoluteFilePathWithExtension = joinOSPaths(
-                  getParentAbsolutePath(row.path),
-                  name
                 )
-                // If your router loader is within the file you are renaming then reroute to the new path on disk
-                // If you are renaming a file you are not loaded into, do not reload!
-                const shouldWeNavigate =
-                  requestedAbsoluteFilePathWithExtension === file?.path &&
-                  canNavigate
-                systemIOActor.send({
-                  type: shouldWeNavigate
-                    ? SystemIOMachineEvents.renameFileAndNavigateToFile
-                    : SystemIOMachineEvents.renameFile,
+                void kclManager
+                  .flushWriteToFile()
+                  .then((saved) => {
+                    if (!saved) return
+                    sendFileTreeMutationEvent({
+                      type: SystemIOMachineEvents.importFileFromURL,
+                      data: {
+                        requestedCode: '',
+                        requestedProjectName: project.name,
+                        requestedFileNameWithExtension: pathRelativeToParent,
+                      },
+                    })
+                  })
+                  .catch(reportRejection)
+              } else {
+                // Create a blank file. The actor seeds default KCL content only
+                // for .kcl files and writes an empty file for everything else,
+                // so non-KCL files (.md, .txt, ...) don't get KCL boilerplate.
+                sendFileTreeMutationEvent({
+                  type: SystemIOMachineEvents.createBlankFile,
                   data: {
-                    requestedFileNameWithExtension:
-                      fileNameForcedWithOriginalExt,
-                    fileNameWithExtension: name,
-                    absolutePathToParentDirectory: getParentAbsolutePath(
-                      row.path
-                    ),
+                    requestedAbsolutePath,
                   },
                 })
               }
+            } else {
+              // Respect a user-typed extension otherwise assume the file is KCL.
+              const fileName =
+                fileNameHasExtension(requestedName) ||
+                requestedName.startsWith('.')
+                  ? requestedName
+                  : requestedName + FILE_EXT
+
+              const requestedAbsoluteFilePathWithExtension = joinOSPaths(
+                getParentAbsolutePath(row.path),
+                name
+              )
+              // If your router loader is within the file you are renaming then reroute to the new path on disk
+              // If you are renaming a file you are not loaded into, do not reload!
+              const shouldWeNavigate =
+                requestedAbsoluteFilePathWithExtension === file?.path &&
+                canNavigate
+              sendFileTreeMutationEvent({
+                type: shouldWeNavigate
+                  ? SystemIOMachineEvents.renameFileAndNavigateToFile
+                  : SystemIOMachineEvents.renameFile,
+                data: {
+                  requestedFileNameWithExtension: fileName,
+                  fileNameWithExtension: name,
+                  absolutePathToParentDirectory: getParentAbsolutePath(
+                    row.path
+                  ),
+                },
+              })
             }
           },
         }
@@ -1286,12 +1443,12 @@ export const ProjectExplorer = ({
   useEffect(() => {
     if (isRenaming) {
       const fileExplorerContainerElement = fileExplorerContainer.current
-      keymap?.removeScope(PROJECT_EXPLORER_FOCUSED_KEYMAP_SCOPE)
+      keymap?.removeScope(PROJECT_EXPLORER_FOCUSED_COMMAND_SCOPE)
       keymap?.applyScope(PROJECT_EXPLORER_RENAMING_KEYMAP_SCOPE)
       return () => {
         keymap?.removeScope(PROJECT_EXPLORER_RENAMING_KEYMAP_SCOPE)
         if (fileExplorerContainerElement?.contains(document.activeElement)) {
-          keymap?.applyScope(PROJECT_EXPLORER_FOCUSED_KEYMAP_SCOPE)
+          keymap?.applyScope(PROJECT_EXPLORER_FOCUSED_COMMAND_SCOPE)
         }
       }
     }
@@ -1308,10 +1465,7 @@ export const ProjectExplorer = ({
         projectExplorerRef.current &&
         !path.includes(projectExplorerRef.current)
       ) {
-        if (activeIndexRef.current > 0) {
-          lastIndexBeforeNothing.current = activeIndexRef.current
-        }
-        keymap?.removeScope(PROJECT_EXPLORER_FOCUSED_KEYMAP_SCOPE)
+        keymap?.removeScope(PROJECT_EXPLORER_FOCUSED_COMMAND_SCOPE)
         keymap?.removeScope(PROJECT_EXPLORER_RENAMING_KEYMAP_SCOPE)
         setActiveIndexWrapper(NOTHING_IS_SELECTED)
       }
@@ -1342,7 +1496,7 @@ export const ProjectExplorer = ({
 
   const handleExplorerFocus = useCallback(
     (event: ReactFocusEvent<HTMLDivElement>) => {
-      keymap?.applyScope(PROJECT_EXPLORER_FOCUSED_KEYMAP_SCOPE)
+      keymap?.applyScope(PROJECT_EXPLORER_FOCUSED_COMMAND_SCOPE)
       if (
         event.target === fileExplorerContainer.current &&
         activeIndexRef.current === NOTHING_IS_SELECTED
@@ -1363,7 +1517,7 @@ export const ProjectExplorer = ({
         return
       }
 
-      keymap?.removeScope(PROJECT_EXPLORER_FOCUSED_KEYMAP_SCOPE)
+      keymap?.removeScope(PROJECT_EXPLORER_FOCUSED_COMMAND_SCOPE)
       keymap?.removeScope(PROJECT_EXPLORER_RENAMING_KEYMAP_SCOPE)
       setActiveIndexWrapper(NOTHING_IS_SELECTED)
     },
@@ -1391,6 +1545,9 @@ export const ProjectExplorer = ({
         onFocus={handleExplorerFocus}
         onBlur={handleExplorerBlur}
         onClick={(event) => {
+          if (isFileTreeInteractionDisabled) {
+            return
+          }
           if (event.target === fileExplorerContainer.current) {
             focusProjectExplorer()
             setActiveIndexWrapper(CONTAINER_IS_SELECTED)
@@ -1398,17 +1555,26 @@ export const ProjectExplorer = ({
           }
         }}
         onDragEnter={(e) => {
+          if (isFileTreeInteractionDisabled) {
+            return
+          }
           if (handleExternalDragEvent(e)) {
             externalDragCounter.current++
             setIsExternalDragOver(true)
           }
         }}
         onDragOver={(e) => {
+          if (isFileTreeInteractionDisabled) {
+            return
+          }
           if (handleExternalDragEvent(e)) {
             e.dataTransfer.dropEffect = 'copy'
           }
         }}
         onDragLeave={(e) => {
+          if (isFileTreeInteractionDisabled) {
+            return
+          }
           if (handleExternalDragEvent(e)) {
             externalDragCounter.current--
             if (externalDragCounter.current <= 0) {
@@ -1419,6 +1585,9 @@ export const ProjectExplorer = ({
           }
         }}
         onDrop={(e) => {
+          if (isFileTreeInteractionDisabled) {
+            return
+          }
           if (handleExternalDragEvent(e)) {
             externalDragCounter.current = 0
             setIsExternalDragOver(false)
@@ -1437,8 +1606,10 @@ export const ProjectExplorer = ({
             isRenaming={isRenaming}
             isDeleting={isDeleting}
             isCopying={isCopying}
+            isInteractionDisabled={isFileTreeInteractionDisabled}
             isExternalDragOver={isExternalDragOver}
             highlightedEntry={highlightedEntry}
+            rowContextMenuItems={rowContextMenuItems}
             onDeleteEnd={() => {
               setIsDeleting(false)
             }}

@@ -1,56 +1,65 @@
 import type { Diagnostic } from '@codemirror/lint'
-import type { OpKclValue, Operation } from '@rust/kcl-lib/bindings/Operation'
+import type { Operation, OpKclValue } from '@rust/kcl-lib/bindings/Operation'
+import type { PlaneName } from '@rust/kcl-lib/bindings/PlaneName'
 import { type ContextMenu, ContextMenuItem } from '@src/components/ContextMenu'
 import type { CustomIconName } from '@src/components/CustomIcon'
 import { CustomIcon } from '@src/components/CustomIcon'
 import { useModelingContext } from '@src/hooks/useModelingContext'
-import { findOperationPlaneArtifact, isOffsetPlane } from '@src/lang/queryAst'
+import {
+  findOperationArtifact,
+  findOperationPlaneArtifact,
+  isOffsetPlane,
+} from '@src/lang/queryAst'
 import { sourceRangeFromRust } from '@src/lang/sourceRange'
 import { getArtifactFromRange } from '@src/lang/std/artifactGraph'
 import { topLevelRange } from '@src/lang/util'
 import {
-  ROOT_MODULE_ID,
-  type SourceRange,
   base64Decode,
   countOperations,
   emptyOperationsByModule,
   getAllOperations,
+  ROOT_MODULE_ID,
+  type SourceRange,
 } from '@src/lang/wasm'
 import { useApp, useSingletons } from '@src/lib/boot'
+import { LEGACY_SKETCH_MODE_REMOVED_MESSAGE } from '@src/lib/constants'
 import {
-  type OperationTreeNode,
   buildOperationTree,
+  findSameVisibleStdLibOperationAfterSourceChange,
   getOperationKey,
   getOperationTreeNodeKey,
   isOperationTreeBranch,
+  type OperationTreeNode,
 } from '@src/lib/featureTreeOperationTree'
 import {
-  getOpTypeLabel,
   getOperationCalculatedDisplay,
   getOperationIcon,
   getOperationLabel,
   getOperationVariableName,
+  getOpTypeLabel,
   onHide,
   onUnhide,
   stdLibMap,
 } from '@src/lib/operations'
-import type { DefaultPlaneStr } from '@src/lib/planes'
+import { defaultPlaneNameToKcl } from '@src/lib/planes'
 import { getSelectedDefaultPlane, selectSketchPlane } from '@src/lib/selections'
 import { err, isErr, reportRejection } from '@src/lib/trap'
 import { isArray, isOverlap, stripQuotes, uuidv4 } from '@src/lib/utils'
 import type { ComponentProps, ReactNode } from 'react'
 import { memo, use, useCallback, useMemo } from 'react'
 import toast from 'react-hot-toast'
+
 export { buildOperationTree } from '@src/lib/featureTreeOperationTree'
+
 import { Disclosure } from '@headlessui/react'
 import { useSignals } from '@preact/signals-react/runtime'
 import type { SceneEntities } from '@src/clientSideScene/sceneEntities'
 import type { SceneInfra } from '@src/clientSideScene/sceneInfra'
+import { FeatureTreeMenu } from '@src/components/layout/areas/FeatureTreeMenu'
+import { LayoutPanel, LayoutPanelHeader } from '@src/components/layout/Panel'
 import { RowItemWithIconMenuAndToggle } from '@src/components/RowItemWithIconMenuAndToggle'
 import Tooltip from '@src/components/Tooltip'
 import { VisibilityToggle } from '@src/components/VisibilityToggle'
-import { LayoutPanel, LayoutPanelHeader } from '@src/components/layout/Panel'
-import { FeatureTreeMenu } from '@src/components/layout/areas/FeatureTreeMenu'
 import usePlatform from '@src/hooks/usePlatform'
 import { sourceRangeToUtf16, toUtf16 } from '@src/lang/errors'
 import {
@@ -58,6 +67,7 @@ import {
   shouldDisableModelingForUnrenderedChanges,
 } from '@src/lib/automaticRendering'
 import { browserSaveFile } from '@src/lib/browserSaveFile'
+import type { ConnectionManager } from '@src/lib/engineConnection/connectionManager'
 import { exportSketchToDxf } from '@src/lib/exportDxf'
 import {
   prepareEditCommand,
@@ -65,24 +75,30 @@ import {
   sendDeleteCommand,
   sendSelectionEvent,
 } from '@src/lib/featureTree'
-import { hotkeyDisplay } from '@src/lib/hotkeys'
 import {
   type AreaTypeComponentProps,
   DefaultLayoutPaneID,
-  type Layout,
   getOpenPanes,
+  type Layout,
   togglePaneLayoutNode,
 } from '@src/lib/layout'
 import { PATHS } from '@src/lib/paths'
 import type RustContext from '@src/lib/rustContext'
 import type { CommandBarActorType } from '@src/machines/commandBarMachine'
-import type { ConnectionManager } from '@src/network/connectionManager'
 import { executingEditorService } from '@src/registry/contracts/executingEditor'
+import {
+  findKeymapItemForCommand,
+  keymapKeystrokesDisplay,
+  keymapScopesValueSpec,
+  keymapService,
+} from '@src/registry/contracts/keymap'
+import { APP_COMMAND_IDS } from '@src/registry/extensions/commands/appCommands'
 import { useNavigate } from 'react-router-dom'
 
 type Singletons = ReturnType<typeof useSingletons>
 
 type ModuleInstanceOperation = Extract<Operation, { type: 'ModuleInstance' }>
+type StdLibCallOperation = Extract<Operation, { type: 'StdLibCall' }>
 
 type SystemDeps = Pick<Singletons, 'kclManager'> & {
   commandBarActor: CommandBarActorType
@@ -91,7 +107,53 @@ type SystemDeps = Pick<Singletons, 'kclManager'> & {
   rustContext: RustContext
 }
 
+// Keep automatic edit-time migration disabled until all feature-tree and
+// point-click edit flows support the new edge specifier syntax. Until then,
+// expose Z0006 only as an explicit lint action.
+//
+// IMPORTANT: Edit after auto-fix is only correct if auto-fix doesn't change the
+// operations. The migration can change the KCL, and we need to choose the
+// correct operation to edit.
+// `findSameVisibleStdLibOperationAfterSourceChange()` uses a heuristic, but it
+// may fail since operations don't have an identity that persists across
+// executions. Currently, we don't change the operations in an auto-fix, but
+// this seems brittle.
+const ENABLE_Z0006_AUTO_FIX_BEFORE_FEATURE_TREE_EDIT = false
 const UNRENDERED_EXECUTE_HOTKEY = 'mod+s'
+
+const Z0006_AUTO_FIX_BEFORE_EDIT_OPERATION_NAMES = new Set([
+  'fillet',
+  'chamfer',
+  'extrude',
+  'revolve',
+  'helix',
+  // 'mirror3d', add in when edit from feature tree is supported
+  'gdt::flatness',
+  'gdt::straightness',
+  'gdt::circularity',
+  'gdt::cylindricity',
+  'gdt::position',
+  'gdt::profile',
+  'gdt::profileLine',
+  'gdt::profileSurface',
+  'gdt::distance',
+  'gdt::perpendicularity',
+  'gdt::angularity',
+  'gdt::concentricity',
+  'gdt::symmetry',
+  'gdt::runout',
+  'gdt::parallelism',
+  'gdt::annotation',
+])
+
+export function supportsZ0006AutoFixBeforeFeatureTreeEdit(
+  operation: Operation
+): boolean {
+  return (
+    operation.type === 'StdLibCall' &&
+    Z0006_AUTO_FIX_BEFORE_EDIT_OPERATION_NAMES.has(operation.name)
+  )
+}
 
 export function FeatureTreePane(props: AreaTypeComponentProps) {
   return (
@@ -138,8 +200,16 @@ export const FeatureTreePaneContents = memo(() => {
   const { layout, commands, settings } = app
   const settingsValues = settings.useSettings()
   const platform = usePlatform()
-  const unrenderedExecuteHotkeyLabel = hotkeyDisplay(
-    UNRENDERED_EXECUTE_HOTKEY,
+  const keymap = app.registry.optional(keymapService)
+  const unrenderedExecuteHotkeyLabel = keymapKeystrokesDisplay(
+    keymap
+      ? findKeymapItemForCommand(
+          keymap.keymap.value,
+          APP_COMMAND_IDS.editor.render,
+          keymap.getCurrentScopes(),
+          app.registry.signal(keymapScopesValueSpec).value
+        )?.keystrokes
+      : [UNRENDERED_EXECUTE_HOTKEY],
     platform
   )
   const { kclManager } = useSingletons()
@@ -221,10 +291,12 @@ export const FeatureTreePaneContents = memo(() => {
     unfilteredOperationsByModule,
     ROOT_MODULE_ID
   )
+  const visibilityOperations = getAllOperations(kclManager.operationsByModule)
   const isShowingStaleFeatureTree = hasParseErrors && operationList.length > 0
 
   // Live execution tracking: expand only the active module branch.
   const liveActiveModuleId = kclManager.liveActiveModuleId
+  const liveLatestOperationKey = kclManager.liveLatestOperationKey
 
   function goToError() {
     const l = layout.signal.value
@@ -330,7 +402,9 @@ export const FeatureTreePaneContents = memo(() => {
               modelingActor={modelingActor}
               engineCommandManager={engineCommandManager}
               onSelect={selectOperation}
+              visibilityOperations={visibilityOperations}
               liveActiveModuleId={liveActiveModuleId}
+              liveLatestOperationKey={liveLatestOperationKey}
             />
           ))}
         </>
@@ -356,7 +430,9 @@ function OperationItemGroup({
   modelingActor,
   engineCommandManager,
   onSelect,
+  visibilityOperations,
   isModuleOwned = false,
+  liveLatestOperationKey,
 }: Omit<OperationProps, 'item'> & {
   items: Operation[]
   isModuleOwned?: boolean
@@ -387,7 +463,9 @@ function OperationItemGroup({
           modelingActor={modelingActor}
           engineCommandManager={engineCommandManager}
           onSelect={onSelect}
+          visibilityOperations={visibilityOperations}
           isModuleOwned={isModuleOwned}
+          liveLatestOperationKey={liveLatestOperationKey}
         />
       )
     }
@@ -415,7 +493,9 @@ function OperationItemGroup({
               modelingActor={modelingActor}
               engineCommandManager={engineCommandManager}
               onSelect={onSelect}
+              visibilityOperations={visibilityOperations}
               isModuleOwned={isModuleOwned}
+              liveLatestOperationKey={liveLatestOperationKey}
             />
           </div>
         </div>
@@ -433,8 +513,10 @@ function OperationItemGroup({
                   modelingActor={modelingActor}
                   engineCommandManager={engineCommandManager}
                   onSelect={onSelect}
+                  visibilityOperations={visibilityOperations}
                   size="sm"
                   isModuleOwned={isModuleOwned}
+                  liveLatestOperationKey={liveLatestOperationKey}
                 />
               )
             })}
@@ -470,8 +552,10 @@ function OperationItemGroup({
                 modelingActor={modelingActor}
                 engineCommandManager={engineCommandManager}
                 onSelect={onSelect}
+                visibilityOperations={visibilityOperations}
                 size="sm"
                 isModuleOwned={isModuleOwned}
+                liveLatestOperationKey={liveLatestOperationKey}
               />
             )
           })}
@@ -491,8 +575,10 @@ function OperationBranchGroup({
   modelingActor,
   engineCommandManager,
   onSelect,
+  visibilityOperations,
   isModuleOwned = false,
   liveActiveModuleId,
+  liveLatestOperationKey,
 }: Omit<OperationProps, 'item'> & {
   parentItem: ModuleInstanceOperation
   childItems: OperationTreeNode[]
@@ -509,7 +595,9 @@ function OperationBranchGroup({
         modelingActor={modelingActor}
         engineCommandManager={engineCommandManager}
         onSelect={onSelect}
+        visibilityOperations={visibilityOperations}
         isModuleOwned={true}
+        liveLatestOperationKey={liveLatestOperationKey}
       />
     )
   }
@@ -550,7 +638,9 @@ function OperationBranchGroup({
             modelingActor={modelingActor}
             engineCommandManager={engineCommandManager}
             onSelect={onSelect}
+            visibilityOperations={visibilityOperations}
             isModuleOwned={true}
+            liveLatestOperationKey={liveLatestOperationKey}
           />
         </div>
       </div>
@@ -568,7 +658,9 @@ function OperationBranchGroup({
                 modelingActor={modelingActor}
                 engineCommandManager={engineCommandManager}
                 onSelect={onSelect}
+                visibilityOperations={visibilityOperations}
                 isModuleOwned={true}
+                liveLatestOperationKey={liveLatestOperationKey}
               />
             )
           })}
@@ -618,6 +710,8 @@ type OpValueProps = {
   type?: Operation['type']
   variableName?: string
   valueDetail?: { calculated: OpKclValue; display: string }
+  /** A named view is described by the name it declares, not by its variable. */
+  isNamedView?: boolean
 }
 
 /**
@@ -625,7 +719,7 @@ type OpValueProps = {
  * to be used for default planes after we fix them and
  * add them to the artifact graph / feature tree
  */
-const OperationItemWrapper = memo(
+export const OperationItemWrapper = memo(
   ({
     icon,
     name,
@@ -633,6 +727,7 @@ const OperationItemWrapper = memo(
     variableName,
     visibilityToggle,
     valueDetail,
+    isNamedView,
     menuItems,
     errors,
     customSuffix,
@@ -658,9 +753,11 @@ const OperationItemWrapper = memo(
         size={size}
         LabelSecondary={
           <>
-            {variableName && valueDetail ? (
+            {valueDetail ? (
               <>
-                <span className="text-sm">{variableName}</span>
+                {variableName ? (
+                  <span className="text-sm">{variableName}</span>
+                ) : null}
                 <code
                   data-testid="value-detail"
                   className="block min-w-[0px] flex-auto overflow-hidden whitespace-nowrap overflow-ellipsis text-chalkboard-70 dark:text-chalkboard-40 text-xs"
@@ -689,12 +786,32 @@ const OperationItemWrapper = memo(
   }
 )
 
-function VariableTooltipContents({
+export function namedViewTooltipText({
+  name,
+  valueDetail,
+  variableName,
+}: {
+  name: string
+  valueDetail: { calculated: OpKclValue; display: string }
+  variableName?: string
+}): string {
+  const viewName = getOperationCalculatedDisplay(valueDetail.calculated)
+  const declaration = variableName ? `, declared as ${variableName}` : ''
+
+  return `${name} "${viewName}"${declaration}`
+}
+
+export function VariableTooltipContents({
   variableName,
   valueDetail,
   name,
   type,
+  isNamedView,
 }: OpValueProps) {
+  if (isNamedView && valueDetail) {
+    return <>{namedViewTooltipText({ name, valueDetail, variableName })}</>
+  }
+
   return variableName && valueDetail ? (
     <div className="flex flex-col gap-2">
       <p>
@@ -724,13 +841,129 @@ interface OperationProps {
   engineCommandManager: ConnectionManager
   modelingActor: ReturnType<typeof useModelingContext>['actor']
   onSelect: (sourceRange: SourceRange) => void
+  visibilityOperations: Operation[]
   size?: 'default' | 'sm'
   isModuleOwned?: boolean
   /** During live execution, the module that received the latest operation. */
   liveActiveModuleId?: number | null
+  /** During live execution, the operation that was most recently added. */
+  liveLatestOperationKey: string | null
   /** When set, this item is a deduplicated module reference; clicking scrolls to the expanded branch. */
   referenceModuleId?: number
 }
+
+export function getFeatureTreeSketchSelectionContext({
+  modelingActor,
+}: Pick<OperationProps, 'modelingActor'>) {
+  const modelingSnapshot = modelingActor.getSnapshot()
+  return {
+    sketchNoFace: modelingSnapshot.matches('Sketch no face'),
+    useSketchSolveMode:
+      modelingSnapshot.context.store.useSketchSolveMode?.current,
+  }
+}
+
+function getFeatureTreeArtifactForEditOperation(
+  operation: Operation,
+  artifactGraph: SystemDeps['kclManager']['artifactGraph']
+) {
+  if (
+    'sourceRange' in operation &&
+    operation.sourceRange != null &&
+    isArray(operation.sourceRange) &&
+    operation.sourceRange.length >= 2
+  ) {
+    const sourceRange = operation.sourceRange
+    const artifact = getArtifactFromRange(
+      [sourceRange[0], sourceRange[1], sourceRange[2] ?? 0],
+      artifactGraph
+    )
+    if (artifact) return artifact
+  }
+
+  if (operation.type === 'StdLibCall') {
+    return findOperationArtifact(operation, artifactGraph) ?? undefined
+  }
+
+  return undefined
+}
+
+async function applyZ0006FixAndReselectFeatureTreeOperation({
+  operation,
+  systemDeps,
+}: {
+  operation: StdLibCallOperation
+  systemDeps: SystemDeps
+}): Promise<StdLibCallOperation | undefined> {
+  const beforeOperations = getAllOperations(
+    systemDeps.kclManager.lastSuccessfulOperations
+  )
+  const applied = await systemDeps.kclManager.applyZ0006FixBeforeEdit()
+  if (!applied) return operation
+
+  return findSameVisibleStdLibOperationAfterSourceChange({
+    operation,
+    beforeOperations,
+    afterOperations: getAllOperations(
+      systemDeps.kclManager.lastSuccessfulOperations
+    ),
+  })
+}
+
+async function prepareFeatureTreeEditCommand({
+  operation,
+  artifact,
+  commandBarActor,
+  selectOperation,
+  systemDeps,
+}: {
+  operation: Operation
+  artifact: ReturnType<typeof getArtifactFromRange> | undefined
+  commandBarActor: CommandBarActorType
+  selectOperation: () => Promise<void>
+  systemDeps: SystemDeps
+}) {
+  await selectOperation()
+
+  let operationToEdit: Operation | undefined = operation
+  if (
+    ENABLE_Z0006_AUTO_FIX_BEFORE_FEATURE_TREE_EDIT &&
+    operation.type === 'StdLibCall' &&
+    supportsZ0006AutoFixBeforeFeatureTreeEdit(operation)
+  ) {
+    operationToEdit = await applyZ0006FixAndReselectFeatureTreeOperation({
+      operation,
+      systemDeps,
+    })
+  }
+
+  if (!operationToEdit) {
+    toast.error(
+      'Could not safely reselect operation after automatic migration. Please try again.'
+    )
+    return
+  }
+
+  const artifactForEdit:
+    | NonNullable<ReturnType<typeof getArtifactFromRange>>
+    | undefined =
+    operationToEdit === operation
+      ? (artifact ?? undefined)
+      : getFeatureTreeArtifactForEditOperation(
+          operationToEdit,
+          systemDeps.kclManager.artifactGraph
+        )
+
+  return prepareEditCommand({
+    artifactGraph: systemDeps.kclManager.artifactGraph,
+    code: systemDeps.kclManager.code,
+    commandBarActor,
+    operation: operationToEdit,
+    rustContext: systemDeps.rustContext,
+    artifact: artifactForEdit,
+  })
+}
+
 /**
  * A button with an icon, name, and context menu
  * for an operation in the feature tree.
@@ -747,6 +980,8 @@ const OperationItem = ({
   size,
   isModuleOwned = false,
   referenceModuleId,
+  visibilityOperations,
+  liveLatestOperationKey,
 }: OperationProps) => {
   useSignals()
   const app = useApp()
@@ -763,8 +998,7 @@ const OperationItem = ({
   const sourceRange =
     'sourceRange' in item &&
     sourceRangeToUtf16(sourceRangeFromRust(item.sourceRange), kclManager.code)
-  const isLiveLatest =
-    kclManager.liveLatestOperationKey === getOperationKey(item)
+  const isLiveLatest = liveLatestOperationKey === getOperationKey(item)
   const isEditorSelected = useMemo(() => {
     if (!sourceRange) {
       return false
@@ -778,6 +1012,8 @@ const OperationItem = ({
   const valueDetail = useMemo(() => {
     return getFeatureTreeValueDetail(item, code)
   }, [item, code])
+
+  const isNamedView = item.type === 'StdLibCall' && item.name === 'view::named'
 
   const variableName = useMemo(() => {
     // Module-owned ModuleInstance operations have a nodePath relative to their
@@ -808,7 +1044,10 @@ const OperationItem = ({
       if (isModuleOwned) {
         return
       }
-      if (sketchNoFace) {
+      const sketchSelectionContext = getFeatureTreeSketchSelectionContext({
+        modelingActor,
+      })
+      if (sketchSelectionContext.sketchNoFace) {
         if (isOffsetPlane(item)) {
           const artifact = findOperationPlaneArtifact(
             item,
@@ -816,7 +1055,7 @@ const OperationItem = ({
           )
           const result = await selectSketchPlane(
             artifact?.id,
-            useSketchSolveMode,
+            sketchSelectionContext.useSketchSolveMode,
             kclManager
           )
           if (err(result)) {
@@ -832,14 +1071,7 @@ const OperationItem = ({
         onSelect(sourceRangeFromRust(item.sourceRange))
       }
     },
-    [
-      isModuleOwned,
-      sketchNoFace,
-      onSelect,
-      item,
-      kclManager,
-      useSketchSolveMode,
-    ]
+    [isModuleOwned, modelingActor, onSelect, item, kclManager]
   )
 
   const viewOperationSource = useCallback(
@@ -909,23 +1141,28 @@ const OperationItem = ({
         })
         return
       }
-      prepareEditCommand({
-        artifactGraph: systemDeps.kclManager.artifactGraph,
-        code: systemDeps.kclManager.code,
-        commandBarActor,
+
+      prepareFeatureTreeEditCommand({
         operation: item,
-        rustContext: systemDeps.rustContext,
         artifact,
-      }).catch((e) => toast.error(err(e) ? e.message : JSON.stringify(e)))
+        commandBarActor,
+        selectOperation,
+        systemDeps,
+      }).catch((e) => {
+        const message = err(e) ? e.message : JSON.stringify(e)
+        toast.error(message, {
+          duration:
+            message === LEGACY_SKETCH_MODE_REMOVED_MESSAGE ? 5_000 : undefined,
+        })
+      })
     }
   }, [
     isModuleOwned,
     item,
     modelingActor,
     commandBarActor,
-    systemDeps.kclManager.artifactGraph,
-    systemDeps.kclManager.code,
-    systemDeps.rustContext,
+    selectOperation,
+    systemDeps,
   ])
 
   function enterAppearanceFlow() {
@@ -1043,6 +1280,30 @@ const OperationItem = ({
     }
   }
 
+  function canExportDxf(
+    item: Operation
+  ): item is Parameters<typeof exportSketchToDxf>[0] {
+    return (
+      (item.type === 'StdLibCall' &&
+        (item.name === 'startSketchOn' || item.name === 'subtract2d')) ||
+      (item.type === 'GroupBegin' && item.group.type === 'SketchBlock')
+    )
+  }
+
+  function exportDxf() {
+    if (!canExportDxf(item)) {
+      return
+    }
+    exportSketchToDxf(item, {
+      engineCommandManager,
+      kclManager,
+      toast,
+      uuidv4,
+      base64Decode,
+      browserSaveFile,
+    }).catch(reportRejection)
+  }
+
   const menuItems = useMemo(
     () => {
       const viewSourceMenuItem = (
@@ -1097,46 +1358,10 @@ const OperationItem = ({
               </ContextMenuItem>,
             ]
           : []),
-        ...(item.type === 'StdLibCall' && item.name === 'startSketchOn'
+        ...(canExportDxf(item)
           ? [
               <ContextMenuItem
-                onClick={() => {
-                  const exportDxf = async () => {
-                    if (item.type !== 'StdLibCall') return
-                    await exportSketchToDxf(item, {
-                      engineCommandManager,
-                      kclManager,
-                      toast,
-                      uuidv4,
-                      base64Decode,
-                      browserSaveFile,
-                    })
-                  }
-                  void exportDxf()
-                }}
-                data-testid="context-menu-export-dxf"
-              >
-                Export to DXF
-              </ContextMenuItem>,
-            ]
-          : []),
-        ...(item.type === 'StdLibCall' && item.name === 'subtract2d'
-          ? [
-              <ContextMenuItem
-                onClick={() => {
-                  const exportDxf = async () => {
-                    if (item.type !== 'StdLibCall') return
-                    await exportSketchToDxf(item, {
-                      engineCommandManager,
-                      kclManager,
-                      toast,
-                      uuidv4,
-                      base64Decode,
-                      browserSaveFile,
-                    })
-                  }
-                  void exportDxf()
-                }}
+                onClick={exportDxf}
                 data-testid="context-menu-export-dxf"
               >
                 Export to DXF
@@ -1186,7 +1411,8 @@ const OperationItem = ({
                 data-testid="context-menu-set-translate"
                 disabled={
                   item.type !== 'GroupBegin' &&
-                  !stdLibMap[item.name]?.supportsTransform
+                  !stdLibMap[item.name]?.supportsTransform &&
+                  !stdLibMap[item.name]?.supportsTranslate
                 }
               >
                 Translate
@@ -1196,7 +1422,8 @@ const OperationItem = ({
                 data-testid="context-menu-set-rotate"
                 disabled={
                   item.type !== 'GroupBegin' &&
-                  !stdLibMap[item.name]?.supportsTransform
+                  !stdLibMap[item.name]?.supportsTransform &&
+                  !stdLibMap[item.name]?.supportsRotate
                 }
               >
                 Rotate
@@ -1206,7 +1433,8 @@ const OperationItem = ({
                 data-testid="context-menu-set-scale"
                 disabled={
                   item.type !== 'GroupBegin' &&
-                  !stdLibMap[item.name]?.supportsTransform
+                  !stdLibMap[item.name]?.supportsTransform &&
+                  !stdLibMap[item.name]?.supportsScale
                 }
               >
                 Scale
@@ -1252,7 +1480,7 @@ const OperationItem = ({
 
   const visibilityState = resolveFeatureTreeVisibility({
     item,
-    operations: getAllOperations(kclManager.operationsByModule),
+    operations: visibilityOperations,
     artifactGraph: kclManager.artifactGraph,
   })
 
@@ -1263,6 +1491,7 @@ const OperationItem = ({
       type={item.type}
       variableName={variableName}
       valueDetail={valueDetail}
+      isNamedView={isNamedView}
       customSuffix={
         item.type === 'ModuleInstance' && item.glob ? (
           <span className="text-chalkboard-60 dark:text-chalkboard-50 text-xs">
@@ -1283,6 +1512,7 @@ const OperationItem = ({
               valueDetail={valueDetail}
               name={name}
               type={item.type}
+              isNamedView={isNamedView}
             />
           </Tooltip>
         )
@@ -1409,7 +1639,7 @@ const DefaultPlanes = ({
             data: {
               selectionType: 'defaultPlaneSelection',
               selection: {
-                name: foundDefaultPlane[0] as DefaultPlaneStr,
+                name: defaultPlaneNameToKcl(foundDefaultPlane[0] as PlaneName),
                 id: planeId,
               },
             },
@@ -1510,7 +1740,8 @@ const DefaultPlanes = ({
 }
 
 /**
- * Helper function to get value detail for operations (both datum and variable declarations)
+ * Helper function to get value detail for operations (variable declarations,
+ * datums, and named views)
  * @param operation - The operation to extract value detail from
  * @param code - The source code string to extract values from
  * @returns Value detail object with display string and calculated value, or undefined if no value
@@ -1545,6 +1776,19 @@ export function getFeatureTreeValueDetail(
           display: datumName,
           calculated: stringValue,
         }
+      }
+    }
+  }
+
+  // Show the view name from the unlabeled first argument
+  if (operation.type === 'StdLibCall' && operation.name === 'view::named') {
+    const nameArg = operation.unlabeledArg
+    if (nameArg?.value.type === 'String') {
+      return {
+        display: code.slice(
+          ...nameArg.sourceRange.map((r) => toUtf16(r, code))
+        ),
+        calculated: nameArg.value,
       }
     }
   }

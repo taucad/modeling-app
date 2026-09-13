@@ -2,8 +2,9 @@
 
 #![allow(async_fn_in_trait)]
 
+pub use kcl_api::ObjectId;
+use kcl_api::UnitLength;
 use kcl_error::SourceRange;
-use kittycad_modeling_cmds::units::UnitLength;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -126,16 +127,6 @@ pub struct RestoreSketchCheckpointOutcome {
     pub scene_graph_delta: SceneGraphDelta,
 }
 
-#[derive(Debug, Clone, Copy, Hash, Eq, PartialEq, PartialOrd, Ord, Deserialize, Serialize, ts_rs::TS)]
-#[ts(export, export_to = "FrontendApi.ts", rename = "ApiObjectId")]
-pub struct ObjectId(pub usize);
-
-impl ObjectId {
-    pub fn predecessor(self) -> Option<Self> {
-        self.0.checked_sub(1).map(ObjectId)
-    }
-}
-
 #[derive(Debug, Clone, Copy, Hash, Eq, PartialEq, Ord, PartialOrd, Deserialize, Serialize, ts_rs::TS)]
 #[ts(export, export_to = "FrontendApi.ts", rename = "ApiVersion")]
 pub struct Version(pub usize);
@@ -225,6 +216,18 @@ impl ObjectKind {
 pub enum Plane {
     Object(ObjectId),
     Default(PlaneName),
+    PrimitiveFace(PrimitiveFacePlane),
+}
+
+/// An indexed face on a solid which has not yet been materialized as a KCL
+/// `Face` value.
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, ts_rs::TS)]
+#[ts(export, export_to = "FrontendApi.ts")]
+#[serde(rename_all = "camelCase")]
+pub struct PrimitiveFacePlane {
+    /// Engine ID of the solid which owns the face.
+    pub solid_id: uuid::Uuid,
+    pub index: usize,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize, ts_rs::TS)]
@@ -239,6 +242,23 @@ pub struct Face {
 #[serde(rename_all = "camelCase")]
 pub struct Wall {
     pub id: ObjectId,
+    #[serde(skip_deserializing)]
+    pub source: WallSource,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub solid_output_index: Option<usize>,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, ts_rs::TS)]
+#[ts(export, export_to = "FrontendApi.ts", rename = "ApiWallSource")]
+#[serde(rename_all = "camelCase")]
+pub struct WallSource {
+    pub solid: SourceRefRange,
+    pub sweep: SourceRefRange,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub path: Option<SourceRefRange>,
+    pub segment: SourceRefRange,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize, ts_rs::TS)]
@@ -247,6 +267,19 @@ pub struct Wall {
 pub struct Cap {
     pub id: ObjectId,
     pub kind: CapKind,
+    #[serde(skip_deserializing)]
+    pub source: CapSource,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub solid_output_index: Option<usize>,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, ts_rs::TS)]
+#[ts(export, export_to = "FrontendApi.ts", rename = "ApiCapSource")]
+#[serde(rename_all = "camelCase")]
+pub struct CapSource {
+    pub solid: SourceRefRange,
+    pub sweep: SourceRefRange,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize, ts_rs::TS)]
@@ -268,6 +301,14 @@ pub enum SourceRef {
     BackTrace {
         ranges: Vec<(SourceRange, Option<NodePath>)>,
     },
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, ts_rs::TS)]
+#[ts(export, export_to = "FrontendApi.ts", rename = "ApiSourceRefRange")]
+#[serde(rename_all = "camelCase")]
+pub struct SourceRefRange {
+    pub range: SourceRange,
+    pub node_path: Option<NodePath>,
 }
 
 impl From<SourceRange> for SourceRef {

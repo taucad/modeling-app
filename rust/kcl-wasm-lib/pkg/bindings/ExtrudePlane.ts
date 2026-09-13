@@ -6,19 +6,19 @@ import type { TagDeclarator } from "./TagDeclarator.js";
 /**
  * An extruded plane.
  */
-export type ExtrudePlane = { 
+export type ExtrudePlane = {
 /**
  * The face id for the extrude plane.
  */
-faceId: string, 
+faceId: string,
 /**
  * The tag.
  */
-tag: Node<TagDeclarator> | null, 
+tag: Node<TagDeclarator> | null,
 /**
  * The id of the geometry.
  */
-id: string, 
+id: string,
 /**
  * The source range.
  */

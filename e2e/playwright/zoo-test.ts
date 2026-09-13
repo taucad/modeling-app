@@ -1,13 +1,12 @@
-import type { UserFeature } from '@kittycad/lib'
-import { test as playwrightTestFn } from '@playwright/test'
-
+import { expect, test as playwrightTestFn } from '@e2e/playwright/base-test'
 import type { Fixtures } from '@e2e/playwright/fixtures/fixtureSetup'
 import {
   ElectronZoo,
   fixturesBasedOnProcessEnvPlatform,
 } from '@e2e/playwright/fixtures/fixtureSetup'
+import type { Feature } from '@kittycad/lib'
 
-export { expect } from '@playwright/test'
+export { expect }
 
 declare module '@playwright/test' {
   interface Page {
@@ -33,7 +32,7 @@ let isFirstRun = true
 // switch between web and electron if needed.
 const playwrightTestFnWithFixtures_ = playwrightTestFn.extend<{
   tronApp?: ElectronZoo
-  userFeatures: UserFeature[]
+  userFeatures: Feature[]
 }>({
   userFeatures: [[], { option: true }],
   tronApp: [

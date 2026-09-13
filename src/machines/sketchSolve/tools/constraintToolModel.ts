@@ -332,7 +332,7 @@ export const constraintToolConfigs = {
       },
       {
         id: 'point-pair',
-        resultingConstraintType: 'VerticalDistance',
+        resultingConstraintType: 'Horizontal',
         slots: [['pointLike'], ['pointLike']],
         areaSelectionPolicy: 'consume-minimal',
       },
@@ -351,7 +351,7 @@ export const constraintToolConfigs = {
       },
       {
         id: 'point-pair',
-        resultingConstraintType: 'HorizontalDistance',
+        resultingConstraintType: 'Vertical',
         slots: [['pointLike'], ['pointLike']],
         areaSelectionPolicy: 'consume-minimal',
       },
@@ -391,6 +391,10 @@ const DIMENSION_CONSTRAINT_TYPES = new Set<ApiConstraint['type']>([
   'Diameter',
   'Angle',
 ])
+
+export function isDimensionConstraintType(type: ApiConstraint['type']) {
+  return DIMENSION_CONSTRAINT_TYPES.has(type)
+}
 
 export function selectionMatcherMatchesKind(
   matcher: ConstraintSelectionMatcher,
@@ -518,7 +522,7 @@ export function classifyConstraintSelection(
   if (object.kind.type === 'Constraint') {
     return {
       selectionId,
-      kind: DIMENSION_CONSTRAINT_TYPES.has(object.kind.constraint.type)
+      kind: isDimensionConstraintType(object.kind.constraint.type)
         ? 'dimension'
         : 'constraint',
       object,

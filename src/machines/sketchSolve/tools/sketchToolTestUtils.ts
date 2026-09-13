@@ -48,6 +48,7 @@ export function createSceneGraphDelta(
       artifactGraph: { map: {}, itemCount: 0 },
       filenames: {},
       defaultPlanes: null,
+      refactorMetadata: [],
     },
   }
 }
@@ -142,11 +143,13 @@ export function createArcApiObject({
   center,
   start,
   end,
+  direction,
 }: {
   id: number
   center: number
   start: number
   end: number
+  direction?: 'ccw' | 'cw'
 }): ApiObject {
   return {
     id,
@@ -174,6 +177,7 @@ export function createArcApiObject({
         },
         ctor_applicable: false,
         construction: false,
+        direction,
       },
     },
     label: '',
@@ -284,6 +288,8 @@ export function createMockRustContext(): RustContext {
     addConstraint: vi.fn(),
     chainSegment: vi.fn(),
     editSegments: vi.fn(),
+    editAngleConstraint: vi.fn(),
+    editDistanceConstraint: vi.fn(),
     editDistanceConstraintLabelPosition: vi.fn(),
     deleteObjects: vi.fn(),
     settingsActor: {

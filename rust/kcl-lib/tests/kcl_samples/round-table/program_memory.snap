@@ -8,8 +8,8 @@ description: Variables in memory after executing round-table.kcl
     "value": {
       "artifactId": "[uuid]",
       "id": "[uuid]",
-      "kind": "Custom",
       "objectId": 12,
+      "kind": "Custom",
       "origin": {
         "x": 0.0,
         "y": 0.0,
@@ -41,8 +41,8 @@ description: Variables in memory after executing round-table.kcl
     "value": {
       "artifactId": "[uuid]",
       "id": "[uuid]",
-      "kind": "Custom",
       "objectId": 0,
+      "kind": "Custom",
       "origin": {
         "x": 0.0,
         "y": 0.0,
@@ -74,8 +74,7 @@ description: Variables in memory after executing round-table.kcl
     "value": {
       "artifactId": "[uuid]",
       "id": "[uuid]",
-      "kind": "XY",
-      "objectId": 6,
+      "kind": "Custom",
       "origin": {
         "x": 0.0,
         "y": 0.0,
@@ -107,6 +106,8 @@ description: Variables in memory after executing round-table.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -114,10 +115,10 @@ description: Variables in memory after executing round-table.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 762,
-            "end": 769,
+            "commentStart": 691,
+            "end": 698,
             "moduleId": 0,
-            "start": 762,
+            "start": 691,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -145,10 +146,10 @@ description: Variables in memory after executing round-table.kcl
             ],
             "radius": 150.0,
             "tag": {
-              "commentStart": 762,
-              "end": 769,
+              "commentStart": 691,
+              "end": 698,
               "moduleId": 0,
-              "start": 762,
+              "start": 691,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -161,17 +162,17 @@ description: Variables in memory after executing round-table.kcl
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "XY",
           "objectId": 6,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -215,8 +216,8 @@ description: Variables in memory after executing round-table.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -309,7 +310,7 @@ description: Variables in memory after executing round-table.kcl
                 "surface": {
                   "artifactId": "[uuid]",
                   "id": "[uuid]",
-                  "kind": "XY",
+                  "kind": "Custom",
                   "objectId": 6,
                   "origin": {
                     "x": 0.0,
@@ -372,10 +373,10 @@ description: Variables in memory after executing round-table.kcl
                   ],
                   "radius": 150.0,
                   "tag": {
-                    "commentStart": 762,
-                    "end": 769,
+                    "commentStart": 691,
+                    "end": 698,
                     "moduleId": 0,
-                    "start": 762,
+                    "start": 691,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -388,17 +389,17 @@ description: Variables in memory after executing round-table.kcl
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "XY",
                 "objectId": 6,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": 0.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -461,39 +462,6 @@ description: Variables in memory after executing round-table.kcl
       "angle": "degrees"
     }
   },
-  "baseSketch": {
-    "type": "Plane",
-    "value": {
-      "artifactId": "[uuid]",
-      "id": "[uuid]",
-      "kind": "XY",
-      "objectId": 6,
-      "origin": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 0.0,
-        "units": "mm"
-      },
-      "xAxis": {
-        "x": 1.0,
-        "y": 0.0,
-        "z": 0.0,
-        "units": null
-      },
-      "yAxis": {
-        "x": 0.0,
-        "y": 1.0,
-        "z": 0.0,
-        "units": null
-      },
-      "zAxis": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 1.0,
-        "units": null
-      }
-    }
-  },
   "baseThickness": {
     "type": "Number",
     "value": 30.0,
@@ -508,6 +476,8 @@ description: Variables in memory after executing round-table.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -515,10 +485,10 @@ description: Variables in memory after executing round-table.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1180,
-            "end": 1187,
+            "commentStart": 1072,
+            "end": 1079,
             "moduleId": 0,
-            "start": 1180,
+            "start": 1072,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -546,10 +516,10 @@ description: Variables in memory after executing round-table.kcl
             ],
             "radius": 40.0,
             "tag": {
-              "commentStart": 1180,
-              "end": 1187,
+              "commentStart": 1072,
+              "end": 1079,
               "moduleId": 0,
-              "start": 1180,
+              "start": 1072,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -562,17 +532,17 @@ description: Variables in memory after executing round-table.kcl
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 12,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 30.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -616,8 +586,8 @@ description: Variables in memory after executing round-table.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -639,8 +609,8 @@ description: Variables in memory after executing round-table.kcl
     "value": {
       "artifactId": "[uuid]",
       "id": "[uuid]",
-      "kind": "Custom",
       "objectId": 12,
+      "kind": "Custom",
       "origin": {
         "x": 0.0,
         "y": 0.0,
@@ -815,10 +785,10 @@ description: Variables in memory after executing round-table.kcl
                   ],
                   "radius": 40.0,
                   "tag": {
-                    "commentStart": 1180,
-                    "end": 1187,
+                    "commentStart": 1072,
+                    "end": 1079,
                     "moduleId": 0,
-                    "start": 1180,
+                    "start": 1072,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -831,17 +801,17 @@ description: Variables in memory after executing round-table.kcl
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 12,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": 30.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -904,39 +874,6 @@ description: Variables in memory after executing round-table.kcl
       "angle": "degrees"
     }
   },
-  "legSketch": {
-    "type": "Plane",
-    "value": {
-      "artifactId": "[uuid]",
-      "id": "[uuid]",
-      "kind": "Custom",
-      "objectId": 12,
-      "origin": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 30.0,
-        "units": "mm"
-      },
-      "xAxis": {
-        "x": 1.0,
-        "y": 0.0,
-        "z": 0.0,
-        "units": null
-      },
-      "yAxis": {
-        "x": 0.0,
-        "y": 1.0,
-        "z": 0.0,
-        "units": null
-      },
-      "zAxis": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 1.0,
-        "units": null
-      }
-    }
-  },
   "region001": {
     "type": "Sketch",
     "value": {
@@ -959,10 +896,10 @@ description: Variables in memory after executing round-table.kcl
           ],
           "radius": 350.0,
           "tag": {
-            "commentStart": 443,
-            "end": 450,
+            "commentStart": 411,
+            "end": 418,
             "moduleId": 0,
-            "start": 443,
+            "start": 411,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -975,17 +912,17 @@ description: Variables in memory after executing round-table.kcl
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 0,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 750.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -1029,8 +966,8 @@ description: Variables in memory after executing round-table.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "region002": {
@@ -1055,10 +992,10 @@ description: Variables in memory after executing round-table.kcl
           ],
           "radius": 150.0,
           "tag": {
-            "commentStart": 762,
-            "end": 769,
+            "commentStart": 691,
+            "end": 698,
             "moduleId": 0,
-            "start": 762,
+            "start": 691,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -1071,17 +1008,17 @@ description: Variables in memory after executing round-table.kcl
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "XY",
         "objectId": 6,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 0.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -1125,8 +1062,8 @@ description: Variables in memory after executing round-table.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "region003": {
@@ -1151,10 +1088,10 @@ description: Variables in memory after executing round-table.kcl
           ],
           "radius": 40.0,
           "tag": {
-            "commentStart": 1180,
-            "end": 1187,
+            "commentStart": 1072,
+            "end": 1079,
             "moduleId": 0,
-            "start": 1180,
+            "start": 1072,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -1167,17 +1104,17 @@ description: Variables in memory after executing round-table.kcl
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 12,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 30.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -1221,8 +1158,8 @@ description: Variables in memory after executing round-table.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "tableTopExtrude": {
@@ -1230,6 +1167,8 @@ description: Variables in memory after executing round-table.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -1237,10 +1176,10 @@ description: Variables in memory after executing round-table.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 443,
-            "end": 450,
+            "commentStart": 411,
+            "end": 418,
             "moduleId": 0,
-            "start": 443,
+            "start": 411,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -1268,10 +1207,10 @@ description: Variables in memory after executing round-table.kcl
             ],
             "radius": 350.0,
             "tag": {
-              "commentStart": 443,
-              "end": 450,
+              "commentStart": 411,
+              "end": 418,
               "moduleId": 0,
-              "start": 443,
+              "start": 411,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -1284,17 +1223,17 @@ description: Variables in memory after executing round-table.kcl
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 0,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 750.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -1338,8 +1277,8 @@ description: Variables in memory after executing round-table.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -1361,8 +1300,8 @@ description: Variables in memory after executing round-table.kcl
     "value": {
       "artifactId": "[uuid]",
       "id": "[uuid]",
-      "kind": "Custom",
       "objectId": 0,
+      "kind": "Custom",
       "origin": {
         "x": 0.0,
         "y": 0.0,
@@ -1537,10 +1476,10 @@ description: Variables in memory after executing round-table.kcl
                   ],
                   "radius": 350.0,
                   "tag": {
-                    "commentStart": 443,
-                    "end": 450,
+                    "commentStart": 411,
+                    "end": 418,
                     "moduleId": 0,
-                    "start": 443,
+                    "start": 411,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -1553,17 +1492,17 @@ description: Variables in memory after executing round-table.kcl
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 0,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": 750.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -1624,39 +1563,6 @@ description: Variables in memory after executing round-table.kcl
       "type": "Default",
       "len": "mm",
       "angle": "degrees"
-    }
-  },
-  "tableTopSketch": {
-    "type": "Plane",
-    "value": {
-      "artifactId": "[uuid]",
-      "id": "[uuid]",
-      "kind": "Custom",
-      "objectId": 0,
-      "origin": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 750.0,
-        "units": "mm"
-      },
-      "xAxis": {
-        "x": 1.0,
-        "y": 0.0,
-        "z": 0.0,
-        "units": null
-      },
-      "yAxis": {
-        "x": 0.0,
-        "y": 1.0,
-        "z": 0.0,
-        "units": null
-      },
-      "zAxis": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 1.0,
-        "units": null
-      }
     }
   },
   "tableTopThickness": {

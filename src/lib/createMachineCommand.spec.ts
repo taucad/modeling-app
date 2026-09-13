@@ -3,6 +3,10 @@ import { createActor, createMachine } from 'xstate'
 
 import type { StateMachineCommandSetConfig } from '@src/lib/commandTypes'
 import { createMachineCommand } from '@src/lib/createMachineCommand'
+import {
+  GLOBAL_COMMAND_SCOPES,
+  MODE_SKETCHING_COMMAND_SCOPE,
+} from '@src/registry/contracts/commands'
 
 const testMachine = createMachine({
   id: 'testMachine',
@@ -15,10 +19,12 @@ const testMachine = createMachine({
 type TestCommandSchema = {
   Available: Record<string, never>
   Experimental: Record<string, never>
+  Deprecated: Record<string, never>
   ManyCommands: Record<string, never>
   WithArguments: {
     availableArg?: string
     experimentalArg?: string
+    deprecatedArg?: string
   }
 }
 
@@ -30,6 +36,10 @@ const commandBarConfig = {
     description: 'Experimental command',
     status: 'experimental',
   },
+  Deprecated: {
+    description: 'Deprecated command',
+    status: 'deprecated',
+  },
   ManyCommands: [
     {
       displayName: 'Experimental child',
@@ -39,6 +49,7 @@ const commandBarConfig = {
     {
       displayName: 'Available child',
       description: 'Available child command',
+      scopes: [MODE_SKETCHING_COMMAND_SCOPE],
     },
   ],
   WithArguments: {
@@ -52,6 +63,11 @@ const commandBarConfig = {
         inputType: 'string',
         required: false,
         status: 'experimental',
+      },
+      deprecatedArg: {
+        inputType: 'string',
+        required: false,
+        status: 'deprecated',
       },
     },
   },
@@ -69,6 +85,7 @@ describe('createMachineCommand', () => {
         send: vi.fn(),
         actor,
         commandBarConfig,
+        defaultScopes: GLOBAL_COMMAND_SCOPES,
       }
     )
 
@@ -88,6 +105,7 @@ describe('createMachineCommand', () => {
         send: vi.fn(),
         actor,
         commandBarConfig,
+        defaultScopes: GLOBAL_COMMAND_SCOPES,
         showExperimentalCommands: true,
       }
     )
@@ -97,6 +115,30 @@ describe('createMachineCommand', () => {
     expect(command).toMatchObject({
       name: 'Experimental',
       status: 'experimental',
+    })
+  })
+
+  test('keeps deprecated commands visible by default', () => {
+    const actor = createActor(testMachine).start()
+
+    const command = createMachineCommand<typeof testMachine, TestCommandSchema>(
+      {
+        groupId: testMachine.id,
+        type: 'Deprecated',
+        state: actor.getSnapshot(),
+        send: vi.fn(),
+        actor,
+        commandBarConfig,
+        defaultScopes: GLOBAL_COMMAND_SCOPES,
+      }
+    )
+
+    actor.stop()
+
+    expect(command).toMatchObject({
+      name: 'Deprecated',
+      status: 'deprecated',
+      scopes: GLOBAL_COMMAND_SCOPES,
     })
   })
 
@@ -113,6 +155,7 @@ describe('createMachineCommand', () => {
       send: vi.fn(),
       actor,
       commandBarConfig,
+      defaultScopes: GLOBAL_COMMAND_SCOPES,
     })
 
     actor.stop()
@@ -121,6 +164,7 @@ describe('createMachineCommand', () => {
       expect.objectContaining({
         name: 'ManyCommands',
         displayName: 'Available child',
+        scopes: [MODE_SKETCHING_COMMAND_SCOPE],
       }),
     ])
   })
@@ -136,6 +180,7 @@ describe('createMachineCommand', () => {
         send: vi.fn(),
         actor,
         commandBarConfig,
+        defaultScopes: GLOBAL_COMMAND_SCOPES,
       }
     )
 
@@ -145,6 +190,10 @@ describe('createMachineCommand', () => {
       args: {
         availableArg: {
           hidden: undefined,
+        },
+        deprecatedArg: {
+          hidden: undefined,
+          status: 'deprecated',
         },
         experimentalArg: {
           hidden: true,
@@ -165,6 +214,7 @@ describe('createMachineCommand', () => {
         send: vi.fn(),
         actor,
         commandBarConfig,
+        defaultScopes: GLOBAL_COMMAND_SCOPES,
         showExperimentalCommands: true,
       }
     )

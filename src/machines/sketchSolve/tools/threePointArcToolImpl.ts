@@ -10,8 +10,8 @@ import type { Coords2d } from '@src/lang/util'
 import { baseUnitToNumericSuffix } from '@src/lang/wasm'
 import type RustContext from '@src/lib/rustContext'
 import { jsAppSettings } from '@src/lib/settings/settingsUtils'
-import { getAngleDiff, roundOff } from '@src/lib/utils'
-import { lerp2d, subVec } from '@src/lib/utils2d'
+import { roundOff } from '@src/lib/utils'
+import { getAngleDiff, lerp2d, subVec } from '@src/lib/utils2d'
 import {
   isArcSegment,
   isPointSegment,
@@ -43,6 +43,7 @@ type AddDraftPointOutput = {
   sceneGraphDelta: SceneGraphDelta
   pointId: number
   point: Coords2d
+  snapTarget?: SnapTarget
   checkpointId?: number | null
 }
 
@@ -62,6 +63,7 @@ type ToolDoneOutput = {
   sceneGraphDelta: SceneGraphDelta
   pointId?: number
   point?: Coords2d
+  snapTarget?: SnapTarget
   arcId?: number
   checkpointId?: number | null
 }
@@ -86,6 +88,7 @@ export type ToolEvents =
 export type ToolContext = {
   startPoint?: Coords2d
   startPointId?: number
+  firstClickSnapTarget?: SnapTarget
   throughPoint?: Coords2d
   throughPointId?: number
   arcId?: number
@@ -155,7 +158,7 @@ function findThreePointArcCenter({
   return [center_x, center_y]
 }
 
-function resolveArcEndpoints({
+function resolveThreePointArcDirection({
   centerPoint,
   startPoint,
   endPoint,
@@ -165,11 +168,7 @@ function resolveArcEndpoints({
   startPoint: Coords2d
   endPoint: Coords2d
   throughPoint: Coords2d
-}): {
-  start: Coords2d
-  end: Coords2d
-  clickedPointIsStart: boolean
-} {
+}): 'ccw' | 'cw' {
   const startFromCenter = subVec(startPoint, centerPoint)
   const endFromCenter = subVec(endPoint, centerPoint)
   const throughFromCenter = subVec(throughPoint, centerPoint)
@@ -182,18 +181,7 @@ function resolveArcEndpoints({
   const throughSpan = getAngleDiff(startAngle, throughAngle, true)
   const throughIsOnArc = throughSpan <= endSpan + EPSILON
 
-  if (throughIsOnArc) {
-    return {
-      start: startPoint,
-      end: endPoint,
-      clickedPointIsStart: false,
-    }
-  }
-  return {
-    start: endPoint,
-    end: startPoint,
-    clickedPointIsStart: true,
-  }
+  return throughIsOnArc ? 'ccw' : 'cw'
 }
 
 async function editArcWithThreePoints({
@@ -233,7 +221,7 @@ async function editArcWithThreePoints({
     return { error: 'Cannot create arc from collinear points' }
   }
 
-  const arcEndpoints = resolveArcEndpoints({
+  const direction = resolveThreePointArcDirection({
     centerPoint,
     startPoint,
     endPoint,
@@ -257,13 +245,14 @@ async function editArcWithThreePoints({
             y: { type: 'Var', value: roundOff(centerPoint[1]), units },
           },
           start: {
-            x: { type: 'Var', value: roundOff(arcEndpoints.start[0]), units },
-            y: { type: 'Var', value: roundOff(arcEndpoints.start[1]), units },
+            x: { type: 'Var', value: roundOff(startPoint[0]), units },
+            y: { type: 'Var', value: roundOff(startPoint[1]), units },
           },
           end: {
-            x: { type: 'Var', value: roundOff(arcEndpoints.end[0]), units },
-            y: { type: 'Var', value: roundOff(arcEndpoints.end[1]), units },
+            x: { type: 'Var', value: roundOff(endPoint[0]), units },
+            y: { type: 'Var', value: roundOff(endPoint[1]), units },
           },
+          direction,
         },
       },
     ],
@@ -393,11 +382,12 @@ export function animateArcEndPointListener({ self, context }: ToolActionArgs) {
         return
       }
 
+      const mousePosition = [twoD.x, twoD.y] as Coords2d
       const snappingCandidate = getBestSnappingCandidate({
         self,
         sceneInfra: context.sceneInfra,
         sketchId: context.sketchId,
-        mousePosition: [twoD.x, twoD.y],
+        mousePosition,
         mouseEvent: args.mouseEvent,
         excludedPointIds: [
           context.startPointId,
@@ -406,6 +396,7 @@ export function animateArcEndPointListener({ self, context }: ToolActionArgs) {
           context.arcEndPointId,
         ].filter((id): id is number => id !== undefined),
       })
+      const endPoint = snappingCandidate?.position ?? mousePosition
       sendHoveredSnappingCandidate(self, snappingCandidate)
       updateToolSnappingPreview({
         sceneInfra: context.sceneInfra,
@@ -421,7 +412,7 @@ export function animateArcEndPointListener({ self, context }: ToolActionArgs) {
         const result = await editArcWithThreePoints({
           arcId,
           startPoint,
-          endPoint: [twoD.x, twoD.y],
+          endPoint,
           throughPoint,
           rustContext: context.rustContext,
           kclManager: context.kclManager,
@@ -521,6 +512,7 @@ export function storeFirstPointResult({
   return {
     startPoint: output.point,
     startPointId: output.pointId,
+    firstClickSnapTarget: output.snapTarget,
   }
 }
 
@@ -638,6 +630,7 @@ export async function addDraftPointActor({
       ...result,
       pointId,
       point,
+      snapTarget,
     }
   }
 
@@ -652,6 +645,7 @@ export async function addDraftPointActor({
     },
     pointId,
     point,
+    snapTarget,
   }
 }
 
@@ -727,10 +721,11 @@ export async function finalizeArcActor({
         arcId: number
         startPoint: Coords2d
         startPointId?: number
+        firstClickSnapTarget?: SnapTarget
         throughPoint: Coords2d
         throughPointId: number
         endPoint: Coords2d
-        endSnapTarget?: SnapTarget
+        lastClickSnapTarget?: SnapTarget
         rustContext: RustContext
         kclManager: KclManager
         sketchId: number
@@ -754,10 +749,11 @@ export async function finalizeArcActor({
     arcId,
     startPoint,
     startPointId,
+    firstClickSnapTarget,
     throughPoint,
     throughPointId,
     endPoint,
-    endSnapTarget,
+    lastClickSnapTarget,
     rustContext,
     kclManager,
     sketchId,
@@ -778,69 +774,65 @@ export async function finalizeArcActor({
     return editResult
   }
 
-  const centerPoint = findThreePointArcCenter({
-    startPoint,
-    endPoint,
-    throughPoint,
-  })
-  if (!centerPoint) {
-    return { error: 'Cannot create arc from collinear points' }
-  }
-  const arcEndpoints = resolveArcEndpoints({
-    centerPoint,
-    startPoint,
-    endPoint,
-    throughPoint,
-  })
-
   const editedArc = editResult.sceneGraphDelta.new_graph.objects[arcId]
   if (!isArcSegment(editedArc)) {
     return { error: 'Failed to find arc after final edit' }
   }
 
-  const clickedArcPointId = arcEndpoints.clickedPointIsStart
-    ? editedArc.kind.segment.start
-    : editedArc.kind.segment.end
+  const firstClickPointId = editedArc.kind.segment.start
+  const lastClickPointId = editedArc.kind.segment.end
 
   const newObjects = [...editResult.sceneGraphDelta.new_objects]
   let latestKclSource = editResult.kclSource
   let latestSceneGraphDelta = editResult.sceneGraphDelta
 
-  const endSnapResult = await applyConstraintsForSnapTarget({
-    segmentId: clickedArcPointId,
-    target: endSnapTarget,
-    rustContext,
-    sketchId,
-    settings,
-  })
-  if (endSnapResult.result !== null) {
-    latestKclSource = endSnapResult.result.kclSource
-    latestSceneGraphDelta = endSnapResult.result.sceneGraphDelta
-    newObjects.push(...endSnapResult.newObjectIds)
+  const snapTargets = [
+    {
+      segmentId: firstClickPointId,
+      snapTarget: firstClickSnapTarget,
+    },
+    {
+      segmentId: lastClickPointId,
+      snapTarget: lastClickSnapTarget,
+    },
+  ].filter(
+    (
+      target
+    ): target is { segmentId: number; snapTarget: NonNullable<SnapTarget> } =>
+      target.snapTarget != null
+  )
+
+  for (const { segmentId, snapTarget } of snapTargets) {
+    const snapResult = await applyConstraintsForSnapTarget({
+      segmentId,
+      target: snapTarget,
+      rustContext,
+      sketchId,
+      settings,
+    })
+    if (snapResult.result !== null) {
+      latestKclSource = snapResult.result.kclSource
+      latestSceneGraphDelta = snapResult.result.sceneGraphDelta
+      newObjects.push(...snapResult.newObjectIds)
+    }
   }
 
-  const constraintResult = await rustContext.addConstraint(
-    0,
-    sketchId,
-    {
-      type: 'Coincident',
-      segments: [throughPointId, arcId],
-    },
-    settings,
-    startPointId === undefined
+  const draftPointIds = Array.from(
+    new Set(
+      [startPointId, throughPointId].filter(
+        (pointId): pointId is number => pointId !== undefined
+      )
+    )
   )
-  latestKclSource = constraintResult.kclSource
-  latestSceneGraphDelta = constraintResult.sceneGraphDelta
-  newObjects.push(...constraintResult.sceneGraphDelta.new_objects)
 
-  if (startPointId === undefined) {
+  if (draftPointIds.length === 0) {
     return {
       kclSource: latestKclSource,
       sceneGraphDelta: {
         ...latestSceneGraphDelta,
         new_objects: newObjects,
       },
-      checkpointId: constraintResult.checkpointId ?? null,
+      checkpointId: null,
     }
   }
 
@@ -848,7 +840,7 @@ export async function finalizeArcActor({
     0,
     sketchId,
     [],
-    [startPointId],
+    draftPointIds,
     settings,
     true
   )

@@ -4,11 +4,13 @@ import {
   createCallExpressionStdLibKw,
   createLabeledArg,
   createLiteral,
+  createLocalName,
   createVariableDeclaration,
 } from '@src/lang/create'
 import {
   createPathToNodeForLastVariable,
   createVariableExpressionsArray,
+  getSelectionVarsForCall,
   insertVariableAndOffsetPathToNode,
   setCallInAst,
 } from '@src/lang/modifyAst'
@@ -25,6 +27,7 @@ import type {
   Program,
   VariableMap,
 } from '@src/lang/wasm'
+import { modelingStdLibCommandName } from '@src/lib/commandBarConfigs/modelingCommandStdLib'
 import type { KclCommandValue } from '@src/lib/commandTypes'
 import { KCL_DEFAULT_CONSTANT_PREFIXES } from '@src/lib/constants'
 import { err } from '@src/lib/trap'
@@ -40,6 +43,7 @@ export function addTranslate({
   y,
   z,
   global,
+  xyz,
   nodeToEdit,
 }: {
   ast: Node<Program>
@@ -50,6 +54,7 @@ export function addTranslate({
   y?: KclCommandValue
   z?: KclCommandValue
   global?: boolean
+  xyz?: KclCommandValue
   nodeToEdit?: PathToNode
 }): Error | { modifiedAst: Node<Program>; pathToNode: PathToNode } {
   // 1. Clone the ast and nodeToEdit so we can freely edit them
@@ -58,16 +63,13 @@ export function addTranslate({
 
   // 2. Prepare unlabeled and labeled arguments
   // Map the sketches selection into a list of kcl expressions to be passed as unlabelled argument
-  const vars = getVariableExprsFromSelection(
-    objects,
+  const vars = getSelectionVarsForCall({
+    selection: objects,
     artifactGraph,
     modifiedAst,
     wasmInstance,
-    mNodeToEdit,
-    {
-      lastChildLookup: true,
-    }
-  )
+    nodeToEdit: mNodeToEdit,
+  })
   if (err(vars)) {
     return vars
   }
@@ -79,14 +81,14 @@ export function addTranslate({
     global !== undefined
       ? [createLabeledArg('global', createLiteral(global, wasmInstance))]
       : []
+  const xyzExpr = xyz ? [createLabeledArg('xyz', valueOrVariable(xyz))] : []
 
   const objectsExpr = createVariableExpressionsArray(vars.exprs)
-  const call = createCallExpressionStdLibKw('translate', objectsExpr, [
-    ...xExpr,
-    ...yExpr,
-    ...zExpr,
-    ...globalExpr,
-  ])
+  const call = createCallExpressionStdLibKw(
+    modelingStdLibCommandName('Translate'),
+    objectsExpr,
+    [...xExpr, ...yExpr, ...zExpr, ...globalExpr, ...xyzExpr]
+  )
 
   // Insert variables for labeled arguments if provided
   if (x && 'variableName' in x && x.variableName) {
@@ -97,6 +99,9 @@ export function addTranslate({
   }
   if (z && 'variableName' in z && z.variableName) {
     insertVariableAndOffsetPathToNode(z, modifiedAst, mNodeToEdit)
+  }
+  if (xyz && 'variableName' in xyz && xyz.variableName) {
+    insertVariableAndOffsetPathToNode(xyz, modifiedAst, mNodeToEdit)
   }
 
   // 3. If edit, we assign the new function call declaration to the existing node,
@@ -127,6 +132,8 @@ export function addRotate({
   roll,
   pitch,
   yaw,
+  axis,
+  angle,
   global,
   nodeToEdit,
 }: {
@@ -137,6 +144,8 @@ export function addRotate({
   roll?: KclCommandValue
   pitch?: KclCommandValue
   yaw?: KclCommandValue
+  axis?: string
+  angle?: KclCommandValue
   global?: boolean
   nodeToEdit?: PathToNode
 }): Error | { modifiedAst: Node<Program>; pathToNode: PathToNode } {
@@ -146,16 +155,13 @@ export function addRotate({
 
   // 2. Prepare unlabeled and labeled arguments
   // Map the sketches selection into a list of kcl expressions to be passed as unlabelled argument
-  const vars = getVariableExprsFromSelection(
-    objects,
+  const vars = getSelectionVarsForCall({
+    selection: objects,
     artifactGraph,
     modifiedAst,
     wasmInstance,
-    mNodeToEdit,
-    {
-      lastChildLookup: true,
-    }
-  )
+    nodeToEdit: mNodeToEdit,
+  })
   if (err(vars)) {
     return vars
   }
@@ -165,18 +171,28 @@ export function addRotate({
     ? [createLabeledArg('pitch', valueOrVariable(pitch))]
     : []
   const yawExpr = yaw ? [createLabeledArg('yaw', valueOrVariable(yaw))] : []
+  const axisExpr = axis ? [createLabeledArg('axis', createLocalName(axis))] : []
+  const angleExpr = angle
+    ? [createLabeledArg('angle', valueOrVariable(angle))]
+    : []
   const globalExpr =
     global !== undefined
       ? [createLabeledArg('global', createLiteral(global, wasmInstance))]
       : []
 
   const objectsExpr = createVariableExpressionsArray(vars.exprs)
-  const call = createCallExpressionStdLibKw('rotate', objectsExpr, [
-    ...rollExpr,
-    ...pitchExpr,
-    ...yawExpr,
-    ...globalExpr,
-  ])
+  const call = createCallExpressionStdLibKw(
+    modelingStdLibCommandName('Rotate'),
+    objectsExpr,
+    [
+      ...rollExpr,
+      ...pitchExpr,
+      ...yawExpr,
+      ...axisExpr,
+      ...angleExpr,
+      ...globalExpr,
+    ]
+  )
 
   // Insert variables for labeled arguments if provided
   if (roll && 'variableName' in roll && roll.variableName) {
@@ -187,6 +203,9 @@ export function addRotate({
   }
   if (yaw && 'variableName' in yaw && yaw.variableName) {
     insertVariableAndOffsetPathToNode(yaw, modifiedAst, mNodeToEdit)
+  }
+  if (angle && 'variableName' in angle && angle.variableName) {
+    insertVariableAndOffsetPathToNode(angle, modifiedAst, mNodeToEdit)
   }
 
   // 3. If edit, we assign the new function call declaration to the existing node,
@@ -238,16 +257,13 @@ export function addScale({
 
   // 2. Prepare unlabeled and labeled arguments
   // Map the sketches selection into a list of kcl expressions to be passed as unlabelled argument
-  const vars = getVariableExprsFromSelection(
-    objects,
+  const vars = getSelectionVarsForCall({
+    selection: objects,
     artifactGraph,
     modifiedAst,
     wasmInstance,
-    mNodeToEdit,
-    {
-      lastChildLookup: true,
-    }
-  )
+    nodeToEdit: mNodeToEdit,
+  })
   if (err(vars)) {
     return vars
   }
@@ -264,13 +280,11 @@ export function addScale({
       : []
 
   const objectsExpr = createVariableExpressionsArray(vars.exprs)
-  const call = createCallExpressionStdLibKw('scale', objectsExpr, [
-    ...xExpr,
-    ...yExpr,
-    ...zExpr,
-    ...factorExpr,
-    ...globalExpr,
-  ])
+  const call = createCallExpressionStdLibKw(
+    modelingStdLibCommandName('Scale'),
+    objectsExpr,
+    [...xExpr, ...yExpr, ...zExpr, ...factorExpr, ...globalExpr]
+  )
 
   // Insert variables for labeled arguments if provided
   if (x && 'variableName' in x && x.variableName) {
@@ -342,7 +356,11 @@ export function addClone({
   }
 
   const objectsExpr = createVariableExpressionsArray(vars.exprs)
-  const call = createCallExpressionStdLibKw('clone', objectsExpr, [])
+  const call = createCallExpressionStdLibKw(
+    modelingStdLibCommandName('Clone'),
+    objectsExpr,
+    []
+  )
 
   // 3. If edit, we assign the new function call declaration to the existing node,
   // otherwise just push to the end
@@ -387,16 +405,13 @@ export function addAppearance({
 
   // 2. Prepare unlabeled and labeled arguments
   // Map the sketches selection into a list of kcl expressions to be passed as unlabelled argument
-  const vars = getVariableExprsFromSelection(
-    objects,
+  const vars = getSelectionVarsForCall({
+    selection: objects,
     artifactGraph,
     modifiedAst,
     wasmInstance,
-    mNodeToEdit,
-    {
-      lastChildLookup: true,
-    }
-  )
+    nodeToEdit: mNodeToEdit,
+  })
   if (err(vars)) {
     return vars
   }
@@ -414,12 +429,11 @@ export function addAppearance({
     ? [createLabeledArg('opacity', valueOrVariable(opacity))]
     : []
   const objectsExpr = createVariableExpressionsArray(vars.exprs)
-  const call = createCallExpressionStdLibKw('appearance', objectsExpr, [
-    ...colorExpr,
-    ...metalnessExpr,
-    ...roughnessExpr,
-    ...opacityExpr,
-  ])
+  const call = createCallExpressionStdLibKw(
+    modelingStdLibCommandName('Appearance'),
+    objectsExpr,
+    [...colorExpr, ...metalnessExpr, ...roughnessExpr, ...opacityExpr]
+  )
 
   if (metalness && 'variableName' in metalness && metalness.variableName) {
     insertVariableAndOffsetPathToNode(metalness, modifiedAst, mNodeToEdit)
@@ -550,7 +564,7 @@ export function addDelete({
     artifactGraph,
     objects,
     wasmInstance,
-    name: 'delete',
+    name: modelingStdLibCommandName('Delete'),
   })
 }
 
@@ -576,62 +590,66 @@ export function addMirror3D({
   const mNodeToEdit = structuredClone(nodeToEdit)
 
   // 2. Prepare unlabeled and labeled arguments
-  const vars = getVariableExprsFromSelection(
-    bodies,
-    artifactGraph,
-    modifiedAst,
-    wasmInstance,
-    mNodeToEdit,
-    {
-      lastChildLookup: true,
-      artifactTypeFilter: ['compositeSolid', 'sweep'],
-    }
-  )
-  if (err(vars)) {
-    return vars
-  }
-
-  const isEdgeSelection = across.graphSelections.some(
-    (selection) =>
-      selection.artifact?.type === 'segment' ||
-      selection.artifact?.type === 'sweepEdge' ||
-      selection.artifact?.type === 'edgeCutEdge'
-  )
-  let acrossArg: Expr
-  if (isEdgeSelection) {
-    const result = getAxisExpression(
-      undefined,
-      across,
+  let vars: { exprs: Expr[]; pathIfPipe?: PathToNode } = { exprs: [] }
+  let acrossArg: Expr | undefined
+  if (!mNodeToEdit) {
+    const selectionVars = getVariableExprsFromSelection(
+      bodies,
+      artifactGraph,
       modifiedAst,
       wasmInstance,
-      artifactGraph,
-      mNodeToEdit
+      undefined,
+      {
+        lastChildLookup: true,
+        artifactTypeFilter: ['compositeSolid', 'sweep'],
+      }
     )
-    if (err(result)) {
-      return result
+    if (err(selectionVars)) {
+      return selectionVars
     }
-    modifiedAst = result.modifiedAst
-    acrossArg = result.generatedAxis
-  } else {
-    const result = getPlaneExprFromSelection({
-      ast: modifiedAst,
-      artifactGraph,
-      variables,
-      plane: across,
-      wasmInstance,
-      nodeToEdit: mNodeToEdit,
-    })
-    if (err(result)) {
-      return result
+    vars = selectionVars
+
+    const isEdgeSelection = across.graphSelections.some(
+      (selection) =>
+        selection.artifact?.type === 'segment' ||
+        selection.artifact?.type === 'sweepEdge' ||
+        selection.artifact?.type === 'edgeCutEdge'
+    )
+    if (isEdgeSelection) {
+      const result = getAxisExpression(
+        undefined,
+        across,
+        modifiedAst,
+        wasmInstance,
+        artifactGraph
+      )
+      if (err(result)) {
+        return result
+      }
+      modifiedAst = result.modifiedAst
+      acrossArg = result.generatedAxis
+    } else {
+      const result = getPlaneExprFromSelection({
+        ast: modifiedAst,
+        artifactGraph,
+        variables,
+        plane: across,
+        wasmInstance,
+      })
+      if (err(result)) {
+        return result
+      }
+      modifiedAst = result.modifiedAst
+      acrossArg = result.expr
     }
-    modifiedAst = result.modifiedAst
-    acrossArg = result.expr
   }
 
   const objectsExpr = createVariableExpressionsArray(vars.exprs)
-  const call = createCallExpressionStdLibKw('mirror3d', objectsExpr, [
-    createLabeledArg('across', acrossArg),
-  ])
+  const call = createCallExpressionStdLibKw(
+    modelingStdLibCommandName('Mirror 3D'),
+    objectsExpr,
+    acrossArg ? [createLabeledArg('across', acrossArg)] : []
+  )
 
   // 3. If edit, we assign the new function call declaration to the existing node,
   // otherwise just push to the end
@@ -641,6 +659,7 @@ export function addMirror3D({
     pathToEdit: mNodeToEdit,
     pathIfNewPipe: vars.pathIfPipe,
     variableIfNewDecl: KCL_DEFAULT_CONSTANT_PREFIXES.SOLID,
+    labeledSelectionArgNames: ['across'],
     wasmInstance,
   })
   if (err(pathToNode)) {

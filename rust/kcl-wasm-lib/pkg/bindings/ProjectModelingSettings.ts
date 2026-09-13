@@ -6,19 +6,19 @@ import type { JsonValue } from "./serde_json/JsonValue.js";
 /**
  * Project specific settings that affect the behavior while modeling.
  */
-export type ProjectModelingSettings = { 
+export type ProjectModelingSettings = {
 /**
  * The default unit to use in modeling dimensions.
  */
-base_unit?: UnitLength | null, 
+base_unit?: UnitLength | null,
 /**
  * Highlight edges of 3D objects?
  */
-highlight_edges?: DefaultTrue, 
+highlight_edges?: DefaultTrue,
 /**
  * Whether or not Screen Space Ambient Occlusion (SSAO) is enabled.
  */
-enable_ssao?: DefaultTrue, 
+enable_ssao?: DefaultTrue,
 /**
  * When enabled, the grid will use a fixed size based on your selected units rather than automatically scaling with zoom level.
  * If true, the grid cells will be fixed-size, where the width is your default length unit.

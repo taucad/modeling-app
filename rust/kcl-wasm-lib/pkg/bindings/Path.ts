@@ -7,296 +7,296 @@ import type { TagDeclarator } from "./TagDeclarator.js";
 /**
  * A path.
  */
-export type Path = { "type": "ToPoint", 
+export type Path = { "type": "ToPoint",
 /**
  * The from point.
  */
-from: [number, number], 
+from: [number, number],
 /**
  * The to point.
  */
-to: [number, number], units: UnitLength, 
+to: [number, number], units: UnitLength,
 /**
  * The tag of the path.
  */
-tag: Node<TagDeclarator> | null, 
+tag: Node<TagDeclarator> | null,
 /**
  * Metadata.
  */
-__geoMeta: GeoMeta, } | { "type": "TangentialArcTo", 
+__geoMeta: GeoMeta, } | { "type": "TangentialArcTo",
 /**
  * the arc's center
  */
-center: [number, number], 
+center: [number, number],
 /**
  * arc's direction
  */
-ccw: boolean, 
+ccw: boolean,
 /**
  * The from point.
  */
-from: [number, number], 
+from: [number, number],
 /**
  * The to point.
  */
-to: [number, number], units: UnitLength, 
+to: [number, number], units: UnitLength,
 /**
  * The tag of the path.
  */
-tag: Node<TagDeclarator> | null, 
+tag: Node<TagDeclarator> | null,
 /**
  * Metadata.
  */
-__geoMeta: GeoMeta, } | { "type": "TangentialArc", 
+__geoMeta: GeoMeta, } | { "type": "TangentialArc",
 /**
  * the arc's center
  */
-center: [number, number], 
+center: [number, number],
 /**
  * arc's direction
  */
-ccw: boolean, 
+ccw: boolean,
 /**
  * The from point.
  */
-from: [number, number], 
+from: [number, number],
 /**
  * The to point.
  */
-to: [number, number], units: UnitLength, 
+to: [number, number], units: UnitLength,
 /**
  * The tag of the path.
  */
-tag: Node<TagDeclarator> | null, 
+tag: Node<TagDeclarator> | null,
 /**
  * Metadata.
  */
-__geoMeta: GeoMeta, } | { "type": "Circle", 
+__geoMeta: GeoMeta, } | { "type": "Circle",
 /**
  * the arc's center
  */
-center: [number, number], 
+center: [number, number],
 /**
  * the arc's radius
  */
-radius: number, 
+radius: number,
 /**
  * arc's direction
  * This is used to compute the tangential angle.
  */
-ccw: boolean, 
+ccw: boolean,
 /**
  * The from point.
  */
-from: [number, number], 
+from: [number, number],
 /**
  * The to point.
  */
-to: [number, number], units: UnitLength, 
+to: [number, number], units: UnitLength,
 /**
  * The tag of the path.
  */
-tag: Node<TagDeclarator> | null, 
+tag: Node<TagDeclarator> | null,
 /**
  * Metadata.
  */
-__geoMeta: GeoMeta, } | { "type": "CircleThreePoint", 
+__geoMeta: GeoMeta, } | { "type": "CircleThreePoint",
 /**
  * Point 1 of the circle
  */
-p1: [number, number], 
+p1: [number, number],
 /**
  * Point 2 of the circle
  */
-p2: [number, number], 
+p2: [number, number],
 /**
  * Point 3 of the circle
  */
-p3: [number, number], 
+p3: [number, number],
 /**
  * The from point.
  */
-from: [number, number], 
+from: [number, number],
 /**
  * The to point.
  */
-to: [number, number], units: UnitLength, 
+to: [number, number], units: UnitLength,
 /**
  * The tag of the path.
  */
-tag: Node<TagDeclarator> | null, 
+tag: Node<TagDeclarator> | null,
 /**
  * Metadata.
  */
-__geoMeta: GeoMeta, } | { "type": "ArcThreePoint", 
+__geoMeta: GeoMeta, } | { "type": "ArcThreePoint",
 /**
  * Point 1 of the arc (base on the end of previous segment)
  */
-p1: [number, number], 
+p1: [number, number],
 /**
  * Point 2 of the arc (interiorAbsolute kwarg)
  */
-p2: [number, number], 
+p2: [number, number],
 /**
  * Point 3 of the arc (endAbsolute kwarg)
  */
-p3: [number, number], 
+p3: [number, number],
 /**
  * The from point.
  */
-from: [number, number], 
+from: [number, number],
 /**
  * The to point.
  */
-to: [number, number], units: UnitLength, 
+to: [number, number], units: UnitLength,
 /**
  * The tag of the path.
  */
-tag: Node<TagDeclarator> | null, 
+tag: Node<TagDeclarator> | null,
 /**
  * Metadata.
  */
-__geoMeta: GeoMeta, } | { "type": "Horizontal", 
+__geoMeta: GeoMeta, } | { "type": "Horizontal",
 /**
  * The x coordinate.
  */
-x: number, 
+x: number,
 /**
  * The from point.
  */
-from: [number, number], 
+from: [number, number],
 /**
  * The to point.
  */
-to: [number, number], units: UnitLength, 
+to: [number, number], units: UnitLength,
 /**
  * The tag of the path.
  */
-tag: Node<TagDeclarator> | null, 
+tag: Node<TagDeclarator> | null,
 /**
  * Metadata.
  */
-__geoMeta: GeoMeta, } | { "type": "AngledLineTo", 
+__geoMeta: GeoMeta, } | { "type": "AngledLineTo",
 /**
  * The x coordinate.
  */
-x: number | null, 
+x: number | null,
 /**
  * The y coordinate.
  */
-y: number | null, 
+y: number | null,
 /**
  * The from point.
  */
-from: [number, number], 
+from: [number, number],
 /**
  * The to point.
  */
-to: [number, number], units: UnitLength, 
+to: [number, number], units: UnitLength,
 /**
  * The tag of the path.
  */
-tag: Node<TagDeclarator> | null, 
+tag: Node<TagDeclarator> | null,
 /**
  * Metadata.
  */
-__geoMeta: GeoMeta, } | { "type": "Base", 
+__geoMeta: GeoMeta, } | { "type": "Base",
 /**
  * The from point.
  */
-from: [number, number], 
+from: [number, number],
 /**
  * The to point.
  */
-to: [number, number], units: UnitLength, 
+to: [number, number], units: UnitLength,
 /**
  * The tag of the path.
  */
-tag: Node<TagDeclarator> | null, 
+tag: Node<TagDeclarator> | null,
 /**
  * Metadata.
  */
-__geoMeta: GeoMeta, } | { "type": "Arc", 
+__geoMeta: GeoMeta, } | { "type": "Arc",
 /**
  * Center of the circle that this arc is drawn on.
  */
-center: [number, number], 
+center: [number, number],
 /**
  * Radius of the circle that this arc is drawn on.
  */
-radius: number, 
+radius: number,
 /**
  * True if the arc is counterclockwise.
  */
-ccw: boolean, 
+ccw: boolean,
 /**
  * The from point.
  */
-from: [number, number], 
+from: [number, number],
 /**
  * The to point.
  */
-to: [number, number], units: UnitLength, 
+to: [number, number], units: UnitLength,
 /**
  * The tag of the path.
  */
-tag: Node<TagDeclarator> | null, 
+tag: Node<TagDeclarator> | null,
 /**
  * Metadata.
  */
-__geoMeta: GeoMeta, } | { "type": "Ellipse", center: [number, number], major_axis: [number, number], minor_radius: number, ccw: boolean, 
+__geoMeta: GeoMeta, } | { "type": "Ellipse", center: [number, number], major_axis: [number, number], minor_radius: number, ccw: boolean,
 /**
  * The from point.
  */
-from: [number, number], 
+from: [number, number],
 /**
  * The to point.
  */
-to: [number, number], units: UnitLength, 
+to: [number, number], units: UnitLength,
 /**
  * The tag of the path.
  */
-tag: Node<TagDeclarator> | null, 
+tag: Node<TagDeclarator> | null,
 /**
  * Metadata.
  */
-__geoMeta: GeoMeta, } | { "type": "Conic", 
+__geoMeta: GeoMeta, } | { "type": "Conic",
 /**
  * The from point.
  */
-from: [number, number], 
+from: [number, number],
 /**
  * The to point.
  */
-to: [number, number], units: UnitLength, 
+to: [number, number], units: UnitLength,
 /**
  * The tag of the path.
  */
-tag: Node<TagDeclarator> | null, 
+tag: Node<TagDeclarator> | null,
 /**
  * Metadata.
  */
-__geoMeta: GeoMeta, } | { "type": "Bezier", 
+__geoMeta: GeoMeta, } | { "type": "Bezier",
 /**
  * First control point (absolute coordinates).
  */
-control1: [number, number], 
+control1: [number, number],
 /**
  * Second control point (absolute coordinates).
  */
-control2: [number, number], 
+control2: [number, number],
 /**
  * The from point.
  */
-from: [number, number], 
+from: [number, number],
 /**
  * The to point.
  */
-to: [number, number], units: UnitLength, 
+to: [number, number], units: UnitLength,
 /**
  * The tag of the path.
  */
-tag: Node<TagDeclarator> | null, 
+tag: Node<TagDeclarator> | null,
 /**
  * Metadata.
  */

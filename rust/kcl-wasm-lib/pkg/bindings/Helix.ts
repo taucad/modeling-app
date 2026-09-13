@@ -5,27 +5,27 @@ import type { UnitLength } from "./ModelingCmd.js";
 /**
  * A helix.
  */
-export type Helix = { 
+export type Helix = {
 /**
  * The id of the helix.
  */
-value: string, 
+value: string,
 /**
  * The artifact ID.
  */
-artifactId: ArtifactId, 
+artifactId: ArtifactId,
 /**
  * Number of revolutions.
  */
-revolutions: number, 
+revolutions: number,
 /**
  * Start angle (in degrees).
  */
-angleStart: number, 
+angleStart: number,
 /**
  * Is the helix rotation counter clockwise?
  */
-ccw: boolean, 
+ccw: boolean,
 /**
  * The cylinder the helix was created on.
  */

@@ -74,9 +74,9 @@ build: install public/kcl_wasm_lib_bg.wasm public/kcl-samples/manifest.json .vit
 
 public/kcl_wasm_lib_bg.wasm: $(CARGO_SOURCES) $(RUST_SOURCES)
 ifdef WINDOWS
-	npm run build:wasm:dev:windows
+	npm run build:wasm:windows
 else
-	npm run build:wasm:dev
+	npm run build:wasm
 endif
 
 public/kcl-samples/manifest.json: $(KCL_SOURCES)
@@ -97,6 +97,7 @@ check: format lint
 .PHONY: format
 format: install ## Format the code
 	npm run fmt
+	cd rust && cargo +nightly fmt
 
 .PHONY: lint
 lint: install public/kcl_wasm_lib_bg.wasm ## Lint the code

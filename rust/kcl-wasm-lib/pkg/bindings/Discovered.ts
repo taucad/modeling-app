@@ -6,23 +6,23 @@ import type { Suggestion } from "./Suggestion.js";
 /**
  * Specific discovered lint rule Violation of a particular Finding.
  */
-export type Discovered = { 
+export type Discovered = {
 /**
  * Zoo Lint Finding information.
  */
-finding: Finding, 
+finding: Finding,
 /**
  * Further information about the specific finding.
  */
-description: string, 
+description: string,
 /**
  * Source code location.
  */
-pos: SourceRange, 
+pos: SourceRange,
 /**
  * Is this discovered issue overridden by the programmer?
  */
-overridden: boolean, 
+overridden: boolean,
 /**
  * Suggestion to fix the issue.
  */

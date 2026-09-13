@@ -5,15 +5,15 @@ import type { JsonValue } from "./serde_json/JsonValue.js";
 /**
  * Project specific application settings.
  */
-export type ProjectAppSettings = { 
+export type ProjectAppSettings = {
 /**
  * When the user is idle, and this is true, the stream will be torn down.
  */
-stream_idle_mode?: boolean, 
+stream_idle_mode?: boolean,
 /**
  * Zookeeper reasoning mode. Uses the app default if not set.
  */
-zookeeper_mode?: string | null, 
+zookeeper_mode?: string | null,
 /**
  * Settings that affect the behavior of the command bar.
  */

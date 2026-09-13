@@ -1,9 +1,11 @@
+import type { ReadonlySignal } from '@preact/signals-core'
 import type { CustomIconName } from '@src/components/CustomIcon'
 import type { MouseEventHandler, useMemo } from 'react'
 
 export enum AreaType {
-  TTC = 'ttc',
+  Zookeeper = 'ttc',
   Bodies = 'bodies',
+  NamedViews = 'namedViews',
   Code = 'codeEditor',
   FeatureTree = 'featureTree',
   Files = 'files',
@@ -28,7 +30,8 @@ export type AreaTypeComponentProps = {
 export type AreaTypeDefinition = {
   hide: () => boolean
   shortcut?: string
-  /** I decided this is where impure stuff like the TTC button's custom styling should live */
+  icon?: CustomIconName
+  /** I decided this is where impure stuff like the Zookeeper button's custom styling should live */
   cssClassOverrides?: PaneChildCssOverrides
   useNotifications?: () => ReturnType<
     typeof useMemo<
@@ -162,9 +165,10 @@ export type LayoutContributionResult = {
 }
 
 export type LayoutService = {
-  applyContribution: (
-    contribution: LayoutContribution
-  ) => LayoutContributionResult
+  signal: ReadonlySignal<Layout>
+  get: () => Layout
+  set: (layout: Layout) => void
+  reset: () => void
   applyContributions: (
     contributions: readonly LayoutContribution[]
   ) => LayoutContributionResult[]

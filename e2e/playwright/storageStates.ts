@@ -1,10 +1,39 @@
 import type { SaveSettingsPayload } from '@src/lib/settings/settingsTypes'
+import { PROJECT_FOLDER } from '@src/lib/constants'
 import { Themes } from '@src/lib/theme'
 import type { DeepPartial } from '@src/lib/types'
 
 import type { Settings } from '@rust/kcl-lib/bindings/Settings'
 
 export const TEST_SETTINGS_KEY = '/settings.toml'
+export const PLAYWRIGHT_PROJECT_DIRECTORY = `/documents/${PROJECT_FOLDER}`
+export const PLAYWRIGHT_PROJECT_LIBRARY_TITLE = 'Projects'
+
+export function playwrightProjectLibraries(
+  projectDirectory: string = PLAYWRIGHT_PROJECT_DIRECTORY
+) {
+  return [
+    {
+      title: PLAYWRIGHT_PROJECT_LIBRARY_TITLE,
+      path: projectDirectory,
+      type: 'directory',
+    },
+  ]
+}
+
+export function playwrightPluginSettings({
+  cloudSyncEnabled = false,
+  zookeeperEnabled = false,
+}: {
+  cloudSyncEnabled?: boolean
+  zookeeperEnabled?: boolean
+} = {}) {
+  return {
+    'cloud-sync': cloudSyncEnabled,
+    zookeeper: zookeeperEnabled,
+  }
+}
+
 export const TEST_SETTINGS: DeepPartial<Settings> = {
   app: {
     appearance: {

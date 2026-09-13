@@ -24,7 +24,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       },
       "parentSolid": {
         "solidId": "[uuid]",
-        "creatorSketchId": "[uuid]"
+        "creatorSketchId": "[uuid]",
+        "creatorSketchIsClosed": "explicitly"
       },
       "units": "mm"
     }
@@ -51,6 +52,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       "parentSolid": {
         "solidId": "[uuid]",
         "creatorSketchId": "[uuid]",
+        "creatorSketchIsClosed": "explicitly",
         "edgeCutIds": [
           "[uuid]"
         ]
@@ -63,8 +65,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": {
       "artifactId": "[uuid]",
       "id": "[uuid]",
-      "kind": "Custom",
       "objectId": 132,
+      "kind": "Custom",
       "origin": {
         "x": 0.0,
         "y": -47.49519052838329,
@@ -96,8 +98,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": {
       "artifactId": "[uuid]",
       "id": "[uuid]",
-      "kind": "Custom",
       "objectId": 162,
+      "kind": "Custom",
       "origin": {
         "x": 0.0,
         "y": 0.0,
@@ -145,7 +147,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       },
       "parentSolid": {
         "solidId": "[uuid]",
-        "creatorSketchId": "[uuid]"
+        "creatorSketchId": "[uuid]",
+        "creatorSketchIsClosed": "explicitly"
       },
       "units": "mm"
     }
@@ -172,6 +175,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       "parentSolid": {
         "solidId": "[uuid]",
         "creatorSketchId": "[uuid]",
+        "creatorSketchIsClosed": "explicitly",
         "edgeCutIds": [
           "[uuid]"
         ]
@@ -216,8 +220,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": {
       "artifactId": "[uuid]",
       "id": "[uuid]",
-      "kind": "Custom",
       "objectId": 204,
+      "kind": "Custom",
       "origin": {
         "x": 0.0,
         "y": 0.0,
@@ -281,8 +285,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": {
       "artifactId": "[uuid]",
       "id": "[uuid]",
-      "kind": "Custom",
       "objectId": 76,
+      "kind": "Custom",
       "origin": {
         "x": 0.0,
         "y": 0.0,
@@ -314,8 +318,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": {
       "artifactId": "[uuid]",
       "id": "[uuid]",
-      "kind": "Custom",
       "objectId": 90,
+      "kind": "Custom",
       "origin": {
         "x": 0.0,
         "y": -28.49519052838329,
@@ -366,6 +370,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -373,10 +379,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 6885,
-            "end": 6892,
+            "commentStart": 6920,
+            "end": 6927,
             "moduleId": 0,
-            "start": 6885,
+            "start": 6920,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -404,10 +410,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 1.0,
             "tag": {
-              "commentStart": 6885,
-              "end": 6892,
+              "commentStart": 6920,
+              "end": 6927,
               "moduleId": 0,
-              "start": 6885,
+              "start": 6920,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -440,6 +446,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "parentSolid": {
             "solidId": "[uuid]",
             "creatorSketchId": "[uuid]",
+            "creatorSketchIsClosed": "explicitly",
             "edgeCutIds": [
               "[uuid]"
             ]
@@ -470,8 +477,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": null,
       "endCapId": null,
@@ -501,10 +508,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 1.0,
           "tag": {
-            "commentStart": 6885,
-            "end": 6892,
+            "commentStart": 6920,
+            "end": 6927,
             "moduleId": 0,
-            "start": 6885,
+            "start": 6920,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -537,6 +544,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         "parentSolid": {
           "solidId": "[uuid]",
           "creatorSketchId": "[uuid]",
+          "creatorSketchIsClosed": "explicitly",
           "edgeCutIds": [
             "[uuid]"
           ]
@@ -567,8 +575,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "bitClearance01Sketch": {
@@ -594,7 +602,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": -0.00000000045381059998253133,
+                        "n": -0.000000000453810584430569,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -675,6 +683,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "parentSolid": {
                     "solidId": "[uuid]",
                     "creatorSketchId": "[uuid]",
+                    "creatorSketchIsClosed": "explicitly",
                     "edgeCutIds": [
                       "[uuid]"
                     ]
@@ -791,6 +800,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "parentSolid": {
                     "solidId": "[uuid]",
                     "creatorSketchId": "[uuid]",
+                    "creatorSketchIsClosed": "explicitly",
                     "edgeCutIds": [
                       "[uuid]"
                     ]
@@ -832,10 +842,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 1.0,
                   "tag": {
-                    "commentStart": 6885,
-                    "end": 6892,
+                    "commentStart": 6920,
+                    "end": 6927,
                     "moduleId": 0,
-                    "start": 6885,
+                    "start": 6920,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -868,6 +878,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                 "parentSolid": {
                   "solidId": "[uuid]",
                   "creatorSketchId": "[uuid]",
+                  "creatorSketchIsClosed": "explicitly",
                   "edgeCutIds": [
                     "[uuid]"
                   ]
@@ -913,6 +924,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -920,10 +933,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 11266,
-            "end": 11273,
+            "commentStart": 11224,
+            "end": 11231,
             "moduleId": 0,
-            "start": 11266,
+            "start": 11224,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -942,7 +955,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             },
             "ccw": true,
             "center": [
-              0.0000000012000000900884436,
+              0.0000000012000000900884438,
               150.0
             ],
             "from": [
@@ -951,10 +964,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 1.6000000004000001,
             "tag": {
-              "commentStart": 11266,
-              "end": 11273,
+              "commentStart": 11224,
+              "end": 11231,
               "moduleId": 0,
-              "start": 11266,
+              "start": 11224,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -987,6 +1000,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "parentSolid": {
             "solidId": "[uuid]",
             "creatorSketchId": "[uuid]",
+            "creatorSketchIsClosed": "explicitly",
             "edgeCutIds": [
               "[uuid]"
             ]
@@ -1017,8 +1031,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": null,
       "endCapId": null,
@@ -1039,7 +1053,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           },
           "ccw": true,
           "center": [
-            0.0000000012000000900884436,
+            0.0000000012000000900884438,
             150.0
           ],
           "from": [
@@ -1048,10 +1062,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 1.6000000004000001,
           "tag": {
-            "commentStart": 11266,
-            "end": 11273,
+            "commentStart": 11224,
+            "end": 11231,
             "moduleId": 0,
-            "start": 11266,
+            "start": 11224,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -1084,6 +1098,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         "parentSolid": {
           "solidId": "[uuid]",
           "creatorSketchId": "[uuid]",
+          "creatorSketchIsClosed": "explicitly",
           "edgeCutIds": [
             "[uuid]"
           ]
@@ -1114,8 +1129,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "bitClearance02Sketch": {
@@ -1151,7 +1166,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "end": [
                       {
-                        "n": 0.0000000008000000593922956,
+                        "n": 0.0000000008000000593922957,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1222,6 +1237,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "parentSolid": {
                     "solidId": "[uuid]",
                     "creatorSketchId": "[uuid]",
+                    "creatorSketchIsClosed": "explicitly",
                     "edgeCutIds": [
                       "[uuid]"
                     ]
@@ -1268,7 +1284,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "center": [
                       {
-                        "n": 0.0000000012000000900884436,
+                        "n": 0.0000000012000000900884438,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1338,6 +1354,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "parentSolid": {
                     "solidId": "[uuid]",
                     "creatorSketchId": "[uuid]",
+                    "creatorSketchIsClosed": "explicitly",
                     "edgeCutIds": [
                       "[uuid]"
                     ]
@@ -1370,7 +1387,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   },
                   "ccw": true,
                   "center": [
-                    0.0000000012000000900884436,
+                    0.0000000012000000900884438,
                     150.0
                   ],
                   "from": [
@@ -1379,10 +1396,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 1.6000000004000001,
                   "tag": {
-                    "commentStart": 11266,
-                    "end": 11273,
+                    "commentStart": 11224,
+                    "end": 11231,
                     "moduleId": 0,
-                    "start": 11266,
+                    "start": 11224,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -1415,6 +1432,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                 "parentSolid": {
                   "solidId": "[uuid]",
                   "creatorSketchId": "[uuid]",
+                  "creatorSketchIsClosed": "explicitly",
                   "edgeCutIds": [
                     "[uuid]"
                   ]
@@ -1460,6 +1478,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -1467,10 +1487,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3628,
-            "end": 3635,
+            "commentStart": 3677,
+            "end": 3684,
             "moduleId": 0,
-            "start": 3628,
+            "start": 3677,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -1489,7 +1509,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             },
             "ccw": true,
             "center": [
-              0.0000000006315790342255249,
+              0.0000000006315789509587988,
               53.15127018801177
             ],
             "from": [
@@ -1498,10 +1518,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 15.789473684421054,
             "tag": {
-              "commentStart": 3628,
-              "end": 3635,
+              "commentStart": 3677,
+              "end": 3684,
               "moduleId": 0,
-              "start": 3628,
+              "start": 3677,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -1514,17 +1534,17 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 62,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -1568,8 +1588,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -1590,7 +1610,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           },
           "ccw": true,
           "center": [
-            0.0000000006315790342255249,
+            0.0000000006315789509587988,
             53.15127018801177
           ],
           "from": [
@@ -1599,10 +1619,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 15.789473684421054,
           "tag": {
-            "commentStart": 3628,
-            "end": 3635,
+            "commentStart": 3677,
+            "end": 3684,
             "moduleId": 0,
-            "start": 3628,
+            "start": 3677,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -1615,17 +1635,17 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 62,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 0.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -1669,8 +1689,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "bitCut01Sketch": {
@@ -1688,7 +1708,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "line": {
                     "start": [
                       {
-                        "n": 0.0000000002105263444611398,
+                        "n": 0.00000000021052631670556442,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1696,7 +1716,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": -0.00000000045381059998253133,
+                        "n": -0.000000000453810584430569,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1706,7 +1726,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "end": [
                       {
-                        "n": 0.00000000042105268913280597,
+                        "n": 0.00000000042105263362165526,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1827,7 +1847,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "center": [
                       {
-                        "n": 0.0000000006315790342255249,
+                        "n": 0.0000000006315789509587988,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1933,7 +1953,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   },
                   "ccw": true,
                   "center": [
-                    0.0000000006315790342255249,
+                    0.0000000006315789509587988,
                     53.15127018801177
                   ],
                   "from": [
@@ -1942,10 +1962,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 15.789473684421054,
                   "tag": {
-                    "commentStart": 3628,
-                    "end": 3635,
+                    "commentStart": 3677,
+                    "end": 3684,
                     "moduleId": 0,
-                    "start": 3628,
+                    "start": 3677,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -1958,17 +1978,17 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 62,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": 0.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -2027,6 +2047,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -2034,10 +2056,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 4365,
-            "end": 4372,
+            "commentStart": 4414,
+            "end": 4421,
             "moduleId": 0,
-            "start": 4365,
+            "start": 4414,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -2056,7 +2078,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             },
             "ccw": true,
             "center": [
-              0.0000000006315790342255249,
+              0.0000000006315789509587988,
               150.0
             ],
             "from": [
@@ -2065,10 +2087,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 15.789473684421054,
             "tag": {
-              "commentStart": 4365,
-              "end": 4372,
+              "commentStart": 4414,
+              "end": 4421,
               "moduleId": 0,
-              "start": 4365,
+              "start": 4414,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -2081,17 +2103,17 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 76,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 35.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -2135,8 +2157,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -2157,7 +2179,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           },
           "ccw": true,
           "center": [
-            0.0000000006315790342255249,
+            0.0000000006315789509587988,
             150.0
           ],
           "from": [
@@ -2166,10 +2188,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 15.789473684421054,
           "tag": {
-            "commentStart": 4365,
-            "end": 4372,
+            "commentStart": 4414,
+            "end": 4421,
             "moduleId": 0,
-            "start": 4365,
+            "start": 4414,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -2182,17 +2204,17 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 76,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 35.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -2236,8 +2258,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "bitCut02Sketch": {
@@ -2255,7 +2277,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "line": {
                     "start": [
                       {
-                        "n": 0.0000000002105263444611398,
+                        "n": 0.00000000021052631670556442,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2273,7 +2295,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "end": [
                       {
-                        "n": 0.00000000042105268913280597,
+                        "n": 0.00000000042105263362165526,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2394,7 +2416,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "center": [
                       {
-                        "n": 0.0000000006315790342255249,
+                        "n": 0.0000000006315789509587988,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2500,7 +2522,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   },
                   "ccw": true,
                   "center": [
-                    0.0000000006315790342255249,
+                    0.0000000006315789509587988,
                     150.0
                   ],
                   "from": [
@@ -2509,10 +2531,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 15.789473684421054,
                   "tag": {
-                    "commentStart": 4365,
-                    "end": 4372,
+                    "commentStart": 4414,
+                    "end": 4421,
                     "moduleId": 0,
-                    "start": 4365,
+                    "start": 4414,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -2525,17 +2547,17 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 76,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": 35.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -2630,6 +2652,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -2637,10 +2661,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 5196,
-            "end": 5203,
+            "commentStart": 5245,
+            "end": 5252,
             "moduleId": 0,
-            "start": 5196,
+            "start": 5245,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -2659,7 +2683,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             },
             "ccw": true,
             "center": [
-              0.0000000006315790342255249,
+              0.0000000006315789509587988,
               53.15127018801177
             ],
             "from": [
@@ -2668,10 +2692,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 15.789473684421054,
             "tag": {
-              "commentStart": 5196,
-              "end": 5203,
+              "commentStart": 5245,
+              "end": 5252,
               "moduleId": 0,
-              "start": 5196,
+              "start": 5245,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -2684,17 +2708,17 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 90,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": -28.49519052838329,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -2738,8 +2762,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -2760,7 +2784,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           },
           "ccw": true,
           "center": [
-            0.0000000006315790342255249,
+            0.0000000006315789509587988,
             53.15127018801177
           ],
           "from": [
@@ -2769,10 +2793,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 15.789473684421054,
           "tag": {
-            "commentStart": 5196,
-            "end": 5203,
+            "commentStart": 5245,
+            "end": 5252,
             "moduleId": 0,
-            "start": 5196,
+            "start": 5245,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -2785,17 +2809,17 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 90,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": -28.49519052838329,
           "z": 0.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -2839,8 +2863,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "bitSupport01Sketch": {
@@ -2858,7 +2882,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "line": {
                     "start": [
                       {
-                        "n": 0.0000000002105263444611398,
+                        "n": 0.00000000021052631670556442,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2866,7 +2890,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": -0.00000000045381059998253133,
+                        "n": -0.000000000453810584430569,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2876,7 +2900,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "end": [
                       {
-                        "n": 0.00000000042105268913280597,
+                        "n": 0.00000000042105263362165526,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2997,7 +3021,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "center": [
                       {
-                        "n": 0.0000000006315790342255249,
+                        "n": 0.0000000006315789509587988,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -3103,7 +3127,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   },
                   "ccw": true,
                   "center": [
-                    0.0000000006315790342255249,
+                    0.0000000006315789509587988,
                     53.15127018801177
                   ],
                   "from": [
@@ -3112,10 +3136,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 15.789473684421054,
                   "tag": {
-                    "commentStart": 5196,
-                    "end": 5203,
+                    "commentStart": 5245,
+                    "end": 5252,
                     "moduleId": 0,
-                    "start": 5196,
+                    "start": 5245,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -3128,17 +3152,17 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 90,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": -28.49519052838329,
                   "z": 0.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -3197,6 +3221,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -3204,10 +3230,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 9588,
-            "end": 9595,
+            "commentStart": 9560,
+            "end": 9567,
             "moduleId": 0,
-            "start": 9588,
+            "start": 9560,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -3226,7 +3252,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             },
             "ccw": true,
             "center": [
-              0.0000000006315790342255249,
+              0.0000000006315789509587988,
               150.0
             ],
             "from": [
@@ -3235,10 +3261,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 15.789473684421054,
             "tag": {
-              "commentStart": 9588,
-              "end": 9595,
+              "commentStart": 9560,
+              "end": 9567,
               "moduleId": 0,
-              "start": 9588,
+              "start": 9560,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -3251,17 +3277,17 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 162,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": -2.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -3305,8 +3331,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -3327,7 +3353,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           },
           "ccw": true,
           "center": [
-            0.0000000006315790342255249,
+            0.0000000006315789509587988,
             150.0
           ],
           "from": [
@@ -3336,10 +3362,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 15.789473684421054,
           "tag": {
-            "commentStart": 9588,
-            "end": 9595,
+            "commentStart": 9560,
+            "end": 9567,
             "moduleId": 0,
-            "start": 9588,
+            "start": 9560,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -3352,17 +3378,17 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 162,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": -2.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -3406,8 +3432,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "bitSupport02Sketch": {
@@ -3425,7 +3451,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "line": {
                     "start": [
                       {
-                        "n": 0.0000000002105263444611398,
+                        "n": 0.00000000021052631670556442,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -3443,7 +3469,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "end": [
                       {
-                        "n": 0.00000000042105268913280597,
+                        "n": 0.00000000042105263362165526,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -3564,7 +3590,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "center": [
                       {
-                        "n": 0.0000000006315790342255249,
+                        "n": 0.0000000006315789509587988,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -3670,7 +3696,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   },
                   "ccw": true,
                   "center": [
-                    0.0000000006315790342255249,
+                    0.0000000006315789509587988,
                     150.0
                   ],
                   "from": [
@@ -3679,10 +3705,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 15.789473684421054,
                   "tag": {
-                    "commentStart": 9588,
-                    "end": 9595,
+                    "commentStart": 9560,
+                    "end": 9567,
                     "moduleId": 0,
-                    "start": 9588,
+                    "start": 9560,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -3695,17 +3721,17 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 162,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": -2.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -3764,6 +3790,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -3771,10 +3799,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 762,
-            "end": 766,
+            "commentStart": 792,
+            "end": 796,
             "moduleId": 0,
-            "start": 762,
+            "start": 792,
             "type": "TagDeclarator",
             "value": "base"
           },
@@ -3785,10 +3813,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 832,
-            "end": 841,
+            "commentStart": 862,
+            "end": 871,
             "moduleId": 0,
-            "start": 832,
+            "start": 862,
             "type": "TagDeclarator",
             "value": "frontFace"
           },
@@ -3799,10 +3827,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 951,
-            "end": 958,
+            "commentStart": 981,
+            "end": 988,
             "moduleId": 0,
-            "start": 951,
+            "start": 981,
             "type": "TagDeclarator",
             "value": "topFace"
           },
@@ -3813,10 +3841,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1069,
-            "end": 1078,
+            "commentStart": 1099,
+            "end": 1108,
             "moduleId": 0,
-            "start": 1069,
+            "start": 1099,
             "type": "TagDeclarator",
             "value": "frontBend"
           },
@@ -3827,10 +3855,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1216,
-            "end": 1227,
+            "commentStart": 1246,
+            "end": 1257,
             "moduleId": 0,
-            "start": 1216,
+            "start": 1246,
             "type": "TagDeclarator",
             "value": "supportEdge"
           },
@@ -3841,10 +3869,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1347,
-            "end": 1355,
+            "commentStart": 1377,
+            "end": 1385,
             "moduleId": 0,
-            "start": 1347,
+            "start": 1377,
             "type": "TagDeclarator",
             "value": "backFace"
           },
@@ -3855,10 +3883,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1473,
-            "end": 1483,
+            "commentStart": 1503,
+            "end": 1513,
             "moduleId": 0,
-            "start": 1473,
+            "start": 1503,
             "type": "TagDeclarator",
             "value": "returnEdge"
           },
@@ -3869,10 +3897,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1599,
-            "end": 1606,
+            "commentStart": 1629,
+            "end": 1636,
             "moduleId": 0,
-            "start": 1599,
+            "start": 1629,
             "type": "TagDeclarator",
             "value": "heelArc"
           },
@@ -3883,10 +3911,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3290,
-            "end": 3302,
+            "commentStart": 3339,
+            "end": 3351,
             "moduleId": 0,
-            "start": 3290,
+            "start": 3339,
             "type": "TagDeclarator",
             "value": "capStart001"
           },
@@ -3897,16 +3925,26 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3265,
-            "end": 3275,
+            "commentStart": 3314,
+            "end": 3324,
             "moduleId": 0,
-            "start": 3265,
+            "start": 3314,
             "type": "TagDeclarator",
             "value": "capEnd001"
           },
           "type": "extrudePlane"
         }
       ],
+      "faces": {
+        "capEnd001": {
+          "type": "TagIdentifier",
+          "value": "capEnd001"
+        },
+        "capStart001": {
+          "type": "TagIdentifier",
+          "value": "capStart001"
+        }
+      },
       "sketch": {
         "creatorType": "sketch",
         "type": "Sketch",
@@ -3918,20 +3956,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
               "sourceRange": []
             },
             "from": [
-              0.00000000000032917121530743186,
-              -0.0000000000005700935078577667
+              -0.0000000000000000004270914531676395,
+              -0.00000000000000000037082637292001084
             ],
             "tag": {
-              "commentStart": 762,
-              "end": 766,
+              "commentStart": 792,
+              "end": 796,
               "moduleId": 0,
-              "start": 762,
+              "start": 792,
               "type": "TagDeclarator",
               "value": "base"
             },
             "to": [
-              150.00000000000034,
-              -0.00000000013699763090746473
+              150.0,
+              -0.0000000000000000019694889973277208
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -3942,20 +3980,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
               "sourceRange": []
             },
             "from": [
-              150.00000000000034,
-              -0.00000000013699763090746473
+              150.0,
+              -0.0000000000000000019694889973277208
             ],
             "tag": {
-              "commentStart": 832,
-              "end": 841,
+              "commentStart": 862,
+              "end": 871,
               "moduleId": 0,
-              "start": 832,
+              "start": 862,
               "type": "TagDeclarator",
               "value": "frontFace"
             },
             "to": [
-              150.00000000000034,
-              5.999999999590147
+              150.0,
+              6.0
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -3966,20 +4004,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
               "sourceRange": []
             },
             "from": [
-              150.00000000000034,
-              5.999999999590147
+              150.0,
+              6.0
             ],
             "tag": {
-              "commentStart": 951,
-              "end": 958,
+              "commentStart": 981,
+              "end": 988,
               "moduleId": 0,
-              "start": 951,
+              "start": 981,
               "type": "TagDeclarator",
               "value": "topFace"
             },
             "to": [
-              0.00000000000032209978698930855,
-              5.999999999317292
+              0.000000000000007875791210187682,
+              6.0
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -3991,25 +4029,25 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             },
             "ccw": false,
             "center": [
-              -0.0000000003579750850840073,
-              13.499999999449024
+              0.0000000000000007552105127564857,
+              13.5
             ],
             "from": [
-              0.00000000000032209978698930855,
-              5.999999999317292
+              0.000000000000007875791210187682,
+              6.0
             ],
-            "radius": 7.500000000131733,
+            "radius": 7.5,
             "tag": {
-              "commentStart": 1069,
-              "end": 1078,
+              "commentStart": 1099,
+              "end": 1108,
               "moduleId": 0,
-              "start": 1069,
+              "start": 1099,
               "type": "TagDeclarator",
               "value": "frontBend"
             },
             "to": [
-              -6.494941690932652,
-              9.749569032478568
+              -6.495001265296805,
+              9.749672205820819
             ],
             "type": "Arc",
             "units": "mm"
@@ -4020,20 +4058,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
               "sourceRange": []
             },
             "from": [
-              -6.494941690932652,
-              9.749569032478568
+              -6.495001265296805,
+              9.749672205820819
             ],
             "tag": {
-              "commentStart": 1216,
-              "end": 1227,
+              "commentStart": 1246,
+              "end": 1257,
               "moduleId": 0,
-              "start": 1216,
+              "start": 1246,
               "type": "TagDeclarator",
               "value": "supportEdge"
             },
             "to": [
-              -31.49494169747123,
-              53.05083921784563
+              -31.495001273568235,
+              53.050942390266684
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -4044,20 +4082,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
               "sourceRange": []
             },
             "from": [
-              -31.49494169747123,
-              53.05083921784563
+              -31.495001273568235,
+              53.050942390266684
             ],
             "tag": {
-              "commentStart": 1347,
-              "end": 1355,
+              "commentStart": 1377,
+              "end": 1385,
               "moduleId": 0,
-              "start": 1347,
+              "start": 1377,
               "type": "TagDeclarator",
               "value": "backFace"
             },
             "to": [
-              -36.691094120896075,
-              50.05083921743044
+              -36.69115369627487,
+              50.050942390266684
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -4068,20 +4106,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
               "sourceRange": []
             },
             "from": [
-              -36.691094120896075,
-              50.05083921743044
+              -36.69115369627487,
+              50.050942390266684
             ],
             "tag": {
-              "commentStart": 1473,
-              "end": 1483,
+              "commentStart": 1503,
+              "end": 1513,
               "moduleId": 0,
-              "start": 1473,
+              "start": 1503,
               "type": "TagDeclarator",
               "value": "returnEdge"
             },
             "to": [
-              -11.691094121614412,
-              6.749569027793636
+              -11.691153696274869,
+              6.749672201044749
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -4093,42 +4131,42 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             },
             "ccw": true,
             "center": [
-              -0.0000000025142998794080995,
-              13.499999997574328
+              -0.0000000000000017763568394002505,
+              13.5
             ],
             "from": [
-              -11.691094121614412,
-              6.749569027793636
+              -11.691153696274869,
+              6.749672201044749
             ],
-            "radius": 13.499999999238204,
+            "radius": 13.500000005306278,
             "tag": {
-              "commentStart": 1599,
-              "end": 1606,
+              "commentStart": 1629,
+              "end": 1636,
               "moduleId": 0,
-              "start": 1599,
+              "start": 1629,
               "type": "TagDeclarator",
               "value": "heelArc"
             },
             "to": [
-              -0.000000002874251120903068,
-              -0.0000000016638761479725872
+              -0.000000000000003947322417317025,
+              -0.000000005306278083594407
             ],
             "type": "Arc",
             "units": "mm"
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 0,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 0.0,
             "y": 1.0,
@@ -4150,12 +4188,12 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         },
         "start": {
           "from": [
-            0.00000000000032917121530743186,
-            -0.0000000000005700935078577667
+            -0.0000000000000000004270914531676395,
+            -0.00000000000000000037082637292001084
           ],
           "to": [
-            0.00000000000032917121530743186,
-            -0.0000000000005700935078577667
+            -0.0000000000000000004270914531676395,
+            -0.00000000000000000037082637292001084
           ],
           "units": "mm",
           "tag": null,
@@ -4208,8 +4246,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -4295,6 +4333,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -4302,10 +4342,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7752,
-            "end": 7763,
+            "commentStart": 7787,
+            "end": 7798,
             "moduleId": 0,
-            "start": 7752,
+            "start": 7787,
             "type": "TagDeclarator",
             "value": "outerCircle"
           },
@@ -4316,10 +4356,24 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 8909,
-            "end": 8921,
+            "commentStart": 7870,
+            "end": 7881,
             "moduleId": 0,
-            "start": 8909,
+            "start": 7870,
+            "type": "TagDeclarator",
+            "value": "innerCircle"
+          },
+          "type": "extrudeArc"
+        },
+        {
+          "faceId": "[uuid]",
+          "id": "[uuid]",
+          "sourceRange": [],
+          "tag": {
+            "commentStart": 8881,
+            "end": 8893,
+            "moduleId": 0,
+            "start": 8881,
             "type": "TagDeclarator",
             "value": "capStart003"
           },
@@ -4330,16 +4384,26 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 8884,
-            "end": 8894,
+            "commentStart": 8856,
+            "end": 8866,
             "moduleId": 0,
-            "start": 8884,
+            "start": 8856,
             "type": "TagDeclarator",
             "value": "capEnd005"
           },
           "type": "extrudePlane"
         }
       ],
+      "faces": {
+        "capEnd005": {
+          "type": "TagIdentifier",
+          "value": "capEnd005"
+        },
+        "capStart003": {
+          "type": "TagIdentifier",
+          "value": "capStart003"
+        }
+      },
       "sketch": {
         "creatorType": "sketch",
         "type": "Sketch",
@@ -4352,7 +4416,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             },
             "ccw": true,
             "center": [
-              -0.0000000012972973989532907,
+              -0.0000000012972973989532909,
               53.15127018528891
             ],
             "from": [
@@ -4361,10 +4425,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 16.216216215135134,
             "tag": {
-              "commentStart": 7752,
-              "end": 7763,
+              "commentStart": 7787,
+              "end": 7798,
               "moduleId": 0,
-              "start": 7752,
+              "start": 7787,
               "type": "TagDeclarator",
               "value": "outerCircle"
             },
@@ -4374,20 +4438,50 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "type": "Circle",
             "units": "mm"
+          },
+          {
+            "__geoMeta": {
+              "id": "[uuid]",
+              "sourceRange": []
+            },
+            "ccw": true,
+            "center": [
+              -0.0000000012972973937641007,
+              53.151270184683824
+            ],
+            "from": [
+              1.9999999987027026,
+              53.151270183776205
+            ],
+            "radius": 2.0,
+            "tag": {
+              "commentStart": 7870,
+              "end": 7881,
+              "moduleId": 0,
+              "start": 7870,
+              "type": "TagDeclarator",
+              "value": "innerCircle"
+            },
+            "to": [
+              1.9999999987027026,
+              53.151270183776205
+            ],
+            "type": "Circle",
+            "units": "mm"
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 132,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": -47.49519052838329,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -4443,8 +4537,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -4495,7 +4589,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           },
           "ccw": true,
           "center": [
-            -0.0000000012972973989532907,
+            -0.0000000012972973989532909,
             53.15127018528891
           ],
           "from": [
@@ -4504,10 +4598,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 16.216216215135134,
           "tag": {
-            "commentStart": 7752,
-            "end": 7763,
+            "commentStart": 7787,
+            "end": 7798,
             "moduleId": 0,
-            "start": 7752,
+            "start": 7787,
             "type": "TagDeclarator",
             "value": "outerCircle"
           },
@@ -4517,20 +4611,50 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "type": "Circle",
           "units": "mm"
+        },
+        {
+          "__geoMeta": {
+            "id": "[uuid]",
+            "sourceRange": []
+          },
+          "ccw": true,
+          "center": [
+            -0.0000000012972973937641007,
+            53.151270184683824
+          ],
+          "from": [
+            1.9999999987027026,
+            53.151270183776205
+          ],
+          "radius": 2.0,
+          "tag": {
+            "commentStart": 7870,
+            "end": 7881,
+            "moduleId": 0,
+            "start": 7870,
+            "type": "TagDeclarator",
+            "value": "innerCircle"
+          },
+          "to": [
+            1.9999999987027026,
+            53.151270183776205
+          ],
+          "type": "Circle",
+          "units": "mm"
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 132,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": -47.49519052838329,
           "z": 0.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -4586,8 +4710,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "grip01Sketch": {
@@ -4613,7 +4737,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": -0.0000000013614317860698062,
+                        "n": -0.000000001361431753291707,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -4623,7 +4747,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "end": [
                       {
-                        "n": -0.0000000008648649319148063,
+                        "n": -0.0000000008648649319148064,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -4846,7 +4970,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "line": {
                     "start": [
                       {
-                        "n": -0.0000000012972973898722083,
+                        "n": -0.000000001297297389872208,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -4971,7 +5095,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   },
                   "ccw": true,
                   "center": [
-                    -0.0000000012972973989532907,
+                    -0.0000000012972973989532909,
                     53.15127018528891
                   ],
                   "from": [
@@ -4980,10 +5104,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 16.216216215135134,
                   "tag": {
-                    "commentStart": 7752,
-                    "end": 7763,
+                    "commentStart": 7787,
+                    "end": 7798,
                     "moduleId": 0,
-                    "start": 7752,
+                    "start": 7787,
                     "type": "TagDeclarator",
                     "value": "outerCircle"
                   },
@@ -5027,10 +5151,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 2.0,
                   "tag": {
-                    "commentStart": 7835,
-                    "end": 7846,
+                    "commentStart": 7870,
+                    "end": 7881,
                     "moduleId": 0,
-                    "start": 7835,
+                    "start": 7870,
                     "type": "TagDeclarator",
                     "value": "innerCircle"
                   },
@@ -5043,17 +5167,17 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 132,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": -47.49519052838329,
                   "z": 0.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -5138,7 +5262,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "center": [
                       {
-                        "n": -0.0000000012972973989532907,
+                        "n": -0.0000000012972973989532909,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -5357,6 +5481,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -5364,10 +5490,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 12120,
-            "end": 12131,
+            "commentStart": 12078,
+            "end": 12089,
             "moduleId": 0,
-            "start": 12120,
+            "start": 12078,
             "type": "TagDeclarator",
             "value": "outerCircle"
           },
@@ -5378,10 +5504,24 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 13256,
-            "end": 13268,
+            "commentStart": 12163,
+            "end": 12174,
             "moduleId": 0,
-            "start": 13256,
+            "start": 12163,
+            "type": "TagDeclarator",
+            "value": "innerCircle"
+          },
+          "type": "extrudeArc"
+        },
+        {
+          "faceId": "[uuid]",
+          "id": "[uuid]",
+          "sourceRange": [],
+          "tag": {
+            "commentStart": 13152,
+            "end": 13164,
+            "moduleId": 0,
+            "start": 13152,
             "type": "TagDeclarator",
             "value": "capStart002"
           },
@@ -5392,16 +5532,26 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 13281,
-            "end": 13291,
+            "commentStart": 13177,
+            "end": 13187,
             "moduleId": 0,
-            "start": 13281,
+            "start": 13177,
             "type": "TagDeclarator",
             "value": "capEnd002"
           },
           "type": "extrudePlane"
         }
       ],
+      "faces": {
+        "capEnd002": {
+          "type": "TagIdentifier",
+          "value": "capEnd002"
+        },
+        "capStart002": {
+          "type": "TagIdentifier",
+          "value": "capStart002"
+        }
+      },
       "sketch": {
         "creatorType": "sketch",
         "type": "Sketch",
@@ -5423,10 +5573,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 16.216216215135134,
             "tag": {
-              "commentStart": 12120,
-              "end": 12131,
+              "commentStart": 12078,
+              "end": 12089,
               "moduleId": 0,
-              "start": 12120,
+              "start": 12078,
               "type": "TagDeclarator",
               "value": "outerCircle"
             },
@@ -5436,20 +5586,50 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "type": "Circle",
             "units": "mm"
+          },
+          {
+            "__geoMeta": {
+              "id": "[uuid]",
+              "sourceRange": []
+            },
+            "ccw": true,
+            "center": [
+              -0.0000000028972974793486874,
+              150.0
+            ],
+            "from": [
+              3.1999999961027026,
+              150.0
+            ],
+            "radius": 3.199999999,
+            "tag": {
+              "commentStart": 12163,
+              "end": 12174,
+              "moduleId": 0,
+              "start": 12163,
+              "type": "TagDeclarator",
+              "value": "innerCircle"
+            },
+            "to": [
+              3.1999999961027026,
+              150.0
+            ],
+            "type": "Circle",
+            "units": "mm"
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 204,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": -3.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -5505,8 +5685,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -5566,10 +5746,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 16.216216215135134,
           "tag": {
-            "commentStart": 12120,
-            "end": 12131,
+            "commentStart": 12078,
+            "end": 12089,
             "moduleId": 0,
-            "start": 12120,
+            "start": 12078,
             "type": "TagDeclarator",
             "value": "outerCircle"
           },
@@ -5579,20 +5759,50 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "type": "Circle",
           "units": "mm"
+        },
+        {
+          "__geoMeta": {
+            "id": "[uuid]",
+            "sourceRange": []
+          },
+          "ccw": true,
+          "center": [
+            -0.0000000028972974793486874,
+            150.0
+          ],
+          "from": [
+            3.1999999961027026,
+            150.0
+          ],
+          "radius": 3.199999999,
+          "tag": {
+            "commentStart": 12163,
+            "end": 12174,
+            "moduleId": 0,
+            "start": 12163,
+            "type": "TagDeclarator",
+            "value": "innerCircle"
+          },
+          "to": [
+            3.1999999961027026,
+            150.0
+          ],
+          "type": "Circle",
+          "units": "mm"
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 204,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": -3.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -5648,8 +5858,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "grip02Sketch": {
@@ -5667,7 +5877,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "line": {
                     "start": [
                       {
-                        "n": -0.0000000008324324852373332,
+                        "n": -0.0000000008324324852373333,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -5685,7 +5895,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "end": [
                       {
-                        "n": -0.000000001664864971307099,
+                        "n": -0.0000000016648649713070994,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -5908,7 +6118,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "line": {
                     "start": [
                       {
-                        "n": -0.0000000032972975025529422,
+                        "n": -0.0000000032972975025529426,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -6042,10 +6252,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 16.216216215135134,
                   "tag": {
-                    "commentStart": 12120,
-                    "end": 12131,
+                    "commentStart": 12078,
+                    "end": 12089,
                     "moduleId": 0,
-                    "start": 12120,
+                    "start": 12078,
                     "type": "TagDeclarator",
                     "value": "outerCircle"
                   },
@@ -6089,10 +6299,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 3.199999999,
                   "tag": {
-                    "commentStart": 12205,
-                    "end": 12216,
+                    "commentStart": 12163,
+                    "end": 12174,
                     "moduleId": 0,
-                    "start": 12205,
+                    "start": 12163,
                     "type": "TagDeclarator",
                     "value": "innerCircle"
                   },
@@ -6105,17 +6315,17 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 204,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": -3.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -6302,7 +6512,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "line": {
                     "start": [
                       {
-                        "n": -0.0000000029297299289667016,
+                        "n": -0.000000002929729928966702,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -6428,6 +6638,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -6435,10 +6647,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 762,
-            "end": 766,
+            "commentStart": 792,
+            "end": 796,
             "moduleId": 0,
-            "start": 762,
+            "start": 792,
             "type": "TagDeclarator",
             "value": "base"
           },
@@ -6449,10 +6661,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 832,
-            "end": 841,
+            "commentStart": 862,
+            "end": 871,
             "moduleId": 0,
-            "start": 832,
+            "start": 862,
             "type": "TagDeclarator",
             "value": "frontFace"
           },
@@ -6463,10 +6675,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 951,
-            "end": 958,
+            "commentStart": 981,
+            "end": 988,
             "moduleId": 0,
-            "start": 951,
+            "start": 981,
             "type": "TagDeclarator",
             "value": "topFace"
           },
@@ -6477,10 +6689,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1069,
-            "end": 1078,
+            "commentStart": 1099,
+            "end": 1108,
             "moduleId": 0,
-            "start": 1069,
+            "start": 1099,
             "type": "TagDeclarator",
             "value": "frontBend"
           },
@@ -6491,10 +6703,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1216,
-            "end": 1227,
+            "commentStart": 1246,
+            "end": 1257,
             "moduleId": 0,
-            "start": 1216,
+            "start": 1246,
             "type": "TagDeclarator",
             "value": "supportEdge"
           },
@@ -6505,10 +6717,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1347,
-            "end": 1355,
+            "commentStart": 1377,
+            "end": 1385,
             "moduleId": 0,
-            "start": 1347,
+            "start": 1377,
             "type": "TagDeclarator",
             "value": "backFace"
           },
@@ -6519,10 +6731,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1473,
-            "end": 1483,
+            "commentStart": 1503,
+            "end": 1513,
             "moduleId": 0,
-            "start": 1473,
+            "start": 1503,
             "type": "TagDeclarator",
             "value": "returnEdge"
           },
@@ -6533,10 +6745,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1599,
-            "end": 1606,
+            "commentStart": 1629,
+            "end": 1636,
             "moduleId": 0,
-            "start": 1599,
+            "start": 1629,
             "type": "TagDeclarator",
             "value": "heelArc"
           },
@@ -6547,10 +6759,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3290,
-            "end": 3302,
+            "commentStart": 3339,
+            "end": 3351,
             "moduleId": 0,
-            "start": 3290,
+            "start": 3339,
             "type": "TagDeclarator",
             "value": "capStart001"
           },
@@ -6561,16 +6773,26 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3265,
-            "end": 3275,
+            "commentStart": 3314,
+            "end": 3324,
             "moduleId": 0,
-            "start": 3265,
+            "start": 3314,
             "type": "TagDeclarator",
             "value": "capEnd001"
           },
           "type": "extrudePlane"
         }
       ],
+      "faces": {
+        "capEnd001": {
+          "type": "TagIdentifier",
+          "value": "capEnd001"
+        },
+        "capStart001": {
+          "type": "TagIdentifier",
+          "value": "capStart001"
+        }
+      },
       "sketch": {
         "creatorType": "sketch",
         "type": "Sketch",
@@ -6582,20 +6804,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
               "sourceRange": []
             },
             "from": [
-              0.00000000000032917121530743186,
-              -0.0000000000005700935078577667
+              -0.0000000000000000004270914531676395,
+              -0.00000000000000000037082637292001084
             ],
             "tag": {
-              "commentStart": 762,
-              "end": 766,
+              "commentStart": 792,
+              "end": 796,
               "moduleId": 0,
-              "start": 762,
+              "start": 792,
               "type": "TagDeclarator",
               "value": "base"
             },
             "to": [
-              150.00000000000034,
-              -0.00000000013699763090746473
+              150.0,
+              -0.0000000000000000019694889973277208
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -6606,20 +6828,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
               "sourceRange": []
             },
             "from": [
-              150.00000000000034,
-              -0.00000000013699763090746473
+              150.0,
+              -0.0000000000000000019694889973277208
             ],
             "tag": {
-              "commentStart": 832,
-              "end": 841,
+              "commentStart": 862,
+              "end": 871,
               "moduleId": 0,
-              "start": 832,
+              "start": 862,
               "type": "TagDeclarator",
               "value": "frontFace"
             },
             "to": [
-              150.00000000000034,
-              5.999999999590147
+              150.0,
+              6.0
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -6630,20 +6852,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
               "sourceRange": []
             },
             "from": [
-              150.00000000000034,
-              5.999999999590147
+              150.0,
+              6.0
             ],
             "tag": {
-              "commentStart": 951,
-              "end": 958,
+              "commentStart": 981,
+              "end": 988,
               "moduleId": 0,
-              "start": 951,
+              "start": 981,
               "type": "TagDeclarator",
               "value": "topFace"
             },
             "to": [
-              0.00000000000032209978698930855,
-              5.999999999317292
+              0.000000000000007875791210187682,
+              6.0
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -6655,25 +6877,25 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             },
             "ccw": false,
             "center": [
-              -0.0000000003579750850840073,
-              13.499999999449024
+              0.0000000000000007552105127564857,
+              13.5
             ],
             "from": [
-              0.00000000000032209978698930855,
-              5.999999999317292
+              0.000000000000007875791210187682,
+              6.0
             ],
-            "radius": 7.500000000131733,
+            "radius": 7.5,
             "tag": {
-              "commentStart": 1069,
-              "end": 1078,
+              "commentStart": 1099,
+              "end": 1108,
               "moduleId": 0,
-              "start": 1069,
+              "start": 1099,
               "type": "TagDeclarator",
               "value": "frontBend"
             },
             "to": [
-              -6.494941690932652,
-              9.749569032478568
+              -6.495001265296805,
+              9.749672205820819
             ],
             "type": "Arc",
             "units": "mm"
@@ -6684,20 +6906,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
               "sourceRange": []
             },
             "from": [
-              -6.494941690932652,
-              9.749569032478568
+              -6.495001265296805,
+              9.749672205820819
             ],
             "tag": {
-              "commentStart": 1216,
-              "end": 1227,
+              "commentStart": 1246,
+              "end": 1257,
               "moduleId": 0,
-              "start": 1216,
+              "start": 1246,
               "type": "TagDeclarator",
               "value": "supportEdge"
             },
             "to": [
-              -31.49494169747123,
-              53.05083921784563
+              -31.495001273568235,
+              53.050942390266684
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -6708,20 +6930,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
               "sourceRange": []
             },
             "from": [
-              -31.49494169747123,
-              53.05083921784563
+              -31.495001273568235,
+              53.050942390266684
             ],
             "tag": {
-              "commentStart": 1347,
-              "end": 1355,
+              "commentStart": 1377,
+              "end": 1385,
               "moduleId": 0,
-              "start": 1347,
+              "start": 1377,
               "type": "TagDeclarator",
               "value": "backFace"
             },
             "to": [
-              -36.691094120896075,
-              50.05083921743044
+              -36.69115369627487,
+              50.050942390266684
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -6732,20 +6954,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
               "sourceRange": []
             },
             "from": [
-              -36.691094120896075,
-              50.05083921743044
+              -36.69115369627487,
+              50.050942390266684
             ],
             "tag": {
-              "commentStart": 1473,
-              "end": 1483,
+              "commentStart": 1503,
+              "end": 1513,
               "moduleId": 0,
-              "start": 1473,
+              "start": 1503,
               "type": "TagDeclarator",
               "value": "returnEdge"
             },
             "to": [
-              -11.691094121614412,
-              6.749569027793636
+              -11.691153696274869,
+              6.749672201044749
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -6757,42 +6979,42 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             },
             "ccw": true,
             "center": [
-              -0.0000000025142998794080995,
-              13.499999997574328
+              -0.0000000000000017763568394002505,
+              13.5
             ],
             "from": [
-              -11.691094121614412,
-              6.749569027793636
+              -11.691153696274869,
+              6.749672201044749
             ],
-            "radius": 13.499999999238204,
+            "radius": 13.500000005306278,
             "tag": {
-              "commentStart": 1599,
-              "end": 1606,
+              "commentStart": 1629,
+              "end": 1636,
               "moduleId": 0,
-              "start": 1599,
+              "start": 1629,
               "type": "TagDeclarator",
               "value": "heelArc"
             },
             "to": [
-              -0.000000002874251120903068,
-              -0.0000000016638761479725872
+              -0.000000000000003947322417317025,
+              -0.000000005306278083594407
             ],
             "type": "Arc",
             "units": "mm"
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 0,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 0.0,
             "y": 1.0,
@@ -6814,12 +7036,12 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         },
         "start": {
           "from": [
-            0.00000000000032917121530743186,
-            -0.0000000000005700935078577667
+            -0.0000000000000000004270914531676395,
+            -0.00000000000000000037082637292001084
           ],
           "to": [
-            0.00000000000032917121530743186,
-            -0.0000000000005700935078577667
+            -0.0000000000000000004270914531676395,
+            -0.00000000000000000037082637292001084
           ],
           "units": "mm",
           "tag": null,
@@ -6872,8 +7094,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -6905,7 +7127,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "line": {
                     "start": [
                       {
-                        "n": 0.0000000000006583424148710817,
+                        "n": -0.0000000000000000008548066337835559,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -6913,7 +7135,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": -0.00000000027950350523226706,
+                        "n": -0.00000000000000005608887222033827,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -6923,7 +7145,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "end": [
                       {
-                        "n": 0.0000000000009875136140330498,
+                        "n": -0.0000000000000000012825218143994724,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -6931,7 +7153,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": 13.499999999441563,
+                        "n": 13.5,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7026,7 +7248,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "line": {
                     "start": [
                       {
-                        "n": -31.494941697830317,
+                        "n": -31.495001273568235,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7034,7 +7256,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": 53.050839217638,
+                        "n": 53.050942390266684,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7044,7 +7266,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "end": [
                       {
-                        "n": -36.691094120896075,
+                        "n": -36.69115369627487,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7052,7 +7274,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": 50.05083921743044,
+                        "n": 50.050942390266684,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7146,7 +7368,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "line": {
                     "start": [
                       {
-                        "n": 0.00000000000032917121530743186,
+                        "n": -0.0000000000000000004270914531676395,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7154,7 +7376,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": -0.0000000000005700935078577667,
+                        "n": -0.00000000000000000037082637292001084,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7164,7 +7386,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "end": [
                       {
-                        "n": 150.00000000000034,
+                        "n": 150.0,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7172,7 +7394,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": -0.00000000013699763090746473,
+                        "n": -0.0000000000000000019694889973277208,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7266,7 +7488,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "arc": {
                     "start": [
                       {
-                        "n": -6.49494169133647,
+                        "n": -6.495001273568235,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7274,7 +7496,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": 9.749569032166509,
+                        "n": 9.749672201044753,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7284,7 +7506,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "end": [
                       {
-                        "n": 0.0000000000003220997922021061,
+                        "n": 0.000000000000007875791210187682,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7292,7 +7514,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": 5.999999999238415,
+                        "n": 6.0,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7302,7 +7524,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "center": [
                       {
-                        "n": -0.0000000003579740317393789,
+                        "n": -0.000000000000000051110051449533846,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7310,7 +7532,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": 13.499999999370148,
+                        "n": 13.5,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7418,7 +7640,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "line": {
                     "start": [
                       {
-                        "n": 150.00000000000034,
+                        "n": 150.0,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7426,7 +7648,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": -0.0000000002734251682640151,
+                        "n": -0.00000000000000000356963024659249,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7436,7 +7658,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "end": [
                       {
-                        "n": 150.00000000000034,
+                        "n": 150.0,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7444,7 +7666,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": 5.999999999590147,
+                        "n": 6.0,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7538,7 +7760,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "arc": {
                     "start": [
                       {
-                        "n": -11.69109411873983,
+                        "n": -11.691153696274867,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7546,7 +7768,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": 6.749569029453347,
+                        "n": 6.74967220104475,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7556,7 +7778,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "end": [
                       {
-                        "n": 0.00000000000032917122430353725,
+                        "n": -0.0000000000000000004270914531676372,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7564,7 +7786,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": 0.0000000002487247887895205,
+                        "n": 0.00000000000000022791622021627465,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7574,7 +7796,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "center": [
                       {
-                        "n": 0.000000000360278230175798,
+                        "n": 0.000000000000000048117292640119,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7582,7 +7804,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": 13.499999999234044,
+                        "n": 13.5,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -7693,20 +7915,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     "sourceRange": []
                   },
                   "from": [
-                    0.00000000000032917121530743186,
-                    -0.0000000000005700935078577667
+                    -0.0000000000000000004270914531676395,
+                    -0.00000000000000000037082637292001084
                   ],
                   "tag": {
-                    "commentStart": 762,
-                    "end": 766,
+                    "commentStart": 792,
+                    "end": 796,
                     "moduleId": 0,
-                    "start": 762,
+                    "start": 792,
                     "type": "TagDeclarator",
                     "value": "base"
                   },
                   "to": [
-                    150.00000000000034,
-                    -0.00000000013699763090746473
+                    150.0,
+                    -0.0000000000000000019694889973277208
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -7717,20 +7939,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     "sourceRange": []
                   },
                   "from": [
-                    150.00000000000034,
-                    -0.00000000013699763090746473
+                    150.0,
+                    -0.0000000000000000019694889973277208
                   ],
                   "tag": {
-                    "commentStart": 832,
-                    "end": 841,
+                    "commentStart": 862,
+                    "end": 871,
                     "moduleId": 0,
-                    "start": 832,
+                    "start": 862,
                     "type": "TagDeclarator",
                     "value": "frontFace"
                   },
                   "to": [
-                    150.00000000000034,
-                    5.999999999590147
+                    150.0,
+                    6.0
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -7741,20 +7963,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     "sourceRange": []
                   },
                   "from": [
-                    150.00000000000034,
-                    5.999999999590147
+                    150.0,
+                    6.0
                   ],
                   "tag": {
-                    "commentStart": 951,
-                    "end": 958,
+                    "commentStart": 981,
+                    "end": 988,
                     "moduleId": 0,
-                    "start": 951,
+                    "start": 981,
                     "type": "TagDeclarator",
                     "value": "topFace"
                   },
                   "to": [
-                    0.00000000000032209978698930855,
-                    5.999999999317292
+                    0.000000000000007875791210187682,
+                    6.0
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -7766,25 +7988,25 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   },
                   "ccw": false,
                   "center": [
-                    -0.0000000003579750850840073,
-                    13.499999999449024
+                    0.0000000000000007552105127564857,
+                    13.5
                   ],
                   "from": [
-                    0.00000000000032209978698930855,
-                    5.999999999317292
+                    0.000000000000007875791210187682,
+                    6.0
                   ],
-                  "radius": 7.500000000131733,
+                  "radius": 7.5,
                   "tag": {
-                    "commentStart": 1069,
-                    "end": 1078,
+                    "commentStart": 1099,
+                    "end": 1108,
                     "moduleId": 0,
-                    "start": 1069,
+                    "start": 1099,
                     "type": "TagDeclarator",
                     "value": "frontBend"
                   },
                   "to": [
-                    -6.494941690932652,
-                    9.749569032478568
+                    -6.495001265296805,
+                    9.749672205820819
                   ],
                   "type": "Arc",
                   "units": "mm"
@@ -7795,20 +8017,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     "sourceRange": []
                   },
                   "from": [
-                    -6.494941690932652,
-                    9.749569032478568
+                    -6.495001265296805,
+                    9.749672205820819
                   ],
                   "tag": {
-                    "commentStart": 1216,
-                    "end": 1227,
+                    "commentStart": 1246,
+                    "end": 1257,
                     "moduleId": 0,
-                    "start": 1216,
+                    "start": 1246,
                     "type": "TagDeclarator",
                     "value": "supportEdge"
                   },
                   "to": [
-                    -31.49494169747123,
-                    53.05083921784563
+                    -31.495001273568235,
+                    53.050942390266684
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -7819,20 +8041,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     "sourceRange": []
                   },
                   "from": [
-                    -31.49494169747123,
-                    53.05083921784563
+                    -31.495001273568235,
+                    53.050942390266684
                   ],
                   "tag": {
-                    "commentStart": 1347,
-                    "end": 1355,
+                    "commentStart": 1377,
+                    "end": 1385,
                     "moduleId": 0,
-                    "start": 1347,
+                    "start": 1377,
                     "type": "TagDeclarator",
                     "value": "backFace"
                   },
                   "to": [
-                    -36.691094120896075,
-                    50.05083921743044
+                    -36.69115369627487,
+                    50.050942390266684
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -7843,20 +8065,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     "sourceRange": []
                   },
                   "from": [
-                    -36.691094120896075,
-                    50.05083921743044
+                    -36.69115369627487,
+                    50.050942390266684
                   ],
                   "tag": {
-                    "commentStart": 1473,
-                    "end": 1483,
+                    "commentStart": 1503,
+                    "end": 1513,
                     "moduleId": 0,
-                    "start": 1473,
+                    "start": 1503,
                     "type": "TagDeclarator",
                     "value": "returnEdge"
                   },
                   "to": [
-                    -11.691094121614412,
-                    6.749569027793636
+                    -11.691153696274869,
+                    6.749672201044749
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -7868,42 +8090,42 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   },
                   "ccw": true,
                   "center": [
-                    -0.0000000025142998794080995,
-                    13.499999997574328
+                    -0.0000000000000017763568394002505,
+                    13.5
                   ],
                   "from": [
-                    -11.691094121614412,
-                    6.749569027793636
+                    -11.691153696274869,
+                    6.749672201044749
                   ],
-                  "radius": 13.499999999238204,
+                  "radius": 13.500000005306278,
                   "tag": {
-                    "commentStart": 1599,
-                    "end": 1606,
+                    "commentStart": 1629,
+                    "end": 1636,
                     "moduleId": 0,
-                    "start": 1599,
+                    "start": 1629,
                     "type": "TagDeclarator",
                     "value": "heelArc"
                   },
                   "to": [
-                    -0.000000002874251120903068,
-                    -0.0000000016638761479725872
+                    -0.000000000000003947322417317025,
+                    -0.000000005306278083594407
                   ],
                   "type": "Arc",
                   "units": "mm"
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 0,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": 0.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 0.0,
                   "y": 1.0,
@@ -7925,12 +8147,12 @@ description: Variables in memory after executing surgical-drill-guide.kcl
               },
               "start": {
                 "from": [
-                  0.00000000000032917121530743186,
-                  -0.0000000000005700935078577667
+                  -0.0000000000000000004270914531676395,
+                  -0.00000000000000000037082637292001084
                 ],
                 "to": [
-                  0.00000000000032917121530743186,
-                  -0.0000000000005700935078577667
+                  -0.0000000000000000004270914531676395,
+                  -0.00000000000000000037082637292001084
                 ],
                 "units": "mm",
                 "tag": null,
@@ -7994,7 +8216,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "line": {
                     "start": [
                       {
-                        "n": -36.69109412125524,
+                        "n": -36.69115369627487,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -8002,7 +8224,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": 50.05083921722296,
+                        "n": 50.050942390266684,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -8012,7 +8234,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "end": [
                       {
-                        "n": -11.691094121614412,
+                        "n": -11.691153696274869,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -8020,7 +8242,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": 6.749569027793636,
+                        "n": 6.749672201044749,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -8114,7 +8336,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "line": {
                     "start": [
                       {
-                        "n": -6.494941697112125,
+                        "n": -6.495001273568236,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -8122,7 +8344,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": 9.749569028831433,
+                        "n": 9.749672201044751,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -8132,7 +8354,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "end": [
                       {
-                        "n": -31.49494169747123,
+                        "n": -31.495001273568235,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -8140,7 +8362,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": 53.05083921784563,
+                        "n": 53.050942390266684,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -8234,7 +8456,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   "line": {
                     "start": [
                       {
-                        "n": 150.00000000000034,
+                        "n": 150.0,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -8242,7 +8464,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": 5.99999999945372,
+                        "n": 6.0,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -8252,7 +8474,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "end": [
                       {
-                        "n": 0.00000000000032209978698930855,
+                        "n": 0.000000000000007875791210187682,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -8260,7 +8482,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": 5.999999999317292,
+                        "n": 6.0,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -8357,20 +8579,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             "sourceRange": []
           },
           "from": [
-            0.00000000000032917121530743186,
-            -0.0000000000005700935078577667
+            -0.0000000000000000004270914531676395,
+            -0.00000000000000000037082637292001084
           ],
           "tag": {
-            "commentStart": 762,
-            "end": 766,
+            "commentStart": 792,
+            "end": 796,
             "moduleId": 0,
-            "start": 762,
+            "start": 792,
             "type": "TagDeclarator",
             "value": "base"
           },
           "to": [
-            150.00000000000034,
-            -0.00000000013699763090746473
+            150.0,
+            -0.0000000000000000019694889973277208
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -8381,20 +8603,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             "sourceRange": []
           },
           "from": [
-            150.00000000000034,
-            -0.00000000013699763090746473
+            150.0,
+            -0.0000000000000000019694889973277208
           ],
           "tag": {
-            "commentStart": 832,
-            "end": 841,
+            "commentStart": 862,
+            "end": 871,
             "moduleId": 0,
-            "start": 832,
+            "start": 862,
             "type": "TagDeclarator",
             "value": "frontFace"
           },
           "to": [
-            150.00000000000034,
-            5.999999999590147
+            150.0,
+            6.0
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -8405,20 +8627,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             "sourceRange": []
           },
           "from": [
-            150.00000000000034,
-            5.999999999590147
+            150.0,
+            6.0
           ],
           "tag": {
-            "commentStart": 951,
-            "end": 958,
+            "commentStart": 981,
+            "end": 988,
             "moduleId": 0,
-            "start": 951,
+            "start": 981,
             "type": "TagDeclarator",
             "value": "topFace"
           },
           "to": [
-            0.00000000000032209978698930855,
-            5.999999999317292
+            0.000000000000007875791210187682,
+            6.0
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -8430,25 +8652,25 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           },
           "ccw": false,
           "center": [
-            -0.0000000003579750850840073,
-            13.499999999449024
+            0.0000000000000007552105127564857,
+            13.5
           ],
           "from": [
-            0.00000000000032209978698930855,
-            5.999999999317292
+            0.000000000000007875791210187682,
+            6.0
           ],
-          "radius": 7.500000000131733,
+          "radius": 7.5,
           "tag": {
-            "commentStart": 1069,
-            "end": 1078,
+            "commentStart": 1099,
+            "end": 1108,
             "moduleId": 0,
-            "start": 1069,
+            "start": 1099,
             "type": "TagDeclarator",
             "value": "frontBend"
           },
           "to": [
-            -6.494941690932652,
-            9.749569032478568
+            -6.495001265296805,
+            9.749672205820819
           ],
           "type": "Arc",
           "units": "mm"
@@ -8459,20 +8681,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             "sourceRange": []
           },
           "from": [
-            -6.494941690932652,
-            9.749569032478568
+            -6.495001265296805,
+            9.749672205820819
           ],
           "tag": {
-            "commentStart": 1216,
-            "end": 1227,
+            "commentStart": 1246,
+            "end": 1257,
             "moduleId": 0,
-            "start": 1216,
+            "start": 1246,
             "type": "TagDeclarator",
             "value": "supportEdge"
           },
           "to": [
-            -31.49494169747123,
-            53.05083921784563
+            -31.495001273568235,
+            53.050942390266684
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -8483,20 +8705,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             "sourceRange": []
           },
           "from": [
-            -31.49494169747123,
-            53.05083921784563
+            -31.495001273568235,
+            53.050942390266684
           ],
           "tag": {
-            "commentStart": 1347,
-            "end": 1355,
+            "commentStart": 1377,
+            "end": 1385,
             "moduleId": 0,
-            "start": 1347,
+            "start": 1377,
             "type": "TagDeclarator",
             "value": "backFace"
           },
           "to": [
-            -36.691094120896075,
-            50.05083921743044
+            -36.69115369627487,
+            50.050942390266684
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -8507,20 +8729,20 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             "sourceRange": []
           },
           "from": [
-            -36.691094120896075,
-            50.05083921743044
+            -36.69115369627487,
+            50.050942390266684
           ],
           "tag": {
-            "commentStart": 1473,
-            "end": 1483,
+            "commentStart": 1503,
+            "end": 1513,
             "moduleId": 0,
-            "start": 1473,
+            "start": 1503,
             "type": "TagDeclarator",
             "value": "returnEdge"
           },
           "to": [
-            -11.691094121614412,
-            6.749569027793636
+            -11.691153696274869,
+            6.749672201044749
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -8532,42 +8754,42 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           },
           "ccw": true,
           "center": [
-            -0.0000000025142998794080995,
-            13.499999997574328
+            -0.0000000000000017763568394002505,
+            13.5
           ],
           "from": [
-            -11.691094121614412,
-            6.749569027793636
+            -11.691153696274869,
+            6.749672201044749
           ],
-          "radius": 13.499999999238204,
+          "radius": 13.500000005306278,
           "tag": {
-            "commentStart": 1599,
-            "end": 1606,
+            "commentStart": 1629,
+            "end": 1636,
             "moduleId": 0,
-            "start": 1599,
+            "start": 1629,
             "type": "TagDeclarator",
             "value": "heelArc"
           },
           "to": [
-            -0.000000002874251120903068,
-            -0.0000000016638761479725872
+            -0.000000000000003947322417317025,
+            -0.000000005306278083594407
           ],
           "type": "Arc",
           "units": "mm"
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 0,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 0.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 0.0,
           "y": 1.0,
@@ -8589,12 +8811,12 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       },
       "start": {
         "from": [
-          0.00000000000032917121530743186,
-          -0.0000000000005700935078577667
+          -0.0000000000000000004270914531676395,
+          -0.00000000000000000037082637292001084
         ],
         "to": [
-          0.00000000000032917121530743186,
-          -0.0000000000005700935078577667
+          -0.0000000000000000004270914531676395,
+          -0.00000000000000000037082637292001084
         ],
         "units": "mm",
         "tag": null,
@@ -8647,8 +8869,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "handleWidth": {
@@ -8685,6 +8907,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -8692,10 +8916,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 5967,
-            "end": 5974,
+            "commentStart": 6009,
+            "end": 6016,
             "moduleId": 0,
-            "start": 5967,
+            "start": 6009,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -8706,16 +8930,22 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 6356,
-            "end": 6366,
+            "commentStart": 6398,
+            "end": 6408,
             "moduleId": 0,
-            "start": 6356,
+            "start": 6398,
             "type": "TagDeclarator",
             "value": "capEnd004"
           },
           "type": "extrudePlane"
         }
       ],
+      "faces": {
+        "capEnd004": {
+          "type": "TagIdentifier",
+          "value": "capEnd004"
+        }
+      },
       "sketch": {
         "creatorType": "sketch",
         "type": "Sketch",
@@ -8737,10 +8967,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 2.0,
             "tag": {
-              "commentStart": 5967,
-              "end": 5974,
+              "commentStart": 6009,
+              "end": 6016,
               "moduleId": 0,
-              "start": 5967,
+              "start": 6009,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -8772,7 +9002,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           },
           "parentSolid": {
             "solidId": "[uuid]",
-            "creatorSketchId": "[uuid]"
+            "creatorSketchId": "[uuid]",
+            "creatorSketchIsClosed": "explicitly"
           },
           "units": "mm"
         },
@@ -8804,8 +9035,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": null,
       "endCapId": "[uuid]",
@@ -8851,10 +9082,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 2.0,
           "tag": {
-            "commentStart": 5967,
-            "end": 5974,
+            "commentStart": 6009,
+            "end": 6016,
             "moduleId": 0,
-            "start": 5967,
+            "start": 6009,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -8886,7 +9117,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         },
         "parentSolid": {
           "solidId": "[uuid]",
-          "creatorSketchId": "[uuid]"
+          "creatorSketchId": "[uuid]",
+          "creatorSketchIsClosed": "explicitly"
         },
         "units": "mm"
       },
@@ -8918,8 +9150,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "stem01Sketch": {
@@ -8945,7 +9177,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                         }
                       },
                       {
-                        "n": -0.00000000045381059998253133,
+                        "n": -0.000000000453810584430569,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -9025,7 +9257,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   },
                   "parentSolid": {
                     "solidId": "[uuid]",
-                    "creatorSketchId": "[uuid]"
+                    "creatorSketchId": "[uuid]",
+                    "creatorSketchIsClosed": "explicitly"
                   },
                   "units": "mm"
                 },
@@ -9138,7 +9371,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   },
                   "parentSolid": {
                     "solidId": "[uuid]",
-                    "creatorSketchId": "[uuid]"
+                    "creatorSketchId": "[uuid]",
+                    "creatorSketchIsClosed": "explicitly"
                   },
                   "units": "mm"
                 },
@@ -9177,10 +9411,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 2.0,
                   "tag": {
-                    "commentStart": 5967,
-                    "end": 5974,
+                    "commentStart": 6009,
+                    "end": 6016,
                     "moduleId": 0,
-                    "start": 5967,
+                    "start": 6009,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -9212,7 +9446,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                 },
                 "parentSolid": {
                   "solidId": "[uuid]",
-                  "creatorSketchId": "[uuid]"
+                  "creatorSketchId": "[uuid]",
+                  "creatorSketchIsClosed": "explicitly"
                 },
                 "units": "mm"
               },
@@ -9255,6 +9490,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -9262,10 +9499,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 10345,
-            "end": 10352,
+            "commentStart": 10310,
+            "end": 10317,
             "moduleId": 0,
-            "start": 10345,
+            "start": 10310,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -9276,16 +9513,22 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 10736,
-            "end": 10746,
+            "commentStart": 10701,
+            "end": 10711,
             "moduleId": 0,
-            "start": 10736,
+            "start": 10701,
             "type": "TagDeclarator",
             "value": "capEnd003"
           },
           "type": "extrudePlane"
         }
       ],
+      "faces": {
+        "capEnd003": {
+          "type": "TagIdentifier",
+          "value": "capEnd003"
+        }
+      },
       "sketch": {
         "creatorType": "sketch",
         "type": "Sketch",
@@ -9298,7 +9541,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             },
             "ccw": true,
             "center": [
-              -0.0000000006000000450442218,
+              -0.0000000006000000450442219,
               150.0
             ],
             "from": [
@@ -9307,10 +9550,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 3.1999999998,
             "tag": {
-              "commentStart": 10345,
-              "end": 10352,
+              "commentStart": 10310,
+              "end": 10317,
               "moduleId": 0,
-              "start": 10345,
+              "start": 10310,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -9342,7 +9585,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           },
           "parentSolid": {
             "solidId": "[uuid]",
-            "creatorSketchId": "[uuid]"
+            "creatorSketchId": "[uuid]",
+            "creatorSketchIsClosed": "explicitly"
           },
           "units": "mm"
         },
@@ -9374,8 +9618,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": null,
       "endCapId": "[uuid]",
@@ -9412,7 +9656,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           },
           "ccw": true,
           "center": [
-            -0.0000000006000000450442218,
+            -0.0000000006000000450442219,
             150.0
           ],
           "from": [
@@ -9421,10 +9665,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 3.1999999998,
           "tag": {
-            "commentStart": 10345,
-            "end": 10352,
+            "commentStart": 10310,
+            "end": 10317,
             "moduleId": 0,
-            "start": 10345,
+            "start": 10310,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -9456,7 +9700,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
         },
         "parentSolid": {
           "solidId": "[uuid]",
-          "creatorSketchId": "[uuid]"
+          "creatorSketchId": "[uuid]",
+          "creatorSketchIsClosed": "explicitly"
         },
         "units": "mm"
       },
@@ -9488,8 +9733,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "stem02Sketch": {
@@ -9525,7 +9770,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "end": [
                       {
-                        "n": -0.0000000004000000296961478,
+                        "n": -0.00000000040000002969614786,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -9595,7 +9840,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   },
                   "parentSolid": {
                     "solidId": "[uuid]",
-                    "creatorSketchId": "[uuid]"
+                    "creatorSketchId": "[uuid]",
+                    "creatorSketchIsClosed": "explicitly"
                   },
                   "units": "mm"
                 },
@@ -9639,7 +9885,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                     ],
                     "center": [
                       {
-                        "n": -0.0000000006000000450442218,
+                        "n": -0.0000000006000000450442219,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -9708,7 +9954,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   },
                   "parentSolid": {
                     "solidId": "[uuid]",
-                    "creatorSketchId": "[uuid]"
+                    "creatorSketchId": "[uuid]",
+                    "creatorSketchIsClosed": "explicitly"
                   },
                   "units": "mm"
                 },
@@ -9738,7 +9985,7 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   },
                   "ccw": true,
                   "center": [
-                    -0.0000000006000000450442218,
+                    -0.0000000006000000450442219,
                     150.0
                   ],
                   "from": [
@@ -9747,10 +9994,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 3.1999999998,
                   "tag": {
-                    "commentStart": 10345,
-                    "end": 10352,
+                    "commentStart": 10310,
+                    "end": 10317,
                     "moduleId": 0,
-                    "start": 10345,
+                    "start": 10310,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -9782,7 +10029,8 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                 },
                 "parentSolid": {
                   "solidId": "[uuid]",
-                  "creatorSketchId": "[uuid]"
+                  "creatorSketchId": "[uuid]",
+                  "creatorSketchIsClosed": "explicitly"
                 },
                 "units": "mm"
               },

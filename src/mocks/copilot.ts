@@ -116,6 +116,20 @@ const reasoning = (): Extract<MlCopilotServerMessage, { reasoning: any }> => {
       file_name: stringRand(ALPHA, 30) + '.kcl',
       type: 'deleted_kcl_file' as const,
     },
+    {
+      content: stringRand(ALPHA.concat('\n'), 200),
+      file_name: stringRand(ALPHA, 30) + '.md',
+      type: 'created_project_file' as const,
+    },
+    {
+      content: stringRand(ALPHA.concat('\n'), 200),
+      file_name: stringRand(ALPHA, 30) + '.md',
+      type: 'updated_project_file' as const,
+    },
+    {
+      file_name: stringRand(ALPHA, 30) + '.md',
+      type: 'deleted_project_file' as const,
+    },
   ]
 
   return {
@@ -269,7 +283,7 @@ export class MockSocket extends WebSocket {
       this.cbs.message.push(listener)
 
       // If there's 1 'message' event listener, fire off the replay on
-      // the next tick (so it's not immediate and the mlephant state machine
+      // the next tick (so it's not immediate and the zookeeper state machine
       // can move onto the listening phase
       if (this.cbs.message.length === 1) {
         setTimeout(() => {

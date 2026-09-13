@@ -6,11 +6,11 @@ import type { JsonValue } from "./serde_json/JsonValue.js";
 /**
  * High level settings.
  */
-export type Settings = { 
+export type Settings = {
 /**
  * The settings for the Design Studio.
  */
-app?: AppSettings | null, 
+app?: AppSettings | null,
 /**
  * Settings that affect the behavior while modeling.
  */

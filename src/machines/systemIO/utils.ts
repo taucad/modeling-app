@@ -1,6 +1,7 @@
+import type { MlToolResult } from '@kittycad/lib'
 import type { ExecState } from '@src/lang/wasm'
 import type { App } from '@src/lib/app'
-import { FILE_EXT, REGEXP_UUIDV4 } from '@src/lib/constants'
+import { FILE_EXT, PROJECT_ENTRYPOINT } from '@src/lib/constants'
 import { getUniqueProjectName } from '@src/lib/desktopFS'
 import fsZds from '@src/lib/fs-zds'
 import { fsZdsConstants } from '@src/lib/fs-zds/constants'
@@ -11,16 +12,21 @@ import {
   isPathIgnoredByGitignore,
 } from '@src/lib/gitignore'
 import { getFilePathRelativeToProject, joinOSPaths } from '@src/lib/paths'
-import type { Project } from '@src/lib/project'
+import type { FileEntry, Project } from '@src/lib/project'
 import { isErr } from '@src/lib/trap'
 import type { FileMeta } from '@src/lib/types'
 import { isNonNullable } from '@src/lib/utils'
 import type { ModuleType } from '@src/lib/wasm_lib_wrapper'
-import type { MlEphantNewFileRequestProps } from '@src/machines/systemIO/hooks'
+import {
+  getZookeeperEditPatchFromToolOutput,
+  isZookeeperProjectEntrypointPath,
+} from '@src/lib/zookeeper/zookeeperEditPatch'
 import { getAllSubDirectoriesAtProjectRoot } from '@src/machines/systemIO/snapshotContext'
 import type { systemIOMachine } from '@src/machines/systemIO/systemIOMachine'
 import toast from 'react-hot-toast'
-import type { ActorRefFrom } from 'xstate'
+import type { ActorRefFrom, EventObject } from 'xstate'
+
+export { SystemIOMachineEvents } from '@src/machines/systemIO/events'
 
 export type SystemIOActor = ActorRefFrom<typeof systemIOMachine>
 
@@ -28,6 +34,7 @@ export enum SystemIOMachineActors {
   readFoldersFromProjectDirectory = 'read folders from project directory',
   setProjectDirectoryPath = 'set project directory path',
   createProject = 'create project',
+  duplicateProject = 'duplicate project',
   renameProject = 'rename project',
   deleteProject = 'delete project',
   createKCLFile = 'create kcl file',
@@ -51,8 +58,6 @@ export enum SystemIOMachineActors {
   moveRecursiveAndNavigate = 'move recursive and navigate',
   copyRecursive = 'copy recursive',
   moveRecursive = 'move recursive',
-  getMlEphantConversations = 'get ml-ephant conversations',
-  saveMlEphantConversations = 'save ml-ephant conversations',
 }
 
 export enum SystemIOMachineStates {
@@ -60,6 +65,7 @@ export enum SystemIOMachineStates {
   readingFolders = 'readingFolders',
   settingProjectDirectoryPath = 'settingProjectDirectoryPath',
   creatingProject = 'creatingProject',
+  duplicatingProject = 'duplicatingProject',
   renamingProject = 'renamingProject',
   deletingProject = 'deletingProject',
   creatingKCLFile = 'creatingKCLFile',
@@ -83,65 +89,6 @@ export enum SystemIOMachineStates {
   copyingRecursive = 'copying recursive',
   movingRecursive = 'moving recursive',
   movingRecursiveAndNavigate = 'moving recursive and navigate',
-  gettingMlEphantConversations = 'getting ml-ephant conversations',
-  savingMlEphantConversations = 'saving ml-ephant conversations',
-}
-
-const donePrefix = 'xstate.done.actor.'
-
-export enum SystemIOMachineEvents {
-  readFoldersFromProjectDirectory = 'read folders from project directory',
-  done_readFoldersFromProjectDirectory = donePrefix +
-    'read folders from project directory',
-  setFolders = 'set folders',
-  setProjectDirectoryPath = 'set project directory path',
-  navigateToProject = 'navigate to project',
-  navigateToFile = 'navigate to file',
-  createProject = 'create project',
-  renameProject = 'rename project',
-  done_renameProject = donePrefix + 'rename project',
-  deleteProject = 'delete project',
-  done_deleteProject = donePrefix + 'delete project',
-  createKCLFile = 'create kcl file',
-  setDefaultProjectFolderName = 'set default project folder name',
-  done_checkReadWrite = donePrefix + 'check read write',
-  /** TODO: rename this event to be more generic, like `createKCLFileAndNavigate` */
-  importFileFromURL = 'import file from URL',
-  done_importFileFromURL = donePrefix + 'import file from URL',
-  generateTextToCAD = 'generate text to CAD',
-  deleteKCLFile = 'delete kcl file',
-  bulkCreateKCLFiles = 'bulk create kcl files',
-  bulkCreateKCLFilesAndNavigateToProject = 'bulk create kcl files and navigate to project',
-  bulkImportProjectFilesAndNavigateToFile = 'bulk import project files and navigate to file',
-  bulkCreateKCLFilesAndNavigateToFile = 'bulk create kcl files and navigate to file',
-  done_bulkCreateKCLFilesAndNavigateToFile = donePrefix +
-    'bulk create kcl files and navigate to file',
-  bulkCreateAndDeleteKCLFilesAndNavigateToFile = 'bulk create and delete kcl files and navigate to file',
-  done_bulkCreateAndDeleteKCLFilesAndNavigateToFile = donePrefix +
-    'bulk create and delete kcl files and navigate to file',
-  renameFolder = 'rename folder',
-  renameFile = 'rename file',
-  deleteFileOrFolder = 'delete file or folder',
-  createBlankFile = 'create blank file',
-  createBlankFolder = 'create blank folder',
-  renameFileAndNavigateToFile = 'rename file and navigate to file',
-  done_renameFileAndNavigateToFile = donePrefix +
-    'rename file and navigate to file',
-  renameFolderAndNavigateToFile = 'rename folder and navigate to file',
-  done_renameFolderAndNavigateToFile = donePrefix +
-    'rename folder and navigate to file',
-  deleteFileOrFolderAndNavigate = 'delete file or folder and navigate',
-  done_deleteFileOrFolderAndNavigate = donePrefix +
-    'delete file or folder and navigate',
-  copyRecursive = 'copy recursive',
-  moveRecursive = 'move recursive',
-  moveRecursiveAndNavigate = 'move recursive and navigate',
-  done_moveRecursiveAndNavigate = donePrefix + 'move recursive and navigate',
-  getMlEphantConversations = 'get ml-ephant conversations',
-  done_getMlEphantConversations = donePrefix + 'get ml-ephant conversations',
-  saveMlEphantConversations = 'save ml-ephant conversations',
-  done_saveMlEphantConversations = donePrefix + 'save ml-ephant conversations',
-  deleteMlEphantConversation = 'delete ml-ephant conversation',
 }
 
 export enum SystemIOMachineActions {
@@ -152,11 +99,14 @@ export enum SystemIOMachineActions {
   setDefaultProjectFolderName = 'set default project folder name',
   toastSuccess = 'toastSuccess',
   toastError = 'toastError',
+  toastErrorZookeeperFileWrite = 'toastErrorZookeeperFileWrite',
+  reportError = 'reportError',
   setReadWriteProjectDirectory = 'set read write project directory',
-  setRequestedTextToCadGeneration = 'set requested text to cad generation',
+  setRequestedZookeeperGeneration = 'set requested zookeeper generation',
   setLastProjectDeleteRequest = 'set last project delete request',
   toastProjectNameTooLong = 'toast project name too long',
-  setMlEphantConversations = 'set ml-ephant conversations',
+  deferSystemIOEvent = 'defer system IO event',
+  flushDeferredSystemIOEvent = 'flush deferred system IO event',
 }
 
 export enum SystemIOMachineGuards {
@@ -185,11 +135,16 @@ export type SystemIOContext = SystemIOInput & {
    * We watch objects because we want to be able to navigate to itself
    * if we used a string the useEffect would not change
    */
-  requestedProjectName: { name: string; subRoute?: string }
-  requestedFileName: { project: string; file: string; subRoute?: string }
+  requestedProjectName: { name: string; path?: string; subRoute?: string }
+  requestedFileName: {
+    project: string
+    file: string
+    subRoute?: string
+    onProjectLoaderComplete?: () => void
+  }
   canReadWriteProjectDirectory: { value: boolean; error: unknown }
   clearURLParams: { value: boolean }
-  requestedTextToCadGeneration: {
+  requestedZookeeperGeneration: {
     requestedPrompt: string
     requestedProjectName: string
     isProjectNew: boolean
@@ -200,10 +155,15 @@ export type SystemIOContext = SystemIOInput & {
 
   /** Temporary storage to return to project after renaming */
   pendingRenamedProjectName?: string
+  /** Navigation to publish only after the post-mutation folder snapshot lands. */
+  pendingNavigationAfterFolderRefresh?: {
+    project: string
+    file?: string
+  }
+  /** Event captured while checking project-directory access. */
+  deferredSystemIOEvent?: EventObject
+  lastRecursiveMoveTarget?: string
   lastOperation: any
-
-  // A mapping between project id and conversation ids.
-  mlEphantConversations?: Map<string, string>
 }
 
 export type RequestedKCLFile = {
@@ -226,22 +186,41 @@ export type RequestedProjectFile = {
 }
 
 export const waitForIdleState = async ({
+  abortSignal,
   systemIOActor,
 }: {
+  abortSignal?: AbortSignal
   systemIOActor: SystemIOActor
 }) => {
   // Check if already idle before setting up subscription
-  if (systemIOActor.getSnapshot().matches(SystemIOMachineStates.idle)) {
+  if (
+    abortSignal?.aborted ||
+    systemIOActor.getSnapshot().matches(SystemIOMachineStates.idle)
+  ) {
     return Promise.resolve()
   }
 
   const waitForIdlePromise = new Promise((resolve) => {
-    const subscription = systemIOActor.subscribe((state) => {
+    let subscription: ReturnType<SystemIOActor['subscribe']> | undefined
+    let finished = false
+    const finish = () => {
+      if (finished) {
+        return
+      }
+      finished = true
+      subscription?.unsubscribe()
+      abortSignal?.removeEventListener('abort', finish)
+      resolve(undefined)
+    }
+    abortSignal?.addEventListener('abort', finish, { once: true })
+    subscription = systemIOActor.subscribe((state) => {
       if (state.matches(SystemIOMachineStates.idle)) {
-        subscription.unsubscribe()
-        resolve(undefined)
+        finish()
       }
     })
+    if (finished) {
+      subscription.unsubscribe()
+    }
   })
   return waitForIdlePromise
 }
@@ -278,6 +257,13 @@ export const determineProjectFilePathFromPrompt = (
   return finalPath
 }
 
+const normalizeRelativePath = (filePath: string) => filePath.replace(/\\/g, '/')
+
+const normalizePathForComparison = (filePath: string) => {
+  const normalized = normalizeRelativePath(fsZds.resolve(filePath))
+  return fsZds.sep === '\\' ? normalized.toLowerCase() : normalized
+}
+
 export const collectProjectFiles = async (args: {
   selectedFileContents: string
   fileNames: ExecState['filenames']
@@ -295,26 +281,71 @@ export const collectProjectFiles = async (args: {
       execStateFileNamesIndex: 0,
     },
   ]
-  const execStateNameToIndexMap: { [fileName: string]: number } = {}
-  Object.entries(args.fileNames).forEach(([index, val]) => {
-    if (val?.type === 'Local') {
-      execStateNameToIndexMap[val.value] = Number(index)
-    }
-  })
   let basePath = ''
   if (args.projectContext) {
     // Use the entire project directory as the basePath for prompt to edit, do not use relative subdir paths
     basePath = args.projectContext?.path
+    const execStateNameToIndexMap: { [fileName: string]: number } = {}
+    const setExecStateFileIndex = (fileName: string, index: number) => {
+      const normalizedFileName = normalizeRelativePath(fileName)
+      execStateNameToIndexMap[fileName] = index
+      execStateNameToIndexMap[normalizedFileName] = index
+      execStateNameToIndexMap[normalizePathForComparison(fileName)] = index
+
+      const projectRelativePath = normalizeRelativePath(
+        fsZds.relative(basePath, fileName) ?? ''
+      )
+      if (projectRelativePath && !projectRelativePath.startsWith('..')) {
+        execStateNameToIndexMap[projectRelativePath] = index
+      }
+    }
+    Object.entries(args.fileNames).forEach(([index, val]) => {
+      if (val?.type === 'Local') {
+        setExecStateFileIndex(val.value, Number(index))
+      }
+    })
+    const selectedAbsolutePath = args.selectedFilePath
+      ? normalizePathForComparison(args.selectedFilePath)
+      : undefined
+    const selectedRelativePath = args.selectedFilePath
+      ? normalizeRelativePath(
+          fsZds.relative(basePath, args.selectedFilePath) ?? ''
+        )
+      : undefined
+    const isSelectedFilePath = (absolutePath: string) => {
+      if (!args.selectedFilePath) return false
+
+      return (
+        normalizePathForComparison(absolutePath) === selectedAbsolutePath ||
+        normalizeRelativePath(fsZds.relative(basePath, absolutePath) ?? '') ===
+          selectedRelativePath
+      )
+    }
+    const execStateFileIndexForKclFile = (
+      absolutePathToFileNameWithExtension: string,
+      fileNameWithExtension: string
+    ) =>
+      execStateNameToIndexMap[absolutePathToFileNameWithExtension] ??
+      execStateNameToIndexMap[
+        normalizePathForComparison(absolutePathToFileNameWithExtension)
+      ] ??
+      execStateNameToIndexMap[fileNameWithExtension] ??
+      (isSelectedFilePath(absolutePathToFileNameWithExtension) ? 0 : undefined)
     const filePromises: Promise<FileMeta | null>[] = []
     let uploadSize = 0
     const pushFilePromise = (absolutePathToFileNameWithExtension: string) => {
-      const fileNameWithExtension =
+      // Normalize to forward slashes: this becomes the FileMeta.relPath that is
+      // sent to the ML/Zookeeper service as the `current_files` keys and the
+      // `source_ranges` file paths. On Windows fsZds.relative yields backslash
+      // separators, which the Linux server rejects as invalid file names.
+      const fileNameWithExtension = normalizeRelativePath(
         fsZds.relative(basePath, absolutePathToFileNameWithExtension) ?? ''
+      )
 
       filePromises.push(
         Promise.resolve()
           .then(() =>
-            args.selectedFilePath === absolutePathToFileNameWithExtension
+            isSelectedFilePath(absolutePathToFileNameWithExtension)
               ? new TextEncoder().encode(args.selectedFileContents)
               : fsZds.readFile(absolutePathToFileNameWithExtension)
           )
@@ -328,8 +359,10 @@ export const collectProjectFiles = async (args: {
                 absPath: absolutePathToFileNameWithExtension,
                 relPath: fileNameWithExtension,
                 fileContents: decoder.decode(file),
-                execStateFileNamesIndex:
-                  execStateNameToIndexMap[absolutePathToFileNameWithExtension],
+                execStateFileNamesIndex: execStateFileIndexForKclFile(
+                  absolutePathToFileNameWithExtension,
+                  fileNameWithExtension
+                ),
               }
             }
             const blob = new Blob([new Uint8Array(file)], {
@@ -401,40 +434,20 @@ export const collectProjectFiles = async (args: {
   return projectFiles
 }
 
-export const jsonToMlConversations = (json: string) => {
-  const mlConversations = new Map<string, string>()
-  const untypedObject = JSON.parse(json)
-  for (let entry of Object.entries(untypedObject)) {
-    if (typeof entry[0] === 'string' && !REGEXP_UUIDV4.test(entry[0])) {
-      console.warn(
-        'Expected a project id string as a key (potentially bad format)'
-      )
-      continue
-    }
-    if (typeof entry[1] === 'string' && !REGEXP_UUIDV4.test(entry[1])) {
-      console.warn('Expected a conversation id string (potentially bad format)')
-      continue
-    }
-
-    if (typeof entry[0] === 'string' && typeof entry[1] === 'string') {
-      mlConversations.set(entry[0], entry[1])
-    }
-  }
-  return mlConversations
+type ZookeeperNewFileRequestProps = {
+  toolOutput: MlToolResult
+  projectNameCurrentlyOpened: string
+  fileFocusedOnInEditor?: FileEntry
+  filesToDelete?: RequestedKCLFileDelete[]
 }
 
-export const mlConversationsToJson = (
-  convos: SystemIOContext['mlEphantConversations']
-): string => {
-  return JSON.stringify(Object.fromEntries(convos ?? new Map<string, string>()))
-}
-
-export const prepareMlEphantNewFileRequest = ({
+export const prepareZookeeperNewFileRequest = ({
+  fallbackFilePath,
   toolOutput,
   projectNameCurrentlyOpened,
   fileFocusedOnInEditor,
   filesToDelete = [],
-}: MlEphantNewFileRequestProps) => {
+}: ZookeeperNewFileRequestProps & { fallbackFilePath?: string }) => {
   if (
     toolOutput.type !== 'text_to_cad' &&
     toolOutput.type !== 'edit_kcl_code'
@@ -458,17 +471,54 @@ export const prepareMlEphantNewFileRequest = ({
   // (e.g. "/newFile.kcl"). Strip it here so the returned value is genuinely
   // project-relative, matching what the field name promises.
   const rawRelativePath = getFilePathRelativeToProject(
-    fileFocusedOnInEditor?.path || '',
+    fileFocusedOnInEditor?.path || fallbackFilePath || '',
     projectNameCurrentlyOpened
   )
   const requestedFileNameWithExtension = rawRelativePath.startsWith(fsZds.sep)
     ? rawRelativePath.slice(fsZds.sep.length)
     : rawRelativePath
+  const rawZookeeperEditPatch = getZookeeperEditPatchFromToolOutput(toolOutput)
+  const zookeeperEditPatch = rawZookeeperEditPatch
+    ? {
+        ...rawZookeeperEditPatch,
+        changed_files: rawZookeeperEditPatch.changed_files?.filter(
+          (file) =>
+            file.status !== 'deleted' ||
+            !isZookeeperProjectEntrypointPath(file.path)
+        ),
+      }
+    : undefined
+  const filesToDeleteByPath = new Map<string, RequestedKCLFileDelete>()
+
+  for (const file of filesToDelete) {
+    if (isZookeeperProjectEntrypointPath(file.requestedFileName)) continue
+    filesToDeleteByPath.set(
+      normalizeKCLFileDeletePath(file.requestedFileName),
+      file
+    )
+  }
+
+  for (const file of zookeeperEditPatch?.changed_files ?? []) {
+    if (file.status !== 'deleted') continue
+    filesToDeleteByPath.set(normalizeKCLFileDeletePath(file.path), {
+      requestedFileName: file.path,
+    })
+  }
+
+  const normalizedRequestedFileName = normalizeKCLFileDeletePath(
+    requestedFileNameWithExtension
+  )
+  const requestedFileWasDeleted =
+    normalizedRequestedFileName.length > 0 &&
+    filesToDeleteByPath.has(normalizedRequestedFileName)
 
   return {
     files: requestedFiles,
-    filesToDelete,
+    filesToDelete: Array.from(filesToDeleteByPath.values()),
     requestedProjectName: projectNameCurrentlyOpened,
-    requestedFileNameWithExtension,
+    requestedFileNameWithExtension: requestedFileWasDeleted
+      ? PROJECT_ENTRYPOINT
+      : requestedFileNameWithExtension,
+    zookeeperEditPatch,
   }
 }

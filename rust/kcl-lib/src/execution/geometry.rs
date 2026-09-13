@@ -8,11 +8,11 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use indexmap::IndexMap;
+use kcl_api::UnitLength;
 use kcl_error::SourceRange;
 use kittycad_modeling_cmds::ModelingCmd;
 use kittycad_modeling_cmds::each_cmd as mcmd;
 use kittycad_modeling_cmds::length_unit::LengthUnit;
-use kittycad_modeling_cmds::units::UnitLength;
 use kittycad_modeling_cmds::websocket::ModelingCmdReq;
 use kittycad_modeling_cmds::{self as kcmc};
 use parse_display::Display;
@@ -35,8 +35,10 @@ use crate::execution::TagEngineInfo;
 use crate::execution::TagIdentifier;
 use crate::execution::normalize_to_solver_distance_unit;
 use crate::execution::types::NumericType;
+use crate::execution::types::NumericTypeExt;
 use crate::execution::types::adjust_length;
 use crate::front::ArcCtor;
+use crate::front::ArcDirection;
 use crate::front::CircleCtor;
 use crate::front::ControlPointSplineCtor;
 use crate::front::Freedom;
@@ -87,13 +89,12 @@ impl Geometry {
         }
     }
 
-    /// If this geometry is the result of a pattern, then return the ID of
-    /// the original sketch which was patterned.
-    /// Equivalent to the `id()` method if this isn't a pattern.
-    pub fn original_id(&self) -> uuid::Uuid {
+    /// Return the topology root to target when a pattern requests its
+    /// original geometry.
+    pub fn pattern_source_id(&self) -> uuid::Uuid {
         match self {
             Geometry::Sketch(s) => s.original_id,
-            Geometry::Solid(e) => e.original_id(),
+            Geometry::Solid(e) => e.topology_id(),
         }
     }
 }
@@ -321,6 +322,7 @@ pub enum SolidOrSketchOrImportedGeometry {
     ImportedGeometry(Box<ImportedGeometry>),
     SolidSet(Vec<Solid>),
     SketchSet(Vec<Sketch>),
+    HelixSet(Vec<Helix>),
 }
 
 impl From<SolidOrSketchOrImportedGeometry> for crate::execution::KclValue {
@@ -357,6 +359,21 @@ impl From<SolidOrSketchOrImportedGeometry> for crate::execution::KclValue {
                     }
                 }
             }
+            SolidOrSketchOrImportedGeometry::HelixSet(mut s) => {
+                if s.len() == 1
+                    && let Some(s) = s.pop()
+                {
+                    crate::execution::KclValue::Helix { value: Box::new(s) }
+                } else {
+                    crate::execution::KclValue::HomArray {
+                        value: s
+                            .into_iter()
+                            .map(|s| crate::execution::KclValue::Helix { value: Box::new(s) })
+                            .collect(),
+                        ty: crate::execution::types::RuntimeType::helices(),
+                    }
+                }
+            }
         }
     }
 }
@@ -371,6 +388,7 @@ impl SolidOrSketchOrImportedGeometry {
             }
             SolidOrSketchOrImportedGeometry::SolidSet(s) => Ok(s.iter().map(|s| s.id).collect()),
             SolidOrSketchOrImportedGeometry::SketchSet(s) => Ok(s.iter().map(|s| s.id).collect()),
+            SolidOrSketchOrImportedGeometry::HelixSet(s) => Ok(s.iter().map(|s| s.value).collect()),
         }
     }
 }
@@ -408,15 +426,48 @@ impl From<SolidOrImportedGeometry> for crate::execution::KclValue {
     }
 }
 
-impl SolidOrImportedGeometry {
+/// Something that you can change the color of.
+#[derive(Debug, Clone, Serialize, PartialEq, ts_rs::TS)]
+#[ts(export)]
+#[serde(tag = "type", rename_all = "camelCase")]
+#[allow(clippy::vec_box)]
+pub enum HasAppearance {
+    ImportedGeometry(Box<ImportedGeometry>),
+    SolidSet(Vec<Solid>),
+    Plane(Box<Plane>),
+}
+
+impl From<HasAppearance> for KclValue {
+    fn from(value: HasAppearance) -> Self {
+        match value {
+            HasAppearance::Plane(p) => KclValue::Plane { value: p },
+            HasAppearance::ImportedGeometry(s) => KclValue::ImportedGeometry(*s),
+            HasAppearance::SolidSet(mut s) => {
+                if s.len() == 1
+                    && let Some(s) = s.pop()
+                {
+                    KclValue::Solid { value: Box::new(s) }
+                } else {
+                    KclValue::HomArray {
+                        value: s.into_iter().map(|s| KclValue::Solid { value: Box::new(s) }).collect(),
+                        ty: crate::execution::types::RuntimeType::solid(),
+                    }
+                }
+            }
+        }
+    }
+}
+
+impl HasAppearance {
     pub(crate) async fn ids(&mut self, ctx: &ExecutorContext) -> Result<Vec<uuid::Uuid>, KclError> {
         match self {
-            SolidOrImportedGeometry::ImportedGeometry(s) => {
+            HasAppearance::Plane(p) => Ok(vec![p.id]),
+            HasAppearance::ImportedGeometry(s) => {
                 let id = s.id(ctx).await?;
 
                 Ok(vec![id])
             }
-            SolidOrImportedGeometry::SolidSet(s) => Ok(s.iter().map(|s| s.id).collect()),
+            HasAppearance::SolidSet(s) => Ok(s.iter().map(|s| s.id).collect()),
         }
     }
 }
@@ -702,12 +753,9 @@ impl TryFrom<PlaneData> for PlaneInfo {
 impl From<&PlaneData> for PlaneKind {
     fn from(value: &PlaneData) -> Self {
         match value {
-            PlaneData::XY => PlaneKind::XY,
-            PlaneData::NegXY => PlaneKind::XY,
-            PlaneData::XZ => PlaneKind::XZ,
-            PlaneData::NegXZ => PlaneKind::XZ,
-            PlaneData::YZ => PlaneKind::YZ,
-            PlaneData::NegYZ => PlaneKind::YZ,
+            PlaneData::XY | PlaneData::NegXY => PlaneKind::XY,
+            PlaneData::XZ | PlaneData::NegXZ => PlaneKind::XZ,
+            PlaneData::YZ | PlaneData::NegYZ => PlaneKind::YZ,
             PlaneData::Plane(_) => PlaneKind::Custom,
         }
     }
@@ -715,15 +763,13 @@ impl From<&PlaneData> for PlaneKind {
 
 impl From<&PlaneInfo> for PlaneKind {
     fn from(value: &PlaneInfo) -> Self {
-        let data = PlaneData::Plane(value.clone());
-        PlaneKind::from(&data)
+        PlaneKind::from(&PlaneData::Plane(value.clone()))
     }
 }
 
 impl From<PlaneInfo> for PlaneKind {
     fn from(value: PlaneInfo) -> Self {
-        let data = PlaneData::Plane(value);
-        PlaneKind::from(&data)
+        PlaneKind::from(&PlaneData::Plane(value))
     }
 }
 
@@ -806,6 +852,8 @@ pub struct FaceParentSolid {
     pub solid_id: Uuid,
     /// ID of the sketch which created this solid, if any.
     pub creator_sketch_id: Option<Uuid>,
+    /// Has the creator sketch been closed? This is only relevant if `creator_sketch_id` is Some, and we cannot infer the closed status otherwise.
+    pub creator_sketch_is_closed: Option<ProfileClosed>,
     /// Pending edge cut IDs that may need to be flushed before referencing the face.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub edge_cut_ids: Vec<Uuid>,
@@ -1025,8 +1073,16 @@ impl SketchSurface {
 pub enum Extrudable {
     /// Sketch.
     Sketch(Box<Sketch>),
+    /// Tagged Face.
+    FaceTag(FaceTag),
     /// Face.
-    Face(FaceTag),
+    Face(Box<Face>),
+    /// Tagged Edge.
+    EdgeTag(Box<TagIdentifier>),
+    /// Edge.
+    Edge(Uuid),
+    /// Edge specifier payload.
+    EdgeSpecifier(UnresolvedEdgeSpecifier),
 }
 
 impl Extrudable {
@@ -1039,25 +1095,46 @@ impl Extrudable {
     ) -> Result<uuid::Uuid, KclError> {
         match self {
             Extrudable::Sketch(sketch) => Ok(sketch.id),
-            Extrudable::Face(face_tag) => face_tag.get_face_id_from_tag(exec_state, args, must_be_planar).await,
+            Extrudable::FaceTag(face_tag) => face_tag.get_face_id_from_tag(exec_state, args, must_be_planar).await,
+            Extrudable::Face(face) => Ok(face.id),
+            Extrudable::EdgeTag(edge_tag) => match edge_tag.get_cur_info() {
+                Some(info) => Ok(info.id),
+                None => Err(KclError::new_type(KclErrorDetails::new(
+                    "Could not find a valid id to extrude".to_owned(),
+                    vec![args.source_range],
+                ))),
+            },
+            Extrudable::Edge(edge) => Ok(*edge),
+            Extrudable::EdgeSpecifier(_) => Err(KclError::new_type(KclErrorDetails::new(
+                "Could not find a legacy id for edge specifier".to_owned(),
+                vec![args.source_range],
+            ))),
         }
     }
 
     pub fn as_sketch(&self) -> Option<Sketch> {
         match self {
             Extrudable::Sketch(sketch) => Some((**sketch).clone()),
-            Extrudable::Face(face_tag) => match face_tag.geometry() {
+            Extrudable::FaceTag(face) => match face.geometry() {
                 Some(Geometry::Sketch(sketch)) => Some(sketch),
                 Some(Geometry::Solid(solid)) => solid.sketch().cloned(),
                 None => None,
             },
+            Extrudable::Face(_) => None,
+            Extrudable::EdgeTag(tag_identifier) => match tag_identifier.geometry() {
+                Some(Geometry::Sketch(sketch)) => Some(sketch),
+                Some(Geometry::Solid(solid)) => solid.sketch().cloned(),
+                None => None,
+            },
+            Extrudable::Edge(_) => None,
+            Extrudable::EdgeSpecifier(_) => None,
         }
     }
 
     pub fn is_closed(&self) -> ProfileClosed {
         match self {
             Extrudable::Sketch(sketch) => sketch.is_closed,
-            Extrudable::Face(face_tag) => match face_tag.geometry() {
+            Extrudable::FaceTag(face_tag) => match face_tag.geometry() {
                 Some(Geometry::Sketch(sketch)) => sketch.is_closed,
                 Some(Geometry::Solid(solid)) => solid
                     .sketch()
@@ -1065,6 +1142,20 @@ impl Extrudable {
                     .unwrap_or(ProfileClosed::Maybe),
                 _ => ProfileClosed::Maybe,
             },
+            Extrudable::Face(face) => match face.parent_solid.creator_sketch_is_closed {
+                Some(is_closed) => is_closed,
+                None => ProfileClosed::Maybe,
+            },
+            Extrudable::EdgeTag(edge_tag) => match edge_tag.geometry() {
+                Some(Geometry::Sketch(sketch)) => sketch.is_closed,
+                Some(Geometry::Solid(solid)) => solid
+                    .sketch()
+                    .map(|sketch| sketch.is_closed)
+                    .unwrap_or(ProfileClosed::Maybe),
+                _ => ProfileClosed::Maybe,
+            },
+            Extrudable::Edge(_) => ProfileClosed::Maybe,
+            Extrudable::EdgeSpecifier(_) => ProfileClosed::Maybe,
         }
     }
 }
@@ -1190,10 +1281,34 @@ pub struct Solid {
     #[serde(skip)]
     #[ts(skip)]
     pub value_id: uuid::Uuid,
+    /// The engine entity whose children correspond to the topology references
+    /// stored on this solid. Pattern copies retain their source topology,
+    /// while consuming operations and clones replace it with their output.
+    #[serde(skip)]
+    #[ts(skip)]
+    pub(crate) topology_id: uuid::Uuid,
+    /// The semantic body artifact from which a pattern copy was created.
+    /// Pattern commands replace `artifact_id` with the copy's engine entity
+    /// ID, so retain this to distinguish Sweep-backed bodies from composites.
+    #[serde(skip)]
+    #[ts(skip)]
+    pub(crate) pattern_source_artifact_id: Option<ArtifactId>,
+    /// Body type known from the KCL operation that created this value.
+    ///
+    /// Mock execution cannot query the engine for this, so retain it when it
+    /// is known locally. Procedural operations whose result depends on engine
+    /// topology may leave it unset.
+    #[serde(skip)]
+    #[ts(skip)]
+    pub(crate) best_guess_body_type: Option<kcmc::shared::BodyType>,
     /// The artifact ID of the solid.  Unlike `id`, this doesn't change.
     pub artifact_id: ArtifactId,
     /// The extrude surfaces.
     pub value: Vec<ExtrudeSurface>,
+    /// Tag identifiers for the faces of this body, declared via tag arguments
+    /// (e.g. `tag`, `tagStart`, `tagEnd`) on the call that created it.
+    #[serde(default, skip_serializing_if = "IndexMap::is_empty")]
+    pub faces: IndexMap<String, TagIdentifier>,
     /// How this solid was created.
     #[serde(rename = "sketch")]
     pub creator: SolidCreator,
@@ -1228,6 +1343,15 @@ pub struct CreatorFace {
     pub sketch: Sketch,
 }
 
+#[derive(Debug, Clone, Serialize, PartialEq, ts_rs::TS)]
+#[ts(export)]
+pub struct CreatorEdge {
+    /// The edge id that served as the base.
+    pub edge_id: uuid::Uuid,
+    /// The solid id that owned the edge.
+    pub body_id: uuid::Uuid,
+}
+
 /// How a solid was created.
 #[derive(Debug, Clone, Serialize, PartialEq, ts_rs::TS)]
 #[ts(export)]
@@ -1237,6 +1361,8 @@ pub enum SolidCreator {
     Sketch(Sketch),
     /// Created by extruding or modifying a face.
     Face(CreatorFace),
+    /// Created by extruding or modifying an edge.
+    Edge(CreatorEdge),
     /// Created procedurally without a sketch.
     Procedural,
 }
@@ -1246,6 +1372,7 @@ impl Solid {
         match &self.creator {
             SolidCreator::Sketch(sketch) => Some(sketch),
             SolidCreator::Face(CreatorFace { sketch, .. }) => Some(sketch),
+            SolidCreator::Edge(_) => None,
             SolidCreator::Procedural => None,
         }
     }
@@ -1254,6 +1381,7 @@ impl Solid {
         match &mut self.creator {
             SolidCreator::Sketch(sketch) => Some(sketch),
             SolidCreator::Face(CreatorFace { sketch, .. }) => Some(sketch),
+            SolidCreator::Edge(_) => None,
             SolidCreator::Procedural => None,
         }
     }
@@ -1264,6 +1392,27 @@ impl Solid {
 
     pub fn original_id(&self) -> uuid::Uuid {
         self.sketch().map(|sketch| sketch.original_id).unwrap_or(self.id)
+    }
+
+    pub(crate) fn topology_id(&self) -> uuid::Uuid {
+        self.topology_id
+    }
+
+    /// Make this solid a brand-new body produced by an operation. It now owns
+    /// the topology of `engine_id`, and any retained pattern provenance no
+    /// longer applies.
+    pub(crate) fn become_new_body(&mut self, engine_id: uuid::Uuid, artifact_id: ArtifactId) {
+        self.topology_id = engine_id;
+        self.pattern_source_artifact_id = None;
+        self.artifact_id = artifact_id;
+    }
+
+    /// Make this solid a pattern copy. It gets a new top-level entity artifact
+    /// while retaining the source body's topology and semantic artifact
+    /// provenance.
+    pub(crate) fn become_pattern_copy(&mut self, copy_engine_id: uuid::Uuid) {
+        self.pattern_source_artifact_id.get_or_insert(self.artifact_id);
+        self.artifact_id = ArtifactId::new(copy_engine_id);
     }
 
     pub(crate) fn get_all_edge_cut_ids(&self) -> impl Iterator<Item = uuid::Uuid> + '_ {
@@ -1279,6 +1428,7 @@ impl From<&Solid> for FaceParentSolid {
         Self {
             solid_id: solid.id,
             creator_sketch_id: solid.sketch_id(),
+            creator_sketch_is_closed: solid.sketch().map(|sketch| sketch.is_closed),
             edge_cut_ids: solid.get_all_edge_cut_ids().collect(),
         }
     }
@@ -1368,11 +1518,11 @@ impl Point2d {
     }
 
     pub fn into_x(self) -> TyF64 {
-        TyF64::new(self.x, self.units.into())
+        TyF64::new(self.x, NumericType::length(self.units))
     }
 
     pub fn into_y(self) -> TyF64 {
-        TyF64::new(self.y, self.units.into())
+        TyF64::new(self.y, NumericType::length(self.units))
     }
 
     pub fn ignore_units(self) -> [f64; 2] {
@@ -1588,12 +1738,12 @@ pub struct BasePath {
 
 impl BasePath {
     pub fn get_to(&self) -> [TyF64; 2] {
-        let ty: NumericType = self.units.into();
+        let ty = NumericType::length(self.units);
         [TyF64::new(self.to[0], ty), TyF64::new(self.to[1], ty)]
     }
 
     pub fn get_from(&self) -> [TyF64; 2] {
-        let ty: NumericType = self.units.into();
+        let ty = NumericType::length(self.units);
         [TyF64::new(self.from[0], ty), TyF64::new(self.from[1], ty)]
     }
 }
@@ -1814,28 +1964,28 @@ impl Path {
     /// Where does this path segment start?
     pub fn get_from(&self) -> [TyF64; 2] {
         let p = &self.get_base().from;
-        let ty: NumericType = self.get_base().units.into();
+        let ty = NumericType::length(self.get_base().units);
         [TyF64::new(p[0], ty), TyF64::new(p[1], ty)]
     }
 
     /// Where does this path segment end?
     pub fn get_to(&self) -> [TyF64; 2] {
         let p = &self.get_base().to;
-        let ty: NumericType = self.get_base().units.into();
+        let ty = NumericType::length(self.get_base().units);
         [TyF64::new(p[0], ty), TyF64::new(p[1], ty)]
     }
 
     /// The path segment start point and its type.
     pub fn start_point_components(&self) -> ([f64; 2], NumericType) {
         let p = &self.get_base().from;
-        let ty: NumericType = self.get_base().units.into();
+        let ty = NumericType::length(self.get_base().units);
         (*p, ty)
     }
 
     /// The path segment end point and its type.
     pub fn end_point_components(&self) -> ([f64; 2], NumericType) {
         let p = &self.get_base().to;
-        let ty: NumericType = self.get_base().units.into();
+        let ty = NumericType::length(self.get_base().units);
         (*p, ty)
     }
 
@@ -1897,7 +2047,7 @@ impl Path {
                 None
             }
         };
-        n.map(|n| TyF64::new(n, self.get_base().units.into()))
+        n.map(|n| TyF64::new(n, NumericType::length(self.get_base().units)))
     }
 
     pub fn get_base_mut(&mut self) -> &mut BasePath {
@@ -2067,6 +2217,15 @@ impl ExtrudeSurface {
             ExtrudeSurface::ExtrudeArc(ea) => ea.geo_meta.id,
             ExtrudeSurface::Fillet(f) => f.geo_meta.id,
             ExtrudeSurface::Chamfer(c) => c.geo_meta.id,
+        }
+    }
+
+    pub fn set_id(&mut self, id: uuid::Uuid) {
+        match self {
+            ExtrudeSurface::ExtrudePlane(ep) => ep.geo_meta.id = id,
+            ExtrudeSurface::ExtrudeArc(ea) => ea.geo_meta.id = id,
+            ExtrudeSurface::Fillet(f) => f.geo_meta.id = id,
+            ExtrudeSurface::Chamfer(c) => c.geo_meta.id = id,
         }
     }
 
@@ -2243,6 +2402,15 @@ pub enum UnsolvedSegmentKind {
         start_object_id: ObjectId,
         end_object_id: ObjectId,
         center_object_id: ObjectId,
+        /// The direction that the arc sweeps from its declared start to its
+        /// declared end. The solver and engine only understand
+        /// counterclockwise arcs, so code sending them the arc must use
+        /// [`ArcDirection::ccw_order`] to resolve which points to treat as the
+        /// sweep's start and end.
+        #[serde(default, skip_serializing_if = "ArcDirection::is_ccw")]
+        #[ts(as = "Option<ArcDirection>")]
+        #[ts(optional)]
+        direction: ArcDirection,
         construction: bool,
     },
     Circle {
@@ -2347,6 +2515,12 @@ pub enum SegmentKind {
         end_freedom: Option<Freedom>,
         #[serde(skip_serializing_if = "Option::is_none")]
         center_freedom: Option<Freedom>,
+        /// The direction that the arc sweeps from its declared start to its
+        /// declared end.
+        #[serde(default, skip_serializing_if = "ArcDirection::is_ccw")]
+        #[ts(as = "Option<ArcDirection>")]
+        #[ts(optional)]
+        direction: ArcDirection,
         construction: bool,
     },
     Circle {
@@ -2397,6 +2571,26 @@ pub struct SketchConstraint {
     pub meta: Vec<Metadata>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum AngleRayDirection {
+    Forward,
+    Reverse,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum AngleSector {
+    One,
+    Two,
+    Three,
+    Four,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum AngleConstraintMode {
+    LinesAtAngle,
+    PointsAtAngle { sector: AngleSector, inverse: bool },
+}
+
 #[derive(Debug, Clone, Serialize, PartialEq, ts_rs::TS)]
 #[ts(export_to = "Geometry.ts")]
 #[serde(rename_all = "camelCase")]
@@ -2404,6 +2598,14 @@ pub enum SketchConstraintKind {
     Angle {
         line0: ConstrainableLine2d,
         line1: ConstrainableLine2d,
+        #[serde(skip)]
+        #[ts(skip)]
+        mode: AngleConstraintMode,
+        #[serde(rename = "labelPosition")]
+        #[serde(skip_serializing_if = "Option::is_none")]
+        #[ts(rename = "labelPosition")]
+        #[ts(optional)]
+        label_position: Option<ApiPoint2d<Number>>,
     },
     Distance {
         points: [ConstrainablePoint2dOrOrigin; 2],

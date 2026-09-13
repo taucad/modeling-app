@@ -2,9 +2,11 @@ import type { App } from '@src/lib/app'
 import {
   DEFAULT_PROJECT_NAME,
   MAX_PROJECT_NAME_LENGTH,
+  ZOOKEEPER_FILE_WRITE_TOAST_ID,
 } from '@src/lib/constants'
 import type { Project } from '@src/lib/project'
 import type { ModuleType } from '@src/lib/wasm_lib_wrapper'
+import { reportSystemIOMachineError } from '@src/machines/systemIO/reporting'
 import type {
   RequestedKCLFile,
   RequestedKCLFileDelete,
@@ -21,7 +23,7 @@ import {
   SystemIOMachineStates,
 } from '@src/machines/systemIO/utils'
 import toast from 'react-hot-toast'
-import { assertEvent, assign, fromPromise, setup } from 'xstate'
+import { assertEvent, assign, enqueueActions, fromPromise, setup } from 'xstate'
 
 /**
  * /some/dir            = directoryPath
@@ -74,16 +76,34 @@ export const systemIOMachine = setup({
             requestedProjectName: string
             requestedFileName: string
             requestedSubRoute?: string
+            onProjectLoaderComplete?: () => void
           }
         }
       | {
           type: SystemIOMachineEvents.createProject
-          data: { requestedProjectName: string }
+          data: {
+            /** Local project directory name used as the stable identifier. */
+            requestedProjectName: string
+            /** Human-facing project title to write to project.toml. */
+            requestedProjectTitle?: string
+          }
+        }
+      | {
+          type: SystemIOMachineEvents.duplicateProject
+          data: {
+            projectName: string
+            projectPath: string
+            requestedProjectName: string
+            currentFilePath?: string | null
+            currentFileContents?: string
+          }
         }
       | {
           type: SystemIOMachineEvents.renameProject
           data: {
+            /** New human-facing project title to write to project.toml. */
             requestedProjectName: string
+            /** Existing local project directory name used as the stable identifier. */
             projectName: string
             redirect: boolean
           }
@@ -139,9 +159,13 @@ export const systemIOMachine = setup({
             files: RequestedKCLFile[]
             filesToDelete?: RequestedKCLFileDelete[]
             requestedProjectName: string
+            requestedProjectPath?: string
             requestedFileNameWithExtension: string
             override?: boolean
             requestedSubRoute?: string
+            onFileSystemError?: () => void
+            onFileSystemSuccess?: () => void
+            onSuccess?: () => void
           }
         }
       | {
@@ -152,15 +176,28 @@ export const systemIOMachine = setup({
             requestedFileNameWithExtension: string
             override?: boolean
             requestedSubRoute?: string
+            onSuccess?: () => void
           }
         }
       | {
           type: SystemIOMachineEvents.done_bulkCreateKCLFilesAndNavigateToFile
-          output: { projectName: string; fileName: string; subRoute?: string }
+          output: {
+            projectName: string
+            fileName: string
+            subRoute?: string
+            onProjectLoaderComplete?: () => void
+          }
         }
       | {
           type: SystemIOMachineEvents.done_bulkCreateAndDeleteKCLFilesAndNavigateToFile
-          output: { projectName: string; fileName: string }
+          output: {
+            projectName: string
+            fileName: string
+            shouldNavigate: boolean
+            onProjectLoaderComplete?: () => void
+            message?: string
+            toastId?: string
+          }
         }
       | {
           type: SystemIOMachineEvents.importFileFromURL
@@ -183,9 +220,9 @@ export const systemIOMachine = setup({
           type: SystemIOMachineEvents.setDefaultProjectFolderName
           data: { requestedDefaultProjectFolderName: string }
         }
-      // TODO: Move this generateTextToCAD to another machine in the future and make a whole machine out of it.
+      // TODO: Move this generateZookeeper to another machine in the future and make a whole machine out of it.
       | {
-          type: SystemIOMachineEvents.generateTextToCAD
+          type: SystemIOMachineEvents.generateZookeeper
           data: {
             requestedPrompt: string
             requestedProjectName: string
@@ -297,36 +334,17 @@ export const systemIOMachine = setup({
             src: string
             target: string
             requestedProjectName: string
+            requestedFileName?: string
             successMessage?: string
           }
         }
       | {
           type: SystemIOMachineEvents.done_moveRecursiveAndNavigate
-          output: { requestedProjectName: string }
-        }
-      | {
-          type: SystemIOMachineEvents.getMlEphantConversations
-        }
-      | {
-          type: SystemIOMachineEvents.done_getMlEphantConversations
-          output: SystemIOContext['mlEphantConversations']
-        }
-      | {
-          type: SystemIOMachineEvents.saveMlEphantConversations
-          data: {
-            projectId: string
-            conversationId: string
+          output: {
+            requestedProjectName: string
+            requestedFileName?: string
+            target: string
           }
-        }
-      | {
-          type: SystemIOMachineEvents.deleteMlEphantConversation
-          data: {
-            projectId: string
-          }
-        }
-      | {
-          type: SystemIOMachineEvents.done_saveMlEphantConversations
-          output: SystemIOContext['mlEphantConversations']
         },
   },
   guards: {
@@ -387,6 +405,9 @@ export const systemIOMachine = setup({
           project: event.data.requestedProjectName,
           file: event.data.requestedFileName,
           subRoute: event.data.requestedSubRoute,
+          ...(event.data.onProjectLoaderComplete
+            ? { onProjectLoaderComplete: event.data.onProjectLoaderComplete }
+            : {}),
         }
       },
     }),
@@ -397,6 +418,17 @@ export const systemIOMachine = setup({
       },
     }),
     [SystemIOMachineActions.toastSuccess]: ({ event }) => {
+      // Operations may carry a stable `toastId` on their output so repeated
+      // completions collapse into a single updating toast instead of stacking
+      // duplicates (e.g. Zookeeper streams several bulk writes per edit).
+      const toastId =
+        'output' in event &&
+        event.output !== null &&
+        typeof event.output === 'object' &&
+        'toastId' in event.output &&
+        typeof event.output.toastId === 'string'
+          ? event.output.toastId
+          : undefined
       toast.success(
         ('data' in event && typeof event.data === 'string' && event.data) ||
           ('output' in event &&
@@ -404,10 +436,12 @@ export const systemIOMachine = setup({
             'message' in event.output &&
             typeof event.output.message === 'string' &&
             event.output.message) ||
-          ''
+          '',
+        toastId ? { id: toastId } : undefined
       )
     },
-    [SystemIOMachineActions.toastError]: ({ event }) => {
+    [SystemIOMachineActions.toastError]: ({ context, event }) => {
+      reportSystemIOMachineError({ context, event })
       toast.error(
         ('data' in event && typeof event.data === 'string' && event.data) ||
           ('output' in event &&
@@ -419,15 +453,32 @@ export const systemIOMachine = setup({
           'Unknown error in SystemIOMachine.'
       )
     },
+    // Zookeeper streams several bulk writes per edit; a failing edit can reject
+    // each one back-to-back. Share a stable toast id so those errors collapse
+    // into a single toast instead of stacking duplicates.
+    [SystemIOMachineActions.toastErrorZookeeperFileWrite]: ({
+      context,
+      event,
+    }) => {
+      reportSystemIOMachineError({ context, event })
+      toast.error(
+        ('error' in event &&
+          event.error instanceof Error &&
+          event.error.message) ||
+          'Unknown error in SystemIOMachine.',
+        { id: ZOOKEEPER_FILE_WRITE_TOAST_ID }
+      )
+    },
+    [SystemIOMachineActions.reportError]: reportSystemIOMachineError,
     [SystemIOMachineActions.setReadWriteProjectDirectory]: assign({
       canReadWriteProjectDirectory: ({ event }) => {
         assertEvent(event, SystemIOMachineEvents.done_checkReadWrite)
         return event.output
       },
     }),
-    [SystemIOMachineActions.setRequestedTextToCadGeneration]: assign({
-      requestedTextToCadGeneration: ({ event }) => {
-        assertEvent(event, SystemIOMachineEvents.generateTextToCAD)
+    [SystemIOMachineActions.setRequestedZookeeperGeneration]: assign({
+      requestedZookeeperGeneration: ({ event }) => {
+        assertEvent(event, SystemIOMachineEvents.generateZookeeper)
         return event.data
       },
     }),
@@ -442,15 +493,20 @@ export const systemIOMachine = setup({
         `Project name is too long, must be less than or equal to ${MAX_PROJECT_NAME_LENGTH} characters.`
       )
     },
-    [SystemIOMachineActions.setMlEphantConversations]: assign({
-      mlEphantConversations: ({ event }) => {
-        assertEvent(event, [
-          SystemIOMachineEvents.done_getMlEphantConversations,
-          SystemIOMachineEvents.done_saveMlEphantConversations,
-        ])
-        return event.output
-      },
+    [SystemIOMachineActions.deferSystemIOEvent]: assign({
+      deferredSystemIOEvent: ({ event }) => event,
     }),
+    [SystemIOMachineActions.flushDeferredSystemIOEvent]: enqueueActions(
+      ({ context, enqueue }) => {
+        if (!context.deferredSystemIOEvent) {
+          return
+        }
+
+        const deferredEvent = context.deferredSystemIOEvent
+        enqueue.assign({ deferredSystemIOEvent: undefined })
+        enqueue.raise(deferredEvent as any)
+      }
+    ),
   },
   actors: {
     [SystemIOMachineActors.readFoldersFromProjectDirectory]: fromPromise(
@@ -460,11 +516,29 @@ export const systemIOMachine = setup({
     ),
     [SystemIOMachineActors.createProject]: fromPromise(
       async ({
-        input: { context, requestedProjectName },
+        input: { context, requestedProjectName, requestedProjectTitle },
       }: {
-        input: { context: SystemIOContext; requestedProjectName: string }
+        input: {
+          context: SystemIOContext
+          requestedProjectName: string
+          requestedProjectTitle?: string
+        }
       }) => {
         return { message: '', name: '' }
+      }
+    ),
+    [SystemIOMachineActors.duplicateProject]: fromPromise(
+      async ({
+        input: { context, projectName, projectPath, requestedProjectName },
+      }: {
+        input: {
+          context: SystemIOContext
+          projectName: string
+          projectPath: string
+          requestedProjectName: string
+        }
+      }) => {
+        return { message: '', name: '', title: '', projectPath: '' }
       }
     ),
     [SystemIOMachineActors.deleteProject]: fromPromise(
@@ -602,7 +676,12 @@ export const systemIOMachine = setup({
           projectName: string
           subRoute: string
         }> => {
-          return { message: '', fileName: '', projectName: '', subRoute: '' }
+          return {
+            message: '',
+            fileName: '',
+            projectName: '',
+            subRoute: '',
+          }
         }
       ),
     [SystemIOMachineActors.bulkCreateKCLFilesAndNavigateToFile]: fromPromise(
@@ -615,12 +694,14 @@ export const systemIOMachine = setup({
           requestedProjectName: string
           requestedFileNameWithExtension: string
           requestedSubRoute?: string
+          onSuccess?: () => void
         }
       }): Promise<{
         message: string
         fileName: string
         projectName: string
         subRoute: string
+        onProjectLoaderComplete?: () => void
       }> => {
         return { message: '', fileName: '', projectName: '', subRoute: '' }
       }
@@ -635,16 +716,29 @@ export const systemIOMachine = setup({
             files: RequestedKCLFile[]
             filesToDelete?: RequestedKCLFileDelete[]
             requestedProjectName: string
+            requestedProjectPath?: string
             requestedFileNameWithExtension: string
+            override?: boolean
             requestedSubRoute?: string
+            onFileSystemError?: () => void
+            onFileSystemSuccess?: () => void
+            onSuccess?: () => void
           }
         }): Promise<{
           message: string
           fileName: string
           projectName: string
           subRoute: string
+          shouldNavigate: boolean
+          onProjectLoaderComplete?: () => void
         }> => {
-          return { message: '', fileName: '', projectName: '', subRoute: '' }
+          return {
+            message: '',
+            fileName: '',
+            projectName: '',
+            subRoute: '',
+            shouldNavigate: true,
+          }
         }
       ),
     [SystemIOMachineActors.renameFolder]: fromPromise(
@@ -762,51 +856,16 @@ export const systemIOMachine = setup({
           target: string
           successMessage?: string
           requestedProjectName?: string | undefined
+          requestedFileName?: string | undefined
         }
       }) => {
         return {
           message: '',
           requestedAbsolutePath: '',
           requestedProjectName: '',
+          requestedFileName: input.requestedFileName,
+          target: input.target,
         }
-      }
-    ),
-    [SystemIOMachineActors.getMlEphantConversations]: fromPromise(async () => {
-      return new Map()
-    }),
-    [SystemIOMachineActors.saveMlEphantConversations]: fromPromise(
-      async (args: {
-        input: {
-          context: SystemIOContext
-          event:
-            | {
-                type: SystemIOMachineEvents.saveMlEphantConversations
-                data: {
-                  projectId: string
-                  conversationId: string
-                }
-              }
-            | {
-                type: SystemIOMachineEvents.deleteMlEphantConversation
-                data: {
-                  projectId: string
-                }
-              }
-        }
-      }) => {
-        const next = new Map(args.input.context.mlEphantConversations)
-        if (
-          args.input.event.type ===
-          SystemIOMachineEvents.deleteMlEphantConversation
-        ) {
-          next.delete(args.input.event.data.projectId)
-        } else {
-          next.set(
-            args.input.event.data.projectId,
-            args.input.event.data.conversationId
-          )
-        }
-        return next
       }
     ),
   },
@@ -828,7 +887,7 @@ export const systemIOMachine = setup({
     },
     canReadWriteProjectDirectory: { value: true, error: undefined },
     clearURLParams: { value: false },
-    requestedTextToCadGeneration: {
+    requestedZookeeperGeneration: {
       requestedPrompt: '',
       requestedProjectName: NO_PROJECT_DIRECTORY,
       isProjectNew: true,
@@ -837,8 +896,9 @@ export const systemIOMachine = setup({
       project: NO_PROJECT_DIRECTORY,
     },
     pendingRenamedProjectName: undefined,
+    deferredSystemIOEvent: undefined,
+    lastRecursiveMoveTarget: undefined,
     lastOperation: SystemIOMachineStates.idle,
-    mlEphantConversations: undefined,
   }),
   states: {
     [SystemIOMachineStates.idle]: {
@@ -866,6 +926,9 @@ export const systemIOMachine = setup({
             actions: [SystemIOMachineActions.toastProjectNameTooLong],
           },
         ],
+        [SystemIOMachineEvents.duplicateProject]: {
+          target: SystemIOMachineStates.duplicatingProject,
+        },
         [SystemIOMachineEvents.renameProject]: [
           {
             target: SystemIOMachineStates.renamingProject,
@@ -887,8 +950,8 @@ export const systemIOMachine = setup({
         [SystemIOMachineEvents.importFileFromURL]: {
           target: SystemIOMachineStates.importFileFromURL,
         },
-        [SystemIOMachineEvents.generateTextToCAD]: {
-          actions: [SystemIOMachineActions.setRequestedTextToCadGeneration],
+        [SystemIOMachineEvents.generateZookeeper]: {
+          actions: [SystemIOMachineActions.setRequestedZookeeperGeneration],
         },
         [SystemIOMachineEvents.deleteKCLFile]: {
           target: SystemIOMachineStates.deletingKCLFile,
@@ -944,21 +1007,16 @@ export const systemIOMachine = setup({
         [SystemIOMachineEvents.moveRecursiveAndNavigate]: {
           target: SystemIOMachineStates.movingRecursiveAndNavigate,
         },
-        [SystemIOMachineEvents.getMlEphantConversations]: {
-          target: SystemIOMachineStates.gettingMlEphantConversations,
-        },
-        [SystemIOMachineEvents.saveMlEphantConversations]: {
-          target: SystemIOMachineStates.savingMlEphantConversations,
-        },
-        [SystemIOMachineEvents.deleteMlEphantConversation]: {
-          target: SystemIOMachineStates.savingMlEphantConversations,
-        },
       },
     },
     [SystemIOMachineStates.readingFolders]: {
       on: {
         [SystemIOMachineEvents.setFolders]: {
           actions: SystemIOMachineActions.setFolders,
+        },
+        [SystemIOMachineEvents.readFoldersFromProjectDirectory]: {
+          target: SystemIOMachineStates.readingFolders,
+          reenter: true,
         },
         [SystemIOMachineEvents.setProjectDirectoryPath]: {
           target: SystemIOMachineStates.checkingReadWrite,
@@ -979,9 +1037,86 @@ export const systemIOMachine = setup({
             actions: [SystemIOMachineActions.toastProjectNameTooLong],
           },
         ],
+        [SystemIOMachineEvents.duplicateProject]: {
+          target: SystemIOMachineStates.duplicatingProject,
+        },
+        [SystemIOMachineEvents.renameProject]: [
+          {
+            target: SystemIOMachineStates.renamingProject,
+            guard: SystemIOMachineGuards.projectNameIsValidLength,
+          },
+          {
+            actions: [SystemIOMachineActions.toastProjectNameTooLong],
+          },
+        ],
+        [SystemIOMachineEvents.deleteProject]: {
+          target: SystemIOMachineStates.deletingProject,
+        },
+        [SystemIOMachineEvents.createKCLFile]: {
+          target: SystemIOMachineStates.creatingKCLFile,
+        },
+        [SystemIOMachineEvents.setDefaultProjectFolderName]: {
+          actions: [SystemIOMachineActions.setDefaultProjectFolderName],
+        },
+        [SystemIOMachineEvents.importFileFromURL]: {
+          target: SystemIOMachineStates.importFileFromURL,
+        },
+        [SystemIOMachineEvents.generateZookeeper]: {
+          actions: [SystemIOMachineActions.setRequestedZookeeperGeneration],
+        },
+        [SystemIOMachineEvents.deleteKCLFile]: {
+          target: SystemIOMachineStates.deletingKCLFile,
+        },
+        [SystemIOMachineEvents.bulkCreateKCLFiles]: {
+          target: SystemIOMachineStates.bulkCreatingKCLFiles,
+        },
+        [SystemIOMachineEvents.bulkCreateKCLFilesAndNavigateToProject]: {
+          target:
+            SystemIOMachineStates.bulkCreatingKCLFilesAndNavigateToProject,
+        },
         [SystemIOMachineEvents.bulkImportProjectFilesAndNavigateToFile]: {
           target:
             SystemIOMachineStates.bulkImportingProjectFilesAndNavigateToFile,
+        },
+        [SystemIOMachineEvents.bulkCreateAndDeleteKCLFilesAndNavigateToFile]: {
+          target:
+            SystemIOMachineStates.bulkCreateAndDeletingKCLFilesAndNavigateToFile,
+        },
+        [SystemIOMachineEvents.bulkCreateKCLFilesAndNavigateToFile]: {
+          target: SystemIOMachineStates.bulkCreatingKCLFilesAndNavigateToFile,
+        },
+        [SystemIOMachineEvents.renameFolder]: {
+          target: SystemIOMachineStates.renamingFolder,
+        },
+        [SystemIOMachineEvents.renameFile]: {
+          target: SystemIOMachineStates.renamingFile,
+        },
+        [SystemIOMachineEvents.deleteFileOrFolder]: {
+          target: SystemIOMachineStates.deletingFileOrFolder,
+        },
+        [SystemIOMachineEvents.createBlankFile]: {
+          target: SystemIOMachineStates.creatingBlankFile,
+        },
+        [SystemIOMachineEvents.createBlankFolder]: {
+          target: SystemIOMachineStates.creatingBlankFolder,
+        },
+        [SystemIOMachineEvents.renameFileAndNavigateToFile]: {
+          target: SystemIOMachineStates.renamingFileAndNavigateToFile,
+        },
+        [SystemIOMachineEvents.renameFolderAndNavigateToFile]: {
+          target: SystemIOMachineStates.renamingFolderAndNavigateToFile,
+        },
+        [SystemIOMachineEvents.deleteFileOrFolderAndNavigate]: {
+          target: SystemIOMachineStates.deletingFileOrFolderAndNavigate,
+        },
+        [SystemIOMachineEvents.copyRecursive]: {
+          target: SystemIOMachineStates.copyingRecursive,
+        },
+        [SystemIOMachineEvents.moveRecursive]: {
+          target: SystemIOMachineStates.movingRecursive,
+        },
+        [SystemIOMachineEvents.moveRecursiveAndNavigate]: {
+          target: SystemIOMachineStates.movingRecursiveAndNavigate,
         },
       },
       invoke: {
@@ -996,21 +1131,30 @@ export const systemIOMachine = setup({
             SystemIOMachineActions.setFolders,
             assign({
               hasListedProjects: true,
-              requestedProjectName: ({ context }) => {
-                // If we just finished renaming, navigate to the renamed project
-                if (context.pendingRenamedProjectName) {
-                  const newName = context.pendingRenamedProjectName
-                  return { name: newName }
-                }
-                return context.requestedProjectName
-              },
               pendingRenamedProjectName: () => undefined, // clear after redirect
+              requestedProjectName: ({ context }) => {
+                if (context.pendingRenamedProjectName) {
+                  return { name: context.pendingRenamedProjectName }
+                }
+                const pending = context.pendingNavigationAfterFolderRefresh
+                return pending && !pending.file
+                  ? { name: pending.project }
+                  : context.requestedProjectName
+              },
+              requestedFileName: ({ context }) => {
+                const pending = context.pendingNavigationAfterFolderRefresh
+                return pending?.file
+                  ? { project: pending.project, file: pending.file }
+                  : context.requestedFileName
+              },
+              pendingNavigationAfterFolderRefresh: () => undefined,
             }),
           ],
         },
         onError: {
           target: SystemIOMachineStates.idle,
           actions: [
+            SystemIOMachineActions.reportError,
             assign({
               folders: ({ context }) => context.folders ?? [],
               hasListedProjects: true,
@@ -1028,6 +1172,7 @@ export const systemIOMachine = setup({
           return {
             context,
             requestedProjectName: event.data.requestedProjectName,
+            requestedProjectTitle: event.data.requestedProjectTitle,
           }
         },
         onDone: {
@@ -1038,6 +1183,47 @@ export const systemIOMachine = setup({
               requestedProjectName: ({ event }) => {
                 return {
                   name: (event as { output: { name: string } }).output.name,
+                }
+              },
+            }),
+            SystemIOMachineActions.toastSuccess,
+          ],
+        },
+        onError: {
+          target: SystemIOMachineStates.idle,
+          actions: [SystemIOMachineActions.toastError],
+        },
+      },
+    },
+    [SystemIOMachineStates.duplicatingProject]: {
+      invoke: {
+        id: SystemIOMachineActors.duplicateProject,
+        src: SystemIOMachineActors.duplicateProject,
+        input: ({ context, event }) => {
+          assertEvent(event, SystemIOMachineEvents.duplicateProject)
+          return {
+            context,
+            projectName: event.data.projectName,
+            projectPath: event.data.projectPath,
+            requestedProjectName: event.data.requestedProjectName,
+            currentFilePath: event.data.currentFilePath,
+            currentFileContents: event.data.currentFileContents,
+          }
+        },
+        onDone: {
+          target: SystemIOMachineStates.readingFolders,
+          actions: [
+            assign({
+              lastOperation: SystemIOMachineStates.duplicatingProject,
+              requestedProjectName: ({ event }) => {
+                const output = (
+                  event as {
+                    output: { name: string; projectPath: string }
+                  }
+                ).output
+                return {
+                  name: output.name,
+                  path: output.projectPath,
                 }
               },
             }),
@@ -1180,7 +1366,7 @@ export const systemIOMachine = setup({
                 ).output
                 return { name: output.projectName }
               },
-              requestedFileName: ({ event }) => {
+              requestedFileName: ({ context, event }) => {
                 assertEvent(event, SystemIOMachineEvents.done_importFileFromURL)
                 const output = (
                   event as {
@@ -1214,6 +1400,9 @@ export const systemIOMachine = setup({
     },
     [SystemIOMachineStates.checkingReadWrite]: {
       on: {
+        [SystemIOMachineEvents.readFoldersFromProjectDirectory]: {
+          actions: [SystemIOMachineActions.deferSystemIOEvent],
+        },
         [SystemIOMachineEvents.navigateToProject]: {
           actions: [SystemIOMachineActions.setRequestedProjectName],
         },
@@ -1228,15 +1417,89 @@ export const systemIOMachine = setup({
         [SystemIOMachineEvents.createProject]: [
           {
             guard: SystemIOMachineGuards.projectNameIsValidLength,
-            target: SystemIOMachineStates.creatingProject,
+            actions: [SystemIOMachineActions.deferSystemIOEvent],
           },
           {
             actions: [SystemIOMachineActions.toastProjectNameTooLong],
           },
         ],
+        [SystemIOMachineEvents.duplicateProject]: {
+          actions: [SystemIOMachineActions.deferSystemIOEvent],
+        },
+        [SystemIOMachineEvents.renameProject]: [
+          {
+            guard: SystemIOMachineGuards.projectNameIsValidLength,
+            actions: [SystemIOMachineActions.deferSystemIOEvent],
+          },
+          {
+            actions: [SystemIOMachineActions.toastProjectNameTooLong],
+          },
+        ],
+        [SystemIOMachineEvents.deleteProject]: {
+          actions: [SystemIOMachineActions.deferSystemIOEvent],
+        },
+        [SystemIOMachineEvents.createKCLFile]: {
+          actions: [SystemIOMachineActions.deferSystemIOEvent],
+        },
+        [SystemIOMachineEvents.setDefaultProjectFolderName]: {
+          actions: [SystemIOMachineActions.setDefaultProjectFolderName],
+        },
+        [SystemIOMachineEvents.importFileFromURL]: {
+          actions: [SystemIOMachineActions.deferSystemIOEvent],
+        },
+        [SystemIOMachineEvents.generateZookeeper]: {
+          actions: [SystemIOMachineActions.setRequestedZookeeperGeneration],
+        },
+        [SystemIOMachineEvents.deleteKCLFile]: {
+          actions: [SystemIOMachineActions.deferSystemIOEvent],
+        },
+        [SystemIOMachineEvents.bulkCreateKCLFiles]: {
+          actions: [SystemIOMachineActions.deferSystemIOEvent],
+        },
+        [SystemIOMachineEvents.bulkCreateKCLFilesAndNavigateToProject]: {
+          actions: [SystemIOMachineActions.deferSystemIOEvent],
+        },
         [SystemIOMachineEvents.bulkImportProjectFilesAndNavigateToFile]: {
-          target:
-            SystemIOMachineStates.bulkImportingProjectFilesAndNavigateToFile,
+          actions: [SystemIOMachineActions.deferSystemIOEvent],
+        },
+        [SystemIOMachineEvents.bulkCreateAndDeleteKCLFilesAndNavigateToFile]: {
+          actions: [SystemIOMachineActions.deferSystemIOEvent],
+        },
+        [SystemIOMachineEvents.bulkCreateKCLFilesAndNavigateToFile]: {
+          actions: [SystemIOMachineActions.deferSystemIOEvent],
+        },
+        [SystemIOMachineEvents.renameFolder]: {
+          target: SystemIOMachineStates.renamingFolder,
+        },
+        [SystemIOMachineEvents.renameFile]: {
+          target: SystemIOMachineStates.renamingFile,
+        },
+        [SystemIOMachineEvents.deleteFileOrFolder]: {
+          target: SystemIOMachineStates.deletingFileOrFolder,
+        },
+        [SystemIOMachineEvents.createBlankFile]: {
+          target: SystemIOMachineStates.creatingBlankFile,
+        },
+        [SystemIOMachineEvents.createBlankFolder]: {
+          target: SystemIOMachineStates.creatingBlankFolder,
+        },
+        [SystemIOMachineEvents.renameFileAndNavigateToFile]: {
+          target: SystemIOMachineStates.renamingFileAndNavigateToFile,
+        },
+        [SystemIOMachineEvents.renameFolderAndNavigateToFile]: {
+          target: SystemIOMachineStates.renamingFolderAndNavigateToFile,
+        },
+        [SystemIOMachineEvents.deleteFileOrFolderAndNavigate]: {
+          target: SystemIOMachineStates.deletingFileOrFolderAndNavigate,
+        },
+        [SystemIOMachineEvents.copyRecursive]: {
+          target: SystemIOMachineStates.copyingRecursive,
+        },
+        [SystemIOMachineEvents.moveRecursive]: {
+          target: SystemIOMachineStates.movingRecursive,
+        },
+        [SystemIOMachineEvents.moveRecursiveAndNavigate]: {
+          target: SystemIOMachineStates.movingRecursiveAndNavigate,
         },
       },
       invoke: {
@@ -1252,6 +1515,7 @@ export const systemIOMachine = setup({
         },
         onDone: {
           target: SystemIOMachineStates.readingFolders,
+          actions: [SystemIOMachineActions.flushDeferredSystemIOEvent],
         },
         onError: {
           target: SystemIOMachineStates.readingFolders,
@@ -1358,12 +1622,15 @@ export const systemIOMachine = setup({
             requestedFileNameWithExtension:
               event.data.requestedFileNameWithExtension,
             requestedSubRoute: event.data.requestedSubRoute,
+            onSuccess: event.data.onSuccess,
           }
         },
         onDone: {
           target: SystemIOMachineStates.readingFolders,
           actions: [
             assign({
+              lastOperation:
+                SystemIOMachineStates.bulkCreatingKCLFilesAndNavigateToFile,
               requestedFileName: ({ event }) => {
                 assertEvent(
                   event,
@@ -1375,6 +1642,7 @@ export const systemIOMachine = setup({
                       projectName: string
                       fileName: string
                       subRoute?: string
+                      onProjectLoaderComplete?: () => void
                     }
                   }
                 ).output
@@ -1386,6 +1654,11 @@ export const systemIOMachine = setup({
                   project: output.projectName,
                   file,
                   subRoute: output.subRoute,
+                  ...(output.onProjectLoaderComplete
+                    ? {
+                        onProjectLoaderComplete: output.onProjectLoaderComplete,
+                      }
+                    : {}),
                 }
               },
             }),
@@ -1488,29 +1761,51 @@ export const systemIOMachine = setup({
             files: event.data.files,
             filesToDelete: event.data.filesToDelete,
             requestedProjectName: event.data.requestedProjectName,
+            requestedProjectPath: event.data.requestedProjectPath,
             override: event.data.override,
             requestedFileNameWithExtension:
               event.data.requestedFileNameWithExtension,
             requestedSubRoute: event.data.requestedSubRoute,
+            onFileSystemError: event.data.onFileSystemError,
+            onFileSystemSuccess: event.data.onFileSystemSuccess,
+            onSuccess: event.data.onSuccess,
           }
         },
         onDone: {
           target: SystemIOMachineStates.readingFolders,
           actions: [
             assign({
-              requestedFileName: ({ event }) => {
+              requestedFileName: ({ context, event }) => {
                 assertEvent(
                   event,
                   SystemIOMachineEvents.done_bulkCreateAndDeleteKCLFilesAndNavigateToFile
                 )
                 const output = (
-                  event as { output: { projectName: string; fileName: string } }
+                  event as {
+                    output: {
+                      projectName: string
+                      fileName: string
+                      shouldNavigate: boolean
+                      onProjectLoaderComplete?: () => void
+                    }
+                  }
                 ).output
+                if (!output.shouldNavigate) {
+                  return context.requestedFileName
+                }
                 // Gotcha: file could have an ending of .kcl...
                 const file = output.fileName.endsWith('.kcl')
                   ? output.fileName
                   : output.fileName + '.kcl'
-                return { project: output.projectName, file }
+                return {
+                  project: output.projectName,
+                  file,
+                  ...(output.onProjectLoaderComplete
+                    ? {
+                        onProjectLoaderComplete: output.onProjectLoaderComplete,
+                      }
+                    : {}),
+                }
               },
             }),
             SystemIOMachineActions.toastSuccess,
@@ -1518,7 +1813,7 @@ export const systemIOMachine = setup({
         },
         onError: {
           target: SystemIOMachineStates.idle,
-          actions: [SystemIOMachineActions.toastError],
+          actions: [SystemIOMachineActions.toastErrorZookeeperFileWrite],
         },
       },
     },
@@ -1822,7 +2117,14 @@ export const systemIOMachine = setup({
         },
         onDone: {
           target: SystemIOMachineStates.readingFolders,
-          actions: [SystemIOMachineActions.toastSuccess],
+          actions: [
+            assign({
+              lastRecursiveMoveTarget: ({ event }) => {
+                return (event as { output: { target?: string } }).output.target
+              },
+            }),
+            SystemIOMachineActions.toastSuccess,
+          ],
         },
         onError: {
           target: SystemIOMachineStates.idle,
@@ -1841,6 +2143,7 @@ export const systemIOMachine = setup({
             src: event.data.src,
             target: event.data.target,
             requestedProjectName: event.data.requestedProjectName,
+            requestedFileName: event.data.requestedFileName,
             successMessage: event.data.successMessage,
           }
         },
@@ -1848,14 +2151,21 @@ export const systemIOMachine = setup({
           target: SystemIOMachineStates.readingFolders,
           actions: [
             assign({
-              requestedProjectName: ({ event }) => {
-                assertEvent(
-                  event,
-                  SystemIOMachineEvents.done_moveRecursiveAndNavigate
-                )
+              lastRecursiveMoveTarget: ({ event }) => {
+                return (event as { output: { target?: string } }).output.target
+              },
+              pendingNavigationAfterFolderRefresh: ({ event }) => {
+                const output = (
+                  event as unknown as {
+                    output: {
+                      requestedProjectName: string
+                      requestedFileName?: string
+                    }
+                  }
+                ).output
                 return {
-                  name: (event as { output: { requestedProjectName: string } })
-                    .output.requestedProjectName,
+                  project: output.requestedProjectName,
+                  file: output.requestedFileName,
                 }
               },
             }),
@@ -1865,59 +2175,6 @@ export const systemIOMachine = setup({
         onError: {
           target: SystemIOMachineStates.idle,
           actions: [SystemIOMachineActions.toastError],
-        },
-      },
-    },
-    [SystemIOMachineStates.gettingMlEphantConversations]: {
-      invoke: {
-        id: SystemIOMachineActors.getMlEphantConversations,
-        src: SystemIOMachineActors.getMlEphantConversations,
-        // No input required.
-        // Implicit input is settings path, which comes from a function
-        // we call internally.
-        input: ({ event }) => {
-          assertEvent(event, SystemIOMachineEvents.getMlEphantConversations)
-          return {}
-        },
-        onDone: {
-          target: SystemIOMachineStates.idle,
-          actions: [SystemIOMachineActions.setMlEphantConversations],
-        },
-        onError: {
-          target: SystemIOMachineStates.idle,
-        },
-      },
-    },
-    [SystemIOMachineStates.savingMlEphantConversations]: {
-      on: {
-        [SystemIOMachineEvents.saveMlEphantConversations]: {
-          target: SystemIOMachineStates.savingMlEphantConversations,
-          reenter: true,
-        },
-        [SystemIOMachineEvents.deleteMlEphantConversation]: {
-          target: SystemIOMachineStates.savingMlEphantConversations,
-          reenter: true,
-        },
-      },
-      invoke: {
-        id: SystemIOMachineActors.saveMlEphantConversations,
-        src: SystemIOMachineActors.saveMlEphantConversations,
-        input: ({ event, context }) => {
-          assertEvent(event, [
-            SystemIOMachineEvents.saveMlEphantConversations,
-            SystemIOMachineEvents.deleteMlEphantConversation,
-          ])
-          return {
-            context,
-            event,
-          }
-        },
-        onDone: {
-          target: SystemIOMachineStates.idle,
-          actions: [SystemIOMachineActions.setMlEphantConversations],
-        },
-        onError: {
-          target: SystemIOMachineStates.idle,
         },
       },
     },

@@ -4,23 +4,23 @@ import type { FindingFamily } from "./FindingFamily.js";
 /**
  * Abstract lint problem type.
  */
-export type Finding = { 
+export type Finding = {
 /**
  * Unique identifier for this particular issue.
  */
-code: string, 
+code: string,
 /**
  * Short one-line description of this issue.
  */
-title: string, 
+title: string,
 /**
  * Long human-readable description of this issue.
  */
-description: string, 
+description: string,
 /**
  * Is this discovered issue experimental?
  */
-experimental: boolean, 
+experimental: boolean,
 /**
  * Findings are sorted into families, e.g. "style" or "correctness".
  */

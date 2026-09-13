@@ -1,6 +1,6 @@
 ---
 source: kcl-lib/src/simulation_tests.rs
-description: Variables in memory after executing equal_arc_circle_native.kcl
+description: Variables in memory after executing equal_radius_arc_circle_native.kcl
 ---
 {
   "__sketch_1_on": {
@@ -86,7 +86,7 @@ description: Variables in memory after executing equal_arc_circle_native.kcl
                     ],
                     "center": [
                       {
-                        "n": 0.0,
+                        "n": 0.000000000000000000000000044408924466238024,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -398,17 +398,17 @@ description: Variables in memory after executing equal_arc_circle_native.kcl
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 0,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": 0.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,

@@ -74,7 +74,7 @@ impl Opts {
 #[derive(Parser, Debug, Clone)]
 pub enum SubCommand {
     /// Run the server.
-    Server(kcl_lib::KclLspServerSubCommand),
+    Server(kcl_language_server::KclLspServerSubCommand),
 }
 
 #[tokio::main]
@@ -126,7 +126,7 @@ async fn main() -> Result<()> {
     tracing_subscriber::registry().with(json).with(plain).init();
 
     if let Err(err) = run_cmd(&opts).await {
-        bail!("running cmd `{:?}` failed: {:?}", &opts.subcmd, err);
+        bail!("running cmd `{:?}` failed: {:?}", opts.subcmd, err);
     }
 
     Ok(())
@@ -136,7 +136,7 @@ async fn run_cmd(opts: &Opts) -> Result<()> {
     match &opts.subcmd {
         SubCommand::Server(s) => {
             let (service, socket) = LspService::new(|client| {
-                kcl_lib::KclLspBackend::new(client, Default::default(), kittycad::Client::new("")).unwrap()
+                kcl_language_server::KclLspBackend::new(client, Default::default(), kittycad::Client::new("")).unwrap()
             });
 
             // TODO find a way to ctrl+c on windows.

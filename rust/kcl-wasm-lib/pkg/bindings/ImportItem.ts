@@ -2,11 +2,11 @@
 import type { Identifier } from "./Identifier.js";
 import type { Node } from "./Node.js";
 
-export type ImportItem = { "type": "ImportItem", 
+export type ImportItem = { "type": "ImportItem",
 /**
  * Name of the item to import.
  */
-name: Node<Identifier>, 
+name: Node<Identifier>,
 /**
  * Rename the item using an identifier after `as`.
  */

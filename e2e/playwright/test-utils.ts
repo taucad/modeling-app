@@ -1,13 +1,20 @@
 import path from 'path'
 import * as TOML from '@iarna/toml'
-import type { OutputFormat3d, UserFeature } from '@kittycad/lib'
-import type { BrowserContext, Locator, Page, TestInfo } from '@playwright/test'
+import type { Feature, OutputFormat3d } from '@kittycad/lib'
+import type {
+  BrowserContext,
+  Locator,
+  Page,
+  Request,
+  TestInfo,
+} from '@playwright/test'
 import { expect } from '@playwright/test'
 import type { EngineCommand } from '@src/lang/std/artifactGraph'
 import type { Configuration } from '@src/lang/wasm'
 import {
   COOKIE_NAME_PREFIX,
   IS_PLAYWRIGHT_KEY,
+  OPFS_CLOUD_FEATURE_FLAG,
   SIDEBAR_BUTTON_SUFFIX,
   TOKEN_PERSIST_KEY,
   VERCEL_PLAYWRIGHT_TOKEN_QUERY_PARAM,
@@ -34,12 +41,22 @@ import type { ProjectConfiguration } from '@rust/kcl-lib/bindings/ProjectConfigu
 import type { CmdBarFixture } from '@e2e/playwright/fixtures/cmdBarFixture'
 import type { ElectronZoo } from '@e2e/playwright/fixtures/fixtureSetup'
 import { isErrorWhitelisted } from '@e2e/playwright/lib/console-error-whitelist'
-import { TEST_SETTINGS, TEST_SETTINGS_KEY } from '@e2e/playwright/storageStates'
+import {
+  PLAYWRIGHT_PROJECT_DIRECTORY,
+  TEST_SETTINGS,
+  TEST_SETTINGS_KEY,
+  playwrightPluginSettings,
+  playwrightProjectLibraries,
+} from '@e2e/playwright/storageStates'
 import { test } from '@e2e/playwright/zoo-test'
 import { createLayoutWithMetadata } from '@src/lib/layout'
 import { playwrightLayoutConfig } from '@src/lib/layout/configs/playwright'
+import { PERSONAL_CLOUD_PROJECT_LIBRARY_TITLE } from '@src/lib/projectLibraries'
 
 export const PLAYWRIGHT_LAYOUT_CONFIG_NAME = 'test'
+
+export const PLAYWRIGHT_TEST_SCOPE_KEY = 'playwrightTestScope'
+export const PLAYWRIGHT_STORAGE_SCOPE_KEY = 'playwrightStorageScope'
 
 export const PLAYWRIGHT_LAYOUT_SETTINGS = {
   layout: {
@@ -54,17 +71,6 @@ export const PLAYWRIGHT_LAYOUT_SETTINGS = {
 const toNormalizedCode = (text: string) => {
   return text.replace(/\s+/g, '')
 }
-
-export const headerMasks = (page: Page) => [
-  page.locator('#app-header'),
-  page.locator('#sidebar-top-ribbon'),
-  page.locator('#sidebar-bottom-ribbon'),
-]
-
-export const lowerRightMasks = (page: Page) => [
-  page.getByTestId(/network-toggle/),
-  page.getByTestId('billing-remaining-bar'),
-]
 
 export type TestColor = [number, number, number]
 export const TEST_COLORS: { [key: string]: TestColor } = {
@@ -101,6 +107,27 @@ async function waitForPageLoad(page: Page) {
   await expect(page.getByRole('button', { name: 'Start Sketch' })).toBeEnabled({
     timeout: 20_000,
   })
+}
+
+export async function waitForWebKitBillingToSettle(page: Page) {
+  if (process.env.PLAYWRIGHT_WEBKIT_PERSISTENT_CONTEXT !== '1') {
+    return
+  }
+
+  await expect
+    .poll(
+      () =>
+        page.evaluate(() => {
+          const snapshot = window.app.billing.actor.getSnapshot()
+          return (
+            snapshot.value === 'waiting' &&
+            (snapshot.context.lastFetch !== undefined ||
+              snapshot.context.error !== undefined)
+          )
+        }),
+      { timeout: 20_000 }
+    )
+    .toBe(true)
 }
 
 async function removeCurrentCode(page: Page) {
@@ -936,13 +963,66 @@ export async function tearDown(page: Page, testInfo: TestInfo) {
   })
 }
 
+export async function mockClientErrorReports(context: BrowserContext) {
+  if (process.env.PLAYWRIGHT_WEBKIT_PERSISTENT_CONTEXT === '1') {
+    await context.addInitScript(() => {
+      const originalFetch = globalThis.fetch.bind(globalThis)
+      globalThis.fetch = async (input, init) => {
+        const rawUrl =
+          typeof input === 'string'
+            ? input
+            : input instanceof URL
+              ? input.href
+              : input.url
+        const url = new URL(rawUrl, globalThis.location.href)
+
+        // WebKit applies CORS before Playwright can fulfill this cross-origin
+        // request, so mock the intentionally triggered report in the page.
+        if (url.pathname === '/user/client-errors') {
+          return new Response('{}', {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          })
+        }
+
+        return originalFetch(input, init)
+      }
+    })
+    return
+  }
+
+  await context.unroute('**/user/client-errors')
+  await context.route('**/user/client-errors', async (route) => {
+    // Keep intentionally simulated failures from polluting real dev telemetry.
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({}),
+    })
+  })
+}
+
+// Temporary function to confirm the feature flag is enabled
+export async function expectCloudFeatureEnabled(page: Page) {
+  await page.goto('/')
+  await expect(
+    page,
+    `'${OPFS_CLOUD_FEATURE_FLAG}' feature not enabled: / did not redirect to /home`
+  ).toHaveURL(/\/home$/)
+  await expect(
+    page.getByText(PERSONAL_CLOUD_PROJECT_LIBRARY_TITLE, { exact: true }),
+    `'${OPFS_CLOUD_FEATURE_FLAG}' feature not enabled: "${PERSONAL_CLOUD_PROJECT_LIBRARY_TITLE}" not visible`
+  ).toBeVisible()
+}
+
 // settingsOverrides may need to be augmented to take more generic items,
 // but we'll be strict for now
 export async function setup(
   context: BrowserContext,
   page: Page,
   testInfo?: TestInfo,
-  userFeatures: readonly UserFeature[] = []
+  userFeatures: readonly Feature[] = [],
+  { cloudSyncEnabled = false }: { cloudSyncEnabled?: boolean } = {}
 ) {
   const testProjectSettings =
     TEST_SETTINGS.project &&
@@ -962,6 +1042,8 @@ export async function setup(
     })
   })
 
+  await installSlowFsForPlaywright(page)
+
   await page.addInitScript(
     async ({
       token,
@@ -969,10 +1051,25 @@ export async function setup(
       settings,
       IS_PLAYWRIGHT_KEY,
       TOKEN_PERSIST_KEY,
+      PLAYWRIGHT_TEST_SCOPE_KEY,
+      PLAYWRIGHT_STORAGE_SCOPE_KEY,
     }) => {
-      localStorage.clear()
+      // Init scripts also run on opaque startup documents, which cannot use
+      // web storage. Electron's file documents still need initialization.
+      if (window.origin === 'null' && location.protocol !== 'file:') {
+        return
+      }
+      const testScope = sessionStorage.getItem(PLAYWRIGHT_TEST_SCOPE_KEY)
+      const initializedScope = sessionStorage.getItem(
+        PLAYWRIGHT_STORAGE_SCOPE_KEY
+      )
+      if (testScope === null || initializedScope !== testScope) {
+        localStorage.clear()
+        if (testScope !== null) {
+          sessionStorage.setItem(PLAYWRIGHT_STORAGE_SCOPE_KEY, testScope)
+        }
+      }
       localStorage.setItem(TOKEN_PERSIST_KEY, token)
-      localStorage.setItem('persistCode', ``)
       localStorage.setItem(settingsKey, settings)
       localStorage.setItem(IS_PLAYWRIGHT_KEY, 'true')
       window.addEventListener('beforeunload', () => {
@@ -985,24 +1082,29 @@ export async function setup(
       settings: settingsToToml({
         settings: {
           ...TEST_SETTINGS,
+          plugins: playwrightPluginSettings({
+            cloudSyncEnabled,
+            zookeeperEnabled: testInfo?.tags.includes('@zookeeper'),
+          }),
           ...PLAYWRIGHT_LAYOUT_SETTINGS,
           app: {
             appearance: {
               ...TEST_SETTINGS.app?.appearance,
               theme: 'dark',
             },
+            libraries: playwrightProjectLibraries(),
             onboarding_status: 'dismissed',
           },
           project: {
             ...testProjectSettings,
-            ...(typeof testProjectSettings?.directory === 'string'
-              ? { directory: testProjectSettings.directory }
-              : {}),
+            directory: PLAYWRIGHT_PROJECT_DIRECTORY,
           },
         },
       }),
       IS_PLAYWRIGHT_KEY,
       TOKEN_PERSIST_KEY,
+      PLAYWRIGHT_TEST_SCOPE_KEY,
+      PLAYWRIGHT_STORAGE_SCOPE_KEY,
     }
   )
 
@@ -1024,9 +1126,148 @@ export async function setup(
   await page.reload()
 }
 
+const slowFsMethodNames = [
+  'access',
+  'cp',
+  'getPath',
+  'mkdir',
+  'readFile',
+  'readdir',
+  'rename',
+  'rm',
+  'stat',
+  'writeFile',
+] as const
+
+function readNonNegativeIntEnv(name: string) {
+  const value = process.env[name]
+  if (!value) return 0
+
+  const parsed = Number(value)
+  if (!Number.isFinite(parsed) || parsed <= 0) return 0
+
+  return Math.floor(parsed)
+}
+
+async function installSlowFsForPlaywright(page: Page) {
+  const delayMs = readNonNegativeIntEnv('E2E_SLOW_FS_MS')
+  if (delayMs === 0) return
+
+  const jitterMs = readNonNegativeIntEnv('E2E_SLOW_FS_JITTER_MS')
+
+  await page.addInitScript(
+    ({ delayMs, jitterMs, slowFsMethodNames }) => {
+      const globalObject = window as any
+      const installedKey = '__zooPlaywrightSlowFsInstalled'
+      if (globalObject[installedKey]) return
+
+      globalObject[installedKey] = true
+
+      const wrappedKey = Symbol.for('zoo.playwrightSlowFsWrapped')
+      const methods = new Set(slowFsMethodNames)
+
+      const delay = () => {
+        const jitter =
+          jitterMs > 0 ? Math.floor(Math.random() * (jitterMs + 1)) : 0
+        return new Promise((resolve) => setTimeout(resolve, delayMs + jitter))
+      }
+
+      const looksLikeFsZds = (value: unknown) => {
+        if (!value || typeof value !== 'object') return false
+
+        return slowFsMethodNames.every(
+          (methodName) => typeof (value as any)[methodName] === 'function'
+        )
+      }
+
+      const wrapFsZds = <T>(value: T): T => {
+        if (!looksLikeFsZds(value)) return value
+        if ((value as any)[wrappedKey]) return value
+
+        Object.defineProperty(value, wrappedKey, {
+          configurable: false,
+          enumerable: false,
+          value: true,
+        })
+
+        for (const methodName of methods) {
+          const original = (value as any)[methodName]
+          if (typeof original !== 'function') continue
+          ;(value as any)[methodName] = async function (...args: unknown[]) {
+            await delay()
+            return original.apply(this, args)
+          }
+        }
+
+        return value
+      }
+
+      const originalAssign = Object.assign
+      Object.assign = function (target: any, ...sources: any[]) {
+        const result = originalAssign.call(Object, target, ...sources)
+
+        if (
+          looksLikeFsZds(result) ||
+          sources.some((source) => looksLikeFsZds(source))
+        ) {
+          wrapFsZds(result)
+        }
+
+        return result
+      }
+
+      let currentFsZds = wrapFsZds(globalObject.fsZds)
+      const currentDescriptor = Object.getOwnPropertyDescriptor(
+        globalObject,
+        'fsZds'
+      )
+
+      if (!currentDescriptor || currentDescriptor.configurable) {
+        Object.defineProperty(globalObject, 'fsZds', {
+          configurable: true,
+          enumerable: true,
+          get() {
+            return currentFsZds
+          },
+          set(value) {
+            currentFsZds = wrapFsZds(value)
+          },
+        })
+      }
+    },
+    { delayMs, jitterMs, slowFsMethodNames }
+  )
+}
+
 function failOnConsoleErrors(page: Page, testInfo?: TestInfo) {
+  let mainFrameNavigationRequest: Request | undefined
+  page.on('request', (request) => {
+    if (request.isNavigationRequest() && request.frame() === page.mainFrame()) {
+      mainFrameNavigationRequest = request
+    }
+  })
+  page.on('load', () => {
+    mainFrameNavigationRequest = undefined
+  })
+  page.on('requestfailed', (request) => {
+    if (request === mainFrameNavigationRequest) {
+      mainFrameNavigationRequest = undefined
+    }
+  })
+
   page.on('pageerror', (exception: any) => {
     if (isErrorWhitelisted(exception)) {
+      return
+    }
+    if (
+      testInfo?.project.name === 'webkit' &&
+      mainFrameNavigationRequest !== undefined &&
+      exception.name === 'Cannot load blob' &&
+      exception.message.includes('due to access control checks') &&
+      exception.stack?.includes('/src/lib/fs-zds/opfs.ts')
+    ) {
+      // WebKit reports interrupted OPFS reads from the old document as page
+      // errors while it unloads; the replacement document is unaffected.
       return
     }
     // Only disable this environment variable if you want to collect console errors
@@ -1089,7 +1330,7 @@ export async function createProject({
 }) {
   await test.step(`Create project and navigate to it`, async () => {
     await page.getByRole('button', { name: 'Create project' }).click()
-    await page.getByRole('textbox', { name: 'Name' }).fill(name)
+    await page.getByTestId('cmd-bar-arg-value').fill(name)
     await page.getByRole('button', { name: 'Continue' }).click()
 
     await closeOnboardingModalIfPresent(page)
@@ -1244,6 +1485,164 @@ export function perProjectSettingsToToml(
   return TOML.stringify(settings as any)
 }
 
+export async function clickElectronNativeMenuById(
+  tronApp: ElectronZoo,
+  menuId: string
+) {
+  await clickElectronNativeMenuByIdForPage(tronApp, tronApp.page, menuId)
+}
+
+export async function clickElectronNativeMenuByIdForPage(
+  tronApp: ElectronZoo,
+  page: Page,
+  menuId: string
+) {
+  const clickWasTriggered = await triggerElectronNativeMenuByIdForPage(
+    tronApp,
+    page,
+    menuId
+  )
+  expect(clickWasTriggered).toBe(true)
+}
+
+async function triggerElectronNativeMenuByIdForPage(
+  tronApp: ElectronZoo,
+  page: Page,
+  menuId: string
+) {
+  const browserWindowId = await getElectronBrowserWindowId(tronApp, page)
+
+  return tronApp.electron.evaluate(
+    ({ app, BrowserWindow, Menu }, { browserWindowId, menuId }) => {
+      type NativeMenuItemForTest = {
+        accelerator?: unknown
+        click?: (...args: unknown[]) => void
+        label?: unknown
+      }
+      type NativeMenuForTest = {
+        getMenuItemById: (
+          targetMenuId: string
+        ) => NativeMenuItemForTest | null | undefined
+      }
+      function isObject(value: unknown): value is Record<PropertyKey, unknown> {
+        return typeof value === 'object' && value !== null
+      }
+      function isNativeMenu(value: unknown): value is NativeMenuForTest {
+        return isObject(value) && typeof value.getMenuItemById === 'function'
+      }
+      function getWindowMenuFromTestProperties() {
+        const testProperties = Reflect.get(app, 'testProperty')
+        if (!isObject(testProperties)) return null
+
+        const nativeWindowMenus = testProperties.nativeWindowMenus
+        if (!(nativeWindowMenus instanceof Map)) return null
+
+        return nativeWindowMenus.get(browserWindowId)
+      }
+
+      const window = BrowserWindow.fromId(browserWindowId)
+      if (!window) return false
+
+      const menu =
+        process.platform === 'darwin'
+          ? Menu.getApplicationMenu()
+          : getWindowMenuFromTestProperties()
+      if (!isNativeMenu(menu)) return false
+
+      const menuItem = menu.getMenuItemById(menuId)
+      if (typeof menuItem?.click !== 'function') return false
+
+      menuItem.click(menuItem, window, {})
+      return true
+    },
+    { browserWindowId, menuId }
+  )
+}
+
+async function getElectronBrowserWindowId(tronApp: ElectronZoo, page: Page) {
+  const browserWindow = await tronApp.electron.browserWindow(page)
+  try {
+    return await browserWindow.evaluate((window) => window.id)
+  } finally {
+    await browserWindow.dispose()
+  }
+}
+
+export async function findElectronNativeMenuById(
+  tronApp: ElectronZoo,
+  menuId: string
+) {
+  await findElectronNativeMenuByIdForPage(tronApp, tronApp.page, menuId)
+}
+
+export async function findElectronNativeMenuByIdForPage(
+  tronApp: ElectronZoo,
+  page: Page,
+  menuId: string
+) {
+  const found = Boolean(
+    await getElectronNativeMenuItemByIdForPage(tronApp, page, menuId)
+  )
+  expect(found).toBe(true)
+}
+
+export async function getElectronNativeMenuItemByIdForPage(
+  tronApp: ElectronZoo,
+  page: Page,
+  menuId: string
+) {
+  const browserWindowId = await getElectronBrowserWindowId(tronApp, page)
+  return tronApp.electron.evaluate(
+    ({ app, BrowserWindow, Menu }, { browserWindowId, menuId }) => {
+      type NativeMenuItemForTest = {
+        accelerator?: unknown
+        label?: unknown
+      }
+      type NativeMenuForTest = {
+        getMenuItemById: (
+          targetMenuId: string
+        ) => NativeMenuItemForTest | null | undefined
+      }
+      function isObject(value: unknown): value is Record<PropertyKey, unknown> {
+        return typeof value === 'object' && value !== null
+      }
+      function isNativeMenu(value: unknown): value is NativeMenuForTest {
+        return isObject(value) && typeof value.getMenuItemById === 'function'
+      }
+      function getWindowMenuFromTestProperties() {
+        const testProperties = Reflect.get(app, 'testProperty')
+        if (!isObject(testProperties)) return null
+
+        const nativeWindowMenus = testProperties.nativeWindowMenus
+        if (!(nativeWindowMenus instanceof Map)) return null
+
+        return nativeWindowMenus.get(browserWindowId)
+      }
+
+      const window = BrowserWindow.fromId(browserWindowId)
+      if (!window) return null
+
+      const menu =
+        process.platform === 'darwin'
+          ? Menu.getApplicationMenu()
+          : getWindowMenuFromTestProperties()
+      if (!isNativeMenu(menu)) return null
+
+      const menuItem = menu.getMenuItemById(menuId)
+      if (!menuItem) return null
+
+      return {
+        accelerator:
+          typeof menuItem.accelerator === 'string'
+            ? menuItem.accelerator
+            : undefined,
+        label: typeof menuItem.label === 'string' ? menuItem.label : '',
+      }
+    },
+    { browserWindowId, menuId }
+  )
+}
+
 export async function openSettingsExpectText(page: Page, text: string) {
   const settings = page.getByTestId('settings-dialog-panel')
   await expect(settings).toBeVisible()
@@ -1258,6 +1657,20 @@ export async function openSettingsExpectLocator(page: Page, selector: string) {
   // You are viewing the keybindings tab
   const settingsLocator = settings.locator(selector)
   await expect(settingsLocator).toBeVisible()
+}
+
+export async function expectKeybindingsSettingsVisible(page: Page) {
+  const settings = page.getByTestId('settings-dialog-panel')
+  await expect(settings).toBeVisible()
+  await expect(
+    settings.getByRole('button', { name: 'Add keybinding' })
+  ).toBeVisible()
+  await expect(
+    settings.getByRole('columnheader', { name: 'Title' })
+  ).toBeVisible()
+  await expect(
+    settings.getByRole('columnheader', { name: 'Keystrokes' })
+  ).toBeVisible()
 }
 
 /**

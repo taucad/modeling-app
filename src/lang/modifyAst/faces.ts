@@ -29,7 +29,6 @@ import {
 import {
   getArtifactOfTypes,
   getCapCodeRef,
-  getCodeRefsByArtifactId,
   getFaceCodeRef,
   getSweepFromSuspectedSweepSurface,
 } from '@src/lang/std/artifactGraph'
@@ -44,11 +43,18 @@ import {
   type VariableMap,
   formatNumberValue,
 } from '@src/lang/wasm'
+import {
+  modelingStdLibCall,
+  modelingStdLibCommandName,
+} from '@src/lib/commandBarConfigs/modelingCommandStdLib'
 import type { KclCommandValue, KclExpression } from '@src/lib/commandTypes'
 import { KCL_DEFAULT_CONSTANT_PREFIXES } from '@src/lib/constants'
 import { stringToKclExpression } from '@src/lib/kclHelpers'
 import type RustContext from '@src/lib/rustContext'
-import { isEnginePrimitiveSelection } from '@src/lib/selections'
+import {
+  getBodySelectionFromPrimitiveParentEntityId,
+  isEnginePrimitiveSelection,
+} from '@src/lib/selections'
 import { err } from '@src/lib/trap'
 import { isArray } from '@src/lib/utils'
 import type { ModuleType } from '@src/lib/wasm_lib_wrapper'
@@ -83,31 +89,42 @@ export function addShell({
   const mNodeToEdit = structuredClone(nodeToEdit)
 
   // 2. Prepare unlabeled and labeled arguments
-  const result = buildSolidsAndFacesExprs(
-    faces,
-    artifactGraph,
-    modifiedAst,
-    wasmInstance,
-    mNodeToEdit,
-    {
-      lastChildLookup: true,
-      artifactTypeFilter: ['sweep', 'compositeSolid'],
+  let solidsExpr: Expr | null = null
+  let facesExpr: Expr | null = null
+  let pathIfPipe: PathToNode | undefined
+  if (!mNodeToEdit) {
+    const result = buildSolidsAndFacesExprs(
+      faces,
+      artifactGraph,
+      modifiedAst,
+      wasmInstance,
+      undefined,
+      {
+        lastChildLookup: true,
+        artifactTypeFilter: ['sweep', 'compositeSolid'],
+      }
+    )
+    if (err(result)) {
+      return result
     }
+
+    solidsExpr = result.solidsExpr
+    facesExpr = result.facesExpr
+    pathIfPipe = result.pathIfPipe
+    modifiedAst = result.modifiedAst
+    if (!facesExpr) {
+      return new Error("Couldn't retrieve face from selection")
+    }
+  }
+
+  const call = createCallExpressionStdLibKw(
+    modelingStdLibCommandName('Shell'),
+    solidsExpr,
+    [
+      ...(facesExpr ? [createLabeledArg('faces', facesExpr)] : []),
+      createLabeledArg('thickness', valueOrVariable(thickness)),
+    ]
   )
-  if (err(result)) {
-    return result
-  }
-
-  const { solidsExpr, facesExpr, pathIfPipe } = result
-  modifiedAst = result.modifiedAst
-  if (!facesExpr) {
-    return new Error("Couldn't retrieve face from selection")
-  }
-
-  const call = createCallExpressionStdLibKw('shell', solidsExpr, [
-    createLabeledArg('faces', facesExpr),
-    createLabeledArg('thickness', valueOrVariable(thickness)),
-  ])
 
   // Insert variables for labeled arguments if provided
   if ('variableName' in thickness && thickness.variableName) {
@@ -122,6 +139,7 @@ export function addShell({
     pathToEdit: mNodeToEdit,
     pathIfNewPipe: pathIfPipe,
     variableIfNewDecl: KCL_DEFAULT_CONSTANT_PREFIXES.SHELL,
+    labeledSelectionArgNames: ['faces'],
     wasmInstance,
   })
   if (err(pathToNode)) {
@@ -156,16 +174,33 @@ export function addDeleteFace({
   let modifiedAst = structuredClone(ast)
   const mNodeToEdit = structuredClone(nodeToEdit)
 
+  if (mNodeToEdit) {
+    const call = createCallExpressionStdLibKw(
+      modelingStdLibCommandName('Delete Face'),
+      null,
+      []
+    )
+    const pathToNode = setCallInAst({
+      ast: modifiedAst,
+      call,
+      pathToEdit: mNodeToEdit,
+      labeledSelectionArgNames: ['faces'],
+      wasmInstance,
+    })
+    if (err(pathToNode)) return pathToNode
+    return { modifiedAst, pathToNode }
+  }
+
   // 2. Prepare unlabeled and labeled arguments
   const result = buildSolidsAndFacesExprs(
     faces,
     artifactGraph,
     modifiedAst,
     wasmInstance,
-    mNodeToEdit,
+    undefined,
     {
       lastChildLookup: true,
-      artifactTypeFilter: ['sweep', 'compositeSolid'],
+      artifactTypeFilter: ['sweep', 'compositeSolid', 'edgeCut'],
     }
   )
   if (err(result)) {
@@ -195,9 +230,11 @@ export function addDeleteFace({
     return new Error("Couldn't retrieve face from selection")
   }
 
-  const call = createCallExpressionStdLibKw('deleteFace', solidsExpr, [
-    createLabeledArg('faces', facesExpr),
-  ])
+  const call = createCallExpressionStdLibKw(
+    modelingStdLibCommandName('Delete Face'),
+    solidsExpr,
+    [createLabeledArg('faces', facesExpr)]
+  )
 
   // 3. If edit, we assign the new function call declaration to the existing node,
   // otherwise just push to the end
@@ -207,6 +244,7 @@ export function addDeleteFace({
     pathToEdit: mNodeToEdit,
     pathIfNewPipe: result.pathIfPipe,
     variableIfNewDecl: KCL_DEFAULT_CONSTANT_PREFIXES.SURFACE,
+    labeledSelectionArgNames: ['faces'],
     wasmInstance,
   })
   if (err(pathToNode)) {
@@ -271,30 +309,38 @@ export function addHole({
   const mNodeToEdit = structuredClone(nodeToEdit)
 
   // 2. Prepare unlabeled and labeled arguments
-  const result = buildSolidsAndFacesExprs(
-    face,
-    artifactGraph,
-    modifiedAst,
-    wasmInstance,
-    mNodeToEdit,
-    {
-      lastChildLookup: true,
-      artifactTypeFilter: ['compositeSolid', 'sweep'],
+  let solidsExpr: Expr | null = null
+  let facesExpr: Expr | null = null
+  let pathIfPipe: PathToNode | undefined
+  if (!mNodeToEdit) {
+    const result = buildSolidsAndFacesExprs(
+      face,
+      artifactGraph,
+      modifiedAst,
+      wasmInstance,
+      undefined,
+      {
+        lastChildLookup: true,
+        artifactTypeFilter: ['compositeSolid', 'sweep'],
+      }
+    )
+    if (err(result)) {
+      return result
     }
-  )
-  if (err(result)) {
-    return result
-  }
 
-  const { solidsExpr, facesExpr, pathIfPipe } = result
-  modifiedAst = result.modifiedAst
-  if (!facesExpr) {
-    return new Error("Couldn't retrieve face from selection")
+    solidsExpr = result.solidsExpr
+    facesExpr = result.facesExpr
+    pathIfPipe = result.pathIfPipe
+    modifiedAst = result.modifiedAst
+    if (!facesExpr) {
+      return new Error("Couldn't retrieve face from selection")
+    }
   }
 
   // Extra args for createCallExpressionStdLibKw as we're calling functions from a module
   const nonCodeMeta = undefined
-  const modulePath = [createIdentifier('hole')]
+  const holeCall = modelingStdLibCall('Hole')
+  const modulePath = holeCall.path.map(createIdentifier)
 
   // Prep the big label args
   let holeBodyNode: Node<CallExpressionKw> | undefined
@@ -390,10 +436,10 @@ export function addHole({
   if (err(cutAtExpr)) return cutAtExpr
 
   const call = createCallExpressionStdLibKw(
-    'hole',
+    holeCall.name,
     solidsExpr,
     [
-      createLabeledArg('face', facesExpr),
+      ...(facesExpr ? [createLabeledArg('face', facesExpr)] : []),
       createLabeledArg('cutAt', cutAtExpr),
       createLabeledArg('holeBottom', holeBottomNode),
       createLabeledArg('holeBody', holeBodyNode),
@@ -493,6 +539,7 @@ export function addHole({
     pathToEdit: mNodeToEdit,
     pathIfNewPipe: pathIfPipe,
     variableIfNewDecl: KCL_DEFAULT_CONSTANT_PREFIXES.HOLE,
+    labeledSelectionArgNames: ['face'],
     wasmInstance,
   })
   if (err(pathToNode)) {
@@ -782,22 +829,27 @@ export function addOffsetPlane({
   const mNodeToEdit = structuredClone(nodeToEdit)
 
   // 2. Prepare unlabeled and labeled arguments
-  const planeResult = getPlaneExprFromSelection({
-    ast: modifiedAst,
-    artifactGraph,
-    variables,
-    plane,
-    wasmInstance,
-    nodeToEdit: mNodeToEdit,
-  })
-  if (err(planeResult)) {
-    return planeResult
+  let planeExpr: Expr | null = null
+  if (!mNodeToEdit) {
+    const planeResult = getPlaneExprFromSelection({
+      ast: modifiedAst,
+      artifactGraph,
+      variables,
+      plane,
+      wasmInstance,
+    })
+    if (err(planeResult)) {
+      return planeResult
+    }
+    modifiedAst = planeResult.modifiedAst
+    planeExpr = planeResult.expr
   }
-  modifiedAst = planeResult.modifiedAst
 
-  const call = createCallExpressionStdLibKw('offsetPlane', planeResult.expr, [
-    createLabeledArg('offset', valueOrVariable(offset)),
-  ])
+  const call = createCallExpressionStdLibKw(
+    modelingStdLibCommandName('Offset plane'),
+    planeExpr,
+    [createLabeledArg('offset', valueOrVariable(offset))]
+  )
 
   // Insert variables for labeled arguments if provided
   if ('variableName' in offset && offset.variableName) {
@@ -971,6 +1023,12 @@ function getSolidSelectionsFromFaceSelections(
       if (!face.artifact) {
         return []
       }
+      if (face.artifact.type === 'edgeCut') {
+        return {
+          artifact: face.artifact,
+          codeRef: face.artifact.codeRef,
+        }
+      }
       const sweep = getSweepFromSuspectedSweepSurface(
         face.artifact.id,
         artifactGraph
@@ -985,66 +1043,6 @@ function getSolidSelectionsFromFaceSelections(
       }
     }),
     otherSelections: [],
-  }
-}
-
-export function getBodySelectionFromPrimitiveParentEntityId(
-  parentEntityId: string,
-  artifactGraph: ArtifactGraph
-): Selection | null {
-  const parentArtifact = artifactGraph.get(parentEntityId)
-  if (!parentArtifact) {
-    return null
-  }
-
-  if (
-    parentArtifact.type === 'sweep' ||
-    parentArtifact.type === 'compositeSolid'
-  ) {
-    return {
-      artifact: parentArtifact,
-      codeRef: parentArtifact.codeRef,
-    }
-  }
-
-  if (parentArtifact.type === 'path' && parentArtifact.sweepId) {
-    const parentSweep = getArtifactOfTypes(
-      { key: parentArtifact.sweepId, types: ['sweep'] },
-      artifactGraph
-    )
-    if (!err(parentSweep)) {
-      return {
-        artifact: parentSweep as Artifact,
-        codeRef: parentSweep.codeRef,
-      }
-    }
-  }
-
-  if (
-    parentArtifact.type === 'cap' ||
-    parentArtifact.type === 'wall' ||
-    parentArtifact.type === 'edgeCut'
-  ) {
-    const parentSweep = getSweepFromSuspectedSweepSurface(
-      parentArtifact.id,
-      artifactGraph
-    )
-    if (!err(parentSweep)) {
-      return {
-        artifact: parentSweep as Artifact,
-        codeRef: parentSweep.codeRef,
-      }
-    }
-  }
-
-  const parentCodeRefs = getCodeRefsByArtifactId(parentEntityId, artifactGraph)
-  if (!parentCodeRefs || parentCodeRefs.length === 0) {
-    return null
-  }
-
-  return {
-    artifact: parentArtifact,
-    codeRef: parentCodeRefs[parentCodeRefs.length - 1],
   }
 }
 
@@ -1097,8 +1095,8 @@ export function retrieveFaceSelectionsFromOpArgs(
     return solids
   }
 
-  const sweepIds = solids.graphSelections.flatMap((s) =>
-    s.artifact?.type === 'sweep' ? s.artifact.id : []
+  const sweepIds = solids.graphSelections.flatMap((selection) =>
+    getTargetSweepIdsFromBodyArtifact(selection.artifact, artifactGraph)
   )
   if (sweepIds.length === 0) {
     return new Error('No sweep artifact found in solids selection')
@@ -1184,6 +1182,33 @@ export function retrieveFaceSelectionsFromOpArgs(
 
   const faces = { graphSelections, otherSelections: [] }
   return { solids, faces }
+}
+
+function getTargetSweepIdsFromBodyArtifact(
+  artifact: Artifact | undefined,
+  artifactGraph: ArtifactGraph
+): string[] {
+  const sweepIds = new Set<string>()
+  const visited = new Set<string>()
+
+  const visit = (candidate: Artifact | undefined) => {
+    if (!candidate || visited.has(candidate.id)) return
+    visited.add(candidate.id)
+
+    if (candidate.type === 'sweep') {
+      sweepIds.add(candidate.id)
+    } else if (candidate.type === 'path' && candidate.sweepId) {
+      const sweep = artifactGraph.get(candidate.sweepId)
+      if (sweep?.type === 'sweep') {
+        sweepIds.add(sweep.id)
+      }
+    } else if (candidate.type === 'compositeSolid') {
+      candidate.solidIds.forEach((id) => visit(artifactGraph.get(id)))
+    }
+  }
+
+  visit(artifact)
+  return [...sweepIds]
 }
 
 export function retrieveNonDefaultPlaneSelectionFromOpArg(

@@ -16,6 +16,7 @@ import {
   defaultNodePath,
   errFromErrWithOutputs,
   formatNumberLiteral,
+  kclLint,
   parse,
   rustImplPathToNode,
 } from '@src/lang/wasm'
@@ -34,7 +35,7 @@ import {
 import type RustContext from '@src/lib/rustContext'
 import { isArray } from '@src/lib/utils'
 import type { ModuleType } from '@src/lib/wasm_lib_wrapper'
-import type { ConnectionManager } from '@src/network/connectionManager'
+import type { ConnectionManager } from '@src/lib/engineConnection/connectionManager'
 import { buildTheWorldAndConnectToEngine } from '@src/unitTestUtils'
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 
@@ -89,7 +90,7 @@ beforeEach(async () => {
   }
 
   const { instance, engineCommandManager, rustContext } =
-    await buildTheWorldAndConnectToEngine()
+    await buildTheWorldAndConnectToEngine({ geometryOnly: true })
   instanceInThisFile = instance
   engineCommandManagerInThisFile = engineCommandManager
   rustContextInThisFile = rustContext
@@ -97,6 +98,25 @@ beforeEach(async () => {
 
 afterAll(() => {
   engineCommandManagerInThisFile.tearDown()
+})
+
+describe('KCL lint options', () => {
+  it('only returns Z0006 when explicitly enabled', async () => {
+    const ast = assertParse(
+      'revolve(profile, axis = getOppositeEdge(seg01))',
+      instanceInThisFile
+    )
+
+    const defaultFindings = await kclLint(ast, instanceInThisFile)
+    expect(
+      defaultFindings.some((finding) => finding.finding.code === 'Z0006')
+    ).toBe(false)
+
+    const optedInFindings = await kclLint(ast, instanceInThisFile, true)
+    expect(
+      optedInFindings.some((finding) => finding.finding.code === 'Z0006')
+    ).toBe(true)
+  })
 })
 
 it('can execute parsed AST', async () => {
@@ -112,7 +132,12 @@ it('can execute parsed AST', async () => {
     rustContextInThisFile
   )
   expect(err(execState)).toEqual(false)
-  expect(execState.variables['x']?.value).toEqual(1)
+  const x = execState.variables['x']
+  expect(x?.type).toBe('Number')
+  if (x?.type !== 'Number') {
+    throw new Error('Expected KCL value Number')
+  }
+  expect(x.value).toEqual(1)
 })
 
 it('applies operation callbacks to operations-by-module incrementally', () => {
@@ -343,6 +368,11 @@ describe('relevantFileExtensions', () => {
       expect(actual).toBe(expected)
     })
 
+    it('contains prt', () => {
+      const extensions = relevantFileExtensions(instanceInThisFile)
+      expect(extensions).toContain('prt')
+    })
+
     it('contains stl', () => {
       const expected = true
       const actual = relevantFileExtensions(instanceInThisFile).some(
@@ -376,6 +406,13 @@ describe('importFileExtensions', () => {
   })
 
   describe('check for each known extension', () => {
+    it.each(['sat', 'sab', 'catpart', 'prt', 'ipt', 'x_t', 'x_b', 'sldprt'])(
+      'contains proprietary part extension %s',
+      (extension) => {
+        expect(importFileExtensions(instanceInThisFile)).toContain(extension)
+      }
+    )
+
     it('contains stp', () => {
       const expected = true
       const actual = importFileExtensions(instanceInThisFile).some(
@@ -464,6 +501,11 @@ describe('importFileExtensions', () => {
       expect(actual).toBe(expected)
     })
 
+    it('contains prt', () => {
+      const extensions = importFileExtensions(instanceInThisFile)
+      expect(extensions).toContain('prt')
+    })
+
     it('contains stl', () => {
       const expected = true
       const actual = importFileExtensions(instanceInThisFile).some(
@@ -501,6 +543,26 @@ describe('isExtensionAnImportExtension', () => {
     const actual = isExtensionAnImportExtension('steP', extensions)
     expect(actual).toBe(expected)
   })
+
+  it.each([
+    'bracket.prt',
+    'bracket.prt.1',
+    'parts/bracket.PRT.23',
+    String.raw`parts\bracket.PrT.3`,
+  ])('recognizes Creo import path %s', (filePath) => {
+    const extensions = importFileExtensions(instanceInThisFile)
+    expect(isExtensionAnImportExtension(filePath, extensions)).toBe(true)
+  })
+
+  it.each([
+    'bracket.prt.0',
+    'bracket.prt.01',
+    'bracket.prt.-1',
+    'bracket.prt.1.bak',
+  ])('rejects invalid Creo import path %s', (filePath) => {
+    const extensions = importFileExtensions(instanceInThisFile)
+    expect(isExtensionAnImportExtension(filePath, extensions)).toBe(false)
+  })
 })
 
 describe('isExtensionARelevantExtension', () => {
@@ -527,6 +589,13 @@ describe('isExtensionARelevantExtension', () => {
     const expected = true
     const actual = isExtensionARelevantExtension('steP', extensions)
     expect(actual).toBe(expected)
+  })
+
+  it('recognizes a versioned Creo path', () => {
+    const extensions = relevantFileExtensions(instanceInThisFile)
+    expect(isExtensionARelevantExtension('bracket.prt.2', extensions)).toBe(
+      true
+    )
   })
 })
 

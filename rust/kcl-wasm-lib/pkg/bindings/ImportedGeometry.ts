@@ -3,11 +3,11 @@
 /**
  * Data for an imported geometry.
  */
-export type ImportedGeometry = { 
+export type ImportedGeometry = {
 /**
  * The ID of the imported geometry.
  */
-id: string, 
+id: string,
 /**
  * The original file paths.
  */

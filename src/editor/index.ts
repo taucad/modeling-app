@@ -40,19 +40,17 @@ import { lineHighlightField } from '@src/editor/highlightextension'
 import { createHistoryExtension } from '@src/editor/historyConfig'
 import { kclAstExtension } from '@src/editor/plugins/ast'
 import { blurOnEscape } from '@src/editor/plugins/blurOnEsc'
+import { diagnosticTooltipCloseButton } from '@src/editor/plugins/diagnosticTooltipCloseButton'
 import { executionEffectsExtension } from '@src/editor/plugins/execution'
 import { operationsExtension } from '@src/editor/plugins/operations'
 import { sketchSceneGraphCompartment } from '@src/editor/plugins/sketch'
 import { themeCompartment } from '@src/editor/plugins/theme'
 import { writeEffectsExtension } from '@src/editor/plugins/write'
+import { kclLspExtension } from '@src/lang/lsp/codeMirror'
 import { onMouseDragMakeANewNumber, onMouseDragRegex } from '@src/lib/utils'
 
 export const lineWrappingCompartment = new Compartment()
 export const cursorBlinkingCompartment = new Compartment()
-/** Compartment wrapping KCL CodeMirror plugin, allowing for runtime reconfiguration */
-export const kclLspCompartment = new Compartment()
-/** Compartment wrapping KCL autocompletion "copilot" plugin, allowing for runtime reconfiguration */
-export const kclAutocompleteCompartment = new Compartment()
 
 export function baseEditorExtensions() {
   const extensions: Extension = [
@@ -60,9 +58,7 @@ export function baseEditorExtensions() {
     // Toggled on while in sketch mode
     sketchSceneGraphCompartment.of([]),
     writeEffectsExtension(),
-    // These two extensions are empty to begin with, then reconfigured when the LSP becomes available
-    kclLspCompartment.of([]),
-    kclAutocompleteCompartment.of([]),
+    kclLspExtension(),
     lineWrappingCompartment.of([]),
     cursorBlinkingCompartment.of(
       drawSelection({
@@ -101,6 +97,7 @@ export function baseEditorExtensions() {
     themeCompartment.of(Prec.highest([])),
     rectangularSelection(),
     dropCursor(),
+    diagnosticTooltipCloseButton(),
     blurOnEscape,
     interact({
       rules: [

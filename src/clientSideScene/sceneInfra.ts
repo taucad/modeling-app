@@ -17,7 +17,10 @@ import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer'
 
 import { CameraControls } from '@src/clientSideScene/CameraControls'
 import { orthoScale, perspScale } from '@src/clientSideScene/helpers'
-import { PROFILE_START } from '@src/clientSideScene/sceneConstants'
+import {
+  CANVAS_DRAG_THRESHOLD_PX,
+  PROFILE_START,
+} from '@src/clientSideScene/sceneConstants'
 import {
   AXIS_GROUP,
   DEBUG_SHOW_INTERSECTION_PLANE,
@@ -41,7 +44,7 @@ import type {
 } from '@src/machines/modelingSharedTypes'
 
 import type { ModuleType } from '@src/lib/wasm_lib_wrapper'
-import type { ConnectionManager } from '@src/network/connectionManager'
+import type { ConnectionManager } from '@src/lib/engineConnection/connectionManager'
 
 type SendType = ReturnType<typeof useModelingContext>['send']
 
@@ -565,6 +568,26 @@ export class SceneInfra {
       this._processingMouseMove = true
     }
 
+    try {
+      await this.processMouseMove(mouseEvent)
+    } catch (error) {
+      console.error('[canvas mousemove] processing failed', error)
+      return Promise.reject(error)
+    } finally {
+      if (this.mouseMoveThrottling) {
+        this._processingMouseMove = false
+        const lastUnprocessedMouseEvent = this._lastUnprocessedMouseEvent
+        if (lastUnprocessedMouseEvent) {
+          // Another mousemove happened during the time this callback was processing
+          // -> process that event now
+          this._lastUnprocessedMouseEvent = undefined
+          void this.onMouseMove(lastUnprocessedMouseEvent)
+        }
+      }
+    }
+  }
+
+  private processMouseMove = async (mouseEvent: MouseEvent) => {
     this.updateCurrentMouseVector(mouseEvent)
 
     const planeIntersectPoint = this.getPlaneIntersectPoint()
@@ -574,7 +597,7 @@ export class SceneInfra {
       const hasBeenDragged = !vec2WithinDistance(
         this.ndc2screenSpace(this.currentMouseVector),
         this.ndc2screenSpace(this.selected.mouseDownVector),
-        10 // Drag threshold in pixels
+        CANVAS_DRAG_THRESHOLD_PX
       )
       if (!this.selected.hasBeenDragged && hasBeenDragged) {
         this.selected.hasBeenDragged = true
@@ -621,7 +644,7 @@ export class SceneInfra {
       const hasBeenDragged = !vec2WithinDistance(
         this.ndc2screenSpace(this.currentMouseVector),
         this.ndc2screenSpace(this.areaSelect.mouseDownVector),
-        10 // Drag threshold in pixels
+        CANVAS_DRAG_THRESHOLD_PX
       )
       if (!this.areaSelect.hasBeenDragged && hasBeenDragged) {
         this.areaSelect.hasBeenDragged = true
@@ -718,17 +741,6 @@ export class SceneInfra {
         }
       }
     }
-
-    if (this.mouseMoveThrottling) {
-      this._processingMouseMove = false
-      const lastUnprocessedMouseEvent = this._lastUnprocessedMouseEvent
-      if (lastUnprocessedMouseEvent) {
-        // Another mousemove happened during the time this callback was processing
-        // -> process that event now
-        this._lastUnprocessedMouseEvent = undefined
-        void this.onMouseMove(lastUnprocessedMouseEvent)
-      }
-    }
   }
 
   raycastRing = (pixelRadius = 8, rayRingCount = 32): Intersection[] => {
@@ -793,6 +805,10 @@ export class SceneInfra {
   }
 
   onMouseDown = (event: MouseEvent) => {
+    if (event.button !== 0) {
+      return
+    }
+
     this.updateCurrentMouseVector(event)
 
     const mouseDownVector = this.currentMouseVector.clone()
@@ -842,6 +858,10 @@ export class SceneInfra {
   }
 
   onMouseUp = async (mouseEvent: MouseEvent) => {
+    if (mouseEvent.button !== 0) {
+      return
+    }
+
     const wasmInstance = await this.wasmInstancePromise
     this.updateCurrentMouseVector(mouseEvent)
     const planeIntersectPoint = this.getPlaneIntersectPoint()

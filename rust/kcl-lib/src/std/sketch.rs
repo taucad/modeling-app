@@ -5,6 +5,7 @@ use std::f64;
 
 use anyhow::Result;
 use indexmap::IndexMap;
+use kcl_api::UnitLength;
 use kcl_error::SourceRange;
 use kcmc::ModelingCmd;
 use kcmc::each_cmd as mcmd;
@@ -16,7 +17,6 @@ use kcmc::websocket::ModelingCmdReq;
 use kittycad_modeling_cmds as kcmc;
 use kittycad_modeling_cmds::shared::PathSegment;
 use kittycad_modeling_cmds::shared::RegionVersion;
-use kittycad_modeling_cmds::units::UnitLength;
 use parse_display::Display;
 use parse_display::FromStr;
 use serde::Deserialize;
@@ -60,6 +60,7 @@ use crate::execution::TagIdentifier;
 use crate::execution::annotations;
 use crate::execution::types::ArrayLen;
 use crate::execution::types::NumericType;
+use crate::execution::types::NumericTypeExt;
 use crate::execution::types::PrimitiveType;
 use crate::execution::types::RuntimeType;
 use crate::front::SourceRef;
@@ -757,7 +758,7 @@ async fn inner_angled_line_to_x(
     let y_to = from.y + y_component;
 
     let new_sketch = straight_line_with_new_id(
-        StraightLineParams::absolute([x_to, TyF64::new(y_to, from.units.into())], sketch, tag),
+        StraightLineParams::absolute([x_to, TyF64::new(y_to, NumericType::length(from.units))], sketch, tag),
         exec_state,
         &args.ctx,
         args.source_range,
@@ -831,7 +832,7 @@ async fn inner_angled_line_to_y(
     let x_to = from.x + x_component;
 
     let new_sketch = straight_line_with_new_id(
-        StraightLineParams::absolute([TyF64::new(x_to, from.units.into()), y_to], sketch, tag),
+        StraightLineParams::absolute([TyF64::new(x_to, NumericType::length(from.units)), y_to], sketch, tag),
         exec_state,
         &args.ctx,
         args.source_range,
@@ -882,8 +883,8 @@ pub async fn inner_angled_line_that_intersects(
         from.ignore_units(),
     );
     let to = [
-        TyF64::new(to[0], from.units.into()),
-        TyF64::new(to[1], from.units.into()),
+        TyF64::new(to[0], NumericType::length(from.units)),
+        TyF64::new(to[1], NumericType::length(from.units)),
     ];
 
     straight_line_with_new_id(
@@ -1266,7 +1267,7 @@ pub(crate) async fn create_sketch(
             // Hide whatever plane we are sketching on.
             // This is especially helpful for offset planes, which would be visible otherwise.
             exec_state
-                .batch_end_cmd(
+                .batch_modeling_cmd(
                     ModelingCmdMeta::new(exec_state, ctx, source_range),
                     ModelingCmd::from(mcmd::ObjectVisible::builder().object_id(plane.id).hidden(true).build()),
                 )
@@ -1371,7 +1372,7 @@ pub(crate) async fn create_sketch(
 /// Returns the X component of the sketch profile start point.
 pub async fn profile_start_x(exec_state: &mut ExecState, args: Args) -> Result<KclValue, KclError> {
     let sketch: Sketch = args.get_unlabeled_kw_arg("profile", &RuntimeType::sketch(), exec_state)?;
-    let ty = sketch.units.into();
+    let ty = NumericType::length(sketch.units);
     let x = inner_profile_start_x(sketch)?;
     Ok(args.make_user_val_from_f64_with_type(TyF64::new(x, ty)))
 }
@@ -1383,7 +1384,7 @@ pub(crate) fn inner_profile_start_x(profile: Sketch) -> Result<f64, KclError> {
 /// Returns the Y component of the sketch profile start point.
 pub async fn profile_start_y(exec_state: &mut ExecState, args: Args) -> Result<KclValue, KclError> {
     let sketch: Sketch = args.get_unlabeled_kw_arg("profile", &RuntimeType::sketch(), exec_state)?;
-    let ty = sketch.units.into();
+    let ty = NumericType::length(sketch.units);
     let x = inner_profile_start_y(sketch)?;
     Ok(args.make_user_val_from_f64_with_type(TyF64::new(x, ty)))
 }
@@ -1395,7 +1396,7 @@ pub(crate) fn inner_profile_start_y(profile: Sketch) -> Result<f64, KclError> {
 /// Returns the sketch profile start point.
 pub async fn profile_start(exec_state: &mut ExecState, args: Args) -> Result<KclValue, KclError> {
     let sketch: Sketch = args.get_unlabeled_kw_arg("profile", &RuntimeType::sketch(), exec_state)?;
-    let ty = sketch.units.into();
+    let ty = NumericType::length(sketch.units);
     let point = inner_profile_start(sketch)?;
     Ok(KclValue::from_point2d(point, ty, args.into()))
 }
@@ -2190,7 +2191,7 @@ pub async fn elliptic_point(exec_state: &mut ExecState, args: Args) -> Result<Kc
 
     let elliptic_point = inner_elliptic_point(x, y, major_radius, minor_radius, &args).await?;
 
-    args.make_kcl_val_from_point(elliptic_point, exec_state.length_unit().into())
+    args.make_kcl_val_from_point(elliptic_point, NumericType::length(exec_state.length_unit()))
 }
 
 async fn inner_elliptic_point(
@@ -2386,7 +2387,7 @@ pub async fn hyperbolic_point(exec_state: &mut ExecState, args: Args) -> Result<
 
     let hyperbolic_point = inner_hyperbolic_point(x, y, semi_major, semi_minor, &args).await?;
 
-    args.make_kcl_val_from_point(hyperbolic_point, exec_state.length_unit().into())
+    args.make_kcl_val_from_point(hyperbolic_point, NumericType::length(exec_state.length_unit()))
 }
 
 async fn inner_hyperbolic_point(
@@ -2558,7 +2559,7 @@ pub async fn parabolic_point(exec_state: &mut ExecState, args: Args) -> Result<K
 
     let parabolic_point = inner_parabolic_point(x, y, &coefficients, &args).await?;
 
-    args.make_kcl_val_from_point(parabolic_point, exec_state.length_unit().into())
+    args.make_kcl_val_from_point(parabolic_point, NumericType::length(exec_state.length_unit()))
 }
 
 async fn inner_parabolic_point(
@@ -2955,6 +2956,36 @@ impl SketchOrSegment {
     }
 }
 
+const REGION_DOCS_URL: &str = "https://zoo.dev/docs/kcl-std/functions/std-sketch-region";
+
+/// Guidance appended to engine rejections of `region(point = ...)`. The engine
+/// reports only that it could not build the region, so the error has to say what
+/// to change on its own: a human or an AI agent reading it should learn the next
+/// step and where to read more without any other context.
+const REGION_FROM_POINT_ENGINE_HELP: &str = "The engine found no closed boundary containing that point. Check that the point lies inside a fully closed boundary of the sketch, and that `sketch` names the sketch the point belongs to. Prefer `segments = [...]`, which traces the boundary from sketch segments instead of a point.";
+
+/// Guidance appended to engine rejections of `region(segments = [...])`.
+const REGION_FROM_SEGMENTS_ENGINE_HELP: &str = "The engine could not trace a closed boundary from those segments. Check that the segments belong to the same solved sketch and enclose an area. Use `intersectionIndex` and `direction` to choose between boundaries when more than one is possible.";
+
+/// Append region guidance to an engine rejection of a region command.
+///
+/// Only `KclError::Engine` is enriched. Hangups and internal engine failures are
+/// transport problems that get retried and have nothing to do with the region
+/// arguments, so guidance there would send the reader after the wrong fix.
+fn with_region_help(mut error: KclError, help: &str) -> KclError {
+    if !matches!(error, KclError::Engine { .. }) {
+        return error;
+    }
+    let details = error.details_mut();
+    let separator = if details.message.ends_with(['.', '!', '?']) {
+        ""
+    } else {
+        "."
+    };
+    details.message = format!("{}{separator} {help} See {REGION_DOCS_URL}", details.message);
+    error
+}
+
 async fn inner_region(
     point: Option<KclValue>,
     segments: Option<Vec<KclValue>>,
@@ -2966,9 +2997,10 @@ async fn inner_region(
 ) -> Result<KclValue, KclError> {
     let region_id = exec_state.next_uuid();
     let kcl_version = exec_state.kcl_version();
-    let region_version = match kcl_version {
-        KclVersion::V1 => RegionVersion::V0,
-        KclVersion::V2 => RegionVersion::V1,
+    let region_version = if kcl_version <= KclVersion::V1 {
+        RegionVersion::V0
+    } else {
+        RegionVersion::V1
     };
 
     let (sketch_or_segment, region_mapping) = match (point, segments) {
@@ -2987,7 +3019,8 @@ async fn inner_region(
                             .build(),
                     ),
                 )
-                .await?;
+                .await
+                .map_err(|error| with_region_help(error, REGION_FROM_POINT_ENGINE_HELP))?;
 
             let region_mapping = if let kcmc::websocket::OkWebSocketResponseData::Modeling {
                 modeling_response: kcmc::ok_response::OkModelingCmdResponse::CreateRegionFromQueryPoint(data),
@@ -3053,7 +3086,8 @@ async fn inner_region(
                             .build(),
                     ),
                 )
-                .await?;
+                .await
+                .map_err(|error| with_region_help(error, REGION_FROM_SEGMENTS_ENGINE_HELP))?;
 
             let region_mapping = if let kcmc::websocket::OkWebSocketResponseData::Modeling {
                 modeling_response: kcmc::ok_response::OkModelingCmdResponse::CreateRegion(data),
@@ -3336,9 +3370,69 @@ mod tests {
 
     use pretty_assertions::assert_eq;
 
+    use crate::errors::KclError;
+    use crate::errors::KclErrorDetails;
     use crate::execution::TagIdentifier;
     use crate::std::sketch::PlaneData;
+    use crate::std::sketch::REGION_DOCS_URL;
+    use crate::std::sketch::REGION_FROM_POINT_ENGINE_HELP;
+    use crate::std::sketch::REGION_FROM_SEGMENTS_ENGINE_HELP;
+    use crate::std::sketch::with_region_help;
     use crate::std::utils::calculate_circle_center;
+
+    fn engine_error_details(message: &str) -> KclErrorDetails {
+        KclErrorDetails::new(message.to_owned(), Vec::new())
+    }
+
+    #[test]
+    fn region_help_is_appended_to_an_engine_rejection() {
+        let engine_message = "Unable to create a region that contains the requested query point";
+        let error = with_region_help(
+            KclError::Engine {
+                details: engine_error_details(engine_message),
+            },
+            REGION_FROM_POINT_ENGINE_HELP,
+        );
+
+        assert_eq!(
+            error.message(),
+            format!("{engine_message}. {REGION_FROM_POINT_ENGINE_HELP} See {REGION_DOCS_URL}")
+        );
+    }
+
+    #[test]
+    fn region_help_does_not_double_up_sentence_punctuation() {
+        let engine_message = "Unable create a region from the given segments.";
+        let error = with_region_help(
+            KclError::Engine {
+                details: engine_error_details(engine_message),
+            },
+            REGION_FROM_SEGMENTS_ENGINE_HELP,
+        );
+
+        assert_eq!(
+            error.message(),
+            format!("{engine_message} {REGION_FROM_SEGMENTS_ENGINE_HELP} See {REGION_DOCS_URL}")
+        );
+    }
+
+    #[test]
+    fn region_help_is_not_appended_to_transport_or_internal_failures() {
+        let hangup = KclError::EngineHangup {
+            details: engine_error_details("connection closed"),
+            api_call_id: None,
+        };
+        let internal = KclError::EngineInternal {
+            details: engine_error_details("internal error"),
+        };
+        let semantic = KclError::new_semantic(engine_error_details("Sketch parameter must not be provided"));
+
+        for error in [hangup, internal, semantic] {
+            let message = error.message().to_owned();
+            let enriched = with_region_help(error, REGION_FROM_POINT_ENGINE_HELP);
+            assert_eq!(enriched.message(), message);
+        }
+    }
 
     #[test]
     fn test_deserialize_plane_data() {

@@ -1,17 +1,18 @@
-import { memo, use, useCallback, useMemo, useRef, useState } from 'react'
-
 import { useSignals } from '@preact/signals-react/runtime'
 import { useAppState } from '@src/AppState'
 import { ActionButton } from '@src/components/ActionButton'
 import { ActionButtonDropdown } from '@src/components/ActionButtonDropdown'
 import { ActionButtonRecentDropdown } from '@src/components/ActionButtonRecentDropdown'
+import { LegacySketchModeBanner } from '@src/components/Announcements'
 import { CustomIcon } from '@src/components/CustomIcon'
-import { LegacySketchModeBanner } from '@src/components/SketchSolveAnnouncements'
-import Tooltip from '@src/components/Tooltip'
+import Tooltip, {
+  RICH_TOOLTIP_SURFACE_CLASS_NAME,
+} from '@src/components/Tooltip'
 import { useModelingContext } from '@src/hooks/useModelingContext'
 import { useNetworkContext } from '@src/hooks/useNetworkContext'
 import { NetworkHealthState } from '@src/hooks/useNetworkStatus'
 import usePlatform from '@src/hooks/usePlatform'
+import { useRichTooltipContent } from '@src/hooks/useRichTooltipContent'
 import { isCursorInFunctionDefinition } from '@src/lang/queryAst'
 import { isCursorInSketchCommandRange } from '@src/lang/util'
 import {
@@ -19,6 +20,7 @@ import {
   shouldDisableModelingForUnrenderedChanges,
 } from '@src/lib/automaticRendering'
 import { useApp, useSingletons } from '@src/lib/boot'
+import { EngineConnectionStateType } from '@src/lib/engineConnection/utils'
 import { type HotkeySequence, hotkeyDisplay } from '@src/lib/hotkeys'
 import { isDesktop } from '@src/lib/isDesktop'
 import { openExternalBrowserIfDesktop } from '@src/lib/openWindow'
@@ -41,18 +43,22 @@ import {
   toolbarModeNameToKeymapScope,
   useToolbarConfig,
 } from '@src/lib/toolbar'
+import { toolbarToastsSignal } from '@src/lib/toolbarToast'
 import { reportRejection } from '@src/lib/trap'
-import { type Platform, isArray } from '@src/lib/utils'
+import { isArray, type Platform } from '@src/lib/utils'
 import type { ModuleType } from '@src/lib/wasm_lib_wrapper'
 import { getSymmetricToolSelectionStep } from '@src/machines/sketchSolve/constraints/constraintUtils'
 import type { sketchSolveMachine } from '@src/machines/sketchSolve/sketchSolveDiagram'
-import { EngineConnectionStateType } from '@src/network/utils'
 import { executingEditorService } from '@src/registry/contracts/executingEditor'
 import {
   findKeymapItemForCommand,
+  keymapKeystrokesDisplay,
+  keymapScopesValueSpec,
   keymapService,
 } from '@src/registry/contracts/keymap'
+import { APP_COMMAND_IDS } from '@src/registry/extensions/commands/appCommands'
 import { useSelector } from '@xstate/react'
+import { memo, use, useCallback, useMemo, useRef, useState } from 'react'
 import type { SnapshotFrom } from 'xstate'
 
 type ToolbarProps = {
@@ -79,10 +85,7 @@ const Toolbar_ = memo(
     const { kclManager } = useSingletons()
     const platform = usePlatform()
     const executionService = app.registry.signal(executingEditorService).value
-    const unrenderedExecuteHotkeyLabel = hotkeyDisplay(
-      UNRENDERED_EXECUTE_HOTKEY,
-      platform
-    )
+    const keymapScopes = app.registry.signal(keymapScopesValueSpec).value
     const toolbarConfig = useToolbarConfig()
     const wasmInstance = use(kclManager.wasmInstancePromise)
     const iconClassName =
@@ -109,7 +112,8 @@ const Toolbar_ = memo(
     }, [kclManager.artifactGraph, props.context.selectionRanges])
 
     const toolbarButtonsRef = useRef<HTMLUListElement>(null)
-    const [showRichContent, setShowRichContent] = useState(false)
+    const { showRichContent, handleMouseEnter, handleMouseLeave } =
+      useRichTooltipContent()
 
     const disableAllButtons =
       (props.overallState !== NetworkHealthState.Ok &&
@@ -129,6 +133,15 @@ const Toolbar_ = memo(
     const currentToolbarKeymapScopes = [
       toolbarModeNameToKeymapScope[toolbarConfigurationName],
     ]
+    const unrenderedExecuteHotkeyLabel = keymapKeystrokesDisplay(
+      findKeymapItemForCommand(
+        keymapTree,
+        APP_COMMAND_IDS.editor.render,
+        currentToolbarKeymapScopes,
+        keymapScopes
+      )?.keystrokes ?? [UNRENDERED_EXECUTE_HOTKEY],
+      platform
+    )
     const disableSketchToolbar =
       isSketchToolbarTransitioning(props.state) &&
       (toolbarConfigurationName === 'sketching' ||
@@ -209,37 +222,7 @@ const Toolbar_ = memo(
 
     const tooltipContentClassName = !showRichContent
       ? ''
-      : '!text-left text-wrap !text-xs !p-0 !pb-2 flex !max-w-none !w-72 flex-col items-stretch'
-    const richContentTimeout = useRef<number | null>(null)
-    const richContentClearTimeout = useRef<number | null>(null)
-    // On mouse enter, show rich content after a 1s delay
-    const handleMouseEnter = useCallback(() => {
-      // Cancel the clear timeout if it's already set
-      if (richContentClearTimeout.current) {
-        clearTimeout(richContentClearTimeout.current)
-      }
-      // Start our own timeout to show the rich content
-      richContentTimeout.current = window.setTimeout(() => {
-        setShowRichContent(true)
-        if (richContentClearTimeout.current) {
-          clearTimeout(richContentClearTimeout.current)
-        }
-      }, 1000)
-    }, [setShowRichContent])
-    // On mouse leave, clear the timeout and hide rich content
-    const handleMouseLeave = useCallback(() => {
-      // Clear the timeout to show rich content
-      if (richContentTimeout.current) {
-        clearTimeout(richContentTimeout.current)
-      }
-      // Start a timeout to hide the rich content
-      richContentClearTimeout.current = window.setTimeout(() => {
-        setShowRichContent(false)
-        if (richContentClearTimeout.current) {
-          clearTimeout(richContentClearTimeout.current)
-        }
-      }, 500)
-    }, [setShowRichContent])
+      : `${RICH_TOOLTIP_SURFACE_CLASS_NAME} !max-w-none`
 
     /**
      * Resolve all the callbacks and values for the current mode,
@@ -277,11 +260,6 @@ const Toolbar_ = memo(
         const isConfiguredAvailable = ['available', 'experimental'].includes(
           maybeIconConfig.status
         )
-        const isDisabled =
-          disableAllButtons ||
-          disableSketchToolbar ||
-          !isConfiguredAvailable ||
-          maybeIconConfig.disabled?.(props.state, wasmInstance) === true
 
         // Calculate the isActive state for this specific item
         const itemIsActive = maybeIconConfig.isActive?.(props.state) || false
@@ -291,6 +269,15 @@ const Toolbar_ = memo(
           ...configCallbackProps,
           isActive: itemIsActive,
         }
+        const isDisabled =
+          disableAllButtons ||
+          disableSketchToolbar ||
+          !isConfiguredAvailable ||
+          maybeIconConfig.disabled?.(
+            props.state,
+            wasmInstance,
+            itemCallbackProps
+          ) === true
 
         const title =
           typeof maybeIconConfig.title === 'string'
@@ -321,7 +308,7 @@ const Toolbar_ = memo(
             props.disableModelingForUnrenderedChanges && isDisabled
               ? getUnrenderedChangesDisabledReason()
               : typeof maybeIconConfig.disabledReason === 'function'
-                ? maybeIconConfig.disabledReason(props.state)
+                ? maybeIconConfig.disabledReason(props.state, itemCallbackProps)
                 : maybeIconConfig.disabledReason,
           status: maybeIconConfig.status,
           // Store the item-specific callback props for use in onClick handlers
@@ -336,7 +323,8 @@ const Toolbar_ = memo(
         const item = findKeymapItemForCommand(
           keymapTree,
           command,
-          currentToolbarKeymapScopes
+          currentToolbarKeymapScopes,
+          keymapScopes
         )
         return item?.keystrokes.length ? [...item.keystrokes] : undefined
       }
@@ -766,6 +754,7 @@ const Toolbar_ = memo(
           })}
         </ul>
         <div className="flex flex-col items-center absolute top-full left-1/2 -translate-x-1/2">
+          <ToolbarToasts />
           {props.disableModelingForUnrenderedChanges && (
             <div className="mt-2 py-1 px-2 bg-2 text-2 border border-chalkboard-20 dark:border-chalkboard-80 rounded shadow-lg flex items-center gap-2">
               <p className="text-xs m-0">
@@ -819,6 +808,30 @@ const Toolbar_ = memo(
       newP.disableModelingForUnrenderedChanges &&
     oldP.context?.currentTool === newP.context?.currentTool
 )
+
+const ToolbarToasts = memo(function ToolbarToasts() {
+  useSignals()
+  const toasts = toolbarToastsSignal.value
+
+  if (toasts.length === 0) {
+    return null
+  }
+
+  return (
+    <>
+      {toasts.map((toast) => (
+        <div
+          key={toast.id}
+          role="status"
+          aria-live="polite"
+          className="mt-2 w-max max-w-[calc(100vw-2rem)] whitespace-nowrap rounded-sm border border-chalkboard-20/50 bg-chalkboard-10 px-4 py-2 text-sm leading-5 text-chalkboard-110 shadow-lg dark:border-chalkboard-80/50 dark:bg-chalkboard-90 dark:text-chalkboard-10"
+        >
+          {toast.message}
+        </div>
+      ))}
+    </>
+  )
+})
 
 interface ToolbarItemContentsProps extends React.PropsWithChildren {
   itemConfig: ToolbarItemResolved
@@ -929,7 +942,9 @@ const ToolbarItemTooltipRichContent = memo(
           {itemConfig.icon && (
             <CustomIcon
               className="w-5 h-5"
-              style={{ color: itemConfig.iconColor }}
+              style={{
+                color: itemConfig.disabled ? undefined : itemConfig.iconColor,
+              }}
               name={itemConfig.icon}
             />
           )}
@@ -975,16 +990,12 @@ const ToolbarItemTooltipRichContent = memo(
             {itemConfig.extraInfo}
           </p>
         )}
-        {/* Add disabled reason if item is disabled */}
         {itemConfig.disabled && itemConfig.disabledReason && (
-          <>
-            <hr className="border-chalkboard-20 dark:border-chalkboard-80" />
-            <p className="px-2 my-2 text-ch font-sans text-chalkboard-70 dark:text-chalkboard-40">
-              {typeof itemConfig.disabledReason === 'function'
-                ? itemConfig.disabledReason(state)
-                : itemConfig.disabledReason}
-            </p>
-          </>
+          <p className="mx-2 my-2 rounded border px-2 py-1.5 text-ch font-sans border-destroy-40 bg-destroy-10/50 text-destroy-80 dark:border-destroy-80 dark:bg-destroy-80/20 dark:text-destroy-20">
+            {typeof itemConfig.disabledReason === 'function'
+              ? itemConfig.disabledReason(state)
+              : itemConfig.disabledReason}
+          </p>
         )}
         {itemConfig.links.length > 0 && (
           <>

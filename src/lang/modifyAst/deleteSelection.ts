@@ -3,7 +3,8 @@ import type {
   SourceDelta,
 } from '@rust/kcl-lib/bindings/FrontendApi'
 import type { KclManager } from '@src/lang/KclManager'
-import { executeAstMock } from '@src/lang/langHelpers'
+import { executeAstMock } from '@src/lang/executeAstMock'
+import { programUsesKclV3 } from '@src/lang/kclLanguageVersion'
 import { updateModelingState } from '@src/lang/modelingWorkflows'
 import { deleteFromSelection } from '@src/lang/modifyAst/deleteFromSelection'
 import { rewireAfterDelete } from '@src/lang/modifyAst/rewire'
@@ -15,6 +16,16 @@ import type { Selection } from '@src/machines/modelingSharedTypes'
 
 export const deletionErrorMessage =
   'Unable to delete selection. Please edit manually in code pane.'
+
+function clearSelectionAfterDelete(kclManager: KclManager) {
+  kclManager.sendModelingEvent({
+    type: 'Set selection',
+    data: {
+      selectionType: 'completeSelection',
+      selection: { graphSelections: [], otherSelections: [] },
+    },
+  })
+}
 
 export async function deleteSelectionPromise({
   selection,
@@ -74,16 +85,18 @@ export async function deleteSelectionPromise({
       shouldExecute: true,
       shouldWriteToDisk: true,
     })
+    clearSelectionAfterDelete(systemDeps.kclManager)
     return
   }
 
   // AST based deletion, we should stop adding cases in there
+  const wasmInstance = await systemDeps.kclManager.wasmInstancePromise
   const modifiedAst = await deleteFromSelection(
     ast,
     selection,
     systemDeps.kclManager.variables,
     systemDeps.kclManager.artifactGraph,
-    await systemDeps.kclManager.wasmInstancePromise,
+    wasmInstance,
     systemDeps.kclManager.sceneEntitiesManager.getFaceDetails.bind(
       systemDeps.kclManager.sceneEntitiesManager
     )
@@ -92,38 +105,34 @@ export async function deleteSelectionPromise({
     return new Error(deletionErrorMessage)
   }
 
-  const rewiredAst = rewireAfterDelete(ast, modifiedAst)
-  let astToApply = rewiredAst
+  // KCL 3.0 if-arm scoping follows the language version of the executed
+  // entry point, which is the open file's program for in-app execution.
+  // (When editing a sub-module whose project entry point declares a
+  // different version, this can diverge; accepted for now.)
+  const useV3ArmScoping = programUsesKclV3(ast, wasmInstance)
+  const rewiredAst = rewireAfterDelete(ast, modifiedAst, { useV3ArmScoping })
+  if (err(rewiredAst)) {
+    // A reference to the deleted feature has no safe replacement. The
+    // un-rewired AST would carry that same dangling reference, and mock
+    // execution only validates code it runs, so reject the delete outright.
+    return new Error(deletionErrorMessage)
+  }
 
   const rewiredExecute = await executeAstMock({
     ast: rewiredAst,
     rustContext: systemDeps.rustContext,
   })
-
-  if (
-    rewiredExecute.errors.length &&
-    rewiredAst !== modifiedAst // Rewire pass changed the AST, so try the pre-rewire result before failing.
-  ) {
-    const baselineExecute = await executeAstMock({
-      ast: modifiedAst,
-      rustContext: systemDeps.rustContext,
-    })
-
-    if (baselineExecute.errors.length) {
-      return new Error(deletionErrorMessage)
-    }
-
-    astToApply = modifiedAst
-  } else if (rewiredExecute.errors.length) {
+  if (rewiredExecute.errors.length) {
     return new Error(deletionErrorMessage)
   }
 
   await updateModelingState(
-    astToApply,
+    rewiredAst,
     EXECUTION_TYPE_REAL,
     systemDeps.kclManager,
     {
       isDeleting: true,
     }
   )
+  clearSelectionAfterDelete(systemDeps.kclManager)
 }

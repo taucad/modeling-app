@@ -1,36 +1,46 @@
 // Clippy does not agree with rustc here for some reason.
 #![allow(clippy::needless_lifetimes)]
 
+use std::env;
 use std::fmt;
 use std::iter::Enumerate;
 use std::num::NonZeroUsize;
 use std::str::FromStr;
 
 use anyhow::Result;
+use kcl_error::KclErrorDetails;
 use parse_display::Display;
 use serde::Deserialize;
 use serde::Serialize;
-use tokeniser::Input;
 use tower_lsp::lsp_types::SemanticTokenType;
-use winnow::error::ParseError;
 use winnow::stream::ContainsToken;
 use winnow::stream::Stream;
 use winnow::{self};
 
 use crate::CompilationIssue;
 use crate::ModuleId;
+use crate::RuntimeFlag;
 use crate::SourceRange;
 use crate::errors::KclError;
+use crate::kcl_runtime_flags;
 use crate::parsing::ast::types::ItemVisibility;
 use crate::parsing::ast::types::VariableKind;
+use crate::runtime_flags::RuntimeFlagResolve;
+use crate::runtime_flags::resolve_from_sources;
 
 mod tokeniser;
 
-#[cfg(all(test, feature = "new-scanner"))]
+#[doc(hidden)]
+pub mod adapter;
+
+#[cfg(test)]
 mod compat_tests;
 
+#[cfg(test)]
+mod error_matrix_tests;
+
 pub(crate) use tokeniser::RESERVED_SKETCH_BLOCK_WORDS;
-pub(crate) use tokeniser::RESERVED_WORDS;
+pub use tokeniser::RESERVED_WORDS;
 
 // Note the ordering, it's important that `m` comes after `mm` and `cm`.
 pub const NUM_SUFFIXES: [&str; 10] = ["mm", "cm", "m", "inch", "in", "ft", "yd", "deg", "rad", "?"];
@@ -125,7 +135,7 @@ impl fmt::Display for NumericSuffix {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub(crate) struct TokenStream {
+pub struct TokenStream {
     tokens: Vec<Token>,
 }
 
@@ -177,7 +187,7 @@ impl IntoIterator for TokenStream {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct TokenSlice<'a> {
+pub struct TokenSlice<'a> {
     stream: &'a TokenStream,
     /// Current position of the leading Token in the stream
     start: usize,
@@ -588,12 +598,174 @@ impl From<&Token> for SourceRange {
     }
 }
 
-pub fn lex(s: &str, module_id: ModuleId) -> Result<TokenStream, KclError> {
-    tokeniser::lex(s, module_id).map_err(From::from)
+/// Environment variable selecting which lexer implementation [`lex`] uses.
+pub(crate) const KCL_LEXER_ENV_VAR: &str = "KCL_LEXER";
+
+/// Which lexer implementation [`lex`] uses: the old winnow `tokeniser` (`Old`) or
+/// the new `kcl-syntax` logos lexer (`New`). Selected at runtime via the
+/// `KCL_LEXER` environment variable, so a process can pick either lexer without a
+/// rebuild.
+///
+/// Precedence: runtime flags > test override > `KCL_LEXER` >
+/// [`LexerMode::DEFAULT`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LexerMode {
+    Old,
+    New,
 }
 
-impl From<ParseError<Input<'_>, winnow::error::ContextError>> for KclError {
-    fn from(err: ParseError<Input<'_>, winnow::error::ContextError>) -> Self {
+impl RuntimeFlagResolve for LexerMode {
+    fn on() -> Self {
+        Self::New
+    }
+
+    fn off() -> Self {
+        Self::Old
+    }
+
+    fn resolve_default() -> Self {
+        Self::DEFAULT
+    }
+
+    fn parse_env_var(value: &str) -> Self {
+        Self::parse(value)
+    }
+}
+
+impl LexerMode {
+    /// The mode used when `KCL_LEXER` is unset.
+    const DEFAULT: Self = Self::New;
+
+    /// Resolve the active lexer mode (see precedence on [`LexerMode`]).
+    pub fn resolve() -> Self {
+        let env_value = match env::var(KCL_LEXER_ENV_VAR) {
+            Ok(value) => Some(value),
+            Err(env::VarError::NotPresent) => None,
+            Err(env::VarError::NotUnicode(value)) => {
+                // Invalid-unicode env var: warn and fall back rather than crash.
+                Self::warn_once(|| {
+                    format!(
+                        "{KCL_LEXER_ENV_VAR} must be valid unicode; got `{}`. Defaulting to `new`.",
+                        value.to_string_lossy()
+                    )
+                });
+                None
+            }
+        };
+
+        Self::resolve_from_sources(
+            kcl_runtime_flags().use_new_lexer_parser,
+            Self::test_override_for_resolve(),
+            env_value.as_deref(),
+        )
+    }
+
+    fn resolve_from_sources(runtime_flag: RuntimeFlag, test_override: Option<Self>, env_value: Option<&str>) -> Self {
+        resolve_from_sources(runtime_flag, test_override, env_value)
+    }
+
+    #[cfg(any(test, feature = "lsp-test-util"))]
+    fn test_override_for_resolve() -> Option<Self> {
+        Self::test_override()
+    }
+
+    #[cfg(not(any(test, feature = "lsp-test-util")))]
+    fn test_override_for_resolve() -> Option<Self> {
+        None
+    }
+
+    fn parse(value: &str) -> Self {
+        let value = value.trim();
+        if value.eq_ignore_ascii_case("old") {
+            return Self::Old;
+        }
+        if value.eq_ignore_ascii_case("new") {
+            return Self::New;
+        }
+
+        // A mistyped `KCL_LEXER` should not crash the process: warn and fall back
+        // to the new lexer (the conservative choice for a misconfiguration).
+        Self::warn_once(|| {
+            format!("Unsupported {KCL_LEXER_ENV_VAR} value `{value}`; expected `old` or `new`. Defaulting to `new`.")
+        });
+        Self::New
+    }
+
+    /// Emit a one-time configuration warning through `crate::log` (gated on
+    /// `ZOO_LOG`). `resolve`/`parse` run on every `lex`, so a misconfigured
+    /// `KCL_LEXER` must not warn -- or allocate the message -- on every call. One
+    /// guard suffices: only one kind of misconfiguration can occur per process,
+    /// since the env var holds a single value.
+    fn warn_once(make_message: impl FnOnce() -> String) {
+        static WARNED: std::sync::Once = std::sync::Once::new();
+        WARNED.call_once(|| crate::log::log(make_message()));
+    }
+
+    #[cfg(any(test, feature = "lsp-test-util"))]
+    fn test_override_value(self) -> u8 {
+        match self {
+            Self::Old => 1,
+            Self::New => 2,
+        }
+    }
+
+    #[cfg(any(test, feature = "lsp-test-util"))]
+    fn test_override() -> Option<Self> {
+        match TEST_LEXER_MODE_OVERRIDE.load(std::sync::atomic::Ordering::SeqCst) {
+            1 => Some(Self::Old),
+            2 => Some(Self::New),
+            _ => None,
+        }
+    }
+
+    /// Override the lexer mode for the lifetime of the returned guard.
+    ///
+    /// This uses a process-global atomic, so it is only race-free under test
+    /// runners that isolate tests in separate processes (e.g. `cargo nextest`).
+    /// Under in-process parallel `cargo test`, prefer driving the lexer with an
+    /// explicit mode; reserve this guard for dispatch/integration tests.
+    #[cfg(any(test, feature = "lsp-test-util"))]
+    pub fn override_for_test(mode: Self) -> LexerModeOverrideGuard {
+        let previous = TEST_LEXER_MODE_OVERRIDE.swap(mode.test_override_value(), std::sync::atomic::Ordering::SeqCst);
+        LexerModeOverrideGuard { previous }
+    }
+}
+
+#[cfg(any(test, feature = "lsp-test-util"))]
+static TEST_LEXER_MODE_OVERRIDE: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
+
+#[cfg(any(test, feature = "lsp-test-util"))]
+pub struct LexerModeOverrideGuard {
+    previous: u8,
+}
+
+#[cfg(any(test, feature = "lsp-test-util"))]
+impl Drop for LexerModeOverrideGuard {
+    fn drop(&mut self) {
+        TEST_LEXER_MODE_OVERRIDE.store(self.previous, std::sync::atomic::Ordering::SeqCst);
+    }
+}
+
+// `lex` dispatches on the runtime `LexerMode`. `Old` runs the winnow
+// `tokeniser`; `New` runs the `kcl-syntax` adapter and folds any fatal lexical
+// diagnostics into a single lexical `KclError`, preserving the public `Result`
+// contract. (The LSP consumes the richer `LexResult` directly so it can keep
+// tokens for highlighting while reporting diagnostics.)
+pub fn lex(s: &str, module_id: ModuleId) -> Result<TokenStream, KclError> {
+    match LexerMode::resolve() {
+        LexerMode::Old => lex_legacy(s, module_id),
+        LexerMode::New => {
+            let result = adapter::lex_with_diagnostics(s, module_id);
+            match result.to_lexical_error() {
+                Some(err) => Err(err),
+                None => Ok(result.tokens),
+            }
+        }
+    }
+}
+
+fn lex_legacy(s: &str, module_id: ModuleId) -> Result<TokenStream, KclError> {
+    tokeniser::lex(s, module_id).map_err(|err| {
         let (input, offset): (Vec<char>, usize) = (err.input().chars().collect(), err.offset());
         let module_id = err.input().state.module_id;
 
@@ -603,7 +775,7 @@ impl From<ParseError<Input<'_>, winnow::error::ContextError>> for KclError {
             // This is an offset, not an index, and may point to
             // the end of input (input.len()) on eof errors.
 
-            return KclError::new_lexical(crate::errors::KclErrorDetails::new(
+            return KclError::new_lexical(KclErrorDetails::new(
                 "unexpected EOF while parsing".to_owned(),
                 vec![SourceRange::new(offset, offset, module_id)],
             ));
@@ -614,9 +786,157 @@ impl From<ParseError<Input<'_>, winnow::error::ContextError>> for KclError {
         let bad_token = &input[offset];
         // TODO: Add the Winnow parser context to the error.
         // See https://github.com/KittyCAD/modeling-app/issues/784
-        KclError::new_lexical(crate::errors::KclErrorDetails::new(
+        KclError::new_lexical(KclErrorDetails::new(
             format!("found unknown token '{bad_token}'"),
             vec![SourceRange::new(offset, offset + 1, module_id)],
         ))
+    })
+}
+
+#[cfg(test)]
+mod lexer_mode_tests {
+    use super::LexerMode;
+    use super::lex;
+    use crate::KclRuntimeFlags;
+    use crate::ModuleId;
+    use crate::RuntimeFlag;
+
+    fn set_runtime_lexer_flag(flag: RuntimeFlag) {
+        crate::set_kcl_runtime_flags(KclRuntimeFlags {
+            use_new_lexer_parser: flag,
+            ..Default::default()
+        });
+    }
+
+    fn reset_runtime_lexer_flags() {
+        crate::set_kcl_runtime_flags(KclRuntimeFlags::DEFAULT);
+    }
+
+    #[test]
+    fn default_mode_is_new() {
+        reset_runtime_lexer_flags();
+        assert_eq!(LexerMode::DEFAULT, LexerMode::New);
+    }
+
+    #[test]
+    fn parse_accepts_known_values_case_insensitively() {
+        assert_eq!(LexerMode::parse("old"), LexerMode::Old);
+        assert_eq!(LexerMode::parse("  NEW  "), LexerMode::New);
+    }
+
+    #[test]
+    fn parse_falls_back_to_new_on_unknown_value() {
+        // An unknown value warns and defaults to the new lexer instead of panicking.
+        assert_eq!(LexerMode::parse("rowan"), LexerMode::New);
+    }
+
+    #[test]
+    fn override_guard_sets_and_restores_mode() {
+        reset_runtime_lexer_flags();
+        // Reserved for dispatch/integration tests; relies on the process-global
+        // atomic, which is race-free under nextest's process isolation.
+        {
+            let _guard = LexerMode::override_for_test(LexerMode::New);
+            assert_eq!(LexerMode::resolve(), LexerMode::New);
+        }
+        let _guard = LexerMode::override_for_test(LexerMode::Old);
+        assert_eq!(LexerMode::resolve(), LexerMode::Old);
+    }
+
+    #[test]
+    fn runtime_flags_default_to_unset() {
+        reset_runtime_lexer_flags();
+        assert_eq!(
+            crate::kcl_runtime_flags(),
+            KclRuntimeFlags {
+                use_new_lexer_parser: RuntimeFlag::Unset,
+                ..Default::default()
+            }
+        );
+    }
+
+    #[test]
+    fn runtime_flag_on_selects_new_lexer() {
+        reset_runtime_lexer_flags();
+        set_runtime_lexer_flag(RuntimeFlag::On);
+        assert_eq!(LexerMode::resolve(), LexerMode::New);
+    }
+
+    #[test]
+    fn runtime_flag_off_selects_old_lexer() {
+        reset_runtime_lexer_flags();
+        set_runtime_lexer_flag(RuntimeFlag::Off);
+        assert_eq!(LexerMode::resolve(), LexerMode::Old);
+    }
+
+    #[test]
+    fn runtime_flag_takes_priority_over_test_override_and_env() {
+        assert_eq!(
+            LexerMode::resolve_from_sources(RuntimeFlag::Off, Some(LexerMode::New), Some("new")),
+            LexerMode::Old
+        );
+        assert_eq!(
+            LexerMode::resolve_from_sources(RuntimeFlag::On, Some(LexerMode::Old), Some("old")),
+            LexerMode::New
+        );
+    }
+
+    #[test]
+    fn unset_runtime_flag_allows_env_to_select_lexer() {
+        assert_eq!(
+            LexerMode::resolve_from_sources(RuntimeFlag::Unset, None, Some("new")),
+            LexerMode::New
+        );
+        assert_eq!(
+            LexerMode::resolve_from_sources(RuntimeFlag::Unset, None, Some("old")),
+            LexerMode::Old
+        );
+    }
+
+    #[test]
+    fn unset_runtime_flag_and_missing_env_selects_default_lexer() {
+        assert_eq!(
+            LexerMode::resolve_from_sources(RuntimeFlag::Unset, None, None),
+            LexerMode::DEFAULT
+        );
+    }
+
+    #[test]
+    fn test_override_takes_priority_over_env() {
+        assert_eq!(
+            LexerMode::resolve_from_sources(RuntimeFlag::Unset, Some(LexerMode::Old), Some("new")),
+            LexerMode::Old
+        );
+        assert_eq!(
+            LexerMode::resolve_from_sources(RuntimeFlag::Unset, Some(LexerMode::New), Some("old")),
+            LexerMode::New
+        );
+    }
+
+    /// Exercises the `New` arm of `lex` in default CI: no `KCL_LEXER` env var is
+    /// set; the new lexer is selected via the process-global test override (which
+    /// is race-free under nextest's process-per-test isolation).
+    ///
+    /// The unterminated-string assertion is deliberately a *distinguishing* one:
+    /// the new lexer folds the recovery token into the message "unterminated
+    /// string literal", whereas the old lexer reports `found unknown token '"'`.
+    /// Asserting the new-lexer-only message proves `lex` took the `New` arm --
+    /// not merely that some lexer ran.
+    #[test]
+    fn lex_dispatches_to_new_lexer() {
+        reset_runtime_lexer_flags();
+        let _guard = LexerMode::override_for_test(LexerMode::New);
+        assert_eq!(LexerMode::resolve(), LexerMode::New);
+
+        let module_id = ModuleId::default();
+
+        // Valid input flows through the New arm and yields a token stream.
+        let tokens = lex("x = 1", module_id).expect("new lexer should tokenize valid input");
+        assert!(!tokens.is_empty(), "expected a non-empty token stream");
+
+        // Unterminated string: the new-lexer-only message (see doc comment).
+        let err = lex("\"abc", module_id).expect_err("unterminated string is a lexical error");
+        assert_eq!(err.error_type(), "lexical");
+        assert_eq!(err.message(), "unterminated string literal");
     }
 }

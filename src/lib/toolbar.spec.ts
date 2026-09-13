@@ -6,17 +6,19 @@ vi.mock('@src/lib/boot', () => ({
 }))
 
 import {
-  type ToolbarItem,
   buildToolbarConfig,
   getConstraintToolbarToggleEvent,
   getDefaultRecentToolbarItemIds,
   getSketchSolveToolIconMap,
+  isLegacySketchEditRequest,
   isSketchSolveConstraintToolActive,
   isSketchToolbarTransitioning,
   modelingMachineStateToToolbarModeName,
   promoteRecentToolbarItemId,
   recordRecentToolbarItemId,
   resolveRecentToolbarItems,
+  type ToolbarDropdown,
+  type ToolbarItem,
 } from '@src/lib/toolbar'
 import type { modelingMachine } from '@src/machines/modelingMachine'
 import { defaultKeymap } from '@src/registry/extensions/keymap/defaultKeymap'
@@ -42,10 +44,25 @@ function findConstraintsDropdown() {
   )
 }
 
-function findModelingToolbarItem(id: string): ToolbarItem {
-  const item = buildToolbarConfig({
+function findModelingToolbarDropdown(id: string): ToolbarDropdown | undefined {
+  return buildToolbarConfig({
     send: () => {},
   }).modeling.items.find(
+    (item): item is ToolbarDropdown =>
+      item !== 'break' && 'array' in item && item.id === id
+  )
+}
+
+function findModelingToolbarItem(
+  id: string,
+  options?: Parameters<typeof buildToolbarConfig>[1]
+): ToolbarItem {
+  const item = buildToolbarConfig(
+    {
+      send: () => {},
+    },
+    options
+  ).modeling.items.find(
     (item): item is ToolbarItem =>
       item !== 'break' && !('array' in item) && item.id === id
   )
@@ -249,6 +266,27 @@ describe('toolbar state helpers', () => {
     })
   })
 
+  test('orders the GDT dropdown items by displayed name', () => {
+    const gdtDropdown = findModelingToolbarDropdown('gdt')
+
+    expect(gdtDropdown).toBeDefined()
+    if (!gdtDropdown) {
+      return
+    }
+
+    const titles = gdtDropdown.array.map((item) => {
+      if (typeof item.title !== 'string') {
+        throw new Error(`Expected ${item.id} to have a string title`)
+      }
+
+      return item.title
+    })
+    const sortedTitles = [...titles].sort((a, b) => a.localeCompare(b))
+
+    expect(titles.length).toBeGreaterThan(0)
+    expect(titles, 'GDT dropdown names are not sorted').toEqual(sortedTitles)
+  })
+
   test('starts sketch solve on an already-selected plane', () => {
     const modelingSend = vi.fn()
     const sketchItem = findModelingToolbarItem('sketch')
@@ -330,6 +368,92 @@ describe('toolbar state helpers', () => {
       type: 'Select sketch solve plane',
       data: 'default-plane-xy',
     })
+  })
+
+  test('does not enter legacy sketch edit without the feature flag', () => {
+    const modelingSend = vi.fn()
+    const sketchItem = findModelingToolbarItem('sketch')
+    const modelingState = {
+      context: {
+        selectionRanges: {
+          graphSelections: [],
+          otherSelections: [],
+        },
+      },
+    } as unknown as StateFrom<typeof modelingMachine>
+    const props = {
+      modelingSend,
+      modelingState,
+      sketchPathId: 'path-001',
+      editorHasFocus: true,
+      isActive: false,
+      keepSelection: false,
+    }
+
+    expect(isLegacySketchEditRequest(props)).toBe(true)
+    expect(sketchItem.disabled?.(modelingState, {} as never, props)).toBe(true)
+    sketchItem.onClick(props)
+    expect(modelingSend).not.toHaveBeenCalled()
+  })
+
+  test('enters legacy sketch edit when the feature flag is present', () => {
+    const modelingSend = vi.fn()
+    const sketchItem = findModelingToolbarItem('sketch', {
+      hasLegacySketchMode: true,
+    })
+    const modelingState = {
+      context: {
+        selectionRanges: {
+          graphSelections: [],
+          otherSelections: [],
+        },
+      },
+    } as unknown as StateFrom<typeof modelingMachine>
+    const props = {
+      modelingSend,
+      modelingState,
+      sketchPathId: 'path-001',
+      editorHasFocus: true,
+      isActive: false,
+      keepSelection: false,
+    }
+
+    expect(sketchItem.disabled?.(modelingState, {} as never, props)).toBe(false)
+    sketchItem.onClick(props)
+    expect(modelingSend).toHaveBeenCalledWith({ type: 'Enter sketch' })
+  })
+
+  test('still edits sketch blocks without the legacy sketch mode flag', () => {
+    const modelingSend = vi.fn()
+    const sketchItem = findModelingToolbarItem('sketch')
+    const modelingState = {
+      context: {
+        selectionRanges: {
+          graphSelections: [
+            {
+              artifact: {
+                type: 'sketchBlock',
+                sketchId: 1,
+              },
+            },
+          ],
+          otherSelections: [],
+        },
+      },
+    } as unknown as StateFrom<typeof modelingMachine>
+    const props = {
+      modelingSend,
+      modelingState,
+      sketchPathId: false as const,
+      editorHasFocus: false,
+      isActive: false,
+      keepSelection: false,
+    }
+
+    expect(isLegacySketchEditRequest(props)).toBe(false)
+    expect(sketchItem.disabled?.(modelingState, {} as never, props)).toBe(false)
+    sketchItem.onClick(props)
+    expect(modelingSend).toHaveBeenCalledWith({ type: 'Enter sketch' })
   })
 
   test('keeps the sketch-solve constraints dropdown on its default visible items before use', () => {

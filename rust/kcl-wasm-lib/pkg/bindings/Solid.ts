@@ -4,40 +4,46 @@ import type { EdgeCut } from "./EdgeCut.js";
 import type { ExtrudeSurface } from "./ExtrudeSurface.js";
 import type { UnitLength } from "./ModelingCmd.js";
 import type { SolidCreator } from "./SolidCreator.js";
+import type { TagIdentifier } from "./TagIdentifier.js";
 
-export type Solid = { "type": "Solid", 
+export type Solid = { "type": "Solid",
 /**
  * The id of the solid.
  */
-id: string, 
+id: string,
 /**
  * The artifact ID of the solid.  Unlike `id`, this doesn't change.
  */
-artifactId: ArtifactId, 
+artifactId: ArtifactId,
 /**
  * The extrude surfaces.
  */
-value: Array<ExtrudeSurface>, 
+value: Array<ExtrudeSurface>,
+/**
+ * Tag identifiers for the faces of this body, declared via tag arguments
+ * (e.g. `tag`, `tagStart`, `tagEnd`) on the call that created it.
+ */
+faces?: { [key in string]: TagIdentifier },
 /**
  * How this solid was created.
  */
-sketch: SolidCreator, 
+sketch: SolidCreator,
 /**
  * The id of the extrusion start cap
  */
-startCapId: string | null, 
+startCapId: string | null,
 /**
  * The id of the extrusion end cap
  */
-endCapId: string | null, 
+endCapId: string | null,
 /**
  * Chamfers or fillets on this solid.
  */
-edgeCuts?: Array<EdgeCut>, 
+edgeCuts?: Array<EdgeCut>,
 /**
  * The units of the solid.
  */
-units: UnitLength, 
+units: UnitLength,
 /**
  * Is this a sectional solid?
  */

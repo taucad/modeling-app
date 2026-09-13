@@ -7,43 +7,39 @@ import type { NodePath } from "./NodePath.js";
 import type { NumericType } from "./NumericType.js";
 import type { SourceRange } from "./SourceRange.js";
 
-export type Group = { "type": "FunctionCall", 
+export type Group = { "type": "FunctionCall",
 /**
  * The name of the user-defined function being called.  Anonymous
  * functions have no name.
  */
-name: string | null, 
+name: string | null,
 /**
  * The location of the function being called so that there's enough
  * info to go to its definition.
  */
-functionSourceRange: SourceRange, 
+functionSourceRange: SourceRange,
 /**
  * The unlabeled argument to the function.
  */
-unlabeledArg: OpArg | null, 
+unlabeledArg: OpArg | null,
 /**
  * The labeled keyword arguments to the function.
  */
-labeledArgs: { [key in string]: OpArg }, } | { "type": "ModuleInstance", 
+labeledArgs: { [key in string]: OpArg }, } | { "type": "SketchBlock",
 /**
- * The name of the module being used.
+ * The ID of the sketch this group wraps.
  */
-name: string, 
-/**
- * The ID of the module which can be used to determine its path.
- */
-moduleId: ModuleId, };
+sketchId: ApiObjectId, };
 
 /**
  * An argument to a CAD modeling operation.
  */
-export type OpArg = { 
+export type OpArg = {
 /**
  * The runtime value of the argument.  Instead of using [`KclValue`], we
  * refer to scene objects using their [`ArtifactId`]s.
  */
-value: OpKclValue, 
+value: OpKclValue,
 /**
  * The KCL code expression for the argument.  This is used in the UI so
  * that the user can edit the expression.
@@ -56,15 +52,15 @@ export type OpHelix = { artifactId: ArtifactId, };
  * A KCL value used in Operations.  `ArtifactId`s are used to refer to the
  * actual scene objects.  Any data not needed in the UI may be omitted.
  */
-export type OpKclValue = { "type": "Uuid", value: string, } | { "type": "Bool", value: boolean, } | { "type": "Number", value: number, ty: NumericType, } | { "type": "String", value: string, } | { "type": "SketchVar", value: number, ty: NumericType, } | { "type": "Array", value: Array<OpKclValue>, } | { "type": "Object", value: { [key in string]: OpKclValue }, } | { "type": "TagIdentifier", 
+export type OpKclValue = { "type": "Uuid", value: string, } | { "type": "Bool", value: boolean, } | { "type": "Number", value: number, ty: NumericType, } | { "type": "String", value: string, } | { "type": "Enum", enum_name: string, variant: string, } | { "type": "SketchVar", value: number, ty: NumericType, } | { "type": "Array", value: Array<OpKclValue>, } | { "type": "Object", value: { [key in string]: OpKclValue }, } | { "type": "TagIdentifier",
 /**
  * The name of the tag identifier.
  */
-value: string, 
+value: string,
 /**
  * The artifact ID of the object it refers to.
  */
-artifact_id: ArtifactId | null, } | { "type": "TagDeclarator", name: string, } | { "type": "GdtAnnotation", artifact_id: ArtifactId, } | { "type": "Plane", artifact_id: ArtifactId, } | { "type": "Face", artifact_id: ArtifactId, } | { "type": "Sketch", value: OpSketch, } | { "type": "Segment", artifact_id: ArtifactId, } | { "type": "Solid", value: OpSolid, } | { "type": "Helix", value: OpHelix, } | { "type": "ImportedGeometry", artifact_id: ArtifactId, } | { "type": "Function", } | { "type": "Module", } | { "type": "Type", } | { "type": "KclNone", } | { "type": "BoundedEdge", };
+artifact_id: ArtifactId | null, } | { "type": "TagDeclarator", name: string, } | { "type": "GdtAnnotation", artifact_id: ArtifactId, } | { "type": "CameraView", } | { "type": "Plane", artifact_id: ArtifactId, } | { "type": "Face", artifact_id: ArtifactId, } | { "type": "Sketch", value: OpSketch, } | { "type": "Segment", artifact_id: ArtifactId, } | { "type": "Solid", value: OpSolid, } | { "type": "Helix", value: OpHelix, } | { "type": "ImportedGeometry", artifact_id: ArtifactId, } | { "type": "Function", } | { "type": "Module", } | { "type": "Type", } | { "type": "KclNone", } | { "type": "BoundedEdge", };
 
 export type OpSketch = { artifactId: ArtifactId, };
 
@@ -74,74 +70,82 @@ export type OpSolid = { artifactId: ArtifactId, };
  * A CAD modeling operation for display in the feature tree, AKA operations
  * timeline.
  */
-export type Operation = { "type": "StdLibCall", name: string, 
+export type Operation = { "type": "StdLibCall", name: string,
 /**
  * The unlabeled argument to the function.
  */
-unlabeledArg: OpArg | null, 
+unlabeledArg: OpArg | null,
 /**
  * The labeled keyword arguments to the function.
  */
-labeledArgs: { [key in string]: OpArg }, 
+labeledArgs: { [key in string]: OpArg },
 /**
  * The node path of the operation in the source code.
  */
-nodePath: NodePath, 
+nodePath: NodePath,
 /**
  * The true source range of the operation in the source code.
  */
-sourceRange: SourceRange, 
+sourceRange: SourceRange,
 /**
  * The source range that's the boundary of calling the standard
  * library.
  */
-stdlibEntrySourceRange?: SourceRange | null, 
+stdlibEntrySourceRange?: SourceRange | null,
 /**
  * True if the operation resulted in an error.
  */
-isError?: boolean, } | { "type": "VariableDeclaration", 
+isError?: boolean, } | { "type": "VariableDeclaration",
 /**
  * The variable name.
  */
-name: string, 
+name: string,
 /**
  * The value of the variable.
  */
-value: OpKclValue, 
+value: OpKclValue,
 /**
  * The visibility modifier of the variable, e.g. `export`.  `Default`
  * means there is no visibility modifier.
  */
-visibility: ItemVisibility, 
+visibility: ItemVisibility,
 /**
  * The node path of the operation in the source code.
  */
-nodePath: NodePath, 
+nodePath: NodePath,
 /**
  * The source range of the operation in the source code.
  */
-sourceRange: SourceRange, } | { "type": "GroupBegin", 
+sourceRange: SourceRange, } | { "type": "GroupBegin",
 /**
  * The details of the group.
  */
-group: Group, 
+group: Group,
 /**
  * The node path of the operation in the source code.
  */
-nodePath: NodePath, 
+nodePath: NodePath,
 /**
  * The source range of the operation in the source code.
  */
-sourceRange: SourceRange, } | { "type": "GroupEnd" } | { "type": "SketchSolve", 
+sourceRange: SourceRange, } | { "type": "ModuleInstance",
 /**
- * The ID of the sketch being modified.
+ * The name of the module being used.
  */
-sketchId: ApiObjectId, 
+name: string,
+/**
+ * The ID of the module which can be used to determine its path.
+ */
+moduleId: ModuleId,
+/**
+ * Whether this is a glob import (`import * from "foo.kcl"`).
+ */
+glob?: boolean,
 /**
  * The node path of the operation in the source code.
  */
-nodePath: NodePath, 
+nodePath: NodePath,
 /**
  * The source range of the operation in the source code.
  */
-sourceRange: SourceRange, };
+sourceRange: SourceRange, } | { "type": "GroupEnd" };

@@ -6,19 +6,19 @@ import type { Path } from "./Path.js";
 /**
  * Engine information for a tag.
  */
-export type TagEngineInfo = { "type": "TagEngineInfo", 
+export type TagEngineInfo = { "type": "TagEngineInfo",
 /**
  * The id of the tagged object.
  */
-id: string, 
+id: string,
 /**
  * The geometry the tag is on.
  */
-geometry: Geometry, 
+geometry: Geometry,
 /**
  * The path the tag is on.
  */
-path: Path | null, 
+path: Path | null,
 /**
  * The surface information for the tag.
  */

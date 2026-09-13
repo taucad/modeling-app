@@ -1,3 +1,7 @@
+import {
+  closeOnboardingModalIfPresent,
+  waitForWebKitBillingToSettle,
+} from '@e2e/playwright/test-utils'
 import { expect, test } from '@e2e/playwright/zoo-test'
 import type { Page } from '@playwright/test'
 
@@ -5,6 +9,7 @@ async function navigateAndClickOpenInDesktopApp(
   page: Page,
   codeLength: number
 ) {
+  await waitForWebKitBillingToSettle(page)
   const code = Array(codeLength).fill('0').join('')
   const targetURL = `?create-file=true&browser=test&code=${code}&ask-open-desktop=true`
   expect(targetURL.length).toEqual(codeLength + 58)
@@ -24,6 +29,8 @@ test.describe('Share link tests', () => {
     { tag: ['@web', '@macos', '@linux'] },
     async ({ page }) => {
       test.skip(process.platform === 'win32')
+      await closeOnboardingModalIfPresent(page)
+
       const codeLength = 2000
       await navigateAndClickOpenInDesktopApp(page, codeLength)
       await expect(getToastError(page)).not.toBeVisible()
@@ -35,6 +42,8 @@ test.describe('Share link tests', () => {
     { tag: ['@web', '@windows'] },
     async ({ page }) => {
       test.skip(process.platform !== 'win32')
+      await closeOnboardingModalIfPresent(page)
+
       const codeLength = 1000
       await navigateAndClickOpenInDesktopApp(page, codeLength)
       await expect(getToastError(page)).not.toBeVisible()
@@ -46,6 +55,8 @@ test.describe('Share link tests', () => {
     { tag: ['@web', '@windows'] },
     async ({ page }) => {
       test.skip(process.platform !== 'win32')
+      await closeOnboardingModalIfPresent(page)
+
       const codeLength = 2000
       await navigateAndClickOpenInDesktopApp(page, codeLength)
       await expect(getToastError(page)).toBeVisible()
@@ -56,6 +67,9 @@ test.describe('Share link tests', () => {
     'should prefill demo project name on web',
     { tag: ['@web'] },
     async ({ page }) => {
+      await closeOnboardingModalIfPresent(page)
+      await waitForWebKitBillingToSettle(page)
+
       const code = 'Zm9vYmFyID0gMQ==' // KCL: foobar = 1
       const next = new URL(page.url())
       next.searchParams.set('create-file', 'true')

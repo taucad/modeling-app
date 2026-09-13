@@ -2,11 +2,12 @@ import { relevantFileExtensions } from '@src/lang/wasmUtils'
 import { FILE_EXT, INDEX_IDENTIFIER, MAX_PADDING } from '@src/lib/constants'
 import fsZds from '@src/lib/fs-zds'
 import {
-  getEXTNoPeriod,
   getEXTWithPeriod,
+  getVersionedCreoExtensionWithPeriod,
   isExtensionARelevantExtension,
 } from '@src/lib/paths'
 import type { FileEntry } from '@src/lib/project'
+import { getUniqueProjectNameFromExistingNames } from '@src/lib/projectName'
 import type { ModuleType } from '@src/lib/wasm_lib_wrapper'
 
 export const isHidden = (fileOrDir: FileEntry) =>
@@ -95,20 +96,12 @@ export function getUniqueProjectName(name: string, projects: FileEntry[]) {
   if (needsInterpolation) {
     const nextIndex = getNextProjectIndex(name, projects)
     return interpolateProjectNameWithIndex(name, nextIndex)
-  } else {
-    let newName = name
-    while (
-      projects.some(
-        (project) => project.name.toLowerCase() === newName.toLowerCase()
-      )
-    ) {
-      const nameEndsWithNumber = newName.match(/\d+$/)
-      newName = nameEndsWithNumber
-        ? newName.replace(/\d+$/, (num) => `${parseInt(num, 10) + 1}`)
-        : `${name}-1`
-    }
-    return newName
   }
+
+  return getUniqueProjectNameFromExistingNames(
+    name,
+    projects.map((project) => project.name)
+  )
 }
 
 function escapeRegExpChars(string: string) {
@@ -144,15 +137,13 @@ export async function getNextFileName({
   wasmInstance: ModuleType
   preserveUnknownExtension?: boolean
 }) {
-  // Check if the file is relevantFile by not using the period
-  const extensionNoPeriod = getEXTNoPeriod(entryName)
   const extensions = relevantFileExtensions(wasmInstance)
-  const isRelevantFile =
-    extensionNoPeriod &&
-    isExtensionARelevantExtension(extensionNoPeriod, extensions)
+  const isRelevantFile = isExtensionARelevantExtension(entryName, extensions)
 
   // Do the following business logic with the period in the extension
-  let extension = getEXTWithPeriod(entryName)
+  let extension =
+    getVersionedCreoExtensionWithPeriod(entryName) ||
+    getEXTWithPeriod(entryName)
   if (!preserveUnknownExtension && (!isRelevantFile || !extension)) {
     extension = FILE_EXT
   }

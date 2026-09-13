@@ -1,29 +1,30 @@
 ---
 title: "appearance"
 subtitle: "Function in std::solid"
-excerpt: "Set the appearance of a solid. This only works on solids, not sketches or individual paths."
+excerpt: "Set the appearance of a solid, imported geometry, or plane. This does not work on sketches or individual paths."
 layout: manual
 ---
 
-Set the appearance of a solid. This only works on solids, not sketches or individual paths.
+Set the appearance of a solid, imported geometry, or plane. This does not work on sketches or individual paths.
 
 ```kcl
 appearance(
-  @solids: [Solid; 1+] | ImportedGeometry,
+  @solids: [Solid; 1+] | ImportedGeometry | Plane,
   color: string,
   metalness?: number(_),
   roughness?: number(_),
   opacity?: number(_),
-): [Solid; 1+] | ImportedGeometry
+): [Solid; 1+] | ImportedGeometry | Plane
 ```
 
 This will work on any solid, including extruded solids, revolved solids, and shelled solids.
+For planes, only `color` is used.
 
 ### Arguments
 
 | Name | Type | Description | Required |
 |----------|------|-------------|----------|
-| `solids` | [[`Solid`](/docs/kcl-std/types/std-types-Solid); 1+] or [`ImportedGeometry`](/docs/kcl-std/types/std-types-ImportedGeometry) | The The solid(s) whose appearance is being set. | Yes |
+| `solids` | [[`Solid`](/docs/kcl-std/types/std-types-Solid); 1+] or [`ImportedGeometry`](/docs/kcl-std/types/std-types-ImportedGeometry) or [`Plane`](/docs/kcl-std/types/std-types-Plane) | The solid(s), imported geometry, or plane whose appearance is being set. | Yes |
 | `color` | [`string`](/docs/kcl-std/types/std-types-string) | Color of the new material, a hex string like '#ff0000'. | Yes |
 | `metalness` | [`number(_)`](/docs/kcl-std/types/std-types-number) | Metalness of the new material, a percentage like 95.7. | No |
 | `roughness` | [`number(_)`](/docs/kcl-std/types/std-types-number) | Roughness of the new material, a percentage like 95.7. | No |
@@ -31,7 +32,7 @@ This will work on any solid, including extruded solids, revolved solids, and she
 
 ### Returns
 
-[[`Solid`](/docs/kcl-std/types/std-types-Solid); 1+] or [`ImportedGeometry`](/docs/kcl-std/types/std-types-ImportedGeometry)
+[[`Solid`](/docs/kcl-std/types/std-types-Solid); 1+] or [`ImportedGeometry`](/docs/kcl-std/types/std-types-ImportedGeometry) or [`Plane`](/docs/kcl-std/types/std-types-Plane)
 
 
 ### Examples
@@ -288,24 +289,25 @@ example = extrude(exampleSketch, length = 1)
 </model-viewer>
 
 ```kcl
-// Color the result of a sweep.
+@settings(defaultLengthUnit = mm, kclVersion = 2.0)
 
-// Create a path for the sweep.
-sweepPath = startSketchOn(XZ)
-  |> startProfile(at = [0.05, 0.05])
-  |> line(end = [0, 7])
-  |> tangentialArc(angle = 90deg, radius = 5)
-  |> line(end = [-3, 0])
-  |> tangentialArc(angle = -90deg, radius = 5)
-  |> line(end = [0, 7])
-
-pipeHole = startSketchOn(XY)
-  |> circle(center = [0, 0], radius = 1.5)
-
-sweepSketch = startSketchOn(XY)
-  |> circle(center = [0, 0], radius = 2)
-  |> subtract2d(tool = pipeHole)
-  |> sweep(path = sweepPath)
+sweepPath = sketch(on = XZ) {
+  line1 = line(start = [var 0.05mm, var 0.05mm], end = [var 0.05mm, var 7.05mm])
+  arc2 = arc(start = [var 0.05mm, var 7.05mm], end = [var -4.95mm, var 12.05mm], center = [var -4.95mm, var 7.05mm])
+  coincident([line1.end, arc2.start])
+  line3 = line(start = [var -4.95mm, var 12.05mm], end = [var -7.95mm, var 12.05mm])
+  coincident([arc2.end, line3.start])
+  arc4 = arc(start = [var -12.95mm, var 17.05mm], end = [var -7.95mm, var 12.05mm], center = [var -7.95mm, var 17.05mm])
+  coincident([line3.end, arc4.end])
+  line5 = line(start = [var -12.95mm, var 17.05mm], end = [var -12.95mm, var 24.05mm])
+  coincident([arc4.start, line5.start])
+}
+pipeProfile = sketch(on = XY) {
+  outerCircle = circle(start = [var 2mm, var 0mm], center = [var 0mm, var 0mm])
+  innerCircle = circle(start = [var 1.5mm, var 0mm], center = [var 0mm, var 0mm])
+}
+pipeRegion = region(segments = [pipeProfile.outerCircle])
+sweep(pipeRegion, path = sweepPath)
   |> appearance(color = "#ff0000", metalness = 50, roughness = 50)
 
 ```
@@ -342,6 +344,26 @@ cube
   ar
   environment-image="/moon_1k.hdr"
   poster="/kcl-test-outputs/serial_test_example_fn_std-solid-appearance9.png"
+  shadow-intensity="1"
+  camera-controls
+  touch-action="pan-y"
+>
+</model-viewer>
+
+```kcl
+offsetPlane(XZ, offset = 4mm)
+  |> appearance(color = "#ff0000", opacity = 50)
+
+```
+
+
+<model-viewer
+  class="kcl-example"
+  alt="Example showing a rendered KCL program that uses the appearance function"
+  src="/kcl-test-outputs/models/serial_test_example_fn_std-solid-appearance10_output.gltf"
+  ar
+  environment-image="/moon_1k.hdr"
+  poster="/kcl-test-outputs/serial_test_example_fn_std-solid-appearance10.png"
   shadow-intensity="1"
   camera-controls
   touch-action="pan-y"

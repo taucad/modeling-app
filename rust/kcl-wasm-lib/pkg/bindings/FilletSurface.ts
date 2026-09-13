@@ -3,19 +3,19 @@ import type { Node } from "./Node.js";
 import type { SourceRange } from "./SourceRange.js";
 import type { TagDeclarator } from "./TagDeclarator.js";
 
-export type FilletSurface = { 
+export type FilletSurface = {
 /**
  * The id for the fillet surface.
  */
-faceId: string, 
+faceId: string,
 /**
  * The tag.
  */
-tag: Node<TagDeclarator> | null, 
+tag: Node<TagDeclarator> | null,
 /**
  * The id of the geometry.
  */
-id: string, 
+id: string,
 /**
  * The source range.
  */

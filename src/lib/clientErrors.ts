@@ -13,6 +13,27 @@ type ReportClientErrorParams = {
 }
 
 export enum ClientErrorCode {
+  AuthDeviceFlowLoginError = 'auth_device_flow_login_error',
+  AuthDeviceFlowStartError = 'auth_device_flow_start_error',
+  AuthGetUserError = 'auth_get_user_error',
+  AuthLogoutError = 'auth_logout_error',
+  AuthLogoutTokenReadError = 'auth_logout_token_read_error',
+  AuthTokenRevokeError = 'auth_token_revoke_error',
+  AuthTokenSyncError = 'auth_token_sync_error',
+  CloudSyncConflict = 'cloud_sync_conflict',
+  CloudSyncConflictCopyDetected = 'cloud_sync_conflict_copy_detected',
+  CloudSyncFailure = 'cloud_sync_failure',
+  CloudSyncUntrackedLocalChanges = 'cloud_sync_untracked_local_changes',
+  DesktopChildProcessGone = 'desktop_child_process_gone',
+  DesktopRendererUnresponsive = 'desktop_renderer_unresponsive',
+  DesktopRenderProcessGone = 'desktop_render_process_gone',
+  EngineBackendDisconnect = 'engine_backend_disconnect',
+  EngineDisconnect = 'engine_disconnect',
+  EngineUnsupportedVideoCodec = 'engine_unsupported_video_codec',
+  LegacySketchMode = 'legacy_sketch_mode',
+  SystemIOError = 'system_io_error',
+  ToolbarDropdownAnchorPositioningError = 'toolbar_dropdown_anchor_positioning_error',
+  UnsupportedBrowserFeature = 'unsupported_browser_feature',
   UserFeaturesFetchError = 'user_features_fetch_error',
   ZookeeperActorError = 'zookeeper_actor_error',
   ZookeeperSetupError = 'zookeeper_setup_error',
@@ -21,19 +42,40 @@ export enum ClientErrorCode {
 }
 
 const reportedClientErrors = new Set<string>()
+const FALLBACK_APP_RELEASE = 'unknown'
 
 const getAppRelease = () => {
-  return typeof __APP_VERSION__ === 'undefined' ? 'unknown' : __APP_VERSION__
+  if (typeof window !== 'undefined') {
+    const packageVersion = (
+      window.electron?.packageJson as { version?: string } | undefined
+    )?.version
+    if (packageVersion && packageVersion !== '0.0.0') {
+      return packageVersion
+    }
+  }
+
+  const commitSha = import.meta.env.MODELING_APP_COMMIT_SHA
+  if (commitSha && commitSha.length >= 7) {
+    return commitSha.slice(0, 7)
+  }
+
+  return typeof __APP_VERSION__ === 'undefined'
+    ? FALLBACK_APP_RELEASE
+    : __APP_VERSION__
 }
 
 const getCurrentRoute = () => {
-  if (typeof window === 'undefined') return undefined
+  if (typeof window === 'undefined') {
+    return undefined
+  }
   const { pathname, search, hash } = window.location
   return `${pathname}${search}${hash}` || undefined
 }
 
 const getAuthToken = () => {
-  if (typeof window === 'undefined') return undefined
+  if (typeof window === 'undefined') {
+    return undefined
+  }
 
   try {
     return window.app?.auth.actor.getSnapshot().context.token
@@ -46,9 +88,15 @@ export const errorToMessage = (
   error: unknown,
   fallback = 'Unknown client error'
 ) => {
-  if (error instanceof Error) return error.message
-  if (typeof error === 'string') return error
-  if (error === undefined) return fallback
+  if (error instanceof Error) {
+    return error.message
+  }
+  if (typeof error === 'string') {
+    return error
+  }
+  if (error === undefined) {
+    return fallback
+  }
 
   try {
     return JSON.stringify(error)
@@ -58,13 +106,19 @@ export const errorToMessage = (
 }
 
 const getErrorMessage = (params: ReportClientErrorParams) => {
-  if (params.message) return params.message
+  if (params.message) {
+    return params.message
+  }
   return errorToMessage(params.error)
 }
 
 const getErrorName = (params: ReportClientErrorParams) => {
-  if (params.errorName) return params.errorName
-  if (params.error instanceof Error) return params.error.name
+  if (params.errorName) {
+    return params.errorName
+  }
+  if (params.error instanceof Error) {
+    return params.error.name
+  }
   return undefined
 }
 
@@ -97,8 +151,12 @@ const buildClientErrorReport = (
 
 export const reportClientError = async (params: ReportClientErrorParams) => {
   const dedupeKey = params.dedupeKey
-  if (dedupeKey && reportedClientErrors.has(dedupeKey)) return
-  if (dedupeKey) reportedClientErrors.add(dedupeKey)
+  if (dedupeKey && reportedClientErrors.has(dedupeKey)) {
+    return
+  }
+  if (dedupeKey) {
+    reportedClientErrors.add(dedupeKey)
+  }
 
   const client = createKCClient(getAuthToken())
   const result = await kcCall(() =>

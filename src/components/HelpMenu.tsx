@@ -4,7 +4,7 @@ import { defaultStatusBarItemClassNames } from '@src/components/StatusBar/Status
 import Tooltip from '@src/components/Tooltip'
 import { useAbsoluteFilePath } from '@src/hooks/useAbsoluteFilePath'
 import { useMenuListener } from '@src/hooks/useMenu'
-import { useApp, useSingletons } from '@src/lib/boot'
+import { useApp } from '@src/lib/boot'
 import { isDesktop } from '@src/lib/isDesktop'
 import { onboardingStartPath } from '@src/lib/onboardingPaths'
 import { openExternalBrowserIfDesktop } from '@src/lib/openWindow'
@@ -12,7 +12,11 @@ import { PATHS } from '@src/lib/paths'
 import { reportRejection } from '@src/lib/trap'
 import { withSiteBaseURL } from '@src/lib/withBaseURL'
 import type { WebContentSendPayload } from '@src/menu/channels'
-import { acceptOnboarding } from '@src/routes/Onboarding/utils'
+import {
+  acceptOnboarding,
+  reportOnboardingStartFailure,
+  useOnboardingStartPending,
+} from '@src/routes/Onboarding/utils'
 import { useNavigate } from 'react-router-dom'
 
 const HelpMenuDivider = () => (
@@ -20,26 +24,24 @@ const HelpMenuDivider = () => (
 )
 
 export function HelpMenu() {
-  const { settings, systemIOActor } = useApp()
-  const { kclManager } = useSingletons()
+  const app = useApp()
   const navigate = useNavigate()
-  const filePath = useAbsoluteFilePath()
+  const filePath = useAbsoluteFilePath({ warnIfNoExecutingPath: false })
+  const isOnboardingStartPending = useOnboardingStartPending()
 
-  const resetOnboardingWorkflow = () => {
-    const props = {
+  const replayOnboardingWorkflow = (onSuccess?: () => void) => {
+    void acceptOnboarding({
+      app,
       onboardingStatus: onboardingStartPath,
       navigate,
-      kclManager,
-      systemIOActor,
-      settingsActor: settings.actor,
-      executingPath: filePath,
-    }
-    acceptOnboarding(props)
+    })
+      .then(onSuccess)
+      .catch(reportOnboardingStartFailure)
   }
 
   const cb = (data: WebContentSendPayload) => {
     if (data.menuLabel === 'Help.Replay onboarding tutorial') {
-      resetOnboardingWorkflow()
+      replayOnboardingWorkflow()
     }
   }
   useMenuListener(cb)
@@ -139,12 +141,15 @@ export function HelpMenu() {
             </HelpMenuItem>
             <HelpMenuItem
               as="button"
+              aria-busy={isOnboardingStartPending}
+              disabled={isOnboardingStartPending}
               onClick={() => {
-                close()
-                resetOnboardingWorkflow()
+                replayOnboardingWorkflow(close)
               }}
             >
-              Replay onboarding tutorial
+              {isOnboardingStartPending
+                ? 'Starting onboarding tutorial...'
+                : 'Replay onboarding tutorial'}
             </HelpMenuItem>
           </>
         )}
@@ -167,7 +172,8 @@ function HelpMenuItem({
   className,
   ...props
 }: HelpMenuItemProps) {
-  const baseClassName = 'block px-2 py-1 hover:bg-chalkboard-80'
+  const baseClassName =
+    'block px-2 py-1 hover:bg-chalkboard-80 disabled:cursor-wait disabled:text-chalkboard-50 disabled:hover:bg-transparent dark:disabled:text-chalkboard-60'
   return (
     <li className="p-0 m-0">
       {as === 'a' ? (

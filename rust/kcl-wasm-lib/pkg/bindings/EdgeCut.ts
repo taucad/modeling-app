@@ -6,19 +6,19 @@ import type { TyF64 } from "./TyF64.js";
 /**
  * A fillet or a chamfer.
  */
-export type EdgeCut = { "type": "fillet", 
+export type EdgeCut = { "type": "fillet",
 /**
  * The id of the engine command that called this fillet.
  */
-id: string, radius: TyF64, 
+id: string, radius: TyF64,
 /**
  * The engine id of the edge to fillet.
  */
-edgeId: string, tag: Node<TagDeclarator> | null, } | { "type": "chamfer", 
+edgeId: string, tag: Node<TagDeclarator> | null, } | { "type": "chamfer",
 /**
  * The id of the engine command that called this chamfer.
  */
-id: string, length: TyF64, 
+id: string, length: TyF64,
 /**
  * The engine id of the edge to chamfer.
  */

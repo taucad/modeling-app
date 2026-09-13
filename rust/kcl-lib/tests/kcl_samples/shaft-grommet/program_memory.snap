@@ -8,8 +8,7 @@ description: Variables in memory after executing shaft-grommet.kcl
     "value": {
       "artifactId": "[uuid]",
       "id": "[uuid]",
-      "kind": "YZ",
-      "objectId": 0,
+      "kind": "Custom",
       "origin": {
         "x": 0.0,
         "y": 0.0,
@@ -86,6 +85,8 @@ description: Variables in memory after executing shaft-grommet.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -93,10 +94,10 @@ description: Variables in memory after executing shaft-grommet.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 702,
-            "end": 707,
+            "commentStart": 668,
+            "end": 673,
             "moduleId": 0,
-            "start": 702,
+            "start": 668,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -107,10 +108,10 @@ description: Variables in memory after executing shaft-grommet.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 780,
-            "end": 785,
+            "commentStart": 746,
+            "end": 751,
             "moduleId": 0,
-            "start": 780,
+            "start": 746,
             "type": "TagDeclarator",
             "value": "line2"
           },
@@ -121,10 +122,10 @@ description: Variables in memory after executing shaft-grommet.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 900,
-            "end": 905,
+            "commentStart": 866,
+            "end": 871,
             "moduleId": 0,
-            "start": 900,
+            "start": 866,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -135,10 +136,10 @@ description: Variables in memory after executing shaft-grommet.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1020,
-            "end": 1025,
+            "commentStart": 986,
+            "end": 991,
             "moduleId": 0,
-            "start": 1020,
+            "start": 986,
             "type": "TagDeclarator",
             "value": "line4"
           },
@@ -149,10 +150,10 @@ description: Variables in memory after executing shaft-grommet.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1140,
-            "end": 1145,
+            "commentStart": 1106,
+            "end": 1111,
             "moduleId": 0,
-            "start": 1140,
+            "start": 1106,
             "type": "TagDeclarator",
             "value": "line5"
           },
@@ -163,10 +164,10 @@ description: Variables in memory after executing shaft-grommet.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1380,
-            "end": 1385,
+            "commentStart": 1226,
+            "end": 1231,
             "moduleId": 0,
-            "start": 1380,
+            "start": 1226,
             "type": "TagDeclarator",
             "value": "line7"
           },
@@ -177,10 +178,10 @@ description: Variables in memory after executing shaft-grommet.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1497,
-            "end": 1502,
+            "commentStart": 1343,
+            "end": 1348,
             "moduleId": 0,
-            "start": 1497,
+            "start": 1343,
             "type": "TagDeclarator",
             "value": "line8"
           },
@@ -202,10 +203,10 @@ description: Variables in memory after executing shaft-grommet.kcl
               0.0
             ],
             "tag": {
-              "commentStart": 702,
-              "end": 707,
+              "commentStart": 668,
+              "end": 673,
               "moduleId": 0,
-              "start": 702,
+              "start": 668,
               "type": "TagDeclarator",
               "value": "line1"
             },
@@ -226,10 +227,10 @@ description: Variables in memory after executing shaft-grommet.kcl
               0.16
             ],
             "tag": {
-              "commentStart": 780,
-              "end": 785,
+              "commentStart": 746,
+              "end": 751,
               "moduleId": 0,
-              "start": 780,
+              "start": 746,
               "type": "TagDeclarator",
               "value": "line2"
             },
@@ -250,10 +251,10 @@ description: Variables in memory after executing shaft-grommet.kcl
               0.16
             ],
             "tag": {
-              "commentStart": 900,
-              "end": 905,
+              "commentStart": 866,
+              "end": 871,
               "moduleId": 0,
-              "start": 900,
+              "start": 866,
               "type": "TagDeclarator",
               "value": "line3"
             },
@@ -274,10 +275,10 @@ description: Variables in memory after executing shaft-grommet.kcl
               0.13
             ],
             "tag": {
-              "commentStart": 1020,
-              "end": 1025,
+              "commentStart": 986,
+              "end": 991,
               "moduleId": 0,
-              "start": 1020,
+              "start": 986,
               "type": "TagDeclarator",
               "value": "line4"
             },
@@ -298,10 +299,10 @@ description: Variables in memory after executing shaft-grommet.kcl
               0.13
             ],
             "tag": {
-              "commentStart": 1140,
-              "end": 1145,
+              "commentStart": 1106,
+              "end": 1111,
               "moduleId": 0,
-              "start": 1140,
+              "start": 1106,
               "type": "TagDeclarator",
               "value": "line5"
             },
@@ -322,10 +323,10 @@ description: Variables in memory after executing shaft-grommet.kcl
               0.03
             ],
             "tag": {
-              "commentStart": 1380,
-              "end": 1385,
+              "commentStart": 1226,
+              "end": 1231,
               "moduleId": 0,
-              "start": 1380,
+              "start": 1226,
               "type": "TagDeclarator",
               "value": "line7"
             },
@@ -346,10 +347,10 @@ description: Variables in memory after executing shaft-grommet.kcl
               0.0
             ],
             "tag": {
-              "commentStart": 1497,
-              "end": 1502,
+              "commentStart": 1343,
+              "end": 1348,
               "moduleId": 0,
-              "start": 1497,
+              "start": 1343,
               "type": "TagDeclarator",
               "value": "line8"
             },
@@ -362,17 +363,17 @@ description: Variables in memory after executing shaft-grommet.kcl
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "YZ",
           "objectId": 0,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 0.0,
             "y": 1.0,
@@ -429,10 +430,6 @@ description: Variables in memory after executing shaft-grommet.kcl
             "type": "TagIdentifier",
             "value": "line5"
           },
-          "line6": {
-            "type": "TagIdentifier",
-            "value": "line6"
-          },
           "line7": {
             "type": "TagIdentifier",
             "value": "line7"
@@ -444,8 +441,8 @@ description: Variables in memory after executing shaft-grommet.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "in"
+        "units": "in",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -538,7 +535,7 @@ description: Variables in memory after executing shaft-grommet.kcl
                 "surface": {
                   "artifactId": "[uuid]",
                   "id": "[uuid]",
-                  "kind": "YZ",
+                  "kind": "Custom",
                   "objectId": 0,
                   "origin": {
                     "x": 0.0,
@@ -658,7 +655,7 @@ description: Variables in memory after executing shaft-grommet.kcl
                 "surface": {
                   "artifactId": "[uuid]",
                   "id": "[uuid]",
-                  "kind": "YZ",
+                  "kind": "Custom",
                   "objectId": 0,
                   "origin": {
                     "x": 0.0,
@@ -778,7 +775,7 @@ description: Variables in memory after executing shaft-grommet.kcl
                 "surface": {
                   "artifactId": "[uuid]",
                   "id": "[uuid]",
-                  "kind": "YZ",
+                  "kind": "Custom",
                   "objectId": 0,
                   "origin": {
                     "x": 0.0,
@@ -898,7 +895,7 @@ description: Variables in memory after executing shaft-grommet.kcl
                 "surface": {
                   "artifactId": "[uuid]",
                   "id": "[uuid]",
-                  "kind": "YZ",
+                  "kind": "Custom",
                   "objectId": 0,
                   "origin": {
                     "x": 0.0,
@@ -1018,7 +1015,7 @@ description: Variables in memory after executing shaft-grommet.kcl
                 "surface": {
                   "artifactId": "[uuid]",
                   "id": "[uuid]",
-                  "kind": "YZ",
+                  "kind": "Custom",
                   "objectId": 0,
                   "origin": {
                     "x": 0.0,
@@ -1056,126 +1053,6 @@ description: Variables in memory after executing shaft-grommet.kcl
           }
         }
       },
-      "line6": {
-        "type": "Segment",
-        "value": {
-          "repr": {
-            "Solved": {
-              "segment": {
-                "id": "[uuid]",
-                "objectId": 23,
-                "kind": {
-                  "line": {
-                    "start": [
-                      {
-                        "n": 0.09,
-                        "ty": {
-                          "in": null,
-                          "type": "Known",
-                          "type": "Length"
-                        }
-                      },
-                      {
-                        "n": 0.03,
-                        "ty": {
-                          "in": null,
-                          "type": "Known",
-                          "type": "Length"
-                        }
-                      }
-                    ],
-                    "end": [
-                      {
-                        "n": 0.09,
-                        "ty": {
-                          "in": null,
-                          "type": "Known",
-                          "type": "Length"
-                        }
-                      },
-                      {
-                        "n": 0.03,
-                        "ty": {
-                          "in": null,
-                          "type": "Known",
-                          "type": "Length"
-                        }
-                      }
-                    ],
-                    "ctor": {
-                      "start": {
-                        "x": {
-                          "type": "Var",
-                          "value": 0.09,
-                          "units": "Inch"
-                        },
-                        "y": {
-                          "type": "Var",
-                          "value": 0.03,
-                          "units": "Inch"
-                        }
-                      },
-                      "end": {
-                        "x": {
-                          "type": "Var",
-                          "value": 0.09,
-                          "units": "Inch"
-                        },
-                        "y": {
-                          "type": "Var",
-                          "value": 0.03,
-                          "units": "Inch"
-                        }
-                      }
-                    },
-                    "start_object_id": 21,
-                    "end_object_id": 22,
-                    "start_freedom": "Free",
-                    "end_freedom": "Free",
-                    "construction": false
-                  }
-                },
-                "surface": {
-                  "artifactId": "[uuid]",
-                  "id": "[uuid]",
-                  "kind": "YZ",
-                  "objectId": 0,
-                  "origin": {
-                    "x": 0.0,
-                    "y": 0.0,
-                    "z": 0.0,
-                    "units": "mm"
-                  },
-                  "type": "plane",
-                  "xAxis": {
-                    "x": 0.0,
-                    "y": 1.0,
-                    "z": 0.0,
-                    "units": null
-                  },
-                  "yAxis": {
-                    "x": 0.0,
-                    "y": 0.0,
-                    "z": 1.0,
-                    "units": null
-                  },
-                  "zAxis": {
-                    "x": 1.0,
-                    "y": 0.0,
-                    "z": 0.0,
-                    "units": null
-                  }
-                },
-                "sketchId": "[uuid]",
-                "tag": {
-                  "type": "TagIdentifier",
-                  "value": "line6"
-                }
-              }
-            }
-          }
-        }
-      },
       "line7": {
         "type": "Segment",
         "value": {
@@ -1183,7 +1060,7 @@ description: Variables in memory after executing shaft-grommet.kcl
             "Solved": {
               "segment": {
                 "id": "[uuid]",
-                "objectId": 27,
+                "objectId": 23,
                 "kind": {
                   "line": {
                     "start": [
@@ -1248,8 +1125,8 @@ description: Variables in memory after executing shaft-grommet.kcl
                         }
                       }
                     },
-                    "start_object_id": 25,
-                    "end_object_id": 26,
+                    "start_object_id": 21,
+                    "end_object_id": 22,
                     "start_freedom": "Free",
                     "end_freedom": "Free",
                     "construction": false
@@ -1258,7 +1135,7 @@ description: Variables in memory after executing shaft-grommet.kcl
                 "surface": {
                   "artifactId": "[uuid]",
                   "id": "[uuid]",
-                  "kind": "YZ",
+                  "kind": "Custom",
                   "objectId": 0,
                   "origin": {
                     "x": 0.0,
@@ -1303,7 +1180,7 @@ description: Variables in memory after executing shaft-grommet.kcl
             "Solved": {
               "segment": {
                 "id": "[uuid]",
-                "objectId": 31,
+                "objectId": 27,
                 "kind": {
                   "line": {
                     "start": [
@@ -1368,8 +1245,8 @@ description: Variables in memory after executing shaft-grommet.kcl
                         }
                       }
                     },
-                    "start_object_id": 29,
-                    "end_object_id": 30,
+                    "start_object_id": 25,
+                    "end_object_id": 26,
                     "start_freedom": "Free",
                     "end_freedom": "Free",
                     "construction": false
@@ -1378,7 +1255,7 @@ description: Variables in memory after executing shaft-grommet.kcl
                 "surface": {
                   "artifactId": "[uuid]",
                   "id": "[uuid]",
-                  "kind": "YZ",
+                  "kind": "Custom",
                   "objectId": 0,
                   "origin": {
                     "x": 0.0,
@@ -1435,10 +1312,10 @@ description: Variables in memory after executing shaft-grommet.kcl
                     0.0
                   ],
                   "tag": {
-                    "commentStart": 702,
-                    "end": 707,
+                    "commentStart": 668,
+                    "end": 673,
                     "moduleId": 0,
-                    "start": 702,
+                    "start": 668,
                     "type": "TagDeclarator",
                     "value": "line1"
                   },
@@ -1459,10 +1336,10 @@ description: Variables in memory after executing shaft-grommet.kcl
                     0.16
                   ],
                   "tag": {
-                    "commentStart": 780,
-                    "end": 785,
+                    "commentStart": 746,
+                    "end": 751,
                     "moduleId": 0,
-                    "start": 780,
+                    "start": 746,
                     "type": "TagDeclarator",
                     "value": "line2"
                   },
@@ -1483,10 +1360,10 @@ description: Variables in memory after executing shaft-grommet.kcl
                     0.16
                   ],
                   "tag": {
-                    "commentStart": 900,
-                    "end": 905,
+                    "commentStart": 866,
+                    "end": 871,
                     "moduleId": 0,
-                    "start": 900,
+                    "start": 866,
                     "type": "TagDeclarator",
                     "value": "line3"
                   },
@@ -1507,10 +1384,10 @@ description: Variables in memory after executing shaft-grommet.kcl
                     0.13
                   ],
                   "tag": {
-                    "commentStart": 1020,
-                    "end": 1025,
+                    "commentStart": 986,
+                    "end": 991,
                     "moduleId": 0,
-                    "start": 1020,
+                    "start": 986,
                     "type": "TagDeclarator",
                     "value": "line4"
                   },
@@ -1531,10 +1408,10 @@ description: Variables in memory after executing shaft-grommet.kcl
                     0.13
                   ],
                   "tag": {
-                    "commentStart": 1140,
-                    "end": 1145,
+                    "commentStart": 1106,
+                    "end": 1111,
                     "moduleId": 0,
-                    "start": 1140,
+                    "start": 1106,
                     "type": "TagDeclarator",
                     "value": "line5"
                   },
@@ -1555,34 +1432,10 @@ description: Variables in memory after executing shaft-grommet.kcl
                     0.03
                   ],
                   "tag": {
-                    "commentStart": 1260,
-                    "end": 1265,
+                    "commentStart": 1226,
+                    "end": 1231,
                     "moduleId": 0,
-                    "start": 1260,
-                    "type": "TagDeclarator",
-                    "value": "line6"
-                  },
-                  "to": [
-                    0.09,
-                    0.03
-                  ],
-                  "type": "ToPoint",
-                  "units": "in"
-                },
-                {
-                  "__geoMeta": {
-                    "id": "[uuid]",
-                    "sourceRange": []
-                  },
-                  "from": [
-                    0.09,
-                    0.03
-                  ],
-                  "tag": {
-                    "commentStart": 1380,
-                    "end": 1385,
-                    "moduleId": 0,
-                    "start": 1380,
+                    "start": 1226,
                     "type": "TagDeclarator",
                     "value": "line7"
                   },
@@ -1603,10 +1456,10 @@ description: Variables in memory after executing shaft-grommet.kcl
                     0.0
                   ],
                   "tag": {
-                    "commentStart": 1497,
-                    "end": 1502,
+                    "commentStart": 1343,
+                    "end": 1348,
                     "moduleId": 0,
-                    "start": 1497,
+                    "start": 1343,
                     "type": "TagDeclarator",
                     "value": "line8"
                   },
@@ -1619,17 +1472,17 @@ description: Variables in memory after executing shaft-grommet.kcl
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "YZ",
                 "objectId": 0,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": 0.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 0.0,
                   "y": 1.0,
@@ -1686,10 +1539,6 @@ description: Variables in memory after executing shaft-grommet.kcl
                   "type": "TagIdentifier",
                   "value": "line5"
                 },
-                "line6": {
-                  "type": "TagIdentifier",
-                  "value": "line6"
-                },
                 "line7": {
                   "type": "TagIdentifier",
                   "value": "line7"
@@ -1711,39 +1560,6 @@ description: Variables in memory after executing shaft-grommet.kcl
     },
     "constrainable": false
   },
-  "grommetProfileSketch": {
-    "type": "Plane",
-    "value": {
-      "artifactId": "[uuid]",
-      "id": "[uuid]",
-      "kind": "YZ",
-      "objectId": 0,
-      "origin": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 0.0,
-        "units": "mm"
-      },
-      "xAxis": {
-        "x": 0.0,
-        "y": 1.0,
-        "z": 0.0,
-        "units": null
-      },
-      "yAxis": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 1.0,
-        "units": null
-      },
-      "zAxis": {
-        "x": 1.0,
-        "y": 0.0,
-        "z": 0.0,
-        "units": null
-      }
-    }
-  },
   "grommetRegion": {
     "type": "Sketch",
     "value": {
@@ -1760,10 +1576,10 @@ description: Variables in memory after executing shaft-grommet.kcl
             0.0
           ],
           "tag": {
-            "commentStart": 702,
-            "end": 707,
+            "commentStart": 668,
+            "end": 673,
             "moduleId": 0,
-            "start": 702,
+            "start": 668,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -1784,10 +1600,10 @@ description: Variables in memory after executing shaft-grommet.kcl
             0.16
           ],
           "tag": {
-            "commentStart": 780,
-            "end": 785,
+            "commentStart": 746,
+            "end": 751,
             "moduleId": 0,
-            "start": 780,
+            "start": 746,
             "type": "TagDeclarator",
             "value": "line2"
           },
@@ -1808,10 +1624,10 @@ description: Variables in memory after executing shaft-grommet.kcl
             0.16
           ],
           "tag": {
-            "commentStart": 900,
-            "end": 905,
+            "commentStart": 866,
+            "end": 871,
             "moduleId": 0,
-            "start": 900,
+            "start": 866,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -1832,10 +1648,10 @@ description: Variables in memory after executing shaft-grommet.kcl
             0.13
           ],
           "tag": {
-            "commentStart": 1020,
-            "end": 1025,
+            "commentStart": 986,
+            "end": 991,
             "moduleId": 0,
-            "start": 1020,
+            "start": 986,
             "type": "TagDeclarator",
             "value": "line4"
           },
@@ -1856,10 +1672,10 @@ description: Variables in memory after executing shaft-grommet.kcl
             0.13
           ],
           "tag": {
-            "commentStart": 1140,
-            "end": 1145,
+            "commentStart": 1106,
+            "end": 1111,
             "moduleId": 0,
-            "start": 1140,
+            "start": 1106,
             "type": "TagDeclarator",
             "value": "line5"
           },
@@ -1880,10 +1696,10 @@ description: Variables in memory after executing shaft-grommet.kcl
             0.03
           ],
           "tag": {
-            "commentStart": 1380,
-            "end": 1385,
+            "commentStart": 1226,
+            "end": 1231,
             "moduleId": 0,
-            "start": 1380,
+            "start": 1226,
             "type": "TagDeclarator",
             "value": "line7"
           },
@@ -1904,10 +1720,10 @@ description: Variables in memory after executing shaft-grommet.kcl
             0.0
           ],
           "tag": {
-            "commentStart": 1497,
-            "end": 1502,
+            "commentStart": 1343,
+            "end": 1348,
             "moduleId": 0,
-            "start": 1497,
+            "start": 1343,
             "type": "TagDeclarator",
             "value": "line8"
           },
@@ -1920,17 +1736,17 @@ description: Variables in memory after executing shaft-grommet.kcl
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "YZ",
         "objectId": 0,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 0.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 0.0,
           "y": 1.0,
@@ -1987,10 +1803,6 @@ description: Variables in memory after executing shaft-grommet.kcl
           "type": "TagIdentifier",
           "value": "line5"
         },
-        "line6": {
-          "type": "TagIdentifier",
-          "value": "line6"
-        },
         "line7": {
           "type": "TagIdentifier",
           "value": "line7"
@@ -2002,8 +1814,8 @@ description: Variables in memory after executing shaft-grommet.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "in"
+      "units": "in",
+      "isClosed": "explicitly"
     }
   },
   "id": {

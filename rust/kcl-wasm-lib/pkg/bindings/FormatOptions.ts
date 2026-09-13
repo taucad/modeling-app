@@ -3,15 +3,15 @@
 /**
  * Format options.
  */
-export type FormatOptions = { 
+export type FormatOptions = {
 /**
  * Size of a tab in spaces.
  */
-tabSize: number, 
+tabSize: number,
 /**
  * Prefer tabs over spaces.
  */
-useTabs: boolean, 
+useTabs: boolean,
 /**
  * How to handle the final newline in the file.
  * If true, ensure file ends with a newline.

@@ -23,7 +23,7 @@
       "@lezer/generator"
     ],
     "target": "esnext",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": ["dom", "dom.iterable", "es2024"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -32,7 +32,8 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "module": "es2022",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
+    "resolvePackageJsonExports": false,
     "resolveJsonModule": true,
     "composite": false,
     "isolatedModules": true,
@@ -47,6 +48,7 @@
     "vite.config.ts",
     "forge.config.ts",
     ".vscode-test",
+    "rust/kcl-lib/expected-bindings/**",
     "rust/kcl-wasm-lib/pkg/**"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]

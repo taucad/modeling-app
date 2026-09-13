@@ -1,14 +1,16 @@
 import { newKclFile } from '@src/lang/project'
-import { DEFAULT_DEFAULT_LENGTH_UNIT, FILE_EXT } from '@src/lib/constants'
+import type { App } from '@src/lib/app'
+import {
+  DEFAULT_DEFAULT_LENGTH_UNIT,
+  FILE_EXT,
+  ZOOKEEPER_FILE_WRITE_TOAST_ID,
+} from '@src/lib/constants'
 import {
   canReadWriteDirectory,
   createNewProjectDirectory,
   ensureProjectDirectoryExists,
-  getAppSettingsFilePath,
-  getProjectInfo,
-  mkdirOrNOOP,
   readAppSettingsFile,
-  renameProjectDirectory,
+  writeProjectTitleToProjectToml,
 } from '@src/lib/desktop'
 import {
   doesProjectNameNeedInterpolated,
@@ -24,9 +26,17 @@ import {
   getStringAfterLastSeparator,
   parentPathRelativeToProject,
 } from '@src/lib/paths'
-import type { FileEntry, Project } from '@src/lib/project'
+import type { FileEntry } from '@src/lib/project'
+import { getProjectDisplayName } from '@src/lib/projectDisplayName'
+import { duplicateProjectInDirectory } from '@src/lib/projectDuplication'
+import { readProjectsFromProjectDirectory } from '@src/lib/projectLibraries/directoryScanner'
+import { getProjectTitleFromUniqueDirectoryName } from '@src/lib/projectName'
 import { err, isErr } from '@src/lib/trap'
 import type { ModuleType } from '@src/lib/wasm_lib_wrapper'
+import {
+  ExpectedSystemIOError,
+  reportSystemIOError,
+} from '@src/machines/systemIO/errorReporting'
 import { systemIOMachine } from '@src/machines/systemIO/systemIOMachine'
 import type {
   RequestedKCLFile,
@@ -35,17 +45,100 @@ import type {
   SystemIOContext,
 } from '@src/machines/systemIO/utils'
 import {
+  collectProjectFiles,
   NO_PROJECT_DIRECTORY,
+  normalizeKCLFileDeletePath,
   SystemIOMachineActors,
   SystemIOMachineEvents,
-  collectProjectFiles,
-  jsonToMlConversations,
-  mlConversationsToJson,
-  normalizeKCLFileDeletePath,
 } from '@src/machines/systemIO/utils'
 import { fromPromise } from 'xstate'
 
-const ML_CONVERSATIONS_FILE_NAME = 'ml-conversations.json'
+export {
+  shouldSendProjectFolderReadProgress,
+  sortProjectDirectoryEntriesByModifiedDesc,
+} from '@src/lib/projectLibraries/directoryScanner'
+
+type RenameFileForSystemIOInput = {
+  context: SystemIOContext
+  fileNameWithExtension: string
+  requestedFileNameWithExtension: string
+  absolutePathToParentDirectory: string
+  app: App
+}
+
+export async function renameFileForSystemIO(input: RenameFileForSystemIOInput) {
+  const {
+    fileNameWithExtension,
+    requestedFileNameWithExtension,
+    absolutePathToParentDirectory,
+  } = input
+
+  const oldPath = fsZds.join(
+    absolutePathToParentDirectory,
+    fileNameWithExtension
+  )
+  const newPath = fsZds.join(
+    absolutePathToParentDirectory,
+    requestedFileNameWithExtension
+  )
+
+  const projectDirectoryPath = input.context.projectDirectoryPath
+  const projectName = getProjectDirectoryFromKCLFilePath(
+    newPath,
+    projectDirectoryPath
+  )
+  const filePathWithExtensionRelativeToProject = parentPathRelativeToProject(
+    newPath,
+    projectDirectoryPath
+  )
+
+  if (oldPath === newPath) {
+    return {
+      message: `Old file is the same as new.`,
+      projectName,
+      filePathWithExtensionRelativeToProject,
+    }
+  }
+
+  const entries = await fsZds.readdir(fsZds.dirname(newPath))
+  if (entries.includes(requestedFileNameWithExtension)) {
+    return Promise.reject(new ExpectedSystemIOError('Filename already exists.'))
+  }
+
+  const project = input.app.project
+  const executingPathSignal = project?.executingPathSignal.value
+  const executingEditor =
+    executingPathSignal?.value === oldPath
+      ? project?.editors.get(executingPathSignal)
+      : undefined
+  if (executingEditor) {
+    const didFlush = await executingEditor.flushWriteToFile({
+      suppressConflictToast: true,
+    })
+    if (!didFlush) {
+      return Promise.reject(
+        new ExpectedSystemIOError(
+          'File has unsaved changes that could not be written. Rename canceled.'
+        )
+      )
+    }
+  }
+
+  await fsZds.rename(oldPath, newPath)
+
+  if (
+    input.app.project?.executingPathSignal.value &&
+    input.app.project.executingPathSignal.value.value === oldPath
+  ) {
+    input.app.project.executingPathSignal.value.value = newPath
+  }
+
+  return {
+    message: `Successfully renamed file "${fileNameWithExtension}" to "${requestedFileNameWithExtension}"`,
+    projectName,
+    filePathWithExtensionRelativeToProject,
+  }
+}
 
 async function getProjectDirectoryEntryNames(projectDirectoryPath?: string) {
   if (!projectDirectoryPath) {
@@ -60,6 +153,58 @@ async function getProjectDirectoryEntryNames(projectDirectoryPath?: string) {
     }
     return Promise.reject(error)
   }
+}
+
+function isPathNotFoundError(error: unknown) {
+  return (
+    error === 'ENOENT' ||
+    (typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      error.code === 'ENOENT')
+  )
+}
+
+async function pathExists(targetPath: string) {
+  try {
+    await fsZds.stat(targetPath)
+    return true
+  } catch (error) {
+    if (isPathNotFoundError(error)) {
+      return false
+    }
+    return Promise.reject(error)
+  }
+}
+
+async function moveRecursivePath({
+  src,
+  target,
+}: {
+  src: string
+  target: string
+}) {
+  const statRes = await fsZds.stat(src)
+  const isDirectory = Boolean(statRes.mode & fsZdsConstants.S_IFDIR)
+  const targetAlreadyExists = await pathExists(target)
+
+  if (!targetAlreadyExists) {
+    await fsZds.mkdir(fsZds.dirname(target), { recursive: true })
+    try {
+      await fsZds.rename(src, target)
+      return
+    } catch {
+      // Fall back to copy/remove for cases like cross-device moves.
+    }
+  }
+
+  if (isDirectory) {
+    await fsZds.mkdir(target, { recursive: true })
+  } else {
+    await fsZds.mkdir(fsZds.dirname(target), { recursive: true })
+  }
+  await fsZds.cp(src, target, { recursive: true })
+  await fsZds.rm(src, { recursive: true })
 }
 
 async function getUniqueProjectNameForCreate({
@@ -92,26 +237,6 @@ async function getUniqueProjectNameForCreate({
     })
   )
   return getUniqueProjectName(requestedProjectName, existingEntries)
-}
-
-export function shouldSendProjectFolderReadProgress(
-  folders: SystemIOContext['folders']
-) {
-  return !folders?.length
-}
-
-type ProjectDirectoryEntry = {
-  name: string
-  path: string
-  modified: number
-}
-
-export function sortProjectDirectoryEntriesByModifiedDesc(
-  entries: ProjectDirectoryEntry[]
-) {
-  return entries.toSorted(
-    (a, b) => b.modified - a.modified || a.name.localeCompare(b.name)
-  )
 }
 
 const prepareBulkProjectWrite = async ({
@@ -304,7 +429,7 @@ const sharedBulkWriteImportedProjectFilesWorkflow = async ({
   }
 }
 
-const sharedBulkDeleteWorkflow = async ({
+export const sharedBulkDeleteWorkflow = async ({
   input,
 }: {
   input: {
@@ -315,6 +440,10 @@ const sharedBulkDeleteWorkflow = async ({
     wasmInstance: ModuleType
   }
 }) => {
+  if (!input.filesToDelete?.length) {
+    return 0
+  }
+
   if (!input.context.folders) {
     console.warn('no folders')
     return
@@ -324,7 +453,9 @@ const sharedBulkDeleteWorkflow = async ({
     (f) => f.name === input.requestedProjectName
   )
 
-  if (!project) return Promise.reject(new Error("Couldn't find project"))
+  if (!project) {
+    return Promise.reject(new Error("Couldn't find project"))
+  }
 
   const filesInProject = await collectProjectFiles({
     selectedFileContents: '',
@@ -347,8 +478,14 @@ const sharedBulkDeleteWorkflow = async ({
 
   let totalDeleted = 0
   for (const file of filesToDelete) {
-    if (file.type === 'other') continue
-    await fsZds.rm(file.absPath)
+    // 'kcl' files carry an absolute path; 'other' files (e.g. Markdown) only
+    // carry a project-relative path, so reconstruct the absolute path from the
+    // project root. Both kinds are deletable when explicitly requested.
+    const absPath =
+      file.type === 'kcl'
+        ? file.absPath
+        : fsZds.join(project.path, file.relPath)
+    await fsZds.rm(absPath)
     totalDeleted += 1
   }
 
@@ -360,79 +497,38 @@ export const systemIOMachineImpl = systemIOMachine.provide({
   actors: {
     [SystemIOMachineActors.readFoldersFromProjectDirectory]: fromPromise(
       async ({ input: context, signal }) => {
-        const PROJECT_FOLDER_PROGRESS_CHUNK_SIZE = 12
-        const projects: Project[] = []
         const projectDirectoryPath = context.projectDirectoryPath
-        const canSendProgress = shouldSendProjectFolderReadProgress(
-          context.folders
-        )
         if (projectDirectoryPath === NO_PROJECT_DIRECTORY) {
           return []
         }
-        const sendFoldersProgress = (folders: Project[]) => {
-          if (signal.aborted) {
-            return
-          }
-          context.app.systemIOActor.send({
-            type: SystemIOMachineEvents.setFolders,
-            data: { folders },
-          })
-        }
 
-        await mkdirOrNOOP(projectDirectoryPath)
-        // Gotcha: readdir will list all folders at this project directory even if you do not have readwrite access on the directory path
-        const entries: ProjectDirectoryEntry[] = []
-        for (const entry of await fsZds.readdir(projectDirectoryPath)) {
-          if (entry.startsWith('.')) {
-            continue
-          }
+        const projects = await readProjectsFromProjectDirectory({
+          projectDirectoryPath,
+          wasmInstancePromise: context.wasmInstancePromise,
+          previousProjects: context.folders,
+          signal,
+          onProgress: (folders) => {
+            context.app.systemIOActor.send({
+              type: SystemIOMachineEvents.setFolders,
+              data: { folders },
+            })
+          },
+          onProjectStatFailures: ({ error, count }) => {
+            reportSystemIOError({
+              error,
+              operation: SystemIOMachineActors.readFoldersFromProjectDirectory,
+              risk: 'read',
+              source: 'SystemIOMachine',
+              dedupeKey:
+                'SystemIO:SystemIOMachine:read folders from project directory:stat_project',
+              extra: {
+                phase: 'stat_project',
+                skippedProjectCount: count,
+              },
+            })
+          },
+        })
 
-          const projectPath = fsZds.join(projectDirectoryPath, entry)
-          let stat: Awaited<ReturnType<typeof fsZds.stat>>
-          try {
-            stat = await fsZds.stat(projectPath)
-          } catch {
-            continue
-          }
-          if (!(stat.mode & fsZdsConstants.S_IFDIR)) {
-            continue
-          }
-
-          entries.push({
-            name: entry,
-            path: projectPath,
-            modified: stat.mtimeMs,
-          })
-        }
-        const { value: canReadWriteProjectDirectory } =
-          await canReadWriteDirectory(projectDirectoryPath)
-
-        for (const entry of sortProjectDirectoryEntriesByModifiedDesc(
-          entries
-        )) {
-          if (signal.aborted) {
-            return projects
-          }
-          const project: Project = await getProjectInfo(
-            entry.path,
-            await context.wasmInstancePromise
-          )
-          if (
-            project.kcl_file_count === 0 &&
-            project.readWriteAccess &&
-            canReadWriteProjectDirectory
-          ) {
-            continue
-          }
-          projects.push(project)
-          if (
-            canSendProgress &&
-            projects.length % PROJECT_FOLDER_PROGRESS_CHUNK_SIZE === 0
-          ) {
-            sendFoldersProgress([...projects])
-          }
-        }
-        sendFoldersProgress(projects)
         return projects
       }
     ),
@@ -440,9 +536,15 @@ export const systemIOMachineImpl = systemIOMachine.provide({
       async ({
         input,
       }: {
-        input: { context: SystemIOContext; requestedProjectName: string }
+        input: {
+          context: SystemIOContext
+          requestedProjectName: string
+          requestedProjectTitle?: string
+        }
       }) => {
         const requestedProjectName = input.requestedProjectName
+        const requestedProjectTitle =
+          input.requestedProjectTitle ?? requestedProjectName
         const projectDirectoryPath =
           input.context.projectDirectoryPath &&
           input.context.projectDirectoryPath !== NO_PROJECT_DIRECTORY
@@ -453,17 +555,55 @@ export const systemIOMachineImpl = systemIOMachine.provide({
           requestedProjectName,
           projectDirectoryPath,
         })
+        const uniqueProjectTitle = getProjectTitleFromUniqueDirectoryName({
+          requestedProjectTitle,
+          requestedProjectDirectoryName: requestedProjectName,
+          uniqueProjectDirectoryName: uniqueName,
+        })
         await createNewProjectDirectory(
           uniqueName,
           await input.context.wasmInstancePromise,
           undefined,
           undefined,
           undefined,
-          projectDirectoryPath
+          projectDirectoryPath,
+          uniqueProjectTitle
         )
         return {
-          message: `Successfully created "${uniqueName}"`,
+          message: `Successfully created "${uniqueProjectTitle}"`,
           name: uniqueName,
+        }
+      }
+    ),
+    [SystemIOMachineActors.duplicateProject]: fromPromise(
+      async ({
+        input,
+      }: {
+        input: {
+          context: SystemIOContext
+          projectName: string
+          projectPath: string
+          requestedProjectName: string
+          currentFilePath?: string | null
+          currentFileContents?: string
+        }
+      }) => {
+        const projectDirectoryPath = fsZds.dirname(input.projectPath)
+        const result = await duplicateProjectInDirectory({
+          source: {
+            directoryName: input.projectName,
+            displayName: input.requestedProjectName,
+            path: input.projectPath,
+          },
+          projectDirectoryPath,
+          requestedProjectTitle: input.requestedProjectName,
+          currentFilePath: input.currentFilePath,
+          currentFileContents: input.currentFileContents,
+          wasmInstance: await input.context.wasmInstancePromise,
+        })
+        return {
+          ...result,
+          projectPath: fsZds.join(projectDirectoryPath, result.name),
         }
       }
     ),
@@ -483,33 +623,41 @@ export const systemIOMachineImpl = systemIOMachine.provide({
           return Promise.reject(new Error('no folders'))
         }
 
-        const requestedProjectName = input.requestedProjectName
-        const projectName = input.projectName
-        let newProjectName: string = requestedProjectName
-        if (doesProjectNameNeedInterpolated(requestedProjectName)) {
-          const nextIndex = getNextProjectIndex(requestedProjectName, folders)
-          newProjectName = interpolateProjectNameWithIndex(
-            requestedProjectName,
-            nextIndex
-          )
-        }
-
-        // Toast an error if the project name is taken
-        if (folders.find((p) => p.name === newProjectName)) {
+        const requestedProjectTitle = input.requestedProjectName
+        const projectDirectoryName = input.projectName
+        const project = folders.find((p) => p.name === projectDirectoryName)
+        if (!project) {
           return Promise.reject(
-            new Error(`Project with name "${newProjectName}" already exists`)
+            new Error(`Project "${projectDirectoryName}" does not exist`)
           )
         }
 
-        await renameProjectDirectory(
-          fsZds.join(input.context.projectDirectoryPath, projectName),
-          newProjectName
+        const existingDisplayName = getProjectDisplayName(project)
+        const projectPath = fsZds.join(
+          input.context.projectDirectoryPath,
+          projectDirectoryName
         )
 
+        if (
+          folders.some(
+            (folder) =>
+              folder.name !== projectDirectoryName &&
+              getProjectDisplayName(folder) === requestedProjectTitle
+          )
+        ) {
+          return Promise.reject(
+            new ExpectedSystemIOError(
+              `Project with title "${requestedProjectTitle}" already exists`
+            )
+          )
+        }
+
+        await writeProjectTitleToProjectToml(projectPath, requestedProjectTitle)
+
         return {
-          message: `Successfully renamed "${projectName}" to "${newProjectName}"`,
-          oldName: projectName,
-          newName: newProjectName,
+          message: `Successfully renamed "${existingDisplayName}" to "${requestedProjectTitle}"`,
+          oldName: projectDirectoryName,
+          newName: projectDirectoryName,
           redirect: input.redirect,
         }
       }
@@ -520,6 +668,12 @@ export const systemIOMachineImpl = systemIOMachine.provide({
       }: {
         input: { context: SystemIOContext; requestedProjectName: string }
       }) => {
+        if (!input.requestedProjectName) {
+          return Promise.reject(
+            new Error('Cannot delete a project without a project name')
+          )
+        }
+
         await fsZds.rm(
           fsZds.join(
             input.context.projectDirectoryPath,
@@ -721,34 +875,85 @@ export const systemIOMachineImpl = systemIOMachine.provide({
             files: RequestedKCLFile[]
             filesToDelete?: RequestedKCLFileDelete[]
             requestedProjectName: string
+            requestedProjectPath?: string
             override?: boolean
             requestedFileNameWithExtension: string
             requestedSubRoute?: string
+            onFileSystemError?: () => void
+            onFileSystemSuccess?: () => void
+            onSuccess?: () => void
           }
         }) => {
-          const wasmInstance = await input.context.wasmInstancePromise
-          const message = await sharedBulkCreateWorkflow({
-            input: {
-              ...input,
-              wasmInstance,
-              override: input.override,
-            },
-          })
-          // We won't delete until everything's created / updated first.
-          const totalDeleted = await sharedBulkDeleteWorkflow({
-            input: {
-              ...input,
-              wasmInstance,
-            },
-          })
+          let potentialError = new Error('wasmInstancePromise')
+          try {
+            const wasmInstance = await input.context.wasmInstancePromise
+            potentialError = new Error('sharedBulkCreateWorkflow')
+            const message = await sharedBulkCreateWorkflow({
+              input: {
+                ...input,
+                wasmInstance,
+                override: input.override,
+              },
+            })
+            // We won't delete until everything's created / updated first.
+            potentialError = new Error('sharedBulkDeleteWorkflow')
+            const totalDeleted = await sharedBulkDeleteWorkflow({
+              input: {
+                ...input,
+                wasmInstance,
+              },
+            })
 
-          message.message += `, ${totalDeleted} deleted`
+            message.message += `, ${totalDeleted} deleted`
+            potentialError = new Error('onFileSystemSuccess')
+            input.onFileSystemSuccess?.()
 
-          return {
-            ...message,
-            projectName: input.requestedProjectName,
-            fileName: input.requestedFileNameWithExtension || '',
-            subRoute: input.requestedSubRoute || '',
+            potentialError = new Error('prepareNavigation')
+            const project = input.context.app.project
+            const projectIsCurrent =
+              input.requestedProjectPath === undefined ||
+              input.requestedProjectPath === project?.path
+            const requestedRelativePath = normalizeKCLFileDeletePath(
+              input.requestedFileNameWithExtension
+            )
+            const deletesRequestedFile = (input.filesToDelete ?? []).some(
+              (file) =>
+                normalizeKCLFileDeletePath(file.requestedFileName) ===
+                requestedRelativePath
+            )
+            const requestedAbsolutePath = project
+              ? fsZds.join(project.path, input.requestedFileNameWithExtension)
+              : ''
+            const shouldNavigate =
+              projectIsCurrent &&
+              (!project ||
+                project.name !== input.requestedProjectName ||
+                project.executingPath !== requestedAbsolutePath ||
+                deletesRequestedFile)
+
+            if (projectIsCurrent && !shouldNavigate) {
+              potentialError = new Error('onSuccess')
+              input.onSuccess?.()
+            }
+
+            return {
+              ...message,
+              projectName: input.requestedProjectName,
+              fileName: input.requestedFileNameWithExtension || '',
+              subRoute: input.requestedSubRoute || '',
+              shouldNavigate,
+              // Zookeeper streams cumulative edit patches, so one edit triggers
+              // several of these bulk writes back-to-back. Sharing a toast id
+              // collapses the otherwise-identical success toasts into one.
+              toastId: ZOOKEEPER_FILE_WRITE_TOAST_ID,
+              ...(projectIsCurrent && shouldNavigate && input.onSuccess
+                ? { onProjectLoaderComplete: input.onSuccess }
+                : {}),
+            }
+          } catch (error: unknown) {
+            input.onFileSystemError?.()
+            potentialError.cause = error
+            return Promise.reject(potentialError)
           }
         }
       ),
@@ -763,6 +968,7 @@ export const systemIOMachineImpl = systemIOMachine.provide({
           override?: boolean
           requestedFileNameWithExtension: string
           requestedSubRoute?: string
+          onSuccess?: () => void
         }
       }) => {
         const wasmInstance = await input.context.wasmInstancePromise
@@ -778,6 +984,9 @@ export const systemIOMachineImpl = systemIOMachine.provide({
           projectName: input.requestedProjectName,
           fileName: input.requestedFileNameWithExtension || '',
           subRoute: input.requestedSubRoute || '',
+          ...(input.onSuccess
+            ? { onProjectLoaderComplete: input.onSuccess }
+            : {}),
         }
       }
     ),
@@ -808,9 +1017,11 @@ export const systemIOMachineImpl = systemIOMachine.provide({
       // if there are any siblings with the same name, report error.
       const entries = await fsZds.readdir(fsZds.dirname(newPath))
 
-      for (let entry of entries) {
+      for (const entry of entries) {
         if (entry === requestedFolderName) {
-          return Promise.reject(new Error('Folder name already exists.'))
+          return Promise.reject(
+            new ExpectedSystemIOError('Folder name already exists.')
+          )
         }
       }
 
@@ -839,68 +1050,9 @@ export const systemIOMachineImpl = systemIOMachine.provide({
         requestedFileNameWithExtension,
       }
     }),
-    [SystemIOMachineActors.renameFile]: fromPromise(async ({ input }) => {
-      const {
-        fileNameWithExtension,
-        requestedFileNameWithExtension,
-        absolutePathToParentDirectory,
-      } = input
-
-      const oldPath = fsZds.join(
-        absolutePathToParentDirectory,
-        fileNameWithExtension
-      )
-      const newPath = fsZds.join(
-        absolutePathToParentDirectory,
-        requestedFileNameWithExtension
-      )
-
-      const projectDirectoryPath = input.context.projectDirectoryPath
-      const projectName = getProjectDirectoryFromKCLFilePath(
-        newPath,
-        projectDirectoryPath
-      )
-      const filePathWithExtensionRelativeToProject =
-        parentPathRelativeToProject(newPath, projectDirectoryPath)
-
-      // no-op
-      if (oldPath === newPath) {
-        return {
-          message: `Old file is the same as new.`,
-          projectName: projectName,
-          filePathWithExtensionRelativeToProject,
-        }
-      }
-
-      // if there are any siblings with the same name, report error.
-      const entries = await fsZds.readdir(fsZds.dirname(newPath))
-
-      for (let entry of entries) {
-        if (entry === requestedFileNameWithExtension) {
-          return Promise.reject(new Error('Filename already exists.'))
-        }
-      }
-
-      await fsZds.rename(oldPath, newPath)
-
-      // TODO: remove duplicate state, make `app.project` the source of truth,
-      // migrate systemIOMachine into a system that operates on that.
-      //
-      // Replace the signal value for the currently-opened executing editor if
-      // it was renamed.
-      if (
-        input.app.project?.executingPathSignal.value &&
-        input.app.project.executingPathSignal.value.value === oldPath
-      ) {
-        input.app.project.executingPathSignal.value.value = newPath
-      }
-
-      return {
-        message: `Successfully renamed file "${fileNameWithExtension}" to "${requestedFileNameWithExtension}"`,
-        projectName: projectName,
-        filePathWithExtensionRelativeToProject,
-      }
-    }),
+    [SystemIOMachineActors.renameFile]: fromPromise(({ input }) =>
+      renameFileForSystemIO(input)
+    ),
     [SystemIOMachineActors.deleteFileOrFolder]: fromPromise(
       async ({
         input,
@@ -912,7 +1064,7 @@ export const systemIOMachineImpl = systemIOMachine.provide({
         }
       }) => {
         await fsZds.rm(input.requestedPath, { recursive: true })
-        let response = {
+        const response = {
           message: 'File deleted successfully',
           requestedPath: input.requestedPath,
           requestedProjectName: input.requestedProjectName || '',
@@ -936,7 +1088,9 @@ export const systemIOMachineImpl = systemIOMachine.provide({
           const result = await fsZds.stat(input.requestedAbsolutePath)
           if (result) {
             return Promise.reject(
-              new Error(`File ${fileNameWithExtension} already exists`)
+              new ExpectedSystemIOError(
+                `File ${fileNameWithExtension} already exists`
+              )
             )
           }
         } catch (e) {
@@ -983,7 +1137,7 @@ export const systemIOMachineImpl = systemIOMachine.provide({
           const result = await fsZds.stat(input.requestedAbsolutePath)
           if (result) {
             return Promise.reject(
-              new Error(`Folder ${folderName} already exists`)
+              new ExpectedSystemIOError(`Folder ${folderName} already exists`)
             )
           }
         } catch (e) {
@@ -1035,100 +1189,24 @@ export const systemIOMachineImpl = systemIOMachine.provide({
           target: string
           successMessage?: string
           requestedProjectName?: string
+          requestedFileName?: string
         }
       }) => {
-        try {
-          // TODO: this force deletion behavior assumes this move is only
-          // really used in our archive/restore workflow. We should make
-          // dedicated archive/restore code paths for that if we need cases
-          // where we want to check with the user before going through with forcing.
-          const statRes = await fsZds.stat(input.src)
-          const isDirectory = Boolean(statRes.mode & fsZdsConstants.S_IFDIR)
-
-          if (isDirectory) {
-            await fsZds.mkdir(input.target, { recursive: true })
-            await fsZds.cp(input.src, input.target, { recursive: true })
-          } else {
-            const targetWithoutBasename = fsZds.dirname(input.target)
-            await fsZds.mkdir(targetWithoutBasename, { recursive: true })
-            await fsZds.cp(input.src, input.target, {
-              recursive: true,
-            })
-          }
-          await fsZds.rm(input.src, { recursive: true })
-        } catch (e: unknown) {
-          console.log(e)
-        }
+        // TODO: this force deletion behavior assumes this move is only
+        // really used in our archive/restore workflow. We should make
+        // dedicated archive/restore code paths for that if we need cases
+        // where we want to check with the user before going through with forcing.
+        await moveRecursivePath({
+          src: input.src,
+          target: input.target,
+        })
         return {
           message: input.successMessage || 'Moved successfully',
           requestedAbsolutePath: '',
           requestedProjectName: input.requestedProjectName || '',
+          requestedFileName: input.requestedFileName,
+          target: input.target,
         }
-      }
-    ),
-    [SystemIOMachineActors.getMlEphantConversations]: fromPromise(async () => {
-      // In the future we can add cache behavior but it's really pointless
-      // for the amount of data and frequency we're dealing with.
-
-      // We need the settings path to find the sibling `ml-conversations.json`
-      try {
-        const json = await fsZds.readFile(
-          fsZds.join(
-            fsZds.dirname(await getAppSettingsFilePath()),
-            ML_CONVERSATIONS_FILE_NAME
-          ),
-          { encoding: 'utf-8' }
-        )
-        return jsonToMlConversations(json ?? '')
-      } catch (e) {
-        console.warn('Cannot get conversations', e)
-        return new Map()
-      }
-    }),
-    [SystemIOMachineActors.saveMlEphantConversations]: fromPromise(
-      async (args: {
-        input: {
-          context: SystemIOContext
-          event:
-            | {
-                type: SystemIOMachineEvents.saveMlEphantConversations
-                data: {
-                  projectId: string
-                  conversationId: string
-                }
-              }
-            | {
-                type: SystemIOMachineEvents.deleteMlEphantConversation
-                data: {
-                  projectId: string
-                }
-              }
-        }
-      }) => {
-        const next = new Map<string, string>(
-          args.input.context.mlEphantConversations
-        )
-        if (
-          args.input.event.type ===
-          SystemIOMachineEvents.deleteMlEphantConversation
-        ) {
-          next.delete(args.input.event.data.projectId)
-        } else {
-          next.set(
-            args.input.event.data.projectId,
-            args.input.event.data.conversationId
-          )
-        }
-        const json = mlConversationsToJson(next)
-        const te = new TextEncoder()
-        await fsZds.writeFile(
-          fsZds.join(
-            fsZds.dirname(await getAppSettingsFilePath()),
-            ML_CONVERSATIONS_FILE_NAME
-          ),
-          te.encode(json)
-        )
-        return next
       }
     ),
   },

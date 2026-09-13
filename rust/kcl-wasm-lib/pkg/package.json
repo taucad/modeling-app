@@ -3,13 +3,18 @@
   "private": false,
   "publishConfig": { "access": "public" },
   "type": "module",
-  "version": "0.1.148",
+  "version": "0.1.184",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/taucad/modeling-app.git",
     "directory": "rust/kcl-wasm-lib/pkg"
   },
-  "files": ["kcl_wasm_lib_bg.wasm", "kcl_wasm_lib.js", "kcl_wasm_lib.d.ts", "bindings"],
+  "files": [
+    "kcl_wasm_lib_bg.wasm",
+    "kcl_wasm_lib.js",
+    "kcl_wasm_lib.d.ts",
+    "bindings"
+  ],
   "exports": {
     ".": {
       "require": { "types": "./kcl_wasm_lib.d.ts", "default": "./kcl_wasm_lib.js" },
@@ -26,5 +31,7 @@
   },
   "main": "kcl_wasm_lib.js",
   "types": "kcl_wasm_lib.d.ts",
-  "sideEffects": ["./snippets/*"]
+  "sideEffects": [
+    "./snippets/*"
+  ]
 }

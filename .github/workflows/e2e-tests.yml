@@ -23,7 +23,7 @@ jobs:
   track-setup:
     runs-on: namespace-profile-ubuntu-2-cores
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.1
         with:
           repository: kittycad/modeling-app # required for 'workflow_call'
 
@@ -77,7 +77,7 @@ jobs:
           private-key: ${{ secrets.MODELING_APP_GH_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
 
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.1
         with:
           repository: kittycad/modeling-app # required for 'workflow_call'
           token: ${{ steps.app-token.outputs.token }}
@@ -87,6 +87,11 @@ jobs:
           name: prepared-wasm
           path: prepared-wasm
 
+      - uses: actions/download-artifact@v8
+        with:
+          name: prepared-ts-rs-bindings
+          path: prepared-ts-rs-bindings
+
       - name: Copy prepared Wasm
         run: |
           ls -R prepared-wasm
@@ -94,7 +99,15 @@ jobs:
           mkdir rust/kcl-wasm-lib/pkg
           cp prepared-wasm/kcl_wasm_lib* rust/kcl-wasm-lib/pkg
 
-      - uses: actions/setup-node@v6.4.0
+      # build:wasm generates these ignored ts-rs files in rust/kcl-lib/bindings.
+      # Restore them here because StdLibCommands is imported as a runtime value.
+      - name: Copy prepared ts-rs bindings
+        run: |
+          ls -R prepared-ts-rs-bindings
+          mkdir rust/kcl-lib/bindings
+          cp -r prepared-ts-rs-bindings/* rust/kcl-lib/bindings/
+
+      - uses: actions/setup-node@v7.0.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -103,7 +116,7 @@ jobs:
         run: npm install
 
       - name: Download browser cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6.1.0
         with:
           path: ~/.cache/ms-playwright/
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
@@ -191,11 +204,24 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: namespace-profile-ubuntu-8-cores
+          - os: namespace-profile-ubuntu-8-cores;overrides.cache-tag=modeling-app-general-v2
+            label: ubuntu
+            test_script: test:e2e:web
+            playwright_cache_path: ~/.cache/ms-playwright
           - os: namespace-profile-macos-8-cores
+            label: macos
+            test_script: test:e2e:web
+            playwright_cache_path: ~/Library/Caches/ms-playwright
           - os: namespace-profile-windows-8-cores
+            label: windows
+            test_script: test:e2e:web
+            playwright_cache_path: ~/AppData/Local/ms-playwright
+          - os: namespace-profile-macos-8-cores
+            label: macos, webkit
+            test_script: test:e2e:web:webkit
+            playwright_cache_path: ~/Library/Caches/ms-playwright
     runs-on: ${{ matrix.os }}
-    name: e2e:web (${{ contains(matrix.os, 'ubuntu') && 'ubuntu' || (contains(matrix.os, 'windows') && 'windows' || 'macos') }})
+    name: e2e:web (${{ matrix.label }})
     env:
       OS_NAME: ${{ contains(matrix.os, 'ubuntu') && 'ubuntu' || (contains(matrix.os, 'windows') && 'windows' || 'macos') }}
 
@@ -207,7 +233,7 @@ jobs:
           private-key: ${{ secrets.MODELING_APP_GH_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
 
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.1
         with:
           repository: kittycad/modeling-app # required for 'workflow_call'
           token: ${{ steps.app-token.outputs.token }}
@@ -217,6 +243,11 @@ jobs:
           name: prepared-wasm
           path: prepared-wasm
 
+      - uses: actions/download-artifact@v8
+        with:
+          name: prepared-ts-rs-bindings
+          path: prepared-ts-rs-bindings
+
       - name: Copy prepared Wasm
         run: |
           ls -R prepared-wasm
@@ -224,7 +255,15 @@ jobs:
           mkdir rust/kcl-wasm-lib/pkg
           cp prepared-wasm/kcl_wasm_lib* rust/kcl-wasm-lib/pkg
 
-      - uses: actions/setup-node@v6.4.0
+      # build:wasm generates these ignored ts-rs files in rust/kcl-lib/bindings.
+      # Restore them here because StdLibCommands is imported as a runtime value.
+      - name: Copy prepared ts-rs bindings
+        run: |
+          ls -R prepared-ts-rs-bindings
+          mkdir rust/kcl-lib/bindings
+          cp -r prepared-ts-rs-bindings/* rust/kcl-lib/bindings/
+
+      - uses: actions/setup-node@v7.0.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -233,9 +272,9 @@ jobs:
         run: npm install
 
       - name: Download browser cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6.1.0
         with:
-          path: ~/.cache/ms-playwright/
+          path: ${{ matrix.playwright_cache_path }}
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
 
       - name: Install browsers
@@ -248,7 +287,7 @@ jobs:
           GH_ACTIONS_AXIOM_TOKEN: ${{ secrets.GH_ACTIONS_AXIOM_TOKEN }}
           OS_NAME: ${{ env.OS_NAME }}
 
-      - run: npm run test:e2e:web
+      - run: npm run ${{ matrix.test_script }}
         env:
           VITE_ZOO_API_TOKEN: ${{ secrets.ZOO_API_TOKEN }}
           TAB_API_URL: ${{ vars.TAB_API_URL }}
@@ -262,7 +301,7 @@ jobs:
         uses: actions/upload-artifact@v7
         if: ${{ !cancelled() && (success() || failure()) }}
         with:
-          name: playwright-report-web-${{ env.OS_NAME }}-${{ matrix.shardIndex }}-${{ github.sha }}
+          name: playwright-report-web-${{ matrix.label }}-${{ github.sha }}
           path: playwright-report/
           include-hidden-files: true
           retention-days: 30
@@ -284,7 +323,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [namespace-profile-ubuntu-8-cores]
+        os:
+          - namespace-profile-ubuntu-8-cores;overrides.cache-tag=modeling-app-general-v2
         shardIndex: [1, 2, 3, 4, 5, 6, 7, 8]
         shardTotal: [8]
         include:
@@ -300,7 +340,7 @@ jobs:
       OS_NAME: ${{ contains(matrix.os, 'ubuntu') && 'ubuntu' || (contains(matrix.os, 'windows') && 'windows' || 'macos') }}
 
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.1
         with:
           repository: kittycad/modeling-app # required for 'workflow_call'
 
@@ -309,6 +349,11 @@ jobs:
           name: prepared-wasm
           path: prepared-wasm
 
+      - uses: actions/download-artifact@v8
+        with:
+          name: prepared-ts-rs-bindings
+          path: prepared-ts-rs-bindings
+
       - name: Copy prepared Wasm
         run: |
           ls -R prepared-wasm
@@ -316,7 +361,15 @@ jobs:
           mkdir rust/kcl-wasm-lib/pkg
           cp prepared-wasm/kcl_wasm_lib* rust/kcl-wasm-lib/pkg
 
-      - uses: actions/setup-node@v6.4.0
+      # build:wasm generates these ignored ts-rs files in rust/kcl-lib/bindings.
+      # Restore them here because StdLibCommands is imported as a runtime value.
+      - name: Copy prepared ts-rs bindings
+        run: |
+          ls -R prepared-ts-rs-bindings
+          mkdir rust/kcl-lib/bindings
+          cp -r prepared-ts-rs-bindings/* rust/kcl-lib/bindings/
+
+      - uses: actions/setup-node@v7.0.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -326,7 +379,7 @@ jobs:
         run: npm install
 
       - name: Download browser cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6.1.0
         with:
           path: ~/.cache/ms-playwright/
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
@@ -344,8 +397,9 @@ jobs:
       - name: Build app
         run: npm run tronb:vite:dev
 
-      - uses: actions/download-artifact@v8
-        if: ${{ !cancelled() && (success() || failure()) }}
+      - name: Download test results from a previous workflow attempt
+        if: ${{ github.run_attempt > 1 && !cancelled() && (success() || failure()) }}
+        uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: test-results-desktop-${{ env.OS_NAME }}-${{ matrix.shardIndex }}-${{ github.sha }}
@@ -403,13 +457,13 @@ jobs:
 
   vercel:
     name: e2e:web (vercel)
-    runs-on: namespace-profile-ubuntu-8-cores
+    runs-on: namespace-profile-ubuntu-8-cores;overrides.cache-tag=modeling-app-general-v2
     if: github.repository == 'kittycad/modeling-app' && (github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref_name == 'main'))
 
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.1
 
-      - uses: actions/setup-node@v6.4.0
+      - uses: actions/setup-node@v7.0.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -418,7 +472,7 @@ jobs:
         run: npm install
 
       - name: Download browser cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6.1.0
         with:
           path: ~/.cache/ms-playwright/
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
@@ -433,7 +487,7 @@ jobs:
         continue-on-error: true
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          max_timeout: 1000 # average build times are <16 minutes
+          max_timeout: 800 # average build times are <9 minutes
           check_interval: 10
           vercel_protection_bypass_header: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
 
@@ -445,13 +499,12 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           environment: staging
-          max_timeout: 1000 # average build times are <16 minutes
+          max_timeout: 1000 # average build times are <11 minutes
           check_interval: 10
           vercel_protection_bypass_header: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
 
       - name: Check Vercel
         run: .github/ci-cd-scripts/check-vercel.sh
-        continue-on-error: true
         env:
           VERCEL_BASE_URL: ${{ steps.wait-for-vercel-preview.outputs.url || steps.wait-for-vercel-staging.outputs.url }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}

@@ -5,11 +5,11 @@ import type { CopilotPosition } from "./CopilotPosition.js";
  * A range in a text document expressed as (zero-based) start and end positions.
  * A range is comparable to a selection in an editor. Therefore the end position is exclusive.
  */
-export type CopilotRange = { 
+export type CopilotRange = {
 /**
  * The range's start position.
  */
-start: CopilotPosition, 
+start: CopilotPosition,
 /**
  * The range's end position.
  */

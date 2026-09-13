@@ -1,6 +1,13 @@
 /* @ts-self-types="./kcl_wasm_lib.d.ts" */
 
 export class Context {
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(Context.prototype);
+        obj.__wbg_ptr = ptr;
+        ContextFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
     __destroy_into_raw() {
         const ptr = this.__wbg_ptr;
         this.__wbg_ptr = 0;
@@ -117,6 +124,14 @@ export class Context {
         return ret;
     }
     /**
+     * @param {any} execution_callbacks
+     * @returns {Context}
+     */
+    cloneWithExecuteCallbacks(execution_callbacks) {
+        const ret = wasm.context_cloneWithExecuteCallbacks(this.__wbg_ptr, execution_callbacks);
+        return Context.__wrap(ret);
+    }
+    /**
      * Delete segments and constraints in sketch.
      * @param {string} version_json
      * @param {string} sketch_json
@@ -158,7 +173,32 @@ export class Context {
         return ret;
     }
     /**
-     * Edit a constraint in a sketch.
+     * Edit an angle constraint in a sketch.
+     * @param {string} version_json
+     * @param {string} sketch_json
+     * @param {string} constraint_id_json
+     * @param {string} constraint_json
+     * @param {string} settings
+     * @param {boolean} create_checkpoint
+     * @param {boolean} commit_solver_results
+     * @returns {Promise<any>}
+     */
+    edit_angle_constraint(version_json, sketch_json, constraint_id_json, constraint_json, settings, create_checkpoint, commit_solver_results) {
+        const ptr0 = passStringToWasm0(version_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(sketch_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(constraint_id_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ptr3 = passStringToWasm0(constraint_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len3 = WASM_VECTOR_LEN;
+        const ptr4 = passStringToWasm0(settings, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len4 = WASM_VECTOR_LEN;
+        const ret = wasm.context_edit_angle_constraint(this.__wbg_ptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4, create_checkpoint, commit_solver_results);
+        return ret;
+    }
+    /**
+     * Edit a constraint value in a sketch.
      * @param {string} version_json
      * @param {string} sketch_json
      * @param {string} constraint_id_json
@@ -167,7 +207,7 @@ export class Context {
      * @param {boolean} create_checkpoint
      * @returns {Promise<any>}
      */
-    edit_constraint(version_json, sketch_json, constraint_id_json, value_expression, settings, create_checkpoint) {
+    edit_constraint_value(version_json, sketch_json, constraint_id_json, value_expression, settings, create_checkpoint) {
         const ptr0 = passStringToWasm0(version_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
         const ptr1 = passStringToWasm0(sketch_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
@@ -178,11 +218,36 @@ export class Context {
         const len3 = WASM_VECTOR_LEN;
         const ptr4 = passStringToWasm0(settings, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len4 = WASM_VECTOR_LEN;
-        const ret = wasm.context_edit_constraint(this.__wbg_ptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4, create_checkpoint);
+        const ret = wasm.context_edit_constraint_value(this.__wbg_ptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4, create_checkpoint);
         return ret;
     }
     /**
-     * Edit a distance constraint label position in a sketch.
+     * Edit a distance constraint in a sketch.
+     * @param {string} version_json
+     * @param {string} sketch_json
+     * @param {string} constraint_id_json
+     * @param {string} constraint_json
+     * @param {string} settings
+     * @param {boolean} create_checkpoint
+     * @param {boolean} commit_solver_results
+     * @returns {Promise<any>}
+     */
+    edit_distance_constraint(version_json, sketch_json, constraint_id_json, constraint_json, settings, create_checkpoint, commit_solver_results) {
+        const ptr0 = passStringToWasm0(version_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(sketch_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(constraint_id_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ptr3 = passStringToWasm0(constraint_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len3 = WASM_VECTOR_LEN;
+        const ptr4 = passStringToWasm0(settings, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len4 = WASM_VECTOR_LEN;
+        const ret = wasm.context_edit_distance_constraint(this.__wbg_ptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4, create_checkpoint, commit_solver_results);
+        return ret;
+    }
+    /**
+     * Edit a constraint label position in a sketch.
      * @param {string} version_json
      * @param {string} sketch_json
      * @param {string} constraint_id_json
@@ -190,9 +255,10 @@ export class Context {
      * @param {string} settings
      * @param {boolean} create_checkpoint
      * @param {string} anchor_segment_ids_json
+     * @param {boolean} commit_solver_results
      * @returns {Promise<any>}
      */
-    edit_distance_constraint_label_position(version_json, sketch_json, constraint_id_json, label_position_json, settings, create_checkpoint, anchor_segment_ids_json) {
+    edit_distance_constraint_label_position(version_json, sketch_json, constraint_id_json, label_position_json, settings, create_checkpoint, anchor_segment_ids_json, commit_solver_results) {
         const ptr0 = passStringToWasm0(version_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
         const ptr1 = passStringToWasm0(sketch_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
@@ -205,7 +271,7 @@ export class Context {
         const len4 = WASM_VECTOR_LEN;
         const ptr5 = passStringToWasm0(anchor_segment_ids_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len5 = WASM_VECTOR_LEN;
-        const ret = wasm.context_edit_distance_constraint_label_position(this.__wbg_ptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4, create_checkpoint, ptr5, len5);
+        const ret = wasm.context_edit_distance_constraint_label_position(this.__wbg_ptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4, create_checkpoint, ptr5, len5, commit_solver_results);
         return ret;
     }
     /**
@@ -215,9 +281,13 @@ export class Context {
      * @param {string} segments_json
      * @param {string} settings
      * @param {boolean} create_checkpoint
+     * @param {string} anchor_segment_ids_json
+     * @param {string} drag_anchors_json
+     * @param {boolean} commit_solver_results
+     * @param {string} constraint_label_edits_json
      * @returns {Promise<any>}
      */
-    edit_segments(version_json, sketch_json, segments_json, settings, create_checkpoint) {
+    edit_segments(version_json, sketch_json, segments_json, settings, create_checkpoint, anchor_segment_ids_json, drag_anchors_json, commit_solver_results, constraint_label_edits_json) {
         const ptr0 = passStringToWasm0(version_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
         const ptr1 = passStringToWasm0(sketch_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
@@ -226,7 +296,13 @@ export class Context {
         const len2 = WASM_VECTOR_LEN;
         const ptr3 = passStringToWasm0(settings, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len3 = WASM_VECTOR_LEN;
-        const ret = wasm.context_edit_segments(this.__wbg_ptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, create_checkpoint);
+        const ptr4 = passStringToWasm0(anchor_segment_ids_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len4 = WASM_VECTOR_LEN;
+        const ptr5 = passStringToWasm0(drag_anchors_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len5 = WASM_VECTOR_LEN;
+        const ptr6 = passStringToWasm0(constraint_label_edits_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len6 = WASM_VECTOR_LEN;
+        const ret = wasm.context_edit_segments(this.__wbg_ptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, create_checkpoint, ptr4, len4, ptr5, len5, commit_solver_results, ptr6, len6);
         return ret;
     }
     /**
@@ -374,9 +450,10 @@ export class Context {
     /**
      * @param {any} engine_manager
      * @param {any} fs_manager
+     * @param {any | null} [execution_callbacks]
      */
-    constructor(engine_manager, fs_manager) {
-        const ret = wasm.context_new(engine_manager, fs_manager);
+    constructor(engine_manager, fs_manager, execution_callbacks) {
+        const ret = wasm.context_new(engine_manager, fs_manager, isLikeNone(execution_callbacks) ? 0 : addToExternrefTable0(execution_callbacks));
         if (ret[2]) {
             throw takeFromExternrefTable0(ret[1]);
         }
@@ -480,38 +557,6 @@ export class Context {
      */
     switch_file(project, file) {
         const ret = wasm.context_switch_file(this.__wbg_ptr, project, file);
-        return ret;
-    }
-    /**
-     * Transpile old sketch syntax (startProfile in pipe) to new sketch block syntax.
-     *
-     * This function re-executes the program using the execution cache (which should be very fast
-     * if the program hasn't changed), then extracts the sketch and transpiles it.
-     *
-     * # Arguments
-     * * `program_ast_json` - Program AST as JSON string
-     * * `variable_name` - Name of the variable containing the old sketch syntax
-     * * `path` - Optional file path for execution context
-     * * `settings` - Execution settings as JSON string
-     *
-     * # Returns
-     * The transpiled code as a string, or an error if execution or transpilation fails.
-     * @param {string} program_ast_json
-     * @param {string} variable_name
-     * @param {string | null | undefined} path
-     * @param {string} settings
-     * @returns {Promise<any>}
-     */
-    transpile_old_sketch(program_ast_json, variable_name, path, settings) {
-        const ptr0 = passStringToWasm0(program_ast_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(variable_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len1 = WASM_VECTOR_LEN;
-        var ptr2 = isLikeNone(path) ? 0 : passStringToWasm0(path, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len2 = WASM_VECTOR_LEN;
-        const ptr3 = passStringToWasm0(settings, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len3 = WASM_VECTOR_LEN;
-        const ret = wasm.context_transpile_old_sketch(this.__wbg_ptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3);
         return ret;
     }
     /**
@@ -1000,13 +1045,32 @@ export function change_experimental_features(code, level_str) {
 }
 
 /**
- * Get a coredump.
- * @param {any} core_dump_manager
- * @returns {Promise<any>}
+ * Takes a kcl string and changes the KCL version in the kcl string.
+ * @param {string} code
+ * @param {string} version_str
+ * @returns {string}
  */
-export function coredump(core_dump_manager) {
-    const ret = wasm.coredump(core_dump_manager);
-    return ret;
+export function change_kcl_version(code, version_str) {
+    let deferred4_0;
+    let deferred4_1;
+    try {
+        const ptr0 = passStringToWasm0(code, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(version_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.change_kcl_version(ptr0, len0, ptr1, len1);
+        var ptr3 = ret[0];
+        var len3 = ret[1];
+        if (ret[3]) {
+            ptr3 = 0; len3 = 0;
+            throw takeFromExternrefTable0(ret[2]);
+        }
+        deferred4_0 = ptr3;
+        deferred4_1 = len3;
+        return getStringFromWasm0(ptr3, len3);
+    } finally {
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
+    }
 }
 
 /**
@@ -1187,12 +1251,13 @@ export function is_points_ccw(points) {
 
 /**
  * @param {string} program_ast_json
+ * @param {boolean} enable_z0006
  * @returns {Promise<any>}
  */
-export function kcl_lint(program_ast_json) {
+export function kcl_lint(program_ast_json, enable_z0006) {
     const ptr0 = passStringToWasm0(program_ast_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     const len0 = WASM_VECTOR_LEN;
-    const ret = wasm.kcl_lint(ptr0, len0);
+    const ret = wasm.kcl_lint(ptr0, len0, enable_z0006);
     return ret;
 }
 
@@ -1383,6 +1448,18 @@ export function serialize_project_configuration(val) {
 }
 
 /**
+ * @param {string} flags_json
+ */
+export function set_kcl_runtime_flags(flags_json) {
+    const ptr0 = passStringToWasm0(flags_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.set_kcl_runtime_flags(ptr0, len0);
+    if (ret[1]) {
+        throw takeFromExternrefTable0(ret[0]);
+    }
+}
+
+/**
  * @returns {number}
  */
 export function sketch_checkpoint_limit() {
@@ -1491,7 +1568,7 @@ function __wbg_get_imports() {
         __wbg_error_de6b86e598505246: function(arg0) {
             console.error(arg0);
         },
-        __wbg_exists_3a71e870ac7196eb: function() { return handleError(function (arg0, arg1, arg2) {
+        __wbg_exists_159f167b3f8ca4b9: function() { return handleError(function (arg0, arg1, arg2) {
             let deferred0_0;
             let deferred0_1;
             try {
@@ -1503,7 +1580,7 @@ function __wbg_get_imports() {
                 wasm.__wbindgen_free(deferred0_0, deferred0_1, 1);
             }
         }, arguments); },
-        __wbg_fireModelingCommandFromWasm_5d1efcf5d1348cf6: function() { return handleError(function (arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) {
+        __wbg_fireModelingCommandFromWasm_76dcc413a115157e: function() { return handleError(function (arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) {
             let deferred0_0;
             let deferred0_1;
             let deferred1_0;
@@ -1529,7 +1606,7 @@ function __wbg_get_imports() {
                 wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
             }
         }, arguments); },
-        __wbg_getAllFiles_f7ec65da9f301df6: function() { return handleError(function (arg0, arg1, arg2) {
+        __wbg_getAllFiles_f87ed6268831dbf2: function() { return handleError(function (arg0, arg1, arg2) {
             let deferred0_0;
             let deferred0_1;
             try {
@@ -1541,30 +1618,11 @@ function __wbg_get_imports() {
                 wasm.__wbindgen_free(deferred0_0, deferred0_1, 1);
             }
         }, arguments); },
-        __wbg_getClientState_4d6f5ad42537c5b3: function() { return handleError(function (arg0) {
-            const ret = arg0.getClientState();
-            return ret;
-        }, arguments); },
-        __wbg_getOsInfo_16816e9b78f4091e: function() { return handleError(function (arg0, arg1) {
-            const ret = arg1.getOsInfo();
-            const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            const len1 = WASM_VECTOR_LEN;
-            getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
-            getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
-        }, arguments); },
         __wbg_getRandomValues_3f44b700395062e5: function() { return handleError(function (arg0, arg1) {
             globalThis.crypto.getRandomValues(getArrayU8FromWasm0(arg0, arg1));
         }, arguments); },
-        __wbg_getRandomValues_ef12552bf5acd2fe: function() { return handleError(function (arg0, arg1) {
+        __wbg_getRandomValues_da0bc38849d33d2c: function() { return handleError(function (arg0, arg1) {
             globalThis.crypto.getRandomValues(getArrayU8FromWasm0(arg0, arg1));
-        }, arguments); },
-        __wbg_getTime_c3af35594e283356: function(arg0) {
-            const ret = arg0.getTime();
-            return ret;
-        },
-        __wbg_getWebrtcStats_9656c18e2b40f352: function() { return handleError(function (arg0) {
-            const ret = arg0.getWebrtcStats();
-            return ret;
         }, arguments); },
         __wbg_getWriter_7c953149af273c29: function() { return handleError(function (arg0) {
             const ret = arg0.getWriter();
@@ -1604,27 +1662,12 @@ function __wbg_get_imports() {
             const ret = result;
             return ret;
         },
-        __wbg_isDesktop_b06e7ff6b6a99a17: function() { return handleError(function (arg0) {
-            const ret = arg0.isDesktop();
-            return ret;
-        }, arguments); },
-        __wbg_kclCode_41433ac5628c9208: function() { return handleError(function (arg0, arg1) {
-            const ret = arg1.kclCode();
-            const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            const len1 = WASM_VECTOR_LEN;
-            getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
-            getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
-        }, arguments); },
         __wbg_length_e6e1633fbea6cfa9: function(arg0) {
             const ret = arg0.length;
             return ret;
         },
         __wbg_log_6a75b71d6316e935: function(arg0) {
             console.log(arg0);
-        },
-        __wbg_new_0_e649c99e7382313f: function() {
-            const ret = new Date();
-            return ret;
         },
         __wbg_new_1d96678aaacca32e: function(arg0) {
             const ret = new Uint8Array(arg0);
@@ -1649,7 +1692,7 @@ function __wbg_get_imports() {
                     const a = state0.a;
                     state0.a = 0;
                     try {
-                        return wasm_bindgen__convert__closures_____invoke__h0da0fd0e528d9496(a, state0.b, arg0, arg1);
+                        return wasm_bindgen_5e49c4f3f794a5ec___convert__closures_____invoke___js_sys_53b05edd4cb2ed1f___Function_fn_wasm_bindgen_5e49c4f3f794a5ec___JsValue_____wasm_bindgen_5e49c4f3f794a5ec___sys__Undefined___js_sys_53b05edd4cb2ed1f___Function_fn_wasm_bindgen_5e49c4f3f794a5ec___JsValue_____wasm_bindgen_5e49c4f3f794a5ec___sys__Undefined_______true_(a, state0.b, arg0, arg1);
                     } finally {
                         state0.a = a;
                     }
@@ -1676,6 +1719,9 @@ function __wbg_get_imports() {
             const ret = arg0.now();
             return ret;
         },
+        __wbg_onOperation_8f8cd0d7c2e61459: function(arg0, arg1) {
+            arg0.onOperation(arg1);
+        },
         __wbg_parse_e5703fd52211e688: function() { return handleError(function (arg0, arg1) {
             const ret = JSON.parse(getStringFromWasm0(arg0, arg1));
             return ret;
@@ -1694,7 +1740,7 @@ function __wbg_get_imports() {
             const ret = arg0.queueMicrotask;
             return ret;
         },
-        __wbg_readFile_22b057a30ecc6915: function() { return handleError(function (arg0, arg1, arg2) {
+        __wbg_readFile_3e4b1a82b3018f98: function() { return handleError(function (arg0, arg1, arg2) {
             let deferred0_0;
             let deferred0_1;
             try {
@@ -1720,7 +1766,7 @@ function __wbg_get_imports() {
         __wbg_respond_1ec29395edbe7fce: function() { return handleError(function (arg0, arg1) {
             arg0.respond(arg1 >>> 0);
         }, arguments); },
-        __wbg_sendModelingCommandFromWasm_256877b7b3f4ed53: function() { return handleError(function (arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) {
+        __wbg_sendModelingCommandFromWasm_025f180a6fb9271c: function() { return handleError(function (arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) {
             let deferred0_0;
             let deferred0_1;
             let deferred1_0;
@@ -1765,7 +1811,7 @@ function __wbg_get_imports() {
             getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
             getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
         },
-        __wbg_startNewSession_d14c08f34381d15e: function() { return handleError(function (arg0) {
+        __wbg_startNewSession_b0207a3bf52f463b: function() { return handleError(function (arg0) {
             const ret = arg0.startNewSession();
             return ret;
         }, arguments); },
@@ -1809,13 +1855,6 @@ function __wbg_get_imports() {
             const ret = arg0.value;
             return ret;
         },
-        __wbg_version_8516015dea539e16: function() { return handleError(function (arg0, arg1) {
-            const ret = arg1.version();
-            const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            const len1 = WASM_VECTOR_LEN;
-            getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
-            getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
-        }, arguments); },
         __wbg_view_38a930844c964103: function(arg0) {
             const ret = arg0.view;
             return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
@@ -1828,18 +1867,18 @@ function __wbg_get_imports() {
             return ret;
         },
         __wbindgen_cast_0000000000000001: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 7795, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
-            const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__hdde041e5150ea9c2);
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 8721, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
+            const ret = makeMutClosure(arg0, arg1, wasm_bindgen_5e49c4f3f794a5ec___convert__closures_____invoke___wasm_bindgen_5e49c4f3f794a5ec___JsValue__core_ed718c3d60ebd546___result__Result_____wasm_bindgen_5e49c4f3f794a5ec___JsError___true_);
             return ret;
         },
         __wbindgen_cast_0000000000000002: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [NamedExternref("IteratorResult<any>")], shim_idx: 803, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
-            const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__hece1f1adbb89b9e9);
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [NamedExternref("IteratorResult<any>")], shim_idx: 2600, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
+            const ret = makeMutClosure(arg0, arg1, wasm_bindgen_5e49c4f3f794a5ec___convert__closures_____invoke___js_sys_53b05edd4cb2ed1f___IteratorNext__core_ed718c3d60ebd546___result__Result_____wasm_bindgen_5e49c4f3f794a5ec___JsError___true_);
             return ret;
         },
         __wbindgen_cast_0000000000000003: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [], shim_idx: 6669, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
-            const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h0d53c4d20e6ba524);
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [], shim_idx: 7139, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
+            const ret = makeMutClosure(arg0, arg1, wasm_bindgen_5e49c4f3f794a5ec___convert__closures_____invoke_______true_);
             return ret;
         },
         __wbindgen_cast_0000000000000004: function(arg0, arg1) {
@@ -1863,26 +1902,26 @@ function __wbg_get_imports() {
     };
 }
 
-function wasm_bindgen__convert__closures_____invoke__h0d53c4d20e6ba524(arg0, arg1) {
-    wasm.wasm_bindgen__convert__closures_____invoke__h0d53c4d20e6ba524(arg0, arg1);
+function wasm_bindgen_5e49c4f3f794a5ec___convert__closures_____invoke_______true_(arg0, arg1) {
+    wasm.wasm_bindgen_5e49c4f3f794a5ec___convert__closures_____invoke_______true_(arg0, arg1);
 }
 
-function wasm_bindgen__convert__closures_____invoke__hdde041e5150ea9c2(arg0, arg1, arg2) {
-    const ret = wasm.wasm_bindgen__convert__closures_____invoke__hdde041e5150ea9c2(arg0, arg1, arg2);
+function wasm_bindgen_5e49c4f3f794a5ec___convert__closures_____invoke___wasm_bindgen_5e49c4f3f794a5ec___JsValue__core_ed718c3d60ebd546___result__Result_____wasm_bindgen_5e49c4f3f794a5ec___JsError___true_(arg0, arg1, arg2) {
+    const ret = wasm.wasm_bindgen_5e49c4f3f794a5ec___convert__closures_____invoke___wasm_bindgen_5e49c4f3f794a5ec___JsValue__core_ed718c3d60ebd546___result__Result_____wasm_bindgen_5e49c4f3f794a5ec___JsError___true_(arg0, arg1, arg2);
     if (ret[1]) {
         throw takeFromExternrefTable0(ret[0]);
     }
 }
 
-function wasm_bindgen__convert__closures_____invoke__hece1f1adbb89b9e9(arg0, arg1, arg2) {
-    const ret = wasm.wasm_bindgen__convert__closures_____invoke__hece1f1adbb89b9e9(arg0, arg1, arg2);
+function wasm_bindgen_5e49c4f3f794a5ec___convert__closures_____invoke___js_sys_53b05edd4cb2ed1f___IteratorNext__core_ed718c3d60ebd546___result__Result_____wasm_bindgen_5e49c4f3f794a5ec___JsError___true_(arg0, arg1, arg2) {
+    const ret = wasm.wasm_bindgen_5e49c4f3f794a5ec___convert__closures_____invoke___js_sys_53b05edd4cb2ed1f___IteratorNext__core_ed718c3d60ebd546___result__Result_____wasm_bindgen_5e49c4f3f794a5ec___JsError___true_(arg0, arg1, arg2);
     if (ret[1]) {
         throw takeFromExternrefTable0(ret[0]);
     }
 }
 
-function wasm_bindgen__convert__closures_____invoke__h0da0fd0e528d9496(arg0, arg1, arg2, arg3) {
-    wasm.wasm_bindgen__convert__closures_____invoke__h0da0fd0e528d9496(arg0, arg1, arg2, arg3);
+function wasm_bindgen_5e49c4f3f794a5ec___convert__closures_____invoke___js_sys_53b05edd4cb2ed1f___Function_fn_wasm_bindgen_5e49c4f3f794a5ec___JsValue_____wasm_bindgen_5e49c4f3f794a5ec___sys__Undefined___js_sys_53b05edd4cb2ed1f___Function_fn_wasm_bindgen_5e49c4f3f794a5ec___JsValue_____wasm_bindgen_5e49c4f3f794a5ec___sys__Undefined_______true_(arg0, arg1, arg2, arg3) {
+    wasm.wasm_bindgen_5e49c4f3f794a5ec___convert__closures_____invoke___js_sys_53b05edd4cb2ed1f___Function_fn_wasm_bindgen_5e49c4f3f794a5ec___JsValue_____wasm_bindgen_5e49c4f3f794a5ec___sys__Undefined___js_sys_53b05edd4cb2ed1f___Function_fn_wasm_bindgen_5e49c4f3f794a5ec___JsValue_____wasm_bindgen_5e49c4f3f794a5ec___sys__Undefined_______true_(arg0, arg1, arg2, arg3);
 }
 
 

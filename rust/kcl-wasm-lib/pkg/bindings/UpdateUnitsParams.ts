@@ -2,7 +2,7 @@
 import type { UnitLength } from "./ModelingCmd.js";
 import type { TextDocumentIdentifier } from "./TextDocumentIdentifier.js";
 
-export type UpdateUnitsParams = { textDocument: TextDocumentIdentifier, 
+export type UpdateUnitsParams = { textDocument: TextDocumentIdentifier,
 /**
  * The content of the text document.
  */

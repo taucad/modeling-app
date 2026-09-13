@@ -7,19 +7,19 @@ import type { TagDeclarator } from "./TagDeclarator.js";
 /**
  * A base path.
  */
-export type BasePath = { 
+export type BasePath = {
 /**
  * The from point.
  */
-from: [number, number], 
+from: [number, number],
 /**
  * The to point.
  */
-to: [number, number], units: UnitLength, 
+to: [number, number], units: UnitLength,
 /**
  * The tag of the path.
  */
-tag: Node<TagDeclarator> | null, 
+tag: Node<TagDeclarator> | null,
 /**
  * Metadata.
  */

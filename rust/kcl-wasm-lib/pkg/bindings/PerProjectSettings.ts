@@ -7,17 +7,17 @@ import type { JsonValue } from "./serde_json/JsonValue.js";
 /**
  * High level project settings.
  */
-export type PerProjectSettings = { 
+export type PerProjectSettings = {
 /**
  * Information about the project itself.
  * Choices about how settings are merged have prevent me (lee) from easily
  * moving this out of the settings structure.
  */
-meta: ProjectMetaSettings, 
+meta: ProjectMetaSettings,
 /**
  * The settings for the Design Studio.
  */
-app: ProjectAppSettings, 
+app: ProjectAppSettings,
 /**
  * Settings that affect the behavior while modeling.
  */

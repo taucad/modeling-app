@@ -1,11 +1,16 @@
 use std::collections::BTreeMap;
 
 use indexmap::IndexMap;
+use kcl_api::NodePath;
+pub use kcl_error::BacktraceItem;
+pub use kcl_error::BacktraceItemKind;
 pub use kcl_error::CompilationIssue;
+pub use kcl_error::IsRetryable;
+pub use kcl_error::KclError;
+pub use kcl_error::KclErrorDetails;
 pub use kcl_error::Severity;
 pub use kcl_error::Suggestion;
 pub use kcl_error::Tag;
-use serde::Deserialize;
 use serde::Serialize;
 use thiserror::Error;
 use tower_lsp::lsp_types::Diagnostic;
@@ -14,26 +19,21 @@ use uuid::Uuid;
 
 use crate::ExecOutcome;
 use crate::ModuleId;
-use crate::NodePath;
 use crate::SourceRange;
 use crate::exec::KclValue;
 use crate::execution::ArtifactCommand;
 use crate::execution::ArtifactGraph;
 use crate::execution::DefaultPlanes;
+use crate::execution::KclValueView;
 use crate::execution::OperationsByModule;
+use crate::execution::RefactorMetadata;
 use crate::front::Number;
 use crate::front::Object;
 use crate::front::ObjectId;
-use crate::lsp::IntoDiagnostic;
-use crate::lsp::ToLspRange;
+use crate::lsp_types::IntoDiagnostic;
+use crate::lsp_types::ToLspRange;
 use crate::modules::ModulePath;
 use crate::modules::ModuleSource;
-
-pub trait IsRetryable {
-    /// Returns true if the error is transient and the operation that caused it
-    /// should be retried.
-    fn is_retryable(&self) -> bool;
-}
 
 /// How did the KCL execution fail
 #[derive(thiserror::Error, Debug)]
@@ -134,75 +134,10 @@ pub enum ConnectionError {
     Establishing(anyhow::Error),
 }
 
-#[derive(Error, Debug, Serialize, Deserialize, ts_rs::TS, Clone, PartialEq, Eq)]
-#[ts(export)]
-#[serde(tag = "kind", rename_all = "snake_case")]
-pub enum KclError {
-    #[error("lexical: {details:?}")]
-    Lexical { details: KclErrorDetails },
-    #[error("syntax: {details:?}")]
-    Syntax { details: KclErrorDetails },
-    #[error("semantic: {details:?}")]
-    Semantic { details: KclErrorDetails },
-    #[error("import cycle: {details:?}")]
-    ImportCycle { details: KclErrorDetails },
-    #[error("argument: {details:?}")]
-    Argument { details: KclErrorDetails },
-    #[error("type: {details:?}")]
-    Type { details: KclErrorDetails },
-    #[error("i/o: {details:?}")]
-    Io { details: KclErrorDetails },
-    #[error("unexpected: {details:?}")]
-    Unexpected { details: KclErrorDetails },
-    #[error("value already defined: {details:?}")]
-    ValueAlreadyDefined { details: KclErrorDetails },
-    #[error("undefined value: {details:?}")]
-    UndefinedValue {
-        details: KclErrorDetails,
-        name: Option<String>,
-    },
-    #[error("invalid expression: {details:?}")]
-    InvalidExpression { details: KclErrorDetails },
-    #[error("max call stack size exceeded: {details:?}")]
-    MaxCallStack { details: KclErrorDetails },
-    #[error("refactor: {details:?}")]
-    Refactor { details: KclErrorDetails },
-    #[error("engine: {details:?}")]
-    Engine { details: KclErrorDetails },
-    #[error("engine hangup: {details:?}")]
-    EngineHangup {
-        details: KclErrorDetails,
-        api_call_id: Option<String>,
-    },
-    #[error("engine internal: {details:?}")]
-    EngineInternal { details: KclErrorDetails },
-    #[error("internal error, please report to KittyCAD team: {details:?}")]
-    Internal { details: KclErrorDetails },
-}
-
 impl From<KclErrorWithOutputs> for KclError {
     fn from(error: KclErrorWithOutputs) -> Self {
         error.error
     }
-}
-
-impl IsRetryable for KclError {
-    fn is_retryable(&self) -> bool {
-        matches!(self, KclError::EngineHangup { .. } | KclError::EngineInternal { .. })
-    }
-}
-
-const RETRYABLE_ENGINE_MESSAGE_MARKER_SETS: &[&[&str]] = &[
-    &["modeling connection", "interrupted", "please reconnect"],
-    &["modeling connection", "heartbeats", "please reconnect"],
-];
-
-fn is_retryable_engine_message(message: &str) -> bool {
-    // TODO: Replace string matching with structured engine/API retry metadata once it is available.
-    let message = message.to_ascii_lowercase();
-    RETRYABLE_ENGINE_MESSAGE_MARKER_SETS
-        .iter()
-        .any(|markers| markers.iter().all(|marker| message.contains(marker)))
 }
 
 #[derive(Error, Debug, Serialize, ts_rs::TS, Clone, PartialEq)]
@@ -214,7 +149,7 @@ pub struct KclErrorWithOutputs {
     pub non_fatal: Vec<CompilationIssue>,
     /// Variables in the top-level of the root module. Note that functions will
     /// have an invalid env ref.
-    pub variables: IndexMap<String, KclValue>,
+    pub variables: IndexMap<String, KclValueView>,
     pub operations: OperationsByModule,
     // TODO: Remove this field.  Doing so breaks the ts-rs output for some
     // reason.
@@ -226,6 +161,7 @@ pub struct KclErrorWithOutputs {
     pub source_range_to_object: BTreeMap<SourceRange, ObjectId>,
     #[serde(skip)]
     pub var_solutions: Vec<(SourceRange, Option<NodePath>, Number)>,
+    pub refactor_metadata: Vec<RefactorMetadata>,
     pub scene_graph: Option<crate::front::SceneGraph>,
     pub filenames: IndexMap<ModuleId, ModulePath>,
     pub source_files: IndexMap<ModuleId, ModuleSource>,
@@ -244,20 +180,23 @@ impl KclErrorWithOutputs {
         scene_objects: Vec<Object>,
         source_range_to_object: BTreeMap<SourceRange, ObjectId>,
         var_solutions: Vec<(SourceRange, Option<NodePath>, Number)>,
+        refactor_metadata: Vec<RefactorMetadata>,
         filenames: IndexMap<ModuleId, ModulePath>,
         source_files: IndexMap<ModuleId, ModuleSource>,
         default_planes: Option<DefaultPlanes>,
     ) -> Self {
+        let variables_view = variables.into_iter().map(|(k, v)| (k, v.into())).collect();
         Self {
             error,
             non_fatal,
-            variables,
+            variables: variables_view,
             operations,
             _artifact_commands: artifact_commands,
             artifact_graph,
             scene_objects,
             source_range_to_object,
             var_solutions,
+            refactor_metadata,
             scene_graph: Default::default(),
             filenames,
             source_files,
@@ -276,6 +215,7 @@ impl KclErrorWithOutputs {
             scene_objects: Default::default(),
             source_range_to_object: Default::default(),
             var_solutions: Default::default(),
+            refactor_metadata: Default::default(),
             scene_graph: Default::default(),
             filenames: Default::default(),
             source_files: Default::default(),
@@ -295,9 +235,10 @@ impl KclErrorWithOutputs {
             scene_objects: outcome.scene_objects,
             source_range_to_object: outcome.source_range_to_object,
             var_solutions: outcome.var_solutions,
+            refactor_metadata: outcome.refactor_metadata,
             scene_graph: Default::default(),
             filenames: outcome.filenames,
-            source_files: Default::default(),
+            source_files: outcome.source_files,
             default_planes: outcome.default_planes,
         }
     }
@@ -307,51 +248,100 @@ impl KclErrorWithOutputs {
     }
 
     pub fn into_miette_report_with_outputs(self, code: &str) -> anyhow::Result<ReportWithOutputs> {
-        let mut source_ranges = self.error.source_ranges();
+        let source_ranges = self.error.source_ranges();
 
-        // Pop off the first source range to get the filename.
-        let first_source_range = source_ranges
-            .pop()
+        // Source ranges are ordered innermost first, so the first one is where
+        // the error actually occurred; it anchors the primary report. Each
+        // outer frame either becomes another label on the primary (same file
+        // and not overlapping any label already kept; miette merges
+        // overlapping labels into hard-to-read shared rows) or its own
+        // related report below.
+        let first_source_range = *source_ranges
+            .first()
             .ok_or_else(|| anyhow::anyhow!("No source ranges found"))?;
+        let primary_module_id = first_source_range.module_id();
 
-        let source = self
-            .source_files
-            .get(&first_source_range.module_id())
-            .cloned()
-            .unwrap_or(ModuleSource {
+        let module_source = |module_id: ModuleId| {
+            self.source_files.get(&module_id).cloned().unwrap_or(ModuleSource {
                 source: code.to_string(),
-                path: self
-                    .filenames
-                    .get(&first_source_range.module_id())
-                    .cloned()
-                    .unwrap_or(ModulePath::Main),
-            });
+                path: self.filenames.get(&module_id).cloned().unwrap_or(ModulePath::Main),
+            })
+        };
+        let source = module_source(primary_module_id);
         let filename = source.path.to_string();
         let kcl_source = source.source;
 
+        // Label outer frames with their backtrace names so the chain reads
+        // like a backtrace; fall back to the filename.
+        let backtrace = self.error.backtrace();
+
+        let mut primary_labels = vec![miette::LabeledSpan::new_with_span(
+            Some(filename.clone()),
+            miette::SourceSpan::from(first_source_range),
+        )];
+        let mut kept_ranges = vec![first_source_range];
         let mut related = Vec::new();
-        for source_range in source_ranges {
-            let module_id = source_range.module_id();
-            let source = self.source_files.get(&module_id).cloned().unwrap_or(ModuleSource {
-                source: code.to_string(),
-                path: self.filenames.get(&module_id).cloned().unwrap_or(ModulePath::Main),
-            });
-            let error = self.error.override_source_ranges(vec![source_range]);
-            let report = Report {
-                error,
-                kcl_source: source.source.to_string(),
-                filename: source.path.to_string(),
-            };
-            related.push(report);
+        for (index, source_range) in source_ranges.iter().copied().enumerate().skip(1) {
+            let keep = source_range.module_id() == primary_module_id
+                && !kept_ranges.iter().any(|kept| ranges_overlap(*kept, source_range));
+            let source = module_source(source_range.module_id());
+            let label = frame_label(&backtrace, source_ranges.len(), index).unwrap_or_else(|| source.path.to_string());
+            if keep {
+                primary_labels.push(miette::LabeledSpan::new_with_span(
+                    Some(label),
+                    miette::SourceSpan::from(source_range),
+                ));
+                kept_ranges.push(source_range);
+            } else {
+                let error = self.error.override_source_ranges(vec![source_range]);
+                related.push(Report {
+                    error,
+                    kcl_source: source.source,
+                    filename: source.path.to_string(),
+                    label,
+                });
+            }
         }
 
         Ok(ReportWithOutputs {
             error: self,
             kcl_source,
             filename,
+            primary_labels,
             related,
         })
     }
+}
+
+/// The display label for backtrace frame `index`, derived from the frame's
+/// name: `in someFunction()` for calls, the `import <path>` label for
+/// imports. Some errors carry source ranges without matching frames (e.g.
+/// hand-built details), so the backtrace is only trusted when it lines up
+/// with the source ranges.
+fn frame_label(backtrace: &[BacktraceItem], ranges_len: usize, index: usize) -> Option<String> {
+    if backtrace.len() != ranges_len {
+        return None;
+    }
+    let frame = &backtrace[index];
+    let name = frame.fn_name.as_ref()?;
+    match frame.kind {
+        BacktraceItemKind::Import => Some(name.clone()),
+        BacktraceItemKind::Call => Some(format!("in {name}()")),
+    }
+}
+
+/// Whether two source ranges cover any common source text.
+///
+/// Equal ranges count as overlapping even when empty so that repeated frames
+/// (e.g. recursion) do not stack duplicate labels on the primary report.
+fn ranges_overlap(a: SourceRange, b: SourceRange) -> bool {
+    if a.module_id() != b.module_id() {
+        return false;
+    }
+    if a.start() == b.start() && a.end() == b.end() {
+        return true;
+    }
+    a.start() < b.end() && b.start() < a.end()
 }
 
 impl IsRetryable for KclErrorWithOutputs {
@@ -364,54 +354,74 @@ impl IsRetryable for KclErrorWithOutputs {
 }
 
 impl IntoDiagnostic for KclErrorWithOutputs {
-    fn to_lsp_diagnostics(&self, code: &str) -> Vec<Diagnostic> {
+    fn to_lsp_diagnostics(&self, code: &str, uri: &tower_lsp::lsp_types::Url) -> Vec<Diagnostic> {
         let message = self.error.get_message();
         let source_ranges = self.error.source_ranges();
+        if source_ranges.is_empty() {
+            return Vec::new();
+        }
 
-        source_ranges
-            .into_iter()
-            .map(|source_range| {
-                let source = self.source_files.get(&source_range.module_id()).cloned().or_else(|| {
-                    self.filenames
-                        .get(&source_range.module_id())
-                        .cloned()
-                        .map(|path| ModuleSource {
-                            source: code.to_string(),
-                            path,
-                        })
-                });
+        // The caller publishes these diagnostics under the top-level
+        // document's URI, so the diagnostic range must be a top-level range
+        // converted against the top-level source; imported offsets would
+        // point at unrelated text. Source ranges are ordered innermost
+        // first: anchor at the innermost top-level range and attach every
+        // other frame as related information located in its own module.
+        let primary_index = source_ranges.iter().position(|range| range.module_id().is_top_level());
+        let primary_range = primary_index.map(|index| source_ranges[index]).unwrap_or_default();
 
-                let related_information = source.and_then(|source| {
+        let backtrace = self.error.backtrace();
+        let related_information: Vec<tower_lsp::lsp_types::DiagnosticRelatedInformation> = source_ranges
+            .iter()
+            .enumerate()
+            .filter(|(index, _)| Some(*index) != primary_index)
+            .filter_map(|(index, source_range)| {
+                // Top-level frames belong to the document these diagnostics
+                // are published under; its path in `filenames` is the virtual
+                // main module, so only the caller knows the real URI.
+                let location = if source_range.module_id().is_top_level() {
+                    tower_lsp::lsp_types::Location {
+                        uri: uri.clone(),
+                        range: source_range.to_lsp_range(code),
+                    }
+                } else {
+                    let source = self.source_files.get(&source_range.module_id()).cloned().or_else(|| {
+                        self.filenames
+                            .get(&source_range.module_id())
+                            .cloned()
+                            .map(|path| ModuleSource {
+                                source: code.to_string(),
+                                path,
+                            })
+                    })?;
                     let mut filename = source.path.to_string();
                     if !filename.starts_with("file://") {
                         filename = format!("file:///{}", filename.trim_start_matches("/"));
                     }
-
-                    url::Url::parse(&filename).ok().map(|uri| {
-                        vec![tower_lsp::lsp_types::DiagnosticRelatedInformation {
-                            location: tower_lsp::lsp_types::Location {
-                                uri,
-                                range: source_range.to_lsp_range(&source.source),
-                            },
-                            message: message.to_string(),
-                        }]
-                    })
-                });
-
-                Diagnostic {
-                    range: source_range.to_lsp_range(code),
-                    severity: Some(self.severity()),
-                    code: None,
-                    // TODO: this is neat we can pass a URL to a help page here for this specific error.
-                    code_description: None,
-                    source: Some("kcl".to_string()),
-                    related_information,
-                    message: message.clone(),
-                    tags: None,
-                    data: None,
-                }
+                    tower_lsp::lsp_types::Location {
+                        uri: url::Url::parse(&filename).ok()?,
+                        range: source_range.to_lsp_range(&source.source),
+                    }
+                };
+                Some(tower_lsp::lsp_types::DiagnosticRelatedInformation {
+                    location,
+                    message: frame_label(&backtrace, source_ranges.len(), index).unwrap_or_else(|| message.clone()),
+                })
             })
-            .collect()
+            .collect();
+
+        vec![Diagnostic {
+            range: primary_range.to_lsp_range(code),
+            severity: Some(self.severity()),
+            code: None,
+            // TODO: this is neat we can pass a URL to a help page here for this specific error.
+            code_description: None,
+            source: Some("kcl".to_string()),
+            related_information: (!related_information.is_empty()).then_some(related_information),
+            message,
+            tags: None,
+            data: None,
+        }]
     }
 
     fn severity(&self) -> DiagnosticSeverity {
@@ -425,6 +435,9 @@ pub struct ReportWithOutputs {
     pub error: KclErrorWithOutputs,
     pub kcl_source: String,
     pub filename: String,
+    /// Labels to render on the primary report, precomputed so they cannot
+    /// disagree with which frames were split out into `related`.
+    pub primary_labels: Vec<miette::LabeledSpan>,
     pub related: Vec<Report>,
 }
 
@@ -437,6 +450,7 @@ impl miette::Diagnostic for ReportWithOutputs {
             KclError::ImportCycle { .. } => "ImportCycle",
             KclError::Argument { .. } => "Argument",
             KclError::Type { .. } => "Type",
+            KclError::UserDefined { .. } => "UserDefined",
             KclError::Io { .. } => "I/O",
             KclError::Unexpected { .. } => "Unexpected",
             KclError::ValueAlreadyDefined { .. } => "ValueAlreadyDefined",
@@ -458,14 +472,7 @@ impl miette::Diagnostic for ReportWithOutputs {
     }
 
     fn labels(&self) -> Option<Box<dyn Iterator<Item = miette::LabeledSpan> + '_>> {
-        let iter = self
-            .error
-            .error
-            .source_ranges()
-            .into_iter()
-            .map(miette::SourceSpan::from)
-            .map(|span| miette::LabeledSpan::new_with_span(Some(self.filename.to_string()), span));
-        Some(Box::new(iter))
+        Some(Box::new(self.primary_labels.iter().cloned()))
     }
 
     fn related<'a>(&'a self) -> Option<Box<dyn Iterator<Item = &'a dyn miette::Diagnostic> + 'a>> {
@@ -480,6 +487,9 @@ pub struct Report {
     pub error: KclError,
     pub kcl_source: String,
     pub filename: String,
+    /// Text for this report's span label: the backtrace frame name when one
+    /// exists, otherwise the filename.
+    pub label: String,
 }
 
 impl miette::Diagnostic for Report {
@@ -491,6 +501,7 @@ impl miette::Diagnostic for Report {
             KclError::ImportCycle { .. } => "ImportCycle",
             KclError::Argument { .. } => "Argument",
             KclError::Type { .. } => "Type",
+            KclError::UserDefined { .. } => "UserDefined",
             KclError::Io { .. } => "I/O",
             KclError::Unexpected { .. } => "Unexpected",
             KclError::ValueAlreadyDefined { .. } => "ValueAlreadyDefined",
@@ -517,7 +528,7 @@ impl miette::Diagnostic for Report {
             .source_ranges()
             .into_iter()
             .map(miette::SourceSpan::from)
-            .map(|span| miette::LabeledSpan::new_with_span(Some(self.filename.to_string()), span));
+            .map(|span| miette::LabeledSpan::new_with_span(Some(self.label.clone()), span));
         Some(Box::new(iter))
     }
 }
@@ -567,315 +578,39 @@ impl miette::Diagnostic for CompilationIssueReport {
 }
 
 /// Render a [`CompilationIssue`] as a miette report string, mirroring the
-/// formatting used for [`Report`].
-pub fn render_compilation_issue_miette(filename: &str, source: &str, issue: CompilationIssue) -> String {
+/// formatting used for [`Report`]. The issue is rendered against the module
+/// its source range points into: issues from imported modules use their
+/// entry in `source_files`, while top-level issues use `top_level_filename`
+/// and `top_level_source`, since callers know the real top-level filename
+/// (e.g. an absolute path) while `source_files` only records the module
+/// path. The top-level pair is also the fallback when the module is missing
+/// from `source_files`, so callers without a source map can pass an empty
+/// one.
+pub fn render_compilation_issue_miette(
+    top_level_filename: &str,
+    top_level_source: &str,
+    source_files: &IndexMap<ModuleId, ModuleSource>,
+    issue: CompilationIssue,
+) -> String {
+    let module_id = issue.source_range.module_id();
+    let module_source = (!module_id.is_top_level())
+        .then(|| source_files.get(&module_id))
+        .flatten();
+    let (filename, kcl_source) = match module_source {
+        Some(module_source) => (module_source.path.to_string(), module_source.source.clone()),
+        None => (top_level_filename.to_owned(), top_level_source.to_owned()),
+    };
     let report = CompilationIssueReport {
         issue,
-        kcl_source: source.to_owned(),
-        filename: filename.to_owned(),
+        kcl_source,
+        filename,
     };
     let report = miette::Report::new(report);
     format!("{report:?}")
 }
 
-#[derive(Debug, Serialize, Deserialize, ts_rs::TS, Clone, PartialEq, Eq, thiserror::Error, miette::Diagnostic)]
-#[serde(rename_all = "camelCase")]
-#[error("{message}")]
-#[ts(export)]
-pub struct KclErrorDetails {
-    #[label(collection, "Errors")]
-    pub source_ranges: Vec<SourceRange>,
-    pub backtrace: Vec<super::BacktraceItem>,
-    #[serde(rename = "msg")]
-    pub message: String,
-}
-
-impl KclErrorDetails {
-    pub fn new(message: String, source_ranges: Vec<SourceRange>) -> KclErrorDetails {
-        let backtrace = source_ranges
-            .iter()
-            .map(|s| BacktraceItem {
-                source_range: *s,
-                fn_name: None,
-            })
-            .collect();
-        KclErrorDetails {
-            source_ranges,
-            backtrace,
-            message,
-        }
-    }
-}
-
-impl KclError {
-    pub fn internal(message: String) -> KclError {
-        KclError::Internal {
-            details: KclErrorDetails {
-                source_ranges: Default::default(),
-                backtrace: Default::default(),
-                message,
-            },
-        }
-    }
-
-    pub fn new_internal(details: KclErrorDetails) -> KclError {
-        KclError::Internal { details }
-    }
-
-    pub fn new_import_cycle(details: KclErrorDetails) -> KclError {
-        KclError::ImportCycle { details }
-    }
-
-    pub fn new_argument(details: KclErrorDetails) -> KclError {
-        KclError::Argument { details }
-    }
-
-    pub fn new_semantic(details: KclErrorDetails) -> KclError {
-        KclError::Semantic { details }
-    }
-
-    pub fn new_value_already_defined(details: KclErrorDetails) -> KclError {
-        KclError::ValueAlreadyDefined { details }
-    }
-
-    pub fn new_syntax(details: KclErrorDetails) -> KclError {
-        KclError::Syntax { details }
-    }
-
-    pub fn new_io(details: KclErrorDetails) -> KclError {
-        KclError::Io { details }
-    }
-
-    pub fn new_invalid_expression(details: KclErrorDetails) -> KclError {
-        KclError::InvalidExpression { details }
-    }
-
-    pub fn refactor(message: String) -> KclError {
-        KclError::Refactor {
-            details: KclErrorDetails {
-                source_ranges: Default::default(),
-                backtrace: Default::default(),
-                message,
-            },
-        }
-    }
-
-    pub fn new_engine(details: KclErrorDetails) -> KclError {
-        if details.message.eq_ignore_ascii_case("internal error") {
-            KclError::EngineInternal { details }
-        } else if is_retryable_engine_message(&details.message) {
-            KclError::EngineHangup {
-                details,
-                api_call_id: None,
-            }
-        } else {
-            KclError::Engine { details }
-        }
-    }
-
-    pub fn new_engine_hangup(details: KclErrorDetails, api_call_id: Option<String>) -> KclError {
-        KclError::EngineHangup { details, api_call_id }
-    }
-
-    pub fn new_lexical(details: KclErrorDetails) -> KclError {
-        KclError::Lexical { details }
-    }
-
-    pub fn new_undefined_value(details: KclErrorDetails, name: Option<String>) -> KclError {
-        KclError::UndefinedValue { details, name }
-    }
-
-    pub fn new_type(details: KclErrorDetails) -> KclError {
-        KclError::Type { details }
-    }
-
-    pub fn is_undefined_value(&self) -> bool {
-        matches!(self, KclError::UndefinedValue { .. })
-    }
-
-    /// Get the error message.
-    pub fn get_message(&self) -> String {
-        format!("{}: {}", self.error_type(), self.message())
-    }
-
-    pub fn error_type(&self) -> &'static str {
-        match self {
-            KclError::Lexical { .. } => "lexical",
-            KclError::Syntax { .. } => "syntax",
-            KclError::Semantic { .. } => "semantic",
-            KclError::ImportCycle { .. } => "import cycle",
-            KclError::Argument { .. } => "argument",
-            KclError::Type { .. } => "type",
-            KclError::Io { .. } => "i/o",
-            KclError::Unexpected { .. } => "unexpected",
-            KclError::ValueAlreadyDefined { .. } => "value already defined",
-            KclError::UndefinedValue { .. } => "undefined value",
-            KclError::InvalidExpression { .. } => "invalid expression",
-            KclError::MaxCallStack { .. } => "max call stack",
-            KclError::Refactor { .. } => "refactor",
-            KclError::Engine { .. } => "engine",
-            KclError::EngineHangup { .. } => "engine hangup",
-            KclError::EngineInternal { .. } => "engine internal",
-            KclError::Internal { .. } => "internal",
-        }
-    }
-
-    pub fn source_ranges(&self) -> Vec<SourceRange> {
-        match &self {
-            KclError::Lexical { details: e } => e.source_ranges.clone(),
-            KclError::Syntax { details: e } => e.source_ranges.clone(),
-            KclError::Semantic { details: e } => e.source_ranges.clone(),
-            KclError::ImportCycle { details: e } => e.source_ranges.clone(),
-            KclError::Argument { details: e } => e.source_ranges.clone(),
-            KclError::Type { details: e } => e.source_ranges.clone(),
-            KclError::Io { details: e } => e.source_ranges.clone(),
-            KclError::Unexpected { details: e } => e.source_ranges.clone(),
-            KclError::ValueAlreadyDefined { details: e } => e.source_ranges.clone(),
-            KclError::UndefinedValue { details: e, .. } => e.source_ranges.clone(),
-            KclError::InvalidExpression { details: e } => e.source_ranges.clone(),
-            KclError::MaxCallStack { details: e } => e.source_ranges.clone(),
-            KclError::Refactor { details: e } => e.source_ranges.clone(),
-            KclError::Engine { details: e } => e.source_ranges.clone(),
-            KclError::EngineHangup { details: e, .. } => e.source_ranges.clone(),
-            KclError::EngineInternal { details: e } => e.source_ranges.clone(),
-            KclError::Internal { details: e } => e.source_ranges.clone(),
-        }
-    }
-
-    /// Get the inner error message.
-    pub fn message(&self) -> &str {
-        match &self {
-            KclError::Lexical { details: e } => &e.message,
-            KclError::Syntax { details: e } => &e.message,
-            KclError::Semantic { details: e } => &e.message,
-            KclError::ImportCycle { details: e } => &e.message,
-            KclError::Argument { details: e } => &e.message,
-            KclError::Type { details: e } => &e.message,
-            KclError::Io { details: e } => &e.message,
-            KclError::Unexpected { details: e } => &e.message,
-            KclError::ValueAlreadyDefined { details: e } => &e.message,
-            KclError::UndefinedValue { details: e, .. } => &e.message,
-            KclError::InvalidExpression { details: e } => &e.message,
-            KclError::MaxCallStack { details: e } => &e.message,
-            KclError::Refactor { details: e } => &e.message,
-            KclError::Engine { details: e } => &e.message,
-            KclError::EngineHangup { details: e, .. } => &e.message,
-            KclError::EngineInternal { details: e } => &e.message,
-            KclError::Internal { details: e } => &e.message,
-        }
-    }
-
-    pub fn backtrace(&self) -> Vec<BacktraceItem> {
-        match self {
-            KclError::Lexical { details: e }
-            | KclError::Syntax { details: e }
-            | KclError::Semantic { details: e }
-            | KclError::ImportCycle { details: e }
-            | KclError::Argument { details: e }
-            | KclError::Type { details: e }
-            | KclError::Io { details: e }
-            | KclError::Unexpected { details: e }
-            | KclError::ValueAlreadyDefined { details: e }
-            | KclError::UndefinedValue { details: e, .. }
-            | KclError::InvalidExpression { details: e }
-            | KclError::MaxCallStack { details: e }
-            | KclError::Refactor { details: e }
-            | KclError::Engine { details: e }
-            | KclError::EngineHangup { details: e, .. }
-            | KclError::EngineInternal { details: e }
-            | KclError::Internal { details: e } => e.backtrace.clone(),
-        }
-    }
-
-    pub(crate) fn override_source_ranges(&self, source_ranges: Vec<SourceRange>) -> Self {
-        let mut new = self.clone();
-        match &mut new {
-            KclError::Lexical { details: e }
-            | KclError::Syntax { details: e }
-            | KclError::Semantic { details: e }
-            | KclError::ImportCycle { details: e }
-            | KclError::Argument { details: e }
-            | KclError::Type { details: e }
-            | KclError::Io { details: e }
-            | KclError::Unexpected { details: e }
-            | KclError::ValueAlreadyDefined { details: e }
-            | KclError::UndefinedValue { details: e, .. }
-            | KclError::InvalidExpression { details: e }
-            | KclError::MaxCallStack { details: e }
-            | KclError::Refactor { details: e }
-            | KclError::Engine { details: e }
-            | KclError::EngineHangup { details: e, .. }
-            | KclError::EngineInternal { details: e }
-            | KclError::Internal { details: e } => {
-                e.backtrace = source_ranges
-                    .iter()
-                    .map(|s| BacktraceItem {
-                        source_range: *s,
-                        fn_name: None,
-                    })
-                    .collect();
-                e.source_ranges = source_ranges;
-            }
-        }
-
-        new
-    }
-
-    pub(crate) fn add_unwind_location(&self, last_fn_name: Option<String>, source_range: SourceRange) -> Self {
-        let mut new = self.clone();
-        match &mut new {
-            KclError::Lexical { details: e }
-            | KclError::Syntax { details: e }
-            | KclError::Semantic { details: e }
-            | KclError::ImportCycle { details: e }
-            | KclError::Argument { details: e }
-            | KclError::Type { details: e }
-            | KclError::Io { details: e }
-            | KclError::Unexpected { details: e }
-            | KclError::ValueAlreadyDefined { details: e }
-            | KclError::UndefinedValue { details: e, .. }
-            | KclError::InvalidExpression { details: e }
-            | KclError::MaxCallStack { details: e }
-            | KclError::Refactor { details: e }
-            | KclError::Engine { details: e }
-            | KclError::EngineHangup { details: e, .. }
-            | KclError::EngineInternal { details: e }
-            | KclError::Internal { details: e } => {
-                if let Some(item) = e.backtrace.last_mut() {
-                    item.fn_name = last_fn_name;
-                }
-                e.backtrace.push(BacktraceItem {
-                    source_range,
-                    fn_name: None,
-                });
-                e.source_ranges.push(source_range);
-            }
-        }
-
-        new
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS, thiserror::Error, miette::Diagnostic)]
-#[serde(rename_all = "camelCase")]
-#[ts(export)]
-pub struct BacktraceItem {
-    pub source_range: SourceRange,
-    pub fn_name: Option<String>,
-}
-
-impl std::fmt::Display for BacktraceItem {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if let Some(fn_name) = &self.fn_name {
-            write!(f, "{fn_name}: {:?}", self.source_range)
-        } else {
-            write!(f, "(fn): {:?}", self.source_range)
-        }
-    }
-}
-
 impl IntoDiagnostic for KclError {
-    fn to_lsp_diagnostics(&self, code: &str) -> Vec<Diagnostic> {
+    fn to_lsp_diagnostics(&self, code: &str, _uri: &tower_lsp::lsp_types::Url) -> Vec<Diagnostic> {
         let message = self.get_message();
         let source_ranges = self.source_ranges();
 
@@ -910,52 +645,6 @@ impl IntoDiagnostic for KclError {
     }
 }
 
-/// This is different than to_string() in that it will serialize the Error
-/// the struct as JSON so we can deserialize it on the js side.
-impl From<KclError> for String {
-    fn from(error: KclError) -> Self {
-        serde_json::to_string(&error).unwrap()
-    }
-}
-
-impl From<String> for KclError {
-    fn from(error: String) -> Self {
-        serde_json::from_str(&error).unwrap()
-    }
-}
-
-#[cfg(feature = "pyo3")]
-impl From<pyo3::PyErr> for KclError {
-    fn from(error: pyo3::PyErr) -> Self {
-        KclError::new_internal(KclErrorDetails {
-            source_ranges: vec![],
-            backtrace: Default::default(),
-            message: error.to_string(),
-        })
-    }
-}
-
-#[cfg(feature = "pyo3")]
-impl From<KclError> for pyo3::PyErr {
-    fn from(error: KclError) -> Self {
-        pyo3::exceptions::PyException::new_err(error.to_string())
-    }
-}
-
-impl From<CompilationIssue> for KclErrorDetails {
-    fn from(err: CompilationIssue) -> Self {
-        let backtrace = vec![BacktraceItem {
-            source_range: err.source_range,
-            fn_name: None,
-        }];
-        KclErrorDetails {
-            source_ranges: vec![err.source_range],
-            backtrace,
-            message: err.message,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -967,10 +656,189 @@ mod tests {
             vec![SourceRange::new(0, 1, ModuleId::from_usize(9))],
         )));
 
-        let diagnostics = error.to_lsp_diagnostics("x");
+        let diagnostics = error.to_lsp_diagnostics("x", &"file:///test.kcl".try_into().unwrap());
 
         assert_eq!(diagnostics.len(), 1);
         assert_eq!(diagnostics[0].message, "semantic: boom");
         assert_eq!(diagnostics[0].related_information, None);
+    }
+
+    #[test]
+    fn lsp_diagnostics_anchor_at_top_level_and_relate_imported_frames() {
+        let main_code = "import assemblyValue from \"assembly.kcl\"\n\nassemblyValue\n";
+        // The failing expression is on line 2 of the imported file, so a
+        // range converted against the wrong source lands on the wrong line.
+        let imported_code = "// comment\nexport brokenValue = missingName + 1\n";
+        let imported_module = ModuleId::from_usize(1);
+        let missing_name_start = imported_code.find("missingName").unwrap();
+        let imported_range = SourceRange::new(missing_name_start, missing_name_start + 11, imported_module);
+        let import_stmt_range = SourceRange::new(0, 41, ModuleId::default());
+
+        let error = KclError::new_semantic(KclErrorDetails::new(
+            "`missingName` is not defined".to_owned(),
+            vec![imported_range],
+        ))
+        .add_import_location("assembly.kcl", import_stmt_range);
+        let mut error = KclErrorWithOutputs::no_outputs(error);
+        error.source_files.insert(
+            imported_module,
+            ModuleSource {
+                source: imported_code.to_owned(),
+                path: ModulePath::Local {
+                    value: "/project/assembly.kcl".into(),
+                    original_import_path: None,
+                },
+            },
+        );
+
+        let diagnostics = error.to_lsp_diagnostics(main_code, &"file:///project/main.kcl".try_into().unwrap());
+
+        // One diagnostic, anchored at the import statement in the top-level
+        // file (line 0), not at imported offsets.
+        assert_eq!(diagnostics.len(), 1);
+        assert_eq!(diagnostics[0].range.start.line, 0);
+        assert_eq!(diagnostics[0].range.end.line, 0);
+
+        // The imported frame is related information located in its own file,
+        // with the range computed against that file's source.
+        let related = diagnostics[0].related_information.as_ref().unwrap();
+        assert_eq!(related.len(), 1);
+        assert!(related[0].location.uri.as_str().ends_with("assembly.kcl"));
+        assert_eq!(related[0].location.range.start.line, 1);
+        assert_eq!(related[0].message, "import assembly.kcl");
+    }
+
+    fn report_for(ranges: Vec<SourceRange>) -> ReportWithOutputs {
+        let error = KclError::new_semantic(KclErrorDetails::new("boom".to_owned(), ranges));
+        KclErrorWithOutputs::no_outputs(error)
+            .into_miette_report_with_outputs("code")
+            .unwrap()
+    }
+
+    #[test]
+    fn overlapping_same_file_ranges_become_related_reports() {
+        let module = ModuleId::default();
+        let narrow = SourceRange::new(10, 16, module);
+        let wide = SourceRange::new(0, 20, module);
+        let disjoint = SourceRange::new(30, 40, module);
+
+        let report = report_for(vec![narrow, wide, disjoint]);
+
+        // The wide range overlaps the primary label, so it is split out; the
+        // disjoint one stays as a second label.
+        assert_eq!(report.primary_labels.len(), 2);
+        assert_eq!(report.related.len(), 1);
+        assert_eq!(report.related[0].error.source_ranges(), vec![wide]);
+    }
+
+    #[test]
+    fn other_module_ranges_become_related_reports() {
+        let inner = SourceRange::new(0, 5, ModuleId::from_usize(7));
+        let outer = SourceRange::new(10, 20, ModuleId::default());
+
+        let report = report_for(vec![inner, outer]);
+
+        assert_eq!(report.primary_labels.len(), 1);
+        assert_eq!(report.related.len(), 1);
+        assert_eq!(report.related[0].error.source_ranges(), vec![outer]);
+    }
+
+    #[test]
+    fn labels_use_frame_names_when_available() {
+        let module = ModuleId::default();
+        let inner = SourceRange::new(10, 16, module);
+        let mid_call = SourceRange::new(30, 40, module);
+        let outer_call = SourceRange::new(0, 20, module);
+        let import_site = SourceRange::new(0, 5, ModuleId::from_usize(2));
+        let error = KclError::new_semantic(KclErrorDetails::new("boom".to_owned(), vec![inner]))
+            .add_unwind_location(Some("f".to_owned()), mid_call)
+            .add_unwind_location(Some("g".to_owned()), outer_call)
+            .add_import_location("part.kcl", import_site);
+
+        let report = KclErrorWithOutputs::no_outputs(error)
+            .into_miette_report_with_outputs("code")
+            .unwrap();
+
+        // mid_call is disjoint, so it stays as a label named for the function
+        // containing it; outer_call overlaps the anchor and was labeled by the
+        // import unwind; import_site has no frame name, so it falls back to
+        // its filename.
+        assert_eq!(report.primary_labels.len(), 2);
+        assert_eq!(report.primary_labels[1].label(), Some("in g()"));
+        assert_eq!(
+            report.related.iter().map(|r| r.label.as_str()).collect::<Vec<_>>(),
+            ["import part.kcl", report.related[1].filename.as_str()]
+        );
+    }
+
+    #[test]
+    fn repeated_frames_do_not_stack_duplicate_labels() {
+        // Recursion repeats the same range; only the first occurrence stays
+        // on the primary report.
+        let module = ModuleId::default();
+        let range = SourceRange::new(10, 16, module);
+
+        let report = report_for(vec![range, range, range]);
+
+        assert_eq!(report.primary_labels.len(), 1);
+        assert_eq!(report.related.len(), 2);
+    }
+
+    #[test]
+    fn compilation_issues_render_against_the_module_their_range_points_into() {
+        let imported_module = ModuleId::from_usize(1);
+        // Long enough that ranges into it lie past the end of the top-level
+        // source below.
+        let imported_code = "// enough leading padding to push the range out of the top level\nexport value = 1 * 2\n";
+        let mul_start = imported_code.find("1 * 2").unwrap();
+        let mut source_files = IndexMap::new();
+        source_files.insert(
+            imported_module,
+            ModuleSource {
+                source: imported_code.to_owned(),
+                path: ModulePath::Local {
+                    value: "/project/derived.kcl".into(),
+                    original_import_path: None,
+                },
+            },
+        );
+        let issue_at = |source_range| CompilationIssue {
+            source_range,
+            message: "unknown units".to_owned(),
+            suggestion: None,
+            severity: Severity::Warning,
+            tag: Tag::UnknownNumericUnits,
+        };
+
+        // Imported ranges render the imported module's filename and source.
+        let report = render_compilation_issue_miette(
+            "/project/main.kcl",
+            "top",
+            &source_files,
+            issue_at(SourceRange::new(mul_start, mul_start + 5, imported_module)),
+        );
+        assert!(report.contains("derived.kcl"), "{report}");
+        assert!(report.contains("1 * 2"), "{report}");
+        assert!(!report.contains("OutOfBounds"), "{report}");
+
+        // Top-level ranges use the caller's filename and source, not the
+        // module path recorded in `source_files`.
+        let report = render_compilation_issue_miette(
+            "/project/main.kcl",
+            "top",
+            &source_files,
+            issue_at(SourceRange::new(0, 3, ModuleId::default())),
+        );
+        assert!(report.contains("main.kcl"), "{report}");
+
+        // Modules missing from the map fall back to the top-level pair, for
+        // callers that have no source map.
+        let report = render_compilation_issue_miette(
+            "/project/main.kcl",
+            "top",
+            &source_files,
+            issue_at(SourceRange::new(0, 3, ModuleId::from_usize(9))),
+        );
+        assert!(report.contains("main.kcl"), "{report}");
     }
 }

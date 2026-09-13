@@ -13,8 +13,7 @@ use crate::execution::EnvironmentRef;
 use crate::execution::ModuleArtifactState;
 use crate::execution::PreImportedGeometry;
 use crate::execution::typed_path::TypedPath;
-use crate::fs::FileManager;
-use crate::fs::FileSystem;
+use crate::fs::FileSystemHandle;
 use crate::parsing::ast::types::ImportPath;
 use crate::parsing::ast::types::Node;
 use crate::parsing::ast::types::Program;
@@ -93,6 +92,7 @@ pub(crate) fn read_std(mod_name: &str) -> Option<&'static str> {
         "turns" => Some(include_str!("../std/turns.kcl")),
         "types" => Some(include_str!("../std/types.kcl")),
         "solid" => Some(include_str!("../std/solid.kcl")),
+        "string" => Some(include_str!("../std/string.kcl")),
         "units" => Some(include_str!("../std/units.kcl")),
         "array" => Some(include_str!("../std/array.kcl")),
         "sweep" => Some(include_str!("../std/sweep.kcl")),
@@ -101,6 +101,8 @@ pub(crate) fn read_std(mod_name: &str) -> Option<&'static str> {
         "vector" => Some(include_str!("../std/vector.kcl")),
         "hole" => Some(include_str!("../std/hole.kcl")),
         "gear" => Some(include_str!("../std/gear.kcl")),
+        "view" => Some(include_str!("../std/view.kcl")),
+        "operation" => Some(include_str!("../std/operation.kcl")),
         _ => None,
     }
 }
@@ -179,7 +181,11 @@ impl ModulePath {
         }
     }
 
-    pub(crate) async fn source(&self, fs: &FileManager, source_range: SourceRange) -> Result<ModuleSource, KclError> {
+    pub(crate) async fn source(
+        &self,
+        fs: &FileSystemHandle,
+        source_range: SourceRange,
+    ) -> Result<ModuleSource, KclError> {
         match self {
             ModulePath::Local { value: p, .. } => Ok(ModuleSource {
                 source: fs.read_to_string(p, source_range).await?,
@@ -240,6 +246,18 @@ impl ModulePath {
         }
     }
 
+    /// The path as written in the import statement where available, falling
+    /// back to the resolved path. Used to label backtrace frames.
+    pub(crate) fn import_name(&self) -> String {
+        match self {
+            ModulePath::Local {
+                original_import_path: Some(original),
+                ..
+            } => original.to_string(),
+            _ => self.to_string(),
+        }
+    }
+
     pub(crate) fn from_std_import_path(path: &[String]) -> Result<Self, KclError> {
         // For now we only support importing from singly-nested modules inside std.
         if path.len() > 2 || path[0] != "std" {
@@ -282,4 +300,24 @@ impl fmt::Display for ModulePath {
 pub struct ModuleSource {
     pub path: ModulePath,
     pub source: String,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn import_name_prefers_the_path_as_written() {
+        let with_original = ModulePath::Local {
+            value: "/project/sub/model.obj".into(),
+            original_import_path: Some("sub/model.obj".into()),
+        };
+        assert_eq!(with_original.import_name(), "sub/model.obj");
+
+        let without_original = ModulePath::Local {
+            value: "/project/model.obj".into(),
+            original_import_path: None,
+        };
+        assert_eq!(without_original.import_name(), "/project/model.obj");
+    }
 }

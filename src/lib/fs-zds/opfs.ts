@@ -12,6 +12,22 @@ interface MetaFileDirectoryData {
   mtimeMs: number
 }
 
+function createDirectoryMetadata(): MetaFileDirectoryData {
+  return {
+    mtimeMs: new Date().getTime(),
+  }
+}
+
+async function writeDirectoryMetadata(
+  metaFilePath: string,
+  metadata: MetaFileDirectoryData
+) {
+  await writeFile(
+    path.resolve(metaFilePath),
+    new TextEncoder().encode(JSON.stringify(metadata))
+  )
+}
+
 const isMetaFileDirectoryData = (x: unknown): x is MetaFileDirectoryData => {
   return (
     typeof x === 'object' &&
@@ -213,35 +229,25 @@ const stat = async (targetPath: string): Promise<IStat> => {
   // update it as necessary. For now it will only store: creation and
   // modification time.
   const metaFilePath = path.resolve(targetPath, META_FILE)
-  let json
+  let obj
   try {
-    json = await readFile(metaFilePath, { encoding: 'utf-8' })
+    const json = await readFile(metaFilePath, { encoding: 'utf-8' })
+    try {
+      obj = JSON.parse(json)
+    } catch {
+      obj = undefined
+    }
   } catch (e: unknown) {
-    if (typeof e !== 'string') {
+    if (e !== 'ENOENT') {
       // eslint-disable-next-line suggest-no-throw/suggest-no-throw
       throw e
     }
-
-    // The metafile didn't exist in the first place. Let's create it.
-    if (e === 'ENOENT') {
-      await writeFile(
-        path.resolve(metaFilePath),
-        new TextEncoder().encode(
-          JSON.stringify({
-            mtimeMs: new Date().getTime(),
-          })
-        )
-      )
-    }
-
-    // This will work now.
-    json = await readFile(metaFilePath, { encoding: 'utf-8' })
   }
 
-  const obj = JSON.parse(json)
-  if (!isMetaFileDirectoryData(obj))
-    // eslint-disable-next-line suggest-no-throw/suggest-no-throw
-    throw new Error(`Corrupt ${META_FILE} file`)
+  if (!isMetaFileDirectoryData(obj)) {
+    obj = createDirectoryMetadata()
+    await writeDirectoryMetadata(metaFilePath, obj)
+  }
 
   return {
     dev: 0,
@@ -364,20 +370,54 @@ const rm = async (targetPath: string, options?: { recursive: boolean }) => {
 const writeFile = async (
   targetPath: string,
   data: Uint8Array<ArrayBuffer>,
-  options?: any
+  options?: { flag?: 'w' | 'wx' }
+) => {
+  const write = () => writeFileUnlocked(targetPath, data, options)
+  if (navigator.locks) {
+    // All writers share the lock so checking for existence and creating a file
+    // is exclusive across tabs, including when a normal write races creation.
+    return navigator.locks.request(
+      `zds-opfs-write:${path.resolve(targetPath)}`,
+      write
+    )
+  }
+  if (options?.flag === 'wx') {
+    return Promise.reject(
+      new Error('Exclusive OPFS file creation requires Web Locks')
+    )
+  }
+  return write()
+}
+
+const writeFileUnlocked = async (
+  targetPath: string,
+  data: Uint8Array<ArrayBuffer>,
+  options?: { flag?: 'w' | 'wx' }
 ) => {
   const parts = targetPath.split(path.sep)
   const parent = parts.slice(0, -1).join(path.sep)
   const handle = await walk(parent)
   if (handle === undefined) return Promise.reject('ENOENT')
   if (handle instanceof FileSystemFileHandle) return Promise.reject('EISFILE')
+  if (options?.flag === 'wx') {
+    let exists = false
+    try {
+      await handle.getFileHandle(parts.slice(-1)[0])
+      exists = true
+    } catch (error: unknown) {
+      if (!(error instanceof DOMException) || error.name !== 'NotFoundError') {
+        return Promise.reject(error)
+      }
+    }
+    if (exists) return Promise.reject('EEXIST')
+  }
   const fileHandle = await handle.getFileHandle(parts.slice(-1)[0], {
     create: true,
   })
   const writableMethod = (
     fileHandle as FileSystemFileHandle & {
       createWritable?: () => Promise<{
-        write: (data: Blob) => Promise<void>
+        write: (data: Uint8Array<ArrayBuffer>) => Promise<void>
         close: () => Promise<void>
       }>
     }
@@ -385,7 +425,7 @@ const writeFile = async (
 
   if (typeof writableMethod === 'function') {
     const writer = await writableMethod.call(fileHandle)
-    await writer.write(new Blob([data], { type: 'application/octet-stream' }))
+    await writer.write(data)
     await writer.close()
   } else {
     void reportClientError({
@@ -432,11 +472,7 @@ const writeFile = async (
 
   await writeFile(
     path.resolve(targetPath, '..', META_FILE),
-    new TextEncoder().encode(
-      JSON.stringify({
-        mtimeMs: new Date().getTime(),
-      })
-    )
+    new TextEncoder().encode(JSON.stringify(createDirectoryMetadata()))
   )
 
   return undefined
@@ -490,7 +526,7 @@ const cp = async (
     }
   } else {
     await scan(sourcePath, async (cwd, handle) => {
-      const relativePathToSourcePath = path.basename(cwd, sourcePath)
+      const relativePathToSourcePath = path.relative(sourcePath, cwd)
       const absolutePath = path.resolve(
         targetPath,
         relativePathToSourcePath,

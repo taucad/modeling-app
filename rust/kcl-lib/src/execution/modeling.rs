@@ -13,9 +13,19 @@ use crate::errors::KclErrorDetails;
 use crate::exec::ArtifactCommand;
 use crate::exec::IdGenerator;
 use crate::exec::KclValue;
+use crate::execution::EntityCloneInfo;
 use crate::execution::FaceParentSolid;
 use crate::execution::Solid;
 use crate::std::Args;
+
+/// Developer toggle for the KCL 3.0 behavior where edge cuts (fillets and
+/// chamfers) are sent to the engine immediately, in program order with other
+/// modeling commands, instead of being deferred to the end of the batch.
+///
+/// Set this to `false` to restore the deferred behavior for every KCL version
+/// while the immediate behavior is being evaluated. The KCL version gate in
+/// [`ExecState::edge_cuts_are_immediate`] still applies when this is `true`.
+pub(crate) const IMMEDIATE_EDGE_CUTS_IN_V3: bool = true;
 
 /// Context and metadata needed to send a single modeling command.
 ///
@@ -83,8 +93,17 @@ impl ExecState {
     /// Add a modeling command to the batch but don't fire it right away.
     pub(crate) async fn batch_modeling_cmd(
         &mut self,
+        meta: ModelingCmdMeta<'_>,
+        cmd: ModelingCmd,
+    ) -> Result<(), KclError> {
+        self.batch_modeling_cmd_with_entity_clone_info(meta, cmd, None).await
+    }
+
+    pub(crate) async fn batch_modeling_cmd_with_entity_clone_info(
+        &mut self,
         mut meta: ModelingCmdMeta<'_>,
         cmd: ModelingCmd,
+        entity_clone_info: Option<EntityCloneInfo>,
     ) -> Result<(), KclError> {
         if self.is_in_sketch_block() {
             return Err(no_modeling_in_sketch_block_error(meta.source_range));
@@ -94,6 +113,8 @@ impl ExecState {
             cmd_id: id,
             range: meta.source_range,
             command: cmd.clone(),
+            entity_clone_info,
+            omit_from_graph: false,
         });
         meta.ctx
             .engine
@@ -116,12 +137,48 @@ impl ExecState {
                 cmd_id: *cmd_req.cmd_id.as_ref(),
                 range: meta.source_range,
                 command: cmd_req.cmd.clone(),
+                entity_clone_info: None,
+                omit_from_graph: false,
             });
         }
         meta.ctx
             .engine
             .batch_modeling_cmds(&meta.ctx.engine_batch, meta.source_range, cmds)
             .await
+    }
+
+    /// Whether edge cuts (fillets and chamfers) are sent to the engine in
+    /// program order, like any other modeling command.
+    ///
+    /// KCL 3.0: edge cuts execute immediately. Earlier versions defer them to
+    /// the end of the batch; see [`Self::batch_end_cmd`]. This never varies
+    /// within a single execution because it is keyed on the entry point's
+    /// declared version.
+    pub(crate) fn edge_cuts_are_immediate(&self) -> bool {
+        IMMEDIATE_EDGE_CUTS_IN_V3 && self.entry_point_version_is_v3_or_higher()
+    }
+
+    /// Add an edge cut (fillet or chamfer) modeling command to the batch.
+    ///
+    /// KCL 3.0: the command is batched in order with other modeling commands,
+    /// so it executes before whatever the program does next. The engine
+    /// replaces a cut edge with a new face, so a later reference to that edge
+    /// (for example `getOppositeEdge`) fails, matching the order the user
+    /// wrote.
+    ///
+    /// Before KCL 3.0, the command is deferred to the end of the batch so that
+    /// later references to the cut edge still resolve; see
+    /// [`Self::batch_end_cmd`].
+    pub(crate) async fn batch_edge_cut_cmd(
+        &mut self,
+        meta: ModelingCmdMeta<'_>,
+        cmd: ModelingCmd,
+    ) -> Result<(), KclError> {
+        if self.edge_cuts_are_immediate() {
+            self.batch_modeling_cmd(meta, cmd).await
+        } else {
+            self.batch_end_cmd(meta, cmd).await
+        }
     }
 
     /// Add a modeling command to the batch that gets executed at the end of the
@@ -142,6 +199,8 @@ impl ExecState {
             cmd_id: id,
             range: meta.source_range,
             command: cmd.clone(),
+            entity_clone_info: None,
+            omit_from_graph: false,
         });
         meta.ctx
             .engine
@@ -163,6 +222,32 @@ impl ExecState {
             cmd_id: id,
             range: meta.source_range,
             command: cmd.clone(),
+            entity_clone_info: None,
+            omit_from_graph: false,
+        });
+        meta.ctx
+            .engine
+            .send_modeling_cmd(&meta.ctx.engine_batch, id, meta.source_range, &cmd)
+            .await
+    }
+
+    /// Send a query-only modeling command that is recorded in command snapshots
+    /// but omitted from the semantic artifact graph.
+    pub(crate) async fn send_untracked_modeling_cmd(
+        &mut self,
+        mut meta: ModelingCmdMeta<'_>,
+        cmd: ModelingCmd,
+    ) -> Result<OkWebSocketResponseData, KclError> {
+        if self.is_in_sketch_block() {
+            return Err(no_modeling_in_sketch_block_error(meta.source_range));
+        }
+        let id = meta.id(self.id_generator());
+        self.push_command(ArtifactCommand {
+            cmd_id: id,
+            range: meta.source_range,
+            command: cmd.clone(),
+            entity_clone_info: None,
+            omit_from_graph: true,
         });
         meta.ctx
             .engine
@@ -181,10 +266,24 @@ impl ExecState {
             return Err(no_modeling_in_sketch_block_error(meta.source_range));
         }
         let id = meta.id(self.id_generator());
+        let tracked_command = match cmd {
+            ModelingCmd::ImportFiles(import_files) => {
+                // Graph construction does not read imported file bytes. Retain the file paths
+                // and format in execution state without duplicating the full input payload.
+                let mut tracked_import = import_files.clone();
+                for file in &mut tracked_import.files {
+                    file.data.clear();
+                }
+                ModelingCmd::ImportFiles(tracked_import)
+            }
+            _ => cmd.clone(),
+        };
         self.push_command(ArtifactCommand {
             cmd_id: id,
             range: meta.source_range,
-            command: cmd.clone(),
+            command: tracked_command,
+            entity_clone_info: None,
+            omit_from_graph: false,
         });
         meta.ctx.engine.async_modeling_cmd(id, meta.source_range, cmd).await
     }

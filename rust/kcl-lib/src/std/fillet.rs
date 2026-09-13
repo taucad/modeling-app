@@ -22,6 +22,7 @@ use crate::execution::ExtrudeSurface;
 use crate::execution::FilletSurface;
 use crate::execution::GeoMeta;
 use crate::execution::KclValue;
+use crate::execution::KclVersion;
 use crate::execution::ModelingCmdMeta;
 use crate::execution::Solid;
 use crate::execution::TagIdentifier;
@@ -89,13 +90,14 @@ pub(super) fn validate_unique<T: Eq + std::hash::Hash>(tags: &[(T, SourceRange)]
 }
 
 pub(super) enum TaggedEdgeInputs {
-    Tags(Vec<EdgeReference>),
+    Tags(Vec<(EdgeReference, SourceRange)>),
     EngineRefs(Vec<kcmc::shared::EdgeSpecifier>),
 }
 
 pub(super) async fn parse_tagged_edge_inputs(
     edge_refs: Option<Vec<KclValue>>,
     tags_with_source: Option<Vec<(EdgeReference, SourceRange)>>,
+    solid: Option<&Solid>,
     exec_state: &mut ExecState,
     args: &Args,
     missing_args_message: &str,
@@ -107,13 +109,13 @@ pub(super) async fn parse_tagged_edge_inputs(
             vec![args.source_range],
         ))),
         (Some(edge_refs), None) => {
-            let edge_refs_parsed = super::edge::parse_edge_refs_to_references(edge_refs, exec_state, args).await?;
+            let edge_refs_parsed =
+                super::edge::parse_edge_refs_to_references(edge_refs, solid, exec_state, args).await?;
             Ok(TaggedEdgeInputs::EngineRefs(edge_refs_parsed))
         }
         (None, Some(tags_with_source)) => {
             validate_unique(&tags_with_source)?;
-            let tags = tags_with_source.into_iter().map(|item| item.0).collect();
-            Ok(TaggedEdgeInputs::Tags(tags))
+            Ok(TaggedEdgeInputs::Tags(tags_with_source))
         }
         (None, None) => Err(KclError::new_semantic(KclErrorDetails::new(
             missing_args_message.to_owned(),
@@ -141,7 +143,7 @@ pub async fn fillet(exec_state: &mut ExecState, args: Args) -> Result<KclValue, 
             })
         })
         .transpose()?
-        .unwrap_or_default();
+        .unwrap_or_else(|| default_edge_cut_version(exec_state.kcl_version()));
 
     // Edge specifiers are object-shaped payloads, so there is no narrow RuntimeType for them yet.
     // Keep this broad at the boundary and validate the shape in parse_tagged_edge_inputs.
@@ -151,6 +153,7 @@ pub async fn fillet(exec_state: &mut ExecState, args: Args) -> Result<KclValue, 
     let edge_inputs = parse_tagged_edge_inputs(
         edge_refs,
         tags,
+        Some(solid.as_ref()),
         exec_state,
         &args,
         "You must provide either 'tags' or 'edges' to fillet edges",
@@ -188,11 +191,20 @@ pub async fn fillet(exec_state: &mut ExecState, args: Args) -> Result<KclValue, 
     }
 }
 
+/// What version of the fillet/chamfer algorithm should this KCL version use?
+pub(super) fn default_edge_cut_version(kcl_version: KclVersion) -> EdgeCutVersion {
+    if kcl_version <= KclVersion::V2 {
+        EdgeCutVersion::V1
+    } else {
+        EdgeCutVersion::V2
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 async fn inner_fillet(
     solid: Box<Solid>,
     radius: TyF64,
-    tags: Vec<EdgeReference>,
+    tags: Vec<(EdgeReference, SourceRange)>,
     tolerance: Option<TyF64>,
     csg_algorithm: CsgAlgorithm,
     tag: Option<TagNode>,
@@ -218,16 +230,37 @@ async fn inner_fillet(
     }
 
     let mut solid = solid.clone();
-    let edge_ids = tags
-        .into_iter()
-        .map(|edge_tag| edge_tag.get_all_engine_ids(exec_state, &args))
-        .try_fold(Vec::new(), |mut acc, item| match item {
-            Ok(ids) => {
-                acc.extend(ids);
-                Ok(acc)
+    let mut edge_ids = Vec::new();
+    let mut tag_entries: Vec<crate::execution::DirectTagFilletTagEntry> = Vec::new();
+    for (edge_ref, source_range) in &tags {
+        let ids = edge_ref.get_all_engine_ids(exec_state, &args)?;
+        edge_ids.extend(ids.iter().copied());
+        let tag_identifier = match edge_ref {
+            EdgeReference::Tag(t) => t.value.clone(),
+            EdgeReference::Uuid(_) => String::new(),
+        };
+        for edge_id in ids {
+            if let Ok(face_ids) = super::edge::get_face_ids_for_edge(exec_state, solid.id, edge_id, &args).await
+                && let [a, b] = face_ids.as_slice()
+            {
+                if !tag_identifier.is_empty() {
+                    tag_entries.push(crate::execution::DirectTagFilletTagEntry {
+                        tag_identifier: tag_identifier.clone(),
+                        edge_id,
+                        face_ids: [*a, *b],
+                    });
+                } else {
+                    exec_state.record_edge_refactor_meta_from_pending(edge_id, *source_range, [*a, *b]);
+                }
             }
-            Err(e) => Err(e),
-        })?;
+        }
+    }
+    if !tag_entries.is_empty() {
+        exec_state.record_direct_tag_fillet_meta(crate::execution::DirectTagFilletMeta {
+            call_source_range: args.source_range,
+            tags: tag_entries,
+        });
+    }
 
     let id = exec_state.next_uuid();
     let mut extra_face_ids = Vec::new();
@@ -236,7 +269,7 @@ async fn inner_fillet(
         extra_face_ids.push(exec_state.next_uuid());
     }
     exec_state
-        .batch_end_cmd(
+        .batch_edge_cut_cmd(
             ModelingCmdMeta::from_args_id(exec_state, &args, id),
             ModelingCmd::from(
                 mcmd::Solid3dCutEdges::builder()
@@ -321,7 +354,7 @@ async fn inner_fillet_with_engine_refs(
     }
 
     exec_state
-        .batch_end_cmd(
+        .batch_edge_cut_cmd(
             ModelingCmdMeta::from_args_id(exec_state, &args, id),
             ModelingCmd::from(
                 mcmd::Solid3dCutEdgeReferences::builder()
@@ -366,6 +399,90 @@ async fn inner_fillet_with_engine_refs(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::execution::ExecTestResults;
+    use crate::execution::parse_execute;
+
+    /// Test what version of fillet each KCL version uses by default.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn fillet_default_depends_on_kcl_version() {
+        assert_eq!(emitted_fillet_version("1.0", None).await, EdgeCutVersion::V1);
+        assert_eq!(emitted_fillet_version("2.0", None).await, EdgeCutVersion::V1);
+        assert_eq!(
+            emitted_fillet_version("\"3.0-preview\"", None).await,
+            EdgeCutVersion::V2
+        );
+    }
+
+    /// If the user chooses a fillet algorithm version, KCL should respect it,
+    /// and not use that KCL version's default fillet algorithm version.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn explicit_fillet_version_overrides_kcl_default() {
+        assert_eq!(emitted_fillet_version("2.0", Some(2)).await, EdgeCutVersion::V2);
+    }
+
+    /// KCL 3.0 removed `fillet(version = )`. Passing it is reported like any
+    /// other unknown argument, and the default algorithm is used.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn fillet_version_is_removed_in_kcl_3() {
+        let result = run_fillet("\"3.0-preview\"", Some(1)).await;
+        assert!(
+            result
+                .issues()
+                .iter()
+                .any(|issue| {
+                    issue.message
+                        == "`version` is not an argument of `fillet`; it was removed in KCL 3.0, but this program uses KCL 3.0-preview"
+                }),
+            "issues: {:#?}",
+            result.issues()
+        );
+        assert_eq!(emitted_cut_edges_version(&result), EdgeCutVersion::V2);
+    }
+
+    /// For a given KCL version, and optional `fillet(version = )` version,
+    /// show what fillet algorithm version the runtime sent to the engine.
+    async fn emitted_fillet_version(kcl_version: &str, explicit_version: Option<u32>) -> EdgeCutVersion {
+        emitted_cut_edges_version(&run_fillet(kcl_version, explicit_version).await)
+    }
+
+    /// Fillet one edge of a box under the given KCL version, optionally
+    /// passing `fillet(version = )`.
+    async fn run_fillet(kcl_version: &str, explicit_version: Option<u32>) -> ExecTestResults {
+        let version_arg = explicit_version
+            .map(|version| format!(", version = {version}"))
+            .unwrap_or_default();
+        let code = format!(
+            r#"@settings(kclVersion = {kcl_version}, experimentalFeatures = allow)
+
+profile = sketch(on = XY) {{
+  edge1 = line(start = [var 0mm, var 0mm], end = [var 10mm, var 0mm])
+  edge2 = line(start = [var 10mm, var 0mm], end = [var 10mm, var 10mm])
+  edge3 = line(start = [var 10mm, var 10mm], end = [var 0mm, var 10mm])
+  edge4 = line(start = [var 0mm, var 10mm], end = [var 0mm, var 0mm])
+  coincident([edge1.end, edge2.start])
+  coincident([edge2.end, edge3.start])
+  coincident([edge3.end, edge4.start])
+  coincident([edge4.end, edge1.start])
+}}
+profileRegion = region(point = [5mm, 5mm], sketch = profile)
+solid = extrude(profileRegion, length = 10mm, tagEnd = $top)
+fillet(solid, tags = [getCommonEdge(faces = [profileRegion.tags.edge1, top])], radius = 1mm{version_arg})
+"#
+        );
+        parse_execute(&code).await.unwrap()
+    }
+
+    /// The fillet algorithm version the runtime sent to the engine.
+    fn emitted_cut_edges_version(result: &ExecTestResults) -> EdgeCutVersion {
+        result
+            .root_module_artifact_commands()
+            .iter()
+            .find_map(|artifact_command| match &artifact_command.command {
+                ModelingCmd::Solid3dCutEdges(command) => Some(command.version),
+                _ => None,
+            })
+            .expect("fillet should emit a Solid3dCutEdges command")
+    }
 
     #[test]
     fn test_validate_unique() {

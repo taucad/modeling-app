@@ -4,15 +4,16 @@ import type { CompilationIssue } from "./CompilationIssue.js";
 import type { DefaultPlanes } from "./DefaultPlanes.js";
 import type { SceneGraph } from "./FrontendApi.js";
 import type { KclError } from "./KclError.js";
-import type { KclValue } from "./KclValue.js";
+import type { KclValueView } from "./KclValueView.js";
 import type { ModuleId } from "./ModuleId.js";
 import type { ModulePath } from "./ModulePath.js";
 import type { ModuleSource } from "./ModuleSource.js";
-import type { Operation } from "./Operation.js";
+import type { OperationsByModule } from "./OperationsByModule.js";
+import type { RefactorMetadata } from "./RefactorMetadata.js";
 
-export type KclErrorWithOutputs = { error: KclError, nonFatal: Array<CompilationIssue>, 
+export type KclErrorWithOutputs = { error: KclError, nonFatal: Array<CompilationIssue>,
 /**
  * Variables in the top-level of the root module. Note that functions will
  * have an invalid env ref.
  */
-variables: { [key in string]: KclValue }, operations: Array<Operation>, artifactCommands: Array<ArtifactCommand>, artifactGraph: ArtifactGraph, sceneGraph: SceneGraph | null, filenames: { [key in ModuleId]: ModulePath }, sourceFiles: { [key in ModuleId]: ModuleSource }, defaultPlanes: DefaultPlanes | null, };
+variables: { [key in string]: KclValueView }, operations: OperationsByModule, artifactCommands: Array<ArtifactCommand>, artifactGraph: ArtifactGraph, refactorMetadata: Array<RefactorMetadata>, sceneGraph: SceneGraph | null, filenames: { [key in ModuleId]: ModulePath }, sourceFiles: { [key in ModuleId]: ModuleSource }, defaultPlanes: DefaultPlanes | null, };

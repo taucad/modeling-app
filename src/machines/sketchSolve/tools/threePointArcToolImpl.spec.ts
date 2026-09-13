@@ -65,14 +65,16 @@ describe('threePointArcToolImpl', () => {
         },
         pointId: 1,
         point: [10, 20],
+        snapTarget: { type: 'origin' },
       })
     })
   })
 
   describe('finalizeArcActor', () => {
-    it('adds a coincident constraint for the snapped end point before cleanup', async () => {
+    it('adds coincident constraints for snapped arc endpoints before draft point cleanup', async () => {
       const rustContext = createMockRustContext()
       const kclManager = createMockKclManager()
+      const editSegmentsSpy = vi.spyOn(rustContext, 'editSegments')
       const addConstraintSpy = vi.spyOn(rustContext, 'addConstraint')
       const deleteObjectsSpy = vi.spyOn(rustContext, 'deleteObjects')
       const center = createPointApiObject({ id: 4, x: 1, y: 0 })
@@ -88,11 +90,11 @@ describe('threePointArcToolImpl', () => {
       })
       ;(rustContext.addConstraint as any)
         .mockResolvedValueOnce({
-          kclSource: { text: 'snap' },
+          kclSource: { text: 'start-snap' },
           sceneGraphDelta: createSceneGraphDelta([], [10]),
         })
         .mockResolvedValueOnce({
-          kclSource: { text: 'through' },
+          kclSource: { text: 'end-snap' },
           sceneGraphDelta: createSceneGraphDelta([], [11]),
         })
       ;(rustContext.deleteObjects as any).mockResolvedValue({
@@ -105,10 +107,11 @@ describe('threePointArcToolImpl', () => {
           arcId: 7,
           startPoint: [0, 0],
           startPointId: 1,
+          firstClickSnapTarget: { type: 'point', id: 98 },
           throughPoint: [1, 1],
           throughPointId: 2,
           endPoint: [2, 0],
-          endSnapTarget: { type: 'point', id: 99 },
+          lastClickSnapTarget: { type: 'point', id: 99 },
           rustContext,
           kclManager,
           sketchId: 7,
@@ -121,7 +124,7 @@ describe('threePointArcToolImpl', () => {
         7,
         {
           type: 'Coincident',
-          segments: [5, 99],
+          segments: [5, 98],
         },
         expect.anything()
       )
@@ -131,10 +134,35 @@ describe('threePointArcToolImpl', () => {
         7,
         {
           type: 'Coincident',
-          segments: [2, 7],
+          segments: [6, 99],
         },
+        expect.anything()
+      )
+      expect(addConstraintSpy).toHaveBeenCalledTimes(2)
+      expect(editSegmentsSpy).toHaveBeenCalledWith(
+        0,
+        7,
+        [
+          {
+            id: 7,
+            ctor: expect.objectContaining({
+              type: 'Arc',
+              direction: 'cw',
+              start: expect.objectContaining({
+                x: expect.objectContaining({ value: 0 }),
+                y: expect.objectContaining({ value: 0 }),
+              }),
+              end: expect.objectContaining({
+                x: expect.objectContaining({ value: 2 }),
+                y: expect.objectContaining({ value: 0 }),
+              }),
+            }),
+          },
+        ],
         expect.anything(),
-        false
+        false,
+        undefined,
+        true
       )
       expect(result).toEqual({
         kclSource: { text: 'delete' },
@@ -144,7 +172,14 @@ describe('threePointArcToolImpl', () => {
         },
         checkpointId: null,
       })
-      expect(deleteObjectsSpy).toHaveBeenCalled()
+      expect(deleteObjectsSpy).toHaveBeenCalledWith(
+        0,
+        7,
+        [],
+        [1, 2],
+        expect.anything(),
+        true
+      )
     })
   })
 })

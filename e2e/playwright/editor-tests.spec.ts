@@ -10,7 +10,11 @@ import {
 } from '@e2e/playwright/test-utils'
 import { expect, test } from '@e2e/playwright/zoo-test'
 import type { Page } from '@playwright/test'
+import { LEGACY_SKETCH_MODE_FEATURE_FLAG } from '@src/lib/constants'
 import { DefaultLayoutPaneID } from '@src/lib/layout/configs/default'
+
+// Some of these sketches are KCL 1.0, so editing them needs the legacy sketch flag.
+test.use({ userFeatures: [LEGACY_SKETCH_MODE_FEATURE_FLAG] })
 
 type MainAxisTestFixtures = Pick<Fixtures, 'homePage' | 'toolbar' | 'scene'> & {
   page: Page
@@ -184,6 +188,7 @@ sketch001 = startSketchOn(XY)
     const u = await getUtils(page)
     await page.setBodyDimensions({ width: 1000, height: 500 })
 
+    await homePage.waitForAuthentication()
     await homePage.goToModelingScene()
     await scene.settled()
 
@@ -959,8 +964,6 @@ a1 = startSketchOn(offsetPlane(XY, offset = 10))
       await page.waitForTimeout(100)
       await page.keyboard.press('Enter') // accepting the auto complete, not a new line
 
-      await page.keyboard.press('Tab')
-      await page.waitForTimeout(100)
       await page.keyboard.type('12')
       await page.waitForTimeout(100)
       await page.keyboard.press('Tab')
@@ -1018,7 +1021,6 @@ sketch001 = startSketchOn(XZ)
       // Make sure just hitting tab will take the only one left
       await expect(page.locator('.cm-completionLabel')).toHaveCount(1)
       await page.waitForTimeout(500)
-      await page.keyboard.press('ArrowDown')
       await page.keyboard.press('Tab')
       await page.waitForTimeout(500)
       await page.keyboard.type('XZ')
@@ -1029,8 +1031,7 @@ sketch001 = startSketchOn(XZ)
       await expect(page.locator('.cm-completionLabel')).toBeVisible()
       await page.waitForTimeout(100)
       await page.keyboard.press('Tab') // accepting the auto complete, not a new line
-
-      await page.keyboard.press('Tab')
+      await page.waitForTimeout(100)
       await page.keyboard.type('12')
       await page.waitForTimeout(100)
       await page.keyboard.press('Tab')

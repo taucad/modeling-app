@@ -17,11 +17,17 @@ export default defineConfig({
     ],
     server: {
       deps: {
-        external: [/playwright/],
+        external: [/^playwright(?:\/|$)/, /^@playwright\//],
         inline: [/e2e/, /packages/],
       },
     },
-    reporters: ['default', 'junit'],
+    reporters: [
+      'default',
+      'junit',
+      ...(process.env.GITHUB_ACTIONS === 'true'
+        ? (['github-actions'] as const)
+        : []),
+    ],
     outputFile: {
       junit: 'test-results/junit.xml',
     },

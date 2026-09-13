@@ -1,19 +1,20 @@
 import { useSignalEffect } from '@preact/signals-react'
 import { useSignals } from '@preact/signals-react/runtime'
 import { AppHeader } from '@src/components/AppHeader'
-import { useLspContext } from '@src/components/LspProvider'
 import { useNetworkHealthStatus } from '@src/components/NetworkHealthIndicator'
 import { useNetworkMachineStatus } from '@src/components/NetworkMachineIndicator'
-import { StatusBar } from '@src/components/StatusBar/StatusBar'
+import {
+  checkOpenedProjectPresence,
+  getZookeeperProjectReloadBehavior,
+} from '@src/components/openedProjectUtils'
 import {
   defaultGlobalStatusBarItems,
   defaultLocalStatusBarItems,
 } from '@src/components/StatusBar/defaultStatusBarItems'
+import { StatusBar } from '@src/components/StatusBar/StatusBar'
 import type { StatusBarItemType } from '@src/components/StatusBar/statusBarTypes'
 import { UndoRedoButtons } from '@src/components/UndoRedoButtons'
 import { WasmErrToast } from '@src/components/WasmErrToast'
-import { ZookeeperCreditsMenu } from '@src/components/ZookeeperCreditsMenu'
-import { getMlEphantProjectReloadBehavior } from '@src/components/openedProjectUtils'
 import { useEngineConnectionSubscriptions } from '@src/hooks/useEngineConnectionSubscriptions'
 import { useHotKeyListener } from '@src/hooks/useHotKeyListener'
 import { useModelingContext } from '@src/hooks/useModelingContext'
@@ -22,29 +23,24 @@ import {
   autoUpdateDownloadProgressSignal,
   autoUpdateReadySignal,
 } from '@src/lib/autoUpdate'
+import { BillingTransition } from '@src/lib/billing'
 import { useApp, useSingletons } from '@src/lib/boot'
 import {
   ONBOARDING_TOAST_ID,
+  OPFS_CLOUD_FEATURE_FLAG,
   WASM_INIT_FAILED_TOAST_ID,
 } from '@src/lib/constants'
-import useHotkeyWrapper from '@src/lib/hotkeyWrapper'
 import { isDesktop } from '@src/lib/isDesktop'
-import {
-  DefaultLayoutPaneID,
-  LayoutRootNode,
-  defaultLayout,
-  getOpenPanes,
-} from '@src/lib/layout'
+import { defaultLayout, LayoutRootNode } from '@src/lib/layout'
 import { useDefaultActionLibrary } from '@src/lib/layout/defaultActionLibrary'
 import { useDefaultAreaLibrary } from '@src/lib/layout/defaultAreaLibrary'
+import { lspService } from '@src/lang/lsp/registry/contract'
 import { PATHS } from '@src/lib/paths'
-import type { Project } from '@src/lib/project'
 import { resetCameraPosition } from '@src/lib/resetCameraPosition'
 import { maybeWriteToDisk } from '@src/lib/telemetry'
 import { reportRejection } from '@src/lib/trap'
 import { withSiteBaseURL } from '@src/lib/withBaseURL'
 import { xStateValueToString } from '@src/lib/xStateValueToString'
-import { BillingTransition } from '@src/machines/billingMachine'
 
 import { useFolders, useLastOperation } from '@src/machines/systemIO/hooks'
 import { SystemIOMachineStates } from '@src/machines/systemIO/utils'
@@ -54,14 +50,13 @@ import {
   statusBarLocalItemsValueSpec,
 } from '@src/registry/contracts/statusBar'
 import {
-  TutorialRequestToast,
   needsToOnboard,
+  TutorialRequestToast,
   useApplyRememberedOnboardingWorkflow,
 } from '@src/routes/Onboarding/utils'
 import { useSelector } from '@xstate/react'
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
-import { useHotkeys } from 'react-hotkeys-hook'
 import ModalContainer from 'react-modal-promise'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -73,14 +68,15 @@ if (window.electron) {
 
 export function OpenedProject() {
   useSignals()
+  const app = useApp()
   const { auth, billing, settings, layout, project, systemIOActor, registry } =
-    useApp()
+    app
   const { kclManager } = useSingletons()
   const settingsActor = settings.actor
   const defaultAreaLibrary = useDefaultAreaLibrary()
   const defaultActionLibrary = useDefaultActionLibrary()
   const { state: modelingState, send: modelingSend } = useModelingContext()
-  useQueryParamEffects(kclManager)
+  useQueryParamEffects()
   const [nativeFileMenuCreated, setNativeFileMenuCreated] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
@@ -88,9 +84,13 @@ export function OpenedProject() {
   const autoUpdateReady = autoUpdateReadySignal.value
   const lastOperation = useLastOperation()
   const projects = useFolders()
-  const { onProjectOpen } = useLspContext()
+  const lsp = registry.get(lspService)
   const networkHealthStatus = useNetworkHealthStatus()
   const networkMachineStatus = useNetworkMachineStatus()
+  const hasCloudSyncFeature = app.userFeatures.useHas(
+    OPFS_CLOUD_FEATURE_FLAG,
+    false
+  )
 
   // Stream related refs and data
   const [searchParams] = useSearchParams()
@@ -103,23 +103,44 @@ export function OpenedProject() {
   // Handle our project folder disappearing (Go back to Projects listing)
   useEffect(() => {
     if (
-      projects &&
-      projects.length > 0 &&
-      projects.every((p: Project) => p.name !== projectName) &&
+      systemIOState !== SystemIOMachineStates.idle ||
+      !projectPath ||
+      !projects
+    ) {
+      return
+    }
+
+    if (
       [
         SystemIOMachineStates.creatingProject,
         SystemIOMachineStates.renamingProject,
         SystemIOMachineStates.importFileFromURL,
-      ].includes(lastOperation) === false
+      ].includes(lastOperation)
     ) {
-      void navigate(PATHS.HOME)
+      return
     }
 
-    if (projects && projects.length === 0) {
-      void navigate(PATHS.HOME)
+    let cancelled = false
+    void checkOpenedProjectPresence({
+      projectPath,
+      projects,
+    }).then((presence) => {
+      if (cancelled) {
+        return
+      }
+      if (presence.type === 'error') {
+        reportRejection(presence.error)
+        return
+      }
+      if (presence.type === 'missing') {
+        void navigate(PATHS.HOME)
+      }
+    })
+
+    return () => {
+      cancelled = true
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projects, lastOperation])
+  }, [lastOperation, navigate, projectPath, projects, systemIOState])
 
   // ZOOKEEPER BEHAVIOR EXCEPTION
   // Only fires on state changes, to deal with Zookeeper control.
@@ -127,11 +148,13 @@ export function OpenedProject() {
     if (systemIOState !== 'idle') {
       return
     }
-    if (kclManager.mlEphantManagerMachineBulkManipulatingFileSystem === false) {
+    if (
+      kclManager.zookeeperManagerMachineBulkManipulatingFileSystem === false
+    ) {
       return
     }
-    const reloadBehavior = getMlEphantProjectReloadBehavior(modelingState)
-    kclManager.mlEphantManagerMachineBulkManipulatingFileSystem = false
+    const reloadBehavior = getZookeeperProjectReloadBehavior(modelingState)
+    kclManager.zookeeperManagerMachineBulkManipulatingFileSystem = false
 
     if (reloadBehavior === 'exit-sketch-solve') {
       toast(
@@ -157,11 +180,11 @@ export function OpenedProject() {
 
   // Run LSP file open hook when navigating between projects or files
   useEffect(() => {
-    onProjectOpen(
+    lsp.onProjectOpen(
       { name: projectName, path: projectPath },
       project?.executingPath ? project.executingFileEntry.value : null
     )
-  }, [onProjectOpen, projectName, projectPath, project])
+  }, [lsp, projectName, projectPath, project])
 
   useHotKeyListener(kclManager)
 
@@ -175,49 +198,16 @@ export function OpenedProject() {
     registry.signal(statusBarLocalItemsValueSpec).value,
     ['file']
   )
+  const executingPath = project?.executingPathSignal.value?.value
+  const activeFileRoutePath = executingPath
+    ? PATHS.FILE + '/' + encodeURIComponent(executingPath)
+    : undefined
   const authToken = auth.useToken()
   const onboardingStatus =
     settingsValues.app.onboardingStatus.current ||
     settingsValues.app.onboardingStatus.default
 
   useApplyRememberedOnboardingWorkflow(location.pathname, onboardingStatus)
-
-  useHotkeys('backspace', (e) => {
-    e.preventDefault()
-  })
-  // Since these already exist in the editor, we don't need to define them
-  // with the wrapper.
-  useHotkeys('mod+z', (e) => {
-    e.preventDefault()
-    kclManager.undo()
-  })
-  useHotkeys('mod+shift+z', (e) => {
-    e.preventDefault()
-    kclManager.redo()
-  })
-
-  useHotkeyWrapper(
-    ['alt + shift + f'],
-    () => {
-      void kclManager.format()
-    },
-    kclManager,
-    {
-      enabled: !isDesktop(),
-      enableOnContentEditable: true,
-      enableOnFormTags: true,
-      // Desktop uses the native Electron menu accelerator for this binding.
-      // Skip CodeMirror registration because this combo types a character there.
-      registerToCodeMirror: false,
-    }
-  )
-  useHotkeyWrapper(
-    ['ctrl + shift + c'],
-    () => {
-      void kclManager.convertToVariable()
-    },
-    kclManager
-  )
 
   useEngineConnectionSubscriptions()
 
@@ -251,12 +241,10 @@ export function OpenedProject() {
       toast.success(
         () =>
           TutorialRequestToast({
+            app,
             onboardingStatus: settingsValues.app.onboardingStatus.current,
             navigate,
-            kclManager,
             accountUrl: withSiteBaseURL('/account'),
-            systemIOActor,
-            settingsActor,
           }),
         {
           id: ONBOARDING_TOAST_ID,
@@ -274,9 +262,6 @@ export function OpenedProject() {
     navigate,
     searchParams.size,
     authToken,
-    kclManager,
-    systemIOActor,
-    settingsActor,
   ])
 
   // This is, at time of writing, the only spot we need @preact/signals-react,
@@ -315,21 +300,6 @@ export function OpenedProject() {
         .catch(reportRejection)
     }
   }, [])
-
-  const zookeeperLocalStatusBarItems: StatusBarItemType[] = useMemo(
-    () =>
-      getOpenPanes({ rootLayout: layout.signal.value }).includes(
-        DefaultLayoutPaneID.TTC
-      )
-        ? [
-            {
-              id: 'zookeeper-credits',
-              component: ZookeeperCreditsMenu,
-            },
-          ]
-        : [],
-    [layout.signal.value]
-  )
 
   const undoRedoButtons = useMemo(
     () => (
@@ -379,12 +349,14 @@ export function OpenedProject() {
           />
         </section>
         <StatusBar
+          activeFileRoutePath={activeFileRoutePath}
           globalItems={[
             networkHealthStatus,
             ...(isDesktop() && machineApiEnabled ? [networkMachineStatus] : []),
             ...defaultGlobalStatusBarItems({
               autoUpdateDownloadProgress,
               autoUpdateReady,
+              hasCloudSyncFeature,
               onRestartToUpdate: () => {
                 window.electron?.appRestart()
               },
@@ -408,7 +380,6 @@ export function OpenedProject() {
                 ] satisfies StatusBarItemType[])
               : []),
             ...registryLocalStatusBarItems,
-            ...zookeeperLocalStatusBarItems,
             ...defaultLocalStatusBarItems,
           ]}
         />

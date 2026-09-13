@@ -28,6 +28,7 @@ import type {
   PathToNode,
   Program,
 } from '@src/lang/wasm'
+import { modelingStdLibCommandName } from '@src/lib/commandBarConfigs/modelingCommandStdLib'
 import type { KclCommandValue } from '@src/lib/commandTypes'
 import { KCL_DEFAULT_CONSTANT_PREFIXES } from '@src/lib/constants'
 import { err } from '@src/lib/trap'
@@ -75,13 +76,15 @@ export function addHelix({
   let pathIfNewPipe: PathToNode | undefined
   const axisExpr: LabeledArg[] = []
   const cylinderExpr: LabeledArg[] = []
-  if (cylinder) {
+  // Only explicit X/Y/Z axes are editable. Selection-backed axis and cylinder
+  // arguments are omitted here, then restored verbatim by setCallInAst.
+  if (cylinder && !mNodeToEdit) {
     const vars = getVariableExprsFromSelection(
       cylinder,
       artifactGraph,
       modifiedAst,
       wasmInstance,
-      mNodeToEdit,
+      undefined,
       {
         lastChildLookup: true,
       }
@@ -91,7 +94,7 @@ export function addHelix({
     }
     cylinderExpr.push(createLabeledArg('cylinder', vars.exprs[0]))
     pathIfNewPipe = vars.pathIfPipe
-  } else if (axis || edge) {
+  } else if (axis || (edge && !mNodeToEdit)) {
     const result = getAxisExpression(
       axis,
       edge,
@@ -104,7 +107,7 @@ export function addHelix({
     }
     axisExpr.push(createLabeledArg('axis', result.generatedAxis))
     modifiedAst = result.modifiedAst
-  } else {
+  } else if (!mNodeToEdit) {
     return new Error('Helix must have either an axis or a cylinder')
   }
 
@@ -121,15 +124,19 @@ export function addHelix({
     : []
 
   const unlabeledArgs = null
-  const call = createCallExpressionStdLibKw('helix', unlabeledArgs, [
-    ...axisExpr,
-    ...cylinderExpr,
-    createLabeledArg('revolutions', valueOrVariable(revolutions)),
-    createLabeledArg('angleStart', valueOrVariable(angleStart)),
-    ...radiusExpr,
-    ...lengthExpr,
-    ...ccwExpr,
-  ])
+  const call = createCallExpressionStdLibKw(
+    modelingStdLibCommandName('Helix'),
+    unlabeledArgs,
+    [
+      ...axisExpr,
+      ...cylinderExpr,
+      createLabeledArg('revolutions', valueOrVariable(revolutions)),
+      createLabeledArg('angleStart', valueOrVariable(angleStart)),
+      ...radiusExpr,
+      ...lengthExpr,
+      ...ccwExpr,
+    ]
+  )
 
   // Insert variables for labeled arguments if provided
   if ('variableName' in angleStart && angleStart.variableName) {
@@ -156,6 +163,9 @@ export function addHelix({
     pathToEdit: mNodeToEdit,
     pathIfNewPipe,
     variableIfNewDecl: KCL_DEFAULT_CONSTANT_PREFIXES.HELIX,
+    // During edits, `axis` is set only for explicit X/Y/Z values. If it is
+    // undefined, keep whichever selection-backed input exists: `axis` or `cylinder`.
+    labeledSelectionArgNames: mNodeToEdit && !axis ? ['axis', 'cylinder'] : [],
     wasmInstance,
   })
   if (err(pathToNode)) {
@@ -245,7 +255,7 @@ export function getAxisExpression(
     if (bodies.size !== 1) {
       return new Error('No edges found in the selection')
     }
-    const expr = bodies.values().toArray()[0].tagsExpr
+    const expr = Array.from(bodies.values())[0].tagsExpr
     return { generatedAxis: expr, modifiedAst }
   } else {
     return new Error('Must provide either an axis or an edge selection')

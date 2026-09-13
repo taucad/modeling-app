@@ -23,7 +23,7 @@ import { isModelingResponse } from '@src/lib/kcSdkGuards'
 import { isArray, roundOff, uuidv4 } from '@src/lib/utils'
 import type { ModuleType } from '@src/lib/wasm_lib_wrapper'
 import type { Selections } from '@src/machines/modelingSharedTypes'
-import type { ConnectionManager } from '@src/network/connectionManager'
+import type { ConnectionManager } from '@src/lib/engineConnection/connectionManager'
 
 type Axis = 'x' | 'y' | 'z'
 type GdtFramePlane =
@@ -47,6 +47,8 @@ type GdtCommandData =
   | ModelingCommandSchema['GDT Distance']
   | ModelingCommandSchema['GDT Perpendicularity']
   | ModelingCommandSchema['GDT Angularity']
+  | ModelingCommandSchema['GDT Concentricity']
+  | ModelingCommandSchema['GDT Symmetry']
   | ModelingCommandSchema['GDT Parallelism']
   | ModelingCommandSchema['GDT Annotation']
 
@@ -60,9 +62,6 @@ function getSelectionsFromGdtData(
   }
   if ('faces' in data) {
     return data.faces
-  }
-  if ('edges' in data) {
-    return data.edges
   }
   return undefined
 }

@@ -10,7 +10,18 @@ import { contextBridge, ipcRenderer } from 'electron'
 
 import type { Channel } from '@src/channels'
 import type { AutoUpdateDownloadProgress } from '@src/lib/autoUpdate'
+import {
+  ELECTRON_LIFECYCLE_DRAIN_REPORTS_CHANNEL,
+  ELECTRON_LIFECYCLE_REPORT_AVAILABLE_CHANNEL,
+  type ElectronLifecycleReport,
+} from '@src/lib/electronLifecycle'
+import { getAllowedExternalURL } from '@src/lib/externalUrls'
 import type { WebContentSendPayload } from '@src/menu/channels'
+import {
+  PLUGIN_IPC_SYNC_ACTIVE_PLUGINS_CHANNEL,
+  type PluginIpcChannel,
+  isPluginIpcChannel,
+} from '@src/registry/pluginIpc'
 
 const typeSafeIpcRendererOn = (
   channel: Channel,
@@ -21,10 +32,32 @@ const resizeWindow = (width: number, height: number) =>
   ipcRenderer.invoke('app.resizeWindow', [width, height])
 const open = (args: any) => ipcRenderer.invoke('dialog.showOpenDialog', args)
 const save = (args: any) => ipcRenderer.invoke('dialog.showSaveDialog', args)
-const openExternal = (url: any) => ipcRenderer.invoke('shell.openExternal', url)
+export const openExternal = (url: unknown) => {
+  const allowedURL = getAllowedExternalURL(url)
+  if (allowedURL instanceof Error) {
+    return Promise.reject(allowedURL)
+  }
+
+  return ipcRenderer.invoke('shell.openExternal', allowedURL)
+}
 const openInNewWindow = (url: any) => ipcRenderer.invoke('openInNewWindow', url)
 const showInFolder = (path: string) =>
   ipcRenderer.invoke('shell.showItemInFolder', path)
+const pluginIpc = {
+  invoke: <T>(channel: PluginIpcChannel, payload?: unknown): Promise<T> => {
+    if (!isPluginIpcChannel(channel)) {
+      return Promise.reject(
+        new Error('Plugin IPC channels must start with plugin:')
+      )
+    }
+    if (channel === PLUGIN_IPC_SYNC_ACTIVE_PLUGINS_CHANNEL) {
+      return Promise.reject(new Error('Plugin IPC channel is reserved.'))
+    }
+    return ipcRenderer.invoke(channel, payload)
+  },
+  syncActivePlugins: (pluginIds: readonly string[]): Promise<void> =>
+    ipcRenderer.invoke(PLUGIN_IPC_SYNC_ACTIVE_PLUGINS_CHANNEL, pluginIds),
+}
 const startDeviceFlow = (host: string): Promise<DeviceFlowAuthorization> =>
   ipcRenderer.invoke('startDeviceFlow', host)
 const loginWithDeviceFlow = (): Promise<string> =>
@@ -61,6 +94,22 @@ const getMachineApiRunning = (): Promise<boolean> =>
   ipcRenderer.invoke('machine-api.get-state')
 const setMachineApiState = (signal: 'on' | 'off'): Promise<boolean> =>
   ipcRenderer.invoke('machine-api.set-state', signal)
+const drainElectronLifecycleReports = (): Promise<ElectronLifecycleReport[]> =>
+  ipcRenderer.invoke(ELECTRON_LIFECYCLE_DRAIN_REPORTS_CHANNEL)
+const onElectronLifecycleReportAvailable = (callback: () => void) => {
+  const subscription = () => callback()
+  typeSafeIpcRendererOn(
+    ELECTRON_LIFECYCLE_REPORT_AVAILABLE_CHANNEL,
+    subscription
+  )
+
+  return () => {
+    ipcRenderer.removeListener(
+      ELECTRON_LIFECYCLE_REPORT_AVAILABLE_CHANNEL,
+      subscription
+    )
+  }
+}
 
 const isMac = os.platform() === 'darwin'
 const isWindows = os.platform() === 'win32'
@@ -80,13 +129,17 @@ let fsWatchListeners = new Map<
 const watchFileOn = (
   path: string,
   key: string,
-  callback: (eventType: string, path: string) => void
+  callback: (eventType: string, path: string) => void,
+  options: { depth?: number } = {}
 ) => {
   let watchers = fsWatchListeners.get(path)
   if (!watchers) {
     watchers = new Map()
   }
-  const watcher = chokidar.watch(path, { depth: 1, ignoreInitial: true })
+  const watcher = chokidar.watch(path, {
+    depth: options.depth ?? 1,
+    ignoreInitial: true,
+  })
   watcher.on('all', callback)
   watchers.set(key, { watcher, callback })
   fsWatchListeners.set(path, watchers)
@@ -103,6 +156,9 @@ const watchFileOff = (path: string, key: string) => {
   }
   const { watcher, callback } = data
   watcher.off('all', callback)
+  void watcher.close().catch((error) => {
+    console.warn('Failed to close file watcher.', error)
+  })
   watchers.delete(key)
   if (watchers.size === 0) {
     fsWatchListeners.delete(path)
@@ -112,8 +168,11 @@ const watchFileOff = (path: string, key: string) => {
 }
 const readFile = fs.readFile
 const rename = (prev: string, next: string) => fs.rename(prev, next)
-const writeFile = (path: string, data: string | Uint8Array) =>
-  fs.writeFile(path, data, 'utf-8')
+const writeFile = (
+  path: string,
+  data: string | Uint8Array,
+  options?: { flag?: 'w' | 'wx' }
+) => fs.writeFile(path, data, { encoding: 'utf-8', flag: options?.flag ?? 'w' })
 const readdir = (path: string) => fs.readdir(path, 'utf-8')
 const stat = (path: string) => {
   return fs.stat(path).catch((e) => Promise.reject(e.code))
@@ -284,6 +343,8 @@ const menuOn = (callback: (payload: WebContentSendPayload) => void) => {
 }
 
 contextBridge.exposeInMainWorld('electron', {
+  drainElectronLifecycleReports,
+  onElectronLifecycleReportAvailable,
   startDeviceFlow,
   loginWithDeviceFlow,
   cancelDeviceFlow,
@@ -309,6 +370,7 @@ contextBridge.exposeInMainWorld('electron', {
   openExternal,
   openInNewWindow,
   showInFolder,
+  pluginIpc,
   getPath,
   packageJson,
   arch: process.arch,
@@ -330,8 +392,9 @@ contextBridge.exposeInMainWorld('electron', {
       exposeProcessEnvs([
         'NODE_ENV',
         'VITE_ZOO_BASE_DOMAIN',
+        'VITE_ZOO_API_BASE_URL',
         'VITE_KITTYCAD_WEBSOCKET_URL',
-        'VITE_MLEPHANT_WEBSOCKET_URL',
+        'VITE_ZOOKEEPER_WEBSOCKET_URL',
         'VITE_ZOO_API_TOKEN',
       ])
     ),

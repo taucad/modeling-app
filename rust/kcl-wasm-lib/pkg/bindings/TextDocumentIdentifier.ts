@@ -3,7 +3,7 @@
 /**
  * Text documents are identified using a URI. On the protocol level, URIs are passed as strings.
  */
-export type TextDocumentIdentifier = { 
+export type TextDocumentIdentifier = {
 /**
  * The text document's URI.
  */

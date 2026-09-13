@@ -1,20 +1,42 @@
+import decamelize from 'decamelize'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import CommandBarDivider from '@src/components/CommandBar/CommandBarDivider'
 import CommandBarHeaderFooter from '@src/components/CommandBar/CommandBarHeaderFooter'
+import { CodemodReviewDiff } from '@src/components/CommandBar/CodemodReviewDiff'
 import { evaluateCommandBarArg } from '@src/components/CommandBar/utils'
 import { CustomIcon } from '@src/components/CustomIcon'
 import Tooltip from '@src/components/Tooltip'
 import { noAutofillFormProps, noAutofillInputProps } from '@src/lib/autofill'
 import { useApp } from '@src/lib/boot'
+import { useResolvedTheme } from '@src/hooks/useResolvedTheme'
 import type { CommandArgument } from '@src/lib/commandTypes'
+import { capitaliseFC } from '@src/lib/utils'
 import { useMemo } from 'react'
+
+function validationErrorParts(error: string) {
+  const separatorIndex = error.indexOf(': ')
+  if (separatorIndex < 1) {
+    return { message: error }
+  }
+
+  return {
+    category: error.slice(0, separatorIndex),
+    message: error.slice(separatorIndex + 2),
+  }
+}
 
 function CommandBarReview({ stepBack }: { stepBack: () => void }) {
   const { commands } = useApp()
+  const resolvedTheme = useResolvedTheme()
   const commandBarState = commands.useState()
   const {
-    context: { argumentsToSubmit, selectedCommand, reviewValidationError },
+    context: {
+      argumentsToSubmit,
+      selectedCommand,
+      reviewValidationError,
+      reviewValidationDetails,
+    },
   } = commandBarState
 
   useHotkeys('backspace+meta', stepBack, {
@@ -100,6 +122,10 @@ function CommandBarReview({ stepBack }: { stepBack: () => void }) {
     }
     return s
   }, [selectedCommand, commandBarState.context])
+  const validationError = reviewValidationError
+    ? validationErrorParts(reviewValidationError)
+    : undefined
+
   return (
     <CommandBarHeaderFooter
       stepBack={stepBack}
@@ -115,17 +141,6 @@ function CommandBarReview({ stepBack }: { stepBack: () => void }) {
           <CommandBarDivider />
         </>
       )}
-      {reviewValidationError && (
-        <>
-          <p
-            className="px-4 py-2 text-red-500 text-sm"
-            data-testid="cmd-bar-review-validation-error"
-          >
-            {reviewValidationError}
-          </p>
-          <CommandBarDivider />
-        </>
-      )}
       {selectedCommand?.status === 'experimental' && (
         <>
           <p className="px-4 py-2 text-sm">
@@ -134,6 +149,19 @@ function CommandBarReview({ stepBack }: { stepBack: () => void }) {
               this command is experimental, which means the feature it generates
               may not be compatible with future versions of Zoo Design Studio.
               Use at your own risk, and please report issues!
+            </span>
+          </p>
+          <CommandBarDivider />
+        </>
+      )}
+      {selectedCommand?.status === 'deprecated' && (
+        <>
+          <p className="px-4 py-2 text-sm">
+            <span className="font-bold">Warning: </span>
+            <span>
+              this command is deprecated and may be removed in a future version
+              of Zoo Design Studio. Prefer the recommended replacement when one
+              is available.
             </span>
           </p>
           <CommandBarDivider />
@@ -169,8 +197,23 @@ function CommandBarReview({ stepBack }: { stepBack: () => void }) {
                         </Tooltip>
                       </span>
                     )}
-                    <span className="capitalize">
-                      {arg.displayName || argName}
+                    {arg.status === 'deprecated' && (
+                      <span className="inline-flex items-center text-warn-80 dark:text-warn-40">
+                        <CustomIcon
+                          name="triangleExclamation"
+                          className="w-3.5 h-3.5"
+                        />
+                        <Tooltip
+                          position="bottom"
+                          contentClassName="max-w-none flex items-center"
+                        >
+                          <span>{arg.statusMessage ?? 'Deprecated'}</span>
+                        </Tooltip>
+                      </span>
+                    )}
+                    <span>
+                      {arg.displayName ||
+                        capitaliseFC(decamelize(argName, { separator: ' ' }))}
                     </span>
                     <CustomIcon name="plus" className="w-4 h-4" />
                   </button>
@@ -178,6 +221,43 @@ function CommandBarReview({ stepBack }: { stepBack: () => void }) {
               }
             )}
           </div>
+          <CommandBarDivider />
+        </>
+      )}
+      {validationError && (
+        <>
+          <div
+            role="alert"
+            className="mx-4 my-3 flex items-start gap-3 rounded-md border border-destroy-30 bg-destroy-10/40 px-3 py-2.5 dark:border-destroy-70 dark:bg-destroy-80/15"
+          >
+            <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-destroy-20/70 text-destroy-80 dark:bg-destroy-80/60 dark:text-destroy-20">
+              <CustomIcon name="triangleExclamation" className="h-4 w-4" />
+            </span>
+            <div className="min-w-0">
+              <p className="font-medium text-sm text-destroy-80 dark:text-destroy-20">
+                Check these arguments
+              </p>
+              <p
+                className="mt-0.5 break-words text-sm leading-5 text-chalkboard-80 dark:text-chalkboard-20"
+                data-testid="cmd-bar-review-validation-error"
+              >
+                {validationError.category && (
+                  <>
+                    <span className="mr-1 inline-flex rounded bg-destroy-20/60 px-1.5 py-0.5 text-[11px] font-medium leading-none capitalize text-destroy-80 dark:bg-destroy-80/50 dark:text-destroy-20">
+                      {validationError.category}:
+                    </span>{' '}
+                  </>
+                )}
+                {validationError.message}
+              </p>
+            </div>
+          </div>
+          {reviewValidationDetails?.type === 'codemod' && (
+            <CodemodReviewDiff
+              details={reviewValidationDetails}
+              resolvedTheme={resolvedTheme}
+            />
+          )}
           <CommandBarDivider />
         </>
       )}

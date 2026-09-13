@@ -4,7 +4,7 @@ import type { SourceRange } from "./SourceRange.js";
 /**
  * Metadata.
  */
-export type Metadata = { 
+export type Metadata = {
 /**
  * The source range.
  */

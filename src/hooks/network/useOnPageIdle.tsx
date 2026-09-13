@@ -1,6 +1,7 @@
 import { useModelingContext } from '@src/hooks/useModelingContext'
 import { useApp, useSingletons } from '@src/lib/boot'
 import { EngineDebugger } from '@src/lib/debugger'
+import { zookeeperPromptRunningSignal } from '@src/lib/zookeeper/zookeeperPromptState'
 import { useEffect, useRef } from 'react'
 
 export const useOnPageIdle = ({
@@ -15,22 +16,13 @@ export const useOnPageIdle = ({
   const settingsValues = settings.useSettings()
   const streamIdleMode = settingsValues.app.streamIdleMode.current
   const { state: modelingMachineState } = useModelingContext()
-  const intervalId = useRef<NodeJS.Timeout | null>(null)
   const startCallbackRef = useRef(startCallback)
   const idleCallbackRef = useRef(idleCallback)
   const modelingMachineStateRef = useRef(modelingMachineState)
   const idleTimeMsRef = useRef(Number(streamIdleMode))
   const wasBusyRef = useRef(false)
   const timeoutStart = useRef<number | null>(null)
-
-  useEffect(() => {
-    return () => {
-      if (intervalId.current) {
-        clearInterval(intervalId.current)
-        intervalId.current = null
-      }
-    }
-  }, [])
+  const idleCheckVersion = useRef(0)
 
   useEffect(() => {
     startCallbackRef.current = startCallback
@@ -45,15 +37,12 @@ export const useOnPageIdle = ({
   }, [modelingMachineState])
 
   useEffect(() => {
+    idleCheckVersion.current += 1
     idleTimeMsRef.current = Number(streamIdleMode)
     timeoutStart.current = idleTimeMsRef.current ? Date.now() : null
   }, [streamIdleMode])
 
   useEffect(() => {
-    if (intervalId.current) {
-      return
-    }
-
     // Check every 1 second to see if you are idle.
     const interval = setInterval(() => {
       void (async () => {
@@ -66,11 +55,13 @@ export const useOnPageIdle = ({
 
         const isBusy =
           kclManager.isExecuting ||
-          !modelingMachineStateRef.current.matches('idle')
+          !modelingMachineStateRef.current.matches('idle') ||
+          zookeeperPromptRunningSignal.value
 
         // Only start the idle timer once KCL execution and other modeling
         // interactions have fully finished.
         if (isBusy) {
+          idleCheckVersion.current += 1
           timeoutStart.current = null
           wasBusyRef.current = true
           return
@@ -85,12 +76,23 @@ export const useOnPageIdle = ({
         if (timeoutStart.current) {
           const elapsed = Date.now() - timeoutStart.current
           if (elapsed >= idleTimeMs) {
+            const version = idleCheckVersion.current
             timeoutStart.current = null
             try {
               await kclManager.sceneInfra.camControls.saveRemoteCameraState()
             } catch (e) {
               console.warn('unable to save old camera state on idle', e)
               kclManager.sceneInfra.camControls.clearOldCameraState()
+            }
+            // Input, settings changes, or cleanup can invalidate the pending save.
+            if (version !== idleCheckVersion.current) return
+            if (
+              kclManager.isExecuting ||
+              !modelingMachineStateRef.current.matches('idle') ||
+              zookeeperPromptRunningSignal.value
+            ) {
+              wasBusyRef.current = true
+              return
             }
             console.log(kclManager.sceneInfra.camControls.oldCameraState)
             console.warn('detected idle, tearing down connection.')
@@ -105,13 +107,17 @@ export const useOnPageIdle = ({
         }
       })()
     }, 1_000)
-    intervalId.current = interval
+    return () => {
+      idleCheckVersion.current += 1
+      clearInterval(interval)
+    }
   }, [kclManager])
 
   useEffect(() => {
     if (!idleTimeMsRef.current) return
 
     const onAnyInput = () => {
+      idleCheckVersion.current += 1
       // Just in case it happens in the middle of the user turning off
       // idle mode.
       if (!idleTimeMsRef.current) {
@@ -119,18 +125,20 @@ export const useOnPageIdle = ({
         return
       }
       startCallbackRef.current()
-      timeoutStart.current =
+      wasBusyRef.current =
         kclManager.isExecuting ||
-        !modelingMachineStateRef.current.matches('idle')
-          ? null
-          : Date.now()
+        !modelingMachineStateRef.current.matches('idle') ||
+        zookeeperPromptRunningSignal.value
+      timeoutStart.current = wasBusyRef.current ? null : Date.now()
     }
 
     // It's possible after a reconnect, the user doesn't move their mouse at
     // all, meaning the timer is not reset to run. We need to set it every
     // time our effect dependencies change then.
     timeoutStart.current =
-      kclManager.isExecuting || !modelingMachineStateRef.current.matches('idle')
+      kclManager.isExecuting ||
+      !modelingMachineStateRef.current.matches('idle') ||
+      zookeeperPromptRunningSignal.value
         ? null
         : Date.now()
 

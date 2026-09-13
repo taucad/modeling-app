@@ -72,6 +72,8 @@ description: Variables in memory after executing desk-edge-stopper.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -79,10 +81,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 5241,
-            "end": 5248,
+            "commentStart": 5296,
+            "end": 5303,
             "moduleId": 0,
-            "start": 5241,
+            "start": 5296,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -110,10 +112,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
             ],
             "radius": 2.0,
             "tag": {
-              "commentStart": 5241,
-              "end": 5248,
+              "commentStart": 5296,
+              "end": 5303,
               "moduleId": 0,
-              "start": 5241,
+              "start": 5296,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -126,17 +128,17 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 58,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -180,8 +182,8 @@ description: Variables in memory after executing desk-edge-stopper.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -199,6 +201,8 @@ description: Variables in memory after executing desk-edge-stopper.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -206,10 +210,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3094,
-            "end": 3099,
+            "commentStart": 3149,
+            "end": 3154,
             "moduleId": 0,
-            "start": 3094,
+            "start": 3149,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -220,10 +224,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3164,
-            "end": 3169,
+            "commentStart": 3219,
+            "end": 3224,
             "moduleId": 0,
-            "start": 3164,
+            "start": 3219,
             "type": "TagDeclarator",
             "value": "line2"
           },
@@ -234,10 +238,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3277,
-            "end": 3282,
+            "commentStart": 3332,
+            "end": 3337,
             "moduleId": 0,
-            "start": 3277,
+            "start": 3332,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -248,10 +252,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3390,
-            "end": 3395,
+            "commentStart": 3445,
+            "end": 3450,
             "moduleId": 0,
-            "start": 3390,
+            "start": 3445,
             "type": "TagDeclarator",
             "value": "line4"
           },
@@ -262,10 +266,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3502,
-            "end": 3507,
+            "commentStart": 3557,
+            "end": 3562,
             "moduleId": 0,
-            "start": 3502,
+            "start": 3557,
             "type": "TagDeclarator",
             "value": "line5"
           },
@@ -276,10 +280,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3615,
-            "end": 3620,
+            "commentStart": 3670,
+            "end": 3675,
             "moduleId": 0,
-            "start": 3615,
+            "start": 3670,
             "type": "TagDeclarator",
             "value": "line6"
           },
@@ -290,10 +294,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3728,
-            "end": 3733,
+            "commentStart": 3783,
+            "end": 3788,
             "moduleId": 0,
-            "start": 3728,
+            "start": 3783,
             "type": "TagDeclarator",
             "value": "line7"
           },
@@ -304,10 +308,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3841,
-            "end": 3846,
+            "commentStart": 3896,
+            "end": 3901,
             "moduleId": 0,
-            "start": 3841,
+            "start": 3896,
             "type": "TagDeclarator",
             "value": "line8"
           },
@@ -318,10 +322,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3954,
-            "end": 3959,
+            "commentStart": 4009,
+            "end": 4014,
             "moduleId": 0,
-            "start": 3954,
+            "start": 4009,
             "type": "TagDeclarator",
             "value": "line9"
           },
@@ -332,10 +336,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 4066,
-            "end": 4072,
+            "commentStart": 4121,
+            "end": 4127,
             "moduleId": 0,
-            "start": 4066,
+            "start": 4121,
             "type": "TagDeclarator",
             "value": "line10"
           },
@@ -353,20 +357,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              -0.000000000004227283076576668,
-              0.0000000006505813876391879
+              -0.0000000000004227293813903384,
+              0.00000000006505811401169924
             ],
             "tag": {
-              "commentStart": 3094,
-              "end": 3099,
+              "commentStart": 3149,
+              "end": 3154,
               "moduleId": 0,
-              "start": 3094,
+              "start": 3149,
               "type": "TagDeclarator",
               "value": "line1"
             },
             "to": [
-              29.999999999357872,
-              0.000000000650581380165635
+              29.99999999993579,
+              0.00000000006505811338144842
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -377,19 +381,19 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              29.999999999357872,
-              0.000000000650581380165635
+              29.99999999993579,
+              0.00000000006505811338144842
             ],
             "tag": {
-              "commentStart": 3164,
-              "end": 3169,
+              "commentStart": 3219,
+              "end": 3224,
               "moduleId": 0,
-              "start": 3164,
+              "start": 3219,
               "type": "TagDeclarator",
               "value": "line2"
             },
             "to": [
-              29.99999999934942,
+              29.999999999934943,
               20.5
             ],
             "type": "ToPoint",
@@ -401,19 +405,19 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              29.99999999934942,
+              29.999999999934943,
               20.5
             ],
             "tag": {
-              "commentStart": 3277,
-              "end": 3282,
+              "commentStart": 3332,
+              "end": 3337,
               "moduleId": 0,
-              "start": 3277,
+              "start": 3332,
               "type": "TagDeclarator",
               "value": "line3"
             },
             "to": [
-              -0.0000000013222977237898476,
+              -0.00000000013223138252763111,
               20.5
             ],
             "type": "ToPoint",
@@ -425,20 +429,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              -0.0000000013222977237898476,
+              -0.00000000013223138252763111,
               20.5
             ],
             "tag": {
-              "commentStart": 3390,
-              "end": 3395,
+              "commentStart": 3445,
+              "end": 3450,
               "moduleId": 0,
-              "start": 3390,
+              "start": 3445,
               "type": "TagDeclarator",
               "value": "line4"
             },
             "to": [
-              -0.0000000026287445926628794,
-              25.499999998698836
+              -0.0000000002628760609798414,
+              25.499999999869885
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -449,20 +453,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              -0.0000000026287445926628794,
-              25.499999998698836
+              -0.0000000002628760609798414,
+              25.499999999869885
             ],
             "tag": {
-              "commentStart": 3502,
-              "end": 3507,
+              "commentStart": 3557,
+              "end": 3562,
               "moduleId": 0,
-              "start": 3502,
+              "start": 3557,
               "type": "TagDeclarator",
               "value": "line5"
             },
             "to": [
-              29.999999995431136,
-              25.49999999869884
+              29.999999999543114,
+              25.499999999869885
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -473,20 +477,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              29.999999995431136,
-              25.49999999869884
+              29.999999999543114,
+              25.499999999869885
             ],
             "tag": {
-              "commentStart": 3615,
-              "end": 3620,
+              "commentStart": 3670,
+              "end": 3675,
               "moduleId": 0,
-              "start": 3615,
+              "start": 3670,
               "type": "TagDeclarator",
               "value": "line6"
             },
             "to": [
-              29.999999994129972,
-              45.49999999869884
+              29.999999999412996,
+              45.499999999869885
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -497,20 +501,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              29.999999994129972,
-              45.49999999869884
+              29.999999999412996,
+              45.499999999869885
             ],
             "tag": {
-              "commentStart": 3728,
-              "end": 3733,
+              "commentStart": 3783,
+              "end": 3788,
               "moduleId": 0,
-              "start": 3728,
+              "start": 3783,
               "type": "TagDeclarator",
               "value": "line7"
             },
             "to": [
-              34.999999991527645,
-              45.49999999869884
+              34.99999999915276,
+              45.499999999869885
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -521,20 +525,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              34.999999991527645,
-              45.49999999869884
+              34.99999999915276,
+              45.499999999869885
             ],
             "tag": {
-              "commentStart": 3841,
-              "end": 3846,
+              "commentStart": 3896,
+              "end": 3901,
               "moduleId": 0,
-              "start": 3841,
+              "start": 3896,
               "type": "TagDeclarator",
               "value": "line8"
             },
             "to": [
-              34.99999999071442,
-              -4.999999995771221
+              34.99999999907144,
+              -4.999999999577121
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -545,20 +549,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              34.99999999071442,
-              -4.999999995771221
+              34.99999999907144,
+              -4.999999999577121
             ],
             "tag": {
-              "commentStart": 3954,
-              "end": 3959,
+              "commentStart": 4009,
+              "end": 4014,
               "moduleId": 0,
-              "start": 3954,
+              "start": 4009,
               "type": "TagDeclarator",
               "value": "line9"
             },
             "to": [
-              -0.000000000004227289304388791,
-              -4.999999996259157
+              -0.00000000000042273000645458984,
+              -4.999999999625915
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -569,37 +573,37 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              -0.000000000004227289304388791,
-              -4.999999996259157
+              -0.00000000000042273000645458984,
+              -4.999999999625915
             ],
             "tag": {
-              "commentStart": 4066,
-              "end": 4072,
+              "commentStart": 4121,
+              "end": 4127,
               "moduleId": 0,
-              "start": 4066,
+              "start": 4121,
               "type": "TagDeclarator",
               "value": "line10"
             },
             "to": [
-              -0.0000000000042272869911894785,
-              0.0000000013011627860531014
+              -0.00000000000042272977399300457,
+              0.00000000013011622892521313
             ],
             "type": "ToPoint",
             "units": "mm"
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 0,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 0.0,
             "y": 1.0,
@@ -621,12 +625,12 @@ description: Variables in memory after executing desk-edge-stopper.kcl
         },
         "start": {
           "from": [
-            -0.000000000004227283076576668,
-            0.0000000006505813876391879
+            -0.0000000000004227293813903384,
+            0.00000000006505811401169924
           ],
           "to": [
-            -0.000000000004227283076576668,
-            0.0000000006505813876391879
+            -0.0000000000004227293813903384,
+            0.00000000006505811401169924
           ],
           "units": "mm",
           "tag": null,
@@ -679,8 +683,8 @@ description: Variables in memory after executing desk-edge-stopper.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -693,6 +697,8 @@ description: Variables in memory after executing desk-edge-stopper.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -700,10 +706,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3094,
-            "end": 3099,
+            "commentStart": 3149,
+            "end": 3154,
             "moduleId": 0,
-            "start": 3094,
+            "start": 3149,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -714,10 +720,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3164,
-            "end": 3169,
+            "commentStart": 3219,
+            "end": 3224,
             "moduleId": 0,
-            "start": 3164,
+            "start": 3219,
             "type": "TagDeclarator",
             "value": "line2"
           },
@@ -728,10 +734,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3277,
-            "end": 3282,
+            "commentStart": 3332,
+            "end": 3337,
             "moduleId": 0,
-            "start": 3277,
+            "start": 3332,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -742,10 +748,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3390,
-            "end": 3395,
+            "commentStart": 3445,
+            "end": 3450,
             "moduleId": 0,
-            "start": 3390,
+            "start": 3445,
             "type": "TagDeclarator",
             "value": "line4"
           },
@@ -756,10 +762,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3502,
-            "end": 3507,
+            "commentStart": 3557,
+            "end": 3562,
             "moduleId": 0,
-            "start": 3502,
+            "start": 3557,
             "type": "TagDeclarator",
             "value": "line5"
           },
@@ -770,10 +776,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3615,
-            "end": 3620,
+            "commentStart": 3670,
+            "end": 3675,
             "moduleId": 0,
-            "start": 3615,
+            "start": 3670,
             "type": "TagDeclarator",
             "value": "line6"
           },
@@ -784,10 +790,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3728,
-            "end": 3733,
+            "commentStart": 3783,
+            "end": 3788,
             "moduleId": 0,
-            "start": 3728,
+            "start": 3783,
             "type": "TagDeclarator",
             "value": "line7"
           },
@@ -798,10 +804,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3841,
-            "end": 3846,
+            "commentStart": 3896,
+            "end": 3901,
             "moduleId": 0,
-            "start": 3841,
+            "start": 3896,
             "type": "TagDeclarator",
             "value": "line8"
           },
@@ -812,10 +818,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3954,
-            "end": 3959,
+            "commentStart": 4009,
+            "end": 4014,
             "moduleId": 0,
-            "start": 3954,
+            "start": 4009,
             "type": "TagDeclarator",
             "value": "line9"
           },
@@ -826,10 +832,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 4066,
-            "end": 4072,
+            "commentStart": 4121,
+            "end": 4127,
             "moduleId": 0,
-            "start": 4066,
+            "start": 4121,
             "type": "TagDeclarator",
             "value": "line10"
           },
@@ -847,20 +853,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              -0.000000000004227283076576668,
-              0.0000000006505813876391879
+              -0.0000000000004227293813903384,
+              0.00000000006505811401169924
             ],
             "tag": {
-              "commentStart": 3094,
-              "end": 3099,
+              "commentStart": 3149,
+              "end": 3154,
               "moduleId": 0,
-              "start": 3094,
+              "start": 3149,
               "type": "TagDeclarator",
               "value": "line1"
             },
             "to": [
-              29.999999999357872,
-              0.000000000650581380165635
+              29.99999999993579,
+              0.00000000006505811338144842
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -871,19 +877,19 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              29.999999999357872,
-              0.000000000650581380165635
+              29.99999999993579,
+              0.00000000006505811338144842
             ],
             "tag": {
-              "commentStart": 3164,
-              "end": 3169,
+              "commentStart": 3219,
+              "end": 3224,
               "moduleId": 0,
-              "start": 3164,
+              "start": 3219,
               "type": "TagDeclarator",
               "value": "line2"
             },
             "to": [
-              29.99999999934942,
+              29.999999999934943,
               20.5
             ],
             "type": "ToPoint",
@@ -895,19 +901,19 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              29.99999999934942,
+              29.999999999934943,
               20.5
             ],
             "tag": {
-              "commentStart": 3277,
-              "end": 3282,
+              "commentStart": 3332,
+              "end": 3337,
               "moduleId": 0,
-              "start": 3277,
+              "start": 3332,
               "type": "TagDeclarator",
               "value": "line3"
             },
             "to": [
-              -0.0000000013222977237898476,
+              -0.00000000013223138252763111,
               20.5
             ],
             "type": "ToPoint",
@@ -919,20 +925,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              -0.0000000013222977237898476,
+              -0.00000000013223138252763111,
               20.5
             ],
             "tag": {
-              "commentStart": 3390,
-              "end": 3395,
+              "commentStart": 3445,
+              "end": 3450,
               "moduleId": 0,
-              "start": 3390,
+              "start": 3445,
               "type": "TagDeclarator",
               "value": "line4"
             },
             "to": [
-              -0.0000000026287445926628794,
-              25.499999998698836
+              -0.0000000002628760609798414,
+              25.499999999869885
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -943,20 +949,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              -0.0000000026287445926628794,
-              25.499999998698836
+              -0.0000000002628760609798414,
+              25.499999999869885
             ],
             "tag": {
-              "commentStart": 3502,
-              "end": 3507,
+              "commentStart": 3557,
+              "end": 3562,
               "moduleId": 0,
-              "start": 3502,
+              "start": 3557,
               "type": "TagDeclarator",
               "value": "line5"
             },
             "to": [
-              29.999999995431136,
-              25.49999999869884
+              29.999999999543114,
+              25.499999999869885
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -967,20 +973,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              29.999999995431136,
-              25.49999999869884
+              29.999999999543114,
+              25.499999999869885
             ],
             "tag": {
-              "commentStart": 3615,
-              "end": 3620,
+              "commentStart": 3670,
+              "end": 3675,
               "moduleId": 0,
-              "start": 3615,
+              "start": 3670,
               "type": "TagDeclarator",
               "value": "line6"
             },
             "to": [
-              29.999999994129972,
-              45.49999999869884
+              29.999999999412996,
+              45.499999999869885
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -991,20 +997,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              29.999999994129972,
-              45.49999999869884
+              29.999999999412996,
+              45.499999999869885
             ],
             "tag": {
-              "commentStart": 3728,
-              "end": 3733,
+              "commentStart": 3783,
+              "end": 3788,
               "moduleId": 0,
-              "start": 3728,
+              "start": 3783,
               "type": "TagDeclarator",
               "value": "line7"
             },
             "to": [
-              34.999999991527645,
-              45.49999999869884
+              34.99999999915276,
+              45.499999999869885
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -1015,20 +1021,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              34.999999991527645,
-              45.49999999869884
+              34.99999999915276,
+              45.499999999869885
             ],
             "tag": {
-              "commentStart": 3841,
-              "end": 3846,
+              "commentStart": 3896,
+              "end": 3901,
               "moduleId": 0,
-              "start": 3841,
+              "start": 3896,
               "type": "TagDeclarator",
               "value": "line8"
             },
             "to": [
-              34.99999999071442,
-              -4.999999995771221
+              34.99999999907144,
+              -4.999999999577121
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -1039,20 +1045,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              34.99999999071442,
-              -4.999999995771221
+              34.99999999907144,
+              -4.999999999577121
             ],
             "tag": {
-              "commentStart": 3954,
-              "end": 3959,
+              "commentStart": 4009,
+              "end": 4014,
               "moduleId": 0,
-              "start": 3954,
+              "start": 4009,
               "type": "TagDeclarator",
               "value": "line9"
             },
             "to": [
-              -0.000000000004227289304388791,
-              -4.999999996259157
+              -0.00000000000042273000645458984,
+              -4.999999999625915
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -1063,37 +1069,37 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "sourceRange": []
             },
             "from": [
-              -0.000000000004227289304388791,
-              -4.999999996259157
+              -0.00000000000042273000645458984,
+              -4.999999999625915
             ],
             "tag": {
-              "commentStart": 4066,
-              "end": 4072,
+              "commentStart": 4121,
+              "end": 4127,
               "moduleId": 0,
-              "start": 4066,
+              "start": 4121,
               "type": "TagDeclarator",
               "value": "line10"
             },
             "to": [
-              -0.0000000000042272869911894785,
-              0.0000000013011627860531014
+              -0.00000000000042272977399300457,
+              0.00000000013011622892521313
             ],
             "type": "ToPoint",
             "units": "mm"
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 0,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 0.0,
             "y": 1.0,
@@ -1115,12 +1121,12 @@ description: Variables in memory after executing desk-edge-stopper.kcl
         },
         "start": {
           "from": [
-            -0.000000000004227283076576668,
-            0.0000000006505813876391879
+            -0.0000000000004227293813903384,
+            0.00000000006505811401169924
           ],
           "to": [
-            -0.000000000004227283076576668,
-            0.0000000006505813876391879
+            -0.0000000000004227293813903384,
+            0.00000000006505811401169924
           ],
           "units": "mm",
           "tag": null,
@@ -1173,8 +1179,8 @@ description: Variables in memory after executing desk-edge-stopper.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -1206,7 +1212,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                   "line": {
                     "start": [
                       {
-                        "n": -0.000000000004227283076576668,
+                        "n": -0.0000000000004227293813903384,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1214,7 +1220,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                         }
                       },
                       {
-                        "n": 0.0000000006505813876391879,
+                        "n": 0.00000000006505811401169924,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1224,7 +1230,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     ],
                     "end": [
                       {
-                        "n": 29.999999999357872,
+                        "n": 29.99999999993579,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1232,7 +1238,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                         }
                       },
                       {
-                        "n": 0.000000000650581380165635,
+                        "n": 0.00000000006505811338144842,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1326,7 +1332,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                   "line": {
                     "start": [
                       {
-                        "n": -0.000000000004227288842890355,
+                        "n": -0.0000000000004227299599241811,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1334,7 +1340,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                         }
                       },
                       {
-                        "n": -4.999999996747093,
+                        "n": -4.999999999674709,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1344,7 +1350,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     ],
                     "end": [
                       {
-                        "n": -0.0000000000042272869911894785,
+                        "n": -0.00000000000042272977399300457,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1352,7 +1358,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                         }
                       },
                       {
-                        "n": 0.0000000013011627860531014,
+                        "n": 0.00000000013011622892521313,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1446,7 +1452,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                   "line": {
                     "start": [
                       {
-                        "n": 29.999999999353648,
+                        "n": 29.999999999935365,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1454,7 +1460,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                         }
                       },
                       {
-                        "n": 0.000000000650581375928854,
+                        "n": 0.00000000006505811301632262,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1464,7 +1470,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     ],
                     "end": [
                       {
-                        "n": 29.99999999934942,
+                        "n": 29.999999999934943,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1566,7 +1572,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                   "line": {
                     "start": [
                       {
-                        "n": 29.99999999869461,
+                        "n": 29.999999999869463,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1584,7 +1590,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     ],
                     "end": [
                       {
-                        "n": -0.0000000013222977237898476,
+                        "n": -0.00000000013223138252763111,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1686,7 +1692,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                   "line": {
                     "start": [
                       {
-                        "n": -0.000000001976049567899152,
+                        "n": -0.00000000019760656305711777,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1704,7 +1710,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     ],
                     "end": [
                       {
-                        "n": -0.0000000026287445926628794,
+                        "n": -0.0000000002628760609798414,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1712,7 +1718,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                         }
                       },
                       {
-                        "n": 25.499999998698836,
+                        "n": 25.499999999869885,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1806,7 +1812,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                   "line": {
                     "start": [
                       {
-                        "n": -0.0000000032803827978641897,
+                        "n": -0.00000000032803987651264244,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1814,7 +1820,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                         }
                       },
                       {
-                        "n": 25.499999998698836,
+                        "n": 25.499999999869885,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1824,7 +1830,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     ],
                     "end": [
                       {
-                        "n": 29.999999995431136,
+                        "n": 29.999999999543114,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1832,7 +1838,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                         }
                       },
                       {
-                        "n": 25.49999999869884,
+                        "n": 25.499999999869885,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1926,7 +1932,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                   "line": {
                     "start": [
                       {
-                        "n": 29.999999994780556,
+                        "n": 29.999999999478053,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1934,7 +1940,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                         }
                       },
                       {
-                        "n": 25.49999999869884,
+                        "n": 25.499999999869885,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1944,7 +1950,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     ],
                     "end": [
                       {
-                        "n": 29.999999994129972,
+                        "n": 29.999999999412996,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1952,7 +1958,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                         }
                       },
                       {
-                        "n": 45.49999999869884,
+                        "n": 45.499999999869885,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2046,7 +2052,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                   "line": {
                     "start": [
                       {
-                        "n": 29.999999993479392,
+                        "n": 29.99999999934794,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2054,7 +2060,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                         }
                       },
                       {
-                        "n": 45.49999999869884,
+                        "n": 45.499999999869885,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2064,7 +2070,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     ],
                     "end": [
                       {
-                        "n": 34.999999991527645,
+                        "n": 34.99999999915276,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2072,7 +2078,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                         }
                       },
                       {
-                        "n": 45.49999999869884,
+                        "n": 45.499999999869885,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2166,7 +2172,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                   "line": {
                     "start": [
                       {
-                        "n": 34.99999999103971,
+                        "n": 34.99999999910397,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2174,7 +2180,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                         }
                       },
                       {
-                        "n": 45.49999999869884,
+                        "n": 45.499999999869885,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2184,7 +2190,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     ],
                     "end": [
                       {
-                        "n": 34.99999999071442,
+                        "n": 34.99999999907144,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2192,7 +2198,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                         }
                       },
                       {
-                        "n": -4.999999995771221,
+                        "n": -4.999999999577121,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2286,7 +2292,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                   "line": {
                     "start": [
                       {
-                        "n": 34.99999999055178,
+                        "n": 34.99999999905518,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2294,7 +2300,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                         }
                       },
                       {
-                        "n": -4.999999995933867,
+                        "n": -4.999999999593387,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2304,7 +2310,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     ],
                     "end": [
                       {
-                        "n": -0.000000000004227289304388791,
+                        "n": -0.00000000000042273000645458984,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2312,7 +2318,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                         }
                       },
                       {
-                        "n": -4.999999996259157,
+                        "n": -4.999999999625915,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2409,20 +2415,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     "sourceRange": []
                   },
                   "from": [
-                    -0.000000000004227283076576668,
-                    0.0000000006505813876391879
+                    -0.0000000000004227293813903384,
+                    0.00000000006505811401169924
                   ],
                   "tag": {
-                    "commentStart": 3094,
-                    "end": 3099,
+                    "commentStart": 3149,
+                    "end": 3154,
                     "moduleId": 0,
-                    "start": 3094,
+                    "start": 3149,
                     "type": "TagDeclarator",
                     "value": "line1"
                   },
                   "to": [
-                    29.999999999357872,
-                    0.000000000650581380165635
+                    29.99999999993579,
+                    0.00000000006505811338144842
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -2433,19 +2439,19 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     "sourceRange": []
                   },
                   "from": [
-                    29.999999999357872,
-                    0.000000000650581380165635
+                    29.99999999993579,
+                    0.00000000006505811338144842
                   ],
                   "tag": {
-                    "commentStart": 3164,
-                    "end": 3169,
+                    "commentStart": 3219,
+                    "end": 3224,
                     "moduleId": 0,
-                    "start": 3164,
+                    "start": 3219,
                     "type": "TagDeclarator",
                     "value": "line2"
                   },
                   "to": [
-                    29.99999999934942,
+                    29.999999999934943,
                     20.5
                   ],
                   "type": "ToPoint",
@@ -2457,19 +2463,19 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     "sourceRange": []
                   },
                   "from": [
-                    29.99999999934942,
+                    29.999999999934943,
                     20.5
                   ],
                   "tag": {
-                    "commentStart": 3277,
-                    "end": 3282,
+                    "commentStart": 3332,
+                    "end": 3337,
                     "moduleId": 0,
-                    "start": 3277,
+                    "start": 3332,
                     "type": "TagDeclarator",
                     "value": "line3"
                   },
                   "to": [
-                    -0.0000000013222977237898476,
+                    -0.00000000013223138252763111,
                     20.5
                   ],
                   "type": "ToPoint",
@@ -2481,20 +2487,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     "sourceRange": []
                   },
                   "from": [
-                    -0.0000000013222977237898476,
+                    -0.00000000013223138252763111,
                     20.5
                   ],
                   "tag": {
-                    "commentStart": 3390,
-                    "end": 3395,
+                    "commentStart": 3445,
+                    "end": 3450,
                     "moduleId": 0,
-                    "start": 3390,
+                    "start": 3445,
                     "type": "TagDeclarator",
                     "value": "line4"
                   },
                   "to": [
-                    -0.0000000026287445926628794,
-                    25.499999998698836
+                    -0.0000000002628760609798414,
+                    25.499999999869885
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -2505,20 +2511,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     "sourceRange": []
                   },
                   "from": [
-                    -0.0000000026287445926628794,
-                    25.499999998698836
+                    -0.0000000002628760609798414,
+                    25.499999999869885
                   ],
                   "tag": {
-                    "commentStart": 3502,
-                    "end": 3507,
+                    "commentStart": 3557,
+                    "end": 3562,
                     "moduleId": 0,
-                    "start": 3502,
+                    "start": 3557,
                     "type": "TagDeclarator",
                     "value": "line5"
                   },
                   "to": [
-                    29.999999995431136,
-                    25.49999999869884
+                    29.999999999543114,
+                    25.499999999869885
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -2529,20 +2535,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     "sourceRange": []
                   },
                   "from": [
-                    29.999999995431136,
-                    25.49999999869884
+                    29.999999999543114,
+                    25.499999999869885
                   ],
                   "tag": {
-                    "commentStart": 3615,
-                    "end": 3620,
+                    "commentStart": 3670,
+                    "end": 3675,
                     "moduleId": 0,
-                    "start": 3615,
+                    "start": 3670,
                     "type": "TagDeclarator",
                     "value": "line6"
                   },
                   "to": [
-                    29.999999994129972,
-                    45.49999999869884
+                    29.999999999412996,
+                    45.499999999869885
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -2553,20 +2559,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     "sourceRange": []
                   },
                   "from": [
-                    29.999999994129972,
-                    45.49999999869884
+                    29.999999999412996,
+                    45.499999999869885
                   ],
                   "tag": {
-                    "commentStart": 3728,
-                    "end": 3733,
+                    "commentStart": 3783,
+                    "end": 3788,
                     "moduleId": 0,
-                    "start": 3728,
+                    "start": 3783,
                     "type": "TagDeclarator",
                     "value": "line7"
                   },
                   "to": [
-                    34.999999991527645,
-                    45.49999999869884
+                    34.99999999915276,
+                    45.499999999869885
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -2577,20 +2583,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     "sourceRange": []
                   },
                   "from": [
-                    34.999999991527645,
-                    45.49999999869884
+                    34.99999999915276,
+                    45.499999999869885
                   ],
                   "tag": {
-                    "commentStart": 3841,
-                    "end": 3846,
+                    "commentStart": 3896,
+                    "end": 3901,
                     "moduleId": 0,
-                    "start": 3841,
+                    "start": 3896,
                     "type": "TagDeclarator",
                     "value": "line8"
                   },
                   "to": [
-                    34.99999999071442,
-                    -4.999999995771221
+                    34.99999999907144,
+                    -4.999999999577121
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -2601,20 +2607,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     "sourceRange": []
                   },
                   "from": [
-                    34.99999999071442,
-                    -4.999999995771221
+                    34.99999999907144,
+                    -4.999999999577121
                   ],
                   "tag": {
-                    "commentStart": 3954,
-                    "end": 3959,
+                    "commentStart": 4009,
+                    "end": 4014,
                     "moduleId": 0,
-                    "start": 3954,
+                    "start": 4009,
                     "type": "TagDeclarator",
                     "value": "line9"
                   },
                   "to": [
-                    -0.000000000004227289304388791,
-                    -4.999999996259157
+                    -0.00000000000042273000645458984,
+                    -4.999999999625915
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -2625,37 +2631,37 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                     "sourceRange": []
                   },
                   "from": [
-                    -0.000000000004227289304388791,
-                    -4.999999996259157
+                    -0.00000000000042273000645458984,
+                    -4.999999999625915
                   ],
                   "tag": {
-                    "commentStart": 4066,
-                    "end": 4072,
+                    "commentStart": 4121,
+                    "end": 4127,
                     "moduleId": 0,
-                    "start": 4066,
+                    "start": 4121,
                     "type": "TagDeclarator",
                     "value": "line10"
                   },
                   "to": [
-                    -0.0000000000042272869911894785,
-                    0.0000000013011627860531014
+                    -0.00000000000042272977399300457,
+                    0.00000000013011622892521313
                   ],
                   "type": "ToPoint",
                   "units": "mm"
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 0,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": 0.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 0.0,
                   "y": 1.0,
@@ -2677,12 +2683,12 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               },
               "start": {
                 "from": [
-                  -0.000000000004227283076576668,
-                  0.0000000006505813876391879
+                  -0.0000000000004227293813903384,
+                  0.00000000006505811401169924
                 ],
                 "to": [
-                  -0.000000000004227283076576668,
-                  0.0000000006505813876391879
+                  -0.0000000000004227293813903384,
+                  0.00000000006505811401169924
                 ],
                 "units": "mm",
                 "tag": null,
@@ -2736,7 +2742,7 @@ description: Variables in memory after executing desk-edge-stopper.kcl
               "artifactId": "[uuid]",
               "originalId": "[uuid]",
               "units": "mm",
-              "isClosed": "no"
+              "isClosed": "implicitly"
             }
           }
         },
@@ -2757,20 +2763,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
             "sourceRange": []
           },
           "from": [
-            -0.000000000004227283076576668,
-            0.0000000006505813876391879
+            -0.0000000000004227293813903384,
+            0.00000000006505811401169924
           ],
           "tag": {
-            "commentStart": 3094,
-            "end": 3099,
+            "commentStart": 3149,
+            "end": 3154,
             "moduleId": 0,
-            "start": 3094,
+            "start": 3149,
             "type": "TagDeclarator",
             "value": "line1"
           },
           "to": [
-            29.999999999357872,
-            0.000000000650581380165635
+            29.99999999993579,
+            0.00000000006505811338144842
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -2781,19 +2787,19 @@ description: Variables in memory after executing desk-edge-stopper.kcl
             "sourceRange": []
           },
           "from": [
-            29.999999999357872,
-            0.000000000650581380165635
+            29.99999999993579,
+            0.00000000006505811338144842
           ],
           "tag": {
-            "commentStart": 3164,
-            "end": 3169,
+            "commentStart": 3219,
+            "end": 3224,
             "moduleId": 0,
-            "start": 3164,
+            "start": 3219,
             "type": "TagDeclarator",
             "value": "line2"
           },
           "to": [
-            29.99999999934942,
+            29.999999999934943,
             20.5
           ],
           "type": "ToPoint",
@@ -2805,19 +2811,19 @@ description: Variables in memory after executing desk-edge-stopper.kcl
             "sourceRange": []
           },
           "from": [
-            29.99999999934942,
+            29.999999999934943,
             20.5
           ],
           "tag": {
-            "commentStart": 3277,
-            "end": 3282,
+            "commentStart": 3332,
+            "end": 3337,
             "moduleId": 0,
-            "start": 3277,
+            "start": 3332,
             "type": "TagDeclarator",
             "value": "line3"
           },
           "to": [
-            -0.0000000013222977237898476,
+            -0.00000000013223138252763111,
             20.5
           ],
           "type": "ToPoint",
@@ -2829,20 +2835,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
             "sourceRange": []
           },
           "from": [
-            -0.0000000013222977237898476,
+            -0.00000000013223138252763111,
             20.5
           ],
           "tag": {
-            "commentStart": 3390,
-            "end": 3395,
+            "commentStart": 3445,
+            "end": 3450,
             "moduleId": 0,
-            "start": 3390,
+            "start": 3445,
             "type": "TagDeclarator",
             "value": "line4"
           },
           "to": [
-            -0.0000000026287445926628794,
-            25.499999998698836
+            -0.0000000002628760609798414,
+            25.499999999869885
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -2853,20 +2859,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
             "sourceRange": []
           },
           "from": [
-            -0.0000000026287445926628794,
-            25.499999998698836
+            -0.0000000002628760609798414,
+            25.499999999869885
           ],
           "tag": {
-            "commentStart": 3502,
-            "end": 3507,
+            "commentStart": 3557,
+            "end": 3562,
             "moduleId": 0,
-            "start": 3502,
+            "start": 3557,
             "type": "TagDeclarator",
             "value": "line5"
           },
           "to": [
-            29.999999995431136,
-            25.49999999869884
+            29.999999999543114,
+            25.499999999869885
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -2877,20 +2883,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
             "sourceRange": []
           },
           "from": [
-            29.999999995431136,
-            25.49999999869884
+            29.999999999543114,
+            25.499999999869885
           ],
           "tag": {
-            "commentStart": 3615,
-            "end": 3620,
+            "commentStart": 3670,
+            "end": 3675,
             "moduleId": 0,
-            "start": 3615,
+            "start": 3670,
             "type": "TagDeclarator",
             "value": "line6"
           },
           "to": [
-            29.999999994129972,
-            45.49999999869884
+            29.999999999412996,
+            45.499999999869885
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -2901,20 +2907,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
             "sourceRange": []
           },
           "from": [
-            29.999999994129972,
-            45.49999999869884
+            29.999999999412996,
+            45.499999999869885
           ],
           "tag": {
-            "commentStart": 3728,
-            "end": 3733,
+            "commentStart": 3783,
+            "end": 3788,
             "moduleId": 0,
-            "start": 3728,
+            "start": 3783,
             "type": "TagDeclarator",
             "value": "line7"
           },
           "to": [
-            34.999999991527645,
-            45.49999999869884
+            34.99999999915276,
+            45.499999999869885
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -2925,20 +2931,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
             "sourceRange": []
           },
           "from": [
-            34.999999991527645,
-            45.49999999869884
+            34.99999999915276,
+            45.499999999869885
           ],
           "tag": {
-            "commentStart": 3841,
-            "end": 3846,
+            "commentStart": 3896,
+            "end": 3901,
             "moduleId": 0,
-            "start": 3841,
+            "start": 3896,
             "type": "TagDeclarator",
             "value": "line8"
           },
           "to": [
-            34.99999999071442,
-            -4.999999995771221
+            34.99999999907144,
+            -4.999999999577121
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -2949,20 +2955,20 @@ description: Variables in memory after executing desk-edge-stopper.kcl
             "sourceRange": []
           },
           "from": [
-            34.99999999071442,
-            -4.999999995771221
+            34.99999999907144,
+            -4.999999999577121
           ],
           "tag": {
-            "commentStart": 3954,
-            "end": 3959,
+            "commentStart": 4009,
+            "end": 4014,
             "moduleId": 0,
-            "start": 3954,
+            "start": 4009,
             "type": "TagDeclarator",
             "value": "line9"
           },
           "to": [
-            -0.000000000004227289304388791,
-            -4.999999996259157
+            -0.00000000000042273000645458984,
+            -4.999999999625915
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -2973,37 +2979,37 @@ description: Variables in memory after executing desk-edge-stopper.kcl
             "sourceRange": []
           },
           "from": [
-            -0.000000000004227289304388791,
-            -4.999999996259157
+            -0.00000000000042273000645458984,
+            -4.999999999625915
           ],
           "tag": {
-            "commentStart": 4066,
-            "end": 4072,
+            "commentStart": 4121,
+            "end": 4127,
             "moduleId": 0,
-            "start": 4066,
+            "start": 4121,
             "type": "TagDeclarator",
             "value": "line10"
           },
           "to": [
-            -0.0000000000042272869911894785,
-            0.0000000013011627860531014
+            -0.00000000000042272977399300457,
+            0.00000000013011622892521313
           ],
           "type": "ToPoint",
           "units": "mm"
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 0,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 0.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 0.0,
           "y": 1.0,
@@ -3025,354 +3031,12 @@ description: Variables in memory after executing desk-edge-stopper.kcl
       },
       "start": {
         "from": [
-          -0.000000000004227283076576668,
-          0.0000000006505813876391879
+          -0.0000000000004227293813903384,
+          0.00000000006505811401169924
         ],
         "to": [
-          -0.000000000004227283076576668,
-          0.0000000006505813876391879
-        ],
-        "units": "mm",
-        "tag": null,
-        "__geoMeta": {
-          "id": "[uuid]",
-          "sourceRange": []
-        }
-      },
-      "tags": {
-        "line1": {
-          "type": "TagIdentifier",
-          "value": "line1"
-        },
-        "line10": {
-          "type": "TagIdentifier",
-          "value": "line10"
-        },
-        "line2": {
-          "type": "TagIdentifier",
-          "value": "line2"
-        },
-        "line3": {
-          "type": "TagIdentifier",
-          "value": "line3"
-        },
-        "line4": {
-          "type": "TagIdentifier",
-          "value": "line4"
-        },
-        "line5": {
-          "type": "TagIdentifier",
-          "value": "line5"
-        },
-        "line6": {
-          "type": "TagIdentifier",
-          "value": "line6"
-        },
-        "line7": {
-          "type": "TagIdentifier",
-          "value": "line7"
-        },
-        "line8": {
-          "type": "TagIdentifier",
-          "value": "line8"
-        },
-        "line9": {
-          "type": "TagIdentifier",
-          "value": "line9"
-        }
-      },
-      "artifactId": "[uuid]",
-      "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
-    }
-  },
-  "hiddenGuardProfile": {
-    "type": "Sketch",
-    "value": {
-      "type": "Sketch",
-      "id": "[uuid]",
-      "paths": [
-        {
-          "__geoMeta": {
-            "id": "[uuid]",
-            "sourceRange": []
-          },
-          "from": [
-            -0.000000000004227283076576668,
-            0.0000000006505813876391879
-          ],
-          "tag": {
-            "commentStart": 3094,
-            "end": 3099,
-            "moduleId": 0,
-            "start": 3094,
-            "type": "TagDeclarator",
-            "value": "line1"
-          },
-          "to": [
-            29.999999999357872,
-            0.000000000650581380165635
-          ],
-          "type": "ToPoint",
-          "units": "mm"
-        },
-        {
-          "__geoMeta": {
-            "id": "[uuid]",
-            "sourceRange": []
-          },
-          "from": [
-            29.999999999357872,
-            0.000000000650581380165635
-          ],
-          "tag": {
-            "commentStart": 3164,
-            "end": 3169,
-            "moduleId": 0,
-            "start": 3164,
-            "type": "TagDeclarator",
-            "value": "line2"
-          },
-          "to": [
-            29.99999999934942,
-            20.5
-          ],
-          "type": "ToPoint",
-          "units": "mm"
-        },
-        {
-          "__geoMeta": {
-            "id": "[uuid]",
-            "sourceRange": []
-          },
-          "from": [
-            29.99999999934942,
-            20.5
-          ],
-          "tag": {
-            "commentStart": 3277,
-            "end": 3282,
-            "moduleId": 0,
-            "start": 3277,
-            "type": "TagDeclarator",
-            "value": "line3"
-          },
-          "to": [
-            -0.0000000013222977237898476,
-            20.5
-          ],
-          "type": "ToPoint",
-          "units": "mm"
-        },
-        {
-          "__geoMeta": {
-            "id": "[uuid]",
-            "sourceRange": []
-          },
-          "from": [
-            -0.0000000013222977237898476,
-            20.5
-          ],
-          "tag": {
-            "commentStart": 3390,
-            "end": 3395,
-            "moduleId": 0,
-            "start": 3390,
-            "type": "TagDeclarator",
-            "value": "line4"
-          },
-          "to": [
-            -0.0000000026287445926628794,
-            25.499999998698836
-          ],
-          "type": "ToPoint",
-          "units": "mm"
-        },
-        {
-          "__geoMeta": {
-            "id": "[uuid]",
-            "sourceRange": []
-          },
-          "from": [
-            -0.0000000026287445926628794,
-            25.499999998698836
-          ],
-          "tag": {
-            "commentStart": 3502,
-            "end": 3507,
-            "moduleId": 0,
-            "start": 3502,
-            "type": "TagDeclarator",
-            "value": "line5"
-          },
-          "to": [
-            29.999999995431136,
-            25.49999999869884
-          ],
-          "type": "ToPoint",
-          "units": "mm"
-        },
-        {
-          "__geoMeta": {
-            "id": "[uuid]",
-            "sourceRange": []
-          },
-          "from": [
-            29.999999995431136,
-            25.49999999869884
-          ],
-          "tag": {
-            "commentStart": 3615,
-            "end": 3620,
-            "moduleId": 0,
-            "start": 3615,
-            "type": "TagDeclarator",
-            "value": "line6"
-          },
-          "to": [
-            29.999999994129972,
-            45.49999999869884
-          ],
-          "type": "ToPoint",
-          "units": "mm"
-        },
-        {
-          "__geoMeta": {
-            "id": "[uuid]",
-            "sourceRange": []
-          },
-          "from": [
-            29.999999994129972,
-            45.49999999869884
-          ],
-          "tag": {
-            "commentStart": 3728,
-            "end": 3733,
-            "moduleId": 0,
-            "start": 3728,
-            "type": "TagDeclarator",
-            "value": "line7"
-          },
-          "to": [
-            34.999999991527645,
-            45.49999999869884
-          ],
-          "type": "ToPoint",
-          "units": "mm"
-        },
-        {
-          "__geoMeta": {
-            "id": "[uuid]",
-            "sourceRange": []
-          },
-          "from": [
-            34.999999991527645,
-            45.49999999869884
-          ],
-          "tag": {
-            "commentStart": 3841,
-            "end": 3846,
-            "moduleId": 0,
-            "start": 3841,
-            "type": "TagDeclarator",
-            "value": "line8"
-          },
-          "to": [
-            34.99999999071442,
-            -4.999999995771221
-          ],
-          "type": "ToPoint",
-          "units": "mm"
-        },
-        {
-          "__geoMeta": {
-            "id": "[uuid]",
-            "sourceRange": []
-          },
-          "from": [
-            34.99999999071442,
-            -4.999999995771221
-          ],
-          "tag": {
-            "commentStart": 3954,
-            "end": 3959,
-            "moduleId": 0,
-            "start": 3954,
-            "type": "TagDeclarator",
-            "value": "line9"
-          },
-          "to": [
-            -0.000000000004227289304388791,
-            -4.999999996259157
-          ],
-          "type": "ToPoint",
-          "units": "mm"
-        },
-        {
-          "__geoMeta": {
-            "id": "[uuid]",
-            "sourceRange": []
-          },
-          "from": [
-            -0.000000000004227289304388791,
-            -4.999999996259157
-          ],
-          "tag": {
-            "commentStart": 4066,
-            "end": 4072,
-            "moduleId": 0,
-            "start": 4066,
-            "type": "TagDeclarator",
-            "value": "line10"
-          },
-          "to": [
-            -0.0000000000042272869911894785,
-            0.0000000013011627860531014
-          ],
-          "type": "ToPoint",
-          "units": "mm"
-        }
-      ],
-      "on": {
-        "artifactId": "[uuid]",
-        "id": "[uuid]",
-        "kind": "Custom",
-        "objectId": 0,
-        "origin": {
-          "x": 0.0,
-          "y": 0.0,
-          "z": 0.0,
-          "units": "mm"
-        },
-        "type": "plane",
-        "xAxis": {
-          "x": 0.0,
-          "y": 1.0,
-          "z": 0.0,
-          "units": null
-        },
-        "yAxis": {
-          "x": 0.0,
-          "y": 0.0,
-          "z": 1.0,
-          "units": null
-        },
-        "zAxis": {
-          "x": 1.0,
-          "y": 0.0,
-          "z": 0.0,
-          "units": null
-        }
-      },
-      "start": {
-        "from": [
-          -0.000000000004227283076576668,
-          0.0000000006505813876391879
-        ],
-        "to": [
-          -0.000000000004227283076576668,
-          0.0000000006505813876391879
+          -0.0000000000004227293813903384,
+          0.00000000006505811401169924
         ],
         "units": "mm",
         "tag": null,
@@ -3426,7 +3090,349 @@ description: Variables in memory after executing desk-edge-stopper.kcl
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
       "units": "mm",
-      "isClosed": "no"
+      "isClosed": "explicitly"
+    }
+  },
+  "hiddenGuardProfile": {
+    "type": "Sketch",
+    "value": {
+      "type": "Sketch",
+      "id": "[uuid]",
+      "paths": [
+        {
+          "__geoMeta": {
+            "id": "[uuid]",
+            "sourceRange": []
+          },
+          "from": [
+            -0.0000000000004227293813903384,
+            0.00000000006505811401169924
+          ],
+          "tag": {
+            "commentStart": 3149,
+            "end": 3154,
+            "moduleId": 0,
+            "start": 3149,
+            "type": "TagDeclarator",
+            "value": "line1"
+          },
+          "to": [
+            29.99999999993579,
+            0.00000000006505811338144842
+          ],
+          "type": "ToPoint",
+          "units": "mm"
+        },
+        {
+          "__geoMeta": {
+            "id": "[uuid]",
+            "sourceRange": []
+          },
+          "from": [
+            29.99999999993579,
+            0.00000000006505811338144842
+          ],
+          "tag": {
+            "commentStart": 3219,
+            "end": 3224,
+            "moduleId": 0,
+            "start": 3219,
+            "type": "TagDeclarator",
+            "value": "line2"
+          },
+          "to": [
+            29.999999999934943,
+            20.5
+          ],
+          "type": "ToPoint",
+          "units": "mm"
+        },
+        {
+          "__geoMeta": {
+            "id": "[uuid]",
+            "sourceRange": []
+          },
+          "from": [
+            29.999999999934943,
+            20.5
+          ],
+          "tag": {
+            "commentStart": 3332,
+            "end": 3337,
+            "moduleId": 0,
+            "start": 3332,
+            "type": "TagDeclarator",
+            "value": "line3"
+          },
+          "to": [
+            -0.00000000013223138252763111,
+            20.5
+          ],
+          "type": "ToPoint",
+          "units": "mm"
+        },
+        {
+          "__geoMeta": {
+            "id": "[uuid]",
+            "sourceRange": []
+          },
+          "from": [
+            -0.00000000013223138252763111,
+            20.5
+          ],
+          "tag": {
+            "commentStart": 3445,
+            "end": 3450,
+            "moduleId": 0,
+            "start": 3445,
+            "type": "TagDeclarator",
+            "value": "line4"
+          },
+          "to": [
+            -0.0000000002628760609798414,
+            25.499999999869885
+          ],
+          "type": "ToPoint",
+          "units": "mm"
+        },
+        {
+          "__geoMeta": {
+            "id": "[uuid]",
+            "sourceRange": []
+          },
+          "from": [
+            -0.0000000002628760609798414,
+            25.499999999869885
+          ],
+          "tag": {
+            "commentStart": 3557,
+            "end": 3562,
+            "moduleId": 0,
+            "start": 3557,
+            "type": "TagDeclarator",
+            "value": "line5"
+          },
+          "to": [
+            29.999999999543114,
+            25.499999999869885
+          ],
+          "type": "ToPoint",
+          "units": "mm"
+        },
+        {
+          "__geoMeta": {
+            "id": "[uuid]",
+            "sourceRange": []
+          },
+          "from": [
+            29.999999999543114,
+            25.499999999869885
+          ],
+          "tag": {
+            "commentStart": 3670,
+            "end": 3675,
+            "moduleId": 0,
+            "start": 3670,
+            "type": "TagDeclarator",
+            "value": "line6"
+          },
+          "to": [
+            29.999999999412996,
+            45.499999999869885
+          ],
+          "type": "ToPoint",
+          "units": "mm"
+        },
+        {
+          "__geoMeta": {
+            "id": "[uuid]",
+            "sourceRange": []
+          },
+          "from": [
+            29.999999999412996,
+            45.499999999869885
+          ],
+          "tag": {
+            "commentStart": 3783,
+            "end": 3788,
+            "moduleId": 0,
+            "start": 3783,
+            "type": "TagDeclarator",
+            "value": "line7"
+          },
+          "to": [
+            34.99999999915276,
+            45.499999999869885
+          ],
+          "type": "ToPoint",
+          "units": "mm"
+        },
+        {
+          "__geoMeta": {
+            "id": "[uuid]",
+            "sourceRange": []
+          },
+          "from": [
+            34.99999999915276,
+            45.499999999869885
+          ],
+          "tag": {
+            "commentStart": 3896,
+            "end": 3901,
+            "moduleId": 0,
+            "start": 3896,
+            "type": "TagDeclarator",
+            "value": "line8"
+          },
+          "to": [
+            34.99999999907144,
+            -4.999999999577121
+          ],
+          "type": "ToPoint",
+          "units": "mm"
+        },
+        {
+          "__geoMeta": {
+            "id": "[uuid]",
+            "sourceRange": []
+          },
+          "from": [
+            34.99999999907144,
+            -4.999999999577121
+          ],
+          "tag": {
+            "commentStart": 4009,
+            "end": 4014,
+            "moduleId": 0,
+            "start": 4009,
+            "type": "TagDeclarator",
+            "value": "line9"
+          },
+          "to": [
+            -0.00000000000042273000645458984,
+            -4.999999999625915
+          ],
+          "type": "ToPoint",
+          "units": "mm"
+        },
+        {
+          "__geoMeta": {
+            "id": "[uuid]",
+            "sourceRange": []
+          },
+          "from": [
+            -0.00000000000042273000645458984,
+            -4.999999999625915
+          ],
+          "tag": {
+            "commentStart": 4121,
+            "end": 4127,
+            "moduleId": 0,
+            "start": 4121,
+            "type": "TagDeclarator",
+            "value": "line10"
+          },
+          "to": [
+            -0.00000000000042272977399300457,
+            0.00000000013011622892521313
+          ],
+          "type": "ToPoint",
+          "units": "mm"
+        }
+      ],
+      "on": {
+        "type": "plane",
+        "artifactId": "[uuid]",
+        "id": "[uuid]",
+        "objectId": 0,
+        "kind": "Custom",
+        "origin": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "units": "mm"
+        },
+        "xAxis": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0,
+          "units": null
+        },
+        "yAxis": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0,
+          "units": null
+        },
+        "zAxis": {
+          "x": 1.0,
+          "y": 0.0,
+          "z": 0.0,
+          "units": null
+        }
+      },
+      "start": {
+        "from": [
+          -0.0000000000004227293813903384,
+          0.00000000006505811401169924
+        ],
+        "to": [
+          -0.0000000000004227293813903384,
+          0.00000000006505811401169924
+        ],
+        "units": "mm",
+        "tag": null,
+        "__geoMeta": {
+          "id": "[uuid]",
+          "sourceRange": []
+        }
+      },
+      "tags": {
+        "line1": {
+          "type": "TagIdentifier",
+          "value": "line1"
+        },
+        "line10": {
+          "type": "TagIdentifier",
+          "value": "line10"
+        },
+        "line2": {
+          "type": "TagIdentifier",
+          "value": "line2"
+        },
+        "line3": {
+          "type": "TagIdentifier",
+          "value": "line3"
+        },
+        "line4": {
+          "type": "TagIdentifier",
+          "value": "line4"
+        },
+        "line5": {
+          "type": "TagIdentifier",
+          "value": "line5"
+        },
+        "line6": {
+          "type": "TagIdentifier",
+          "value": "line6"
+        },
+        "line7": {
+          "type": "TagIdentifier",
+          "value": "line7"
+        },
+        "line8": {
+          "type": "TagIdentifier",
+          "value": "line8"
+        },
+        "line9": {
+          "type": "TagIdentifier",
+          "value": "line9"
+        }
+      },
+      "artifactId": "[uuid]",
+      "originalId": "[uuid]",
+      "units": "mm",
+      "isClosed": "implicitly"
     }
   },
   "hiddenHoleProfile01": {
@@ -3451,10 +3457,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           ],
           "radius": 2.0,
           "tag": {
-            "commentStart": 5241,
-            "end": 5248,
+            "commentStart": 5296,
+            "end": 5303,
             "moduleId": 0,
-            "start": 5241,
+            "start": 5296,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -3467,17 +3473,17 @@ description: Variables in memory after executing desk-edge-stopper.kcl
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 58,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 0.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -3530,6 +3536,8 @@ description: Variables in memory after executing desk-edge-stopper.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -3537,10 +3545,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 5241,
-            "end": 5248,
+            "commentStart": 5296,
+            "end": 5303,
             "moduleId": 0,
-            "start": 5241,
+            "start": 5296,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -3568,10 +3576,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
             ],
             "radius": 2.0,
             "tag": {
-              "commentStart": 5241,
-              "end": 5248,
+              "commentStart": 5296,
+              "end": 5303,
               "moduleId": 0,
-              "start": 5241,
+              "start": 5296,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -3584,17 +3592,17 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 58,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -3638,8 +3646,8 @@ description: Variables in memory after executing desk-edge-stopper.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -3652,6 +3660,8 @@ description: Variables in memory after executing desk-edge-stopper.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -3659,10 +3669,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 5241,
-            "end": 5248,
+            "commentStart": 5296,
+            "end": 5303,
             "moduleId": 0,
-            "start": 5241,
+            "start": 5296,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -3690,10 +3700,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
             ],
             "radius": 2.0,
             "tag": {
-              "commentStart": 5241,
-              "end": 5248,
+              "commentStart": 5296,
+              "end": 5303,
               "moduleId": 0,
-              "start": 5241,
+              "start": 5296,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -3706,17 +3716,17 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 58,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -3760,8 +3770,8 @@ description: Variables in memory after executing desk-edge-stopper.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -3962,10 +3972,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                   ],
                   "radius": 2.0,
                   "tag": {
-                    "commentStart": 5241,
-                    "end": 5248,
+                    "commentStart": 5296,
+                    "end": 5303,
                     "moduleId": 0,
-                    "start": 5241,
+                    "start": 5296,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -3978,17 +3988,17 @@ description: Variables in memory after executing desk-edge-stopper.kcl
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 58,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": 0.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -4194,10 +4204,10 @@ description: Variables in memory after executing desk-edge-stopper.kcl
           ],
           "radius": 2.0,
           "tag": {
-            "commentStart": 5241,
-            "end": 5248,
+            "commentStart": 5296,
+            "end": 5303,
             "moduleId": 0,
-            "start": 5241,
+            "start": 5296,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -4210,17 +4220,17 @@ description: Variables in memory after executing desk-edge-stopper.kcl
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 58,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 0.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -4264,8 +4274,8 @@ description: Variables in memory after executing desk-edge-stopper.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "holeSpacing": {

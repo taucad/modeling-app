@@ -6,40 +6,140 @@ import {
   PROJECT_ENTRYPOINT,
 } from '@src/lib/constants'
 import { getInitialDefaultDir, getProjectInfo } from '@src/lib/desktop'
-import { readAppSettingsFile } from '@src/lib/desktop'
 import fsZds from '@src/lib/fs-zds'
 import {
-  PATHS,
   getParentAbsolutePath,
-  getProjectMetaByRouteId,
   getRouterSearchFromRequestUrl,
+  PATHS,
+  parseProjectRoute,
   safeEncodeForRouterPaths,
 } from '@src/lib/paths'
-import { loadAndValidateSettings } from '@src/lib/settings/settingsUtils'
+import {
+  DEFAULT_PROJECT_LIBRARY_TITLE,
+  DIRECTORY_PROJECT_LIBRARY_TYPE,
+  getDefaultDirectoryProjectLibrarySetting,
+  type ProjectLibrarySetting,
+} from '@src/lib/projectLibraries'
+import { getProjectLibraryOwnership } from '@src/lib/projectLibraryOwnership'
+import {
+  loadHomeProjects,
+  webHomeRouteEnabled,
+} from '@src/lib/routeLoaderUtils'
+import {
+  getOnboardingChildRoute,
+  isRequestedFileLoaded,
+} from '@src/lib/routeLoaderNavigation'
+import {
+  type AppSettings,
+  loadAndValidateSettings,
+} from '@src/lib/settings/settingsUtils'
 import type {
   FileLoaderData,
   HomeLoaderData,
   IndexLoaderData,
 } from '@src/lib/types'
-import { SystemIOMachineEvents } from '@src/machines/systemIO/utils'
+import {
+  SystemIOMachineEvents,
+  SystemIOMachineStates,
+} from '@src/machines/systemIO/utils'
+import {
+  projectLibrarySettingDefaultPoliciesValueSpec,
+  projectLibrarySettingDefaultsValueSpec,
+} from '@src/registry/contracts/projectLibraries'
+import { settingsValueSpec } from '@src/registry/contracts/settings'
 import type { LoaderFunction } from 'react-router-dom'
 import { redirect } from 'react-router-dom'
 import { waitFor } from 'xstate'
 
 export const DEFAULT_WEB_PROJECT_NAME = 'demo-project'
 
+type CanonicalWebProjectLibrary = {
+  library: ProjectLibrarySetting
+  projectPath: string
+  defaultFilePath: string
+}
+
+function loadRouteSettings(
+  app: App,
+  wasmInstance: Awaited<App['wasmPromise']>,
+  projectPath?: string
+) {
+  return loadAndValidateSettings(wasmInstance, {
+    defaultProjectLibraries: app.registry.get(
+      projectLibrarySettingDefaultsValueSpec
+    ),
+    projectLibrarySettingDefaultPolicies: app.registry.get(
+      projectLibrarySettingDefaultPoliciesValueSpec
+    ),
+    extensionSettings: app.registry.get(settingsValueSpec),
+    projectPath,
+  })
+}
+
+async function getCanonicalWebProjectLibrary(
+  settings: AppSettings['settings']
+): Promise<CanonicalWebProjectLibrary> {
+  const fallbackLibraryPath =
+    settings.app.projectDirectory.current.trim() ||
+    (await getInitialDefaultDir())
+  const configuredLibrary = getDefaultDirectoryProjectLibrarySetting(
+    settings.app.libraries?.current
+  )
+  const libraryPath = configuredLibrary?.path.trim()
+    ? configuredLibrary.path
+    : fallbackLibraryPath
+  const library = {
+    title: configuredLibrary?.title || DEFAULT_PROJECT_LIBRARY_TITLE,
+    path: libraryPath,
+    type: configuredLibrary?.type || DIRECTORY_PROJECT_LIBRARY_TYPE,
+  }
+
+  return {
+    library,
+    projectPath: fsZds.resolve(library.path, DEFAULT_WEB_PROJECT_NAME),
+    defaultFilePath: fsZds.resolve(
+      library.path,
+      DEFAULT_WEB_PROJECT_NAME,
+      PROJECT_ENTRYPOINT
+    ),
+  }
+}
+
+async function maybeGetExistingDefaultFilePath(
+  projectPath: string,
+  wasmInstance: Awaited<App['wasmPromise']>
+) {
+  try {
+    const project = await getProjectInfo(projectPath, wasmInstance)
+    return project.default_file
+  } catch {
+    return undefined
+  }
+}
+
+async function fileExists(filePath: string) {
+  try {
+    await fsZds.stat(filePath)
+    return true
+  } catch {
+    return false
+  }
+}
+
+function redirectToFile(filePath: string, routerSearch: string) {
+  return redirect(
+    `${PATHS.FILE}/${encodeURIComponent(filePath)}${routerSearch}`
+  )
+}
+
 /**
  * The base loader is used to reroute `/` root path requests,
  * to the home route on desktop, and to a constrained single project view on web.
  *
- * Once we get cloud storage or another solution we'll introduce the home, multi-project view on web.
+ * The OPFS cloud feature flag enables the home, multi-project view on web.
  */
 export const baseLoader =
-  ({
-    app,
-  }: {
-    app: App
-  }): LoaderFunction =>
+  ({ app }: { app: App }): LoaderFunction =>
   async ({ request }) => {
     const url = new URL(request.url)
     const routerSearch = getRouterSearchFromRequestUrl(
@@ -57,48 +157,37 @@ export const baseLoader =
       return
     }
 
+    if (await webHomeRouteEnabled(app)) {
+      return redirect(PATHS.HOME + routerSearch)
+    }
+
     // Web, make a default project and redirect to it.
     const wasmInstance = await app.singletons.kclManager.wasmInstancePromise
 
-    const settings = await loadAndValidateSettings(wasmInstance, undefined)
+    const { settings } = await loadRouteSettings(app, wasmInstance)
+    const canonicalLibrary = await getCanonicalWebProjectLibrary(settings)
+    let defaultFilePath =
+      (await maybeGetExistingDefaultFilePath(
+        canonicalLibrary.projectPath,
+        wasmInstance
+      )) ?? canonicalLibrary.defaultFilePath
 
-    const requestedProjectName = fsZds.resolve(
-      settings.settings.app.projectDirectory.current,
-      DEFAULT_WEB_PROJECT_NAME
-    )
-
-    // We have to create and/or navigate to a project on web.
-    try {
-      await fsZds.stat(requestedProjectName)
-      app.systemIOActor.send({
-        type: SystemIOMachineEvents.navigateToProject,
-        data: { requestedProjectName },
-      })
-    } catch {
+    if (!(await fileExists(defaultFilePath))) {
       await projectSkeletonCreate(
-        fsZds.resolve(
-          await getInitialDefaultDir(),
-          DEFAULT_WEB_PROJECT_NAME,
-          'main.kcl'
-        ),
-        settings.settings.modeling.defaultUnit.current ??
-          DEFAULT_DEFAULT_LENGTH_UNIT,
+        canonicalLibrary.defaultFilePath,
+        settings.modeling.defaultUnit.current ?? DEFAULT_DEFAULT_LENGTH_UNIT,
         wasmInstance
       )
-
-      const fileURLPath =
-        PATHS.FILE + '/' + encodeURIComponent(requestedProjectName)
-      return redirect(fileURLPath + routerSearch)
+      defaultFilePath = canonicalLibrary.defaultFilePath
     }
+
+    return redirectToFile(defaultFilePath, routerSearch)
   }
 
 export const fileLoader =
-  ({
-    app,
-  }: {
-    app: App
-  }): LoaderFunction =>
+  ({ app }: { app: App }): LoaderFunction =>
   async (routerData): Promise<FileLoaderData | Response> => {
+    const assertCurrent = app.beginFileRouteLoad(routerData.request.signal)
     const {
       settings: { actor: settingsActor },
     } = app
@@ -113,29 +202,40 @@ export const fileLoader =
       return redirect(PATHS.HOME)
     }
 
-    const heuristicProjectFilePath = params.id
-      ? params.id.split(fsZds.sep).slice(0, -1).join(fsZds.sep)
-      : undefined
-
     const wasmInstance = await kclManager.wasmInstancePromise
+    assertCurrent()
 
-    let settings = await loadAndValidateSettings(
-      wasmInstance,
-      heuristicProjectFilePath
-    )
-
-    const projectPathData = await getProjectMetaByRouteId(
-      readAppSettingsFile,
-      wasmInstance,
-      params.id,
-      settings.configuration
-    )
+    // Resolve the project root before loading project settings. Loading project
+    // settings from a selected file's parent folder creates project.toml in
+    // nested folders and makes them look like project roots.
+    const appSettings = await loadRouteSettings(app, wasmInstance)
+    assertCurrent()
+    const currentProjectPath = app.project?.projectIORefSignal.value.path
+    const targetLibraryPath = params.id
+      ? (
+          await getProjectLibraryOwnership(
+            appSettings.settings.app.libraries?.current ?? [],
+            params.id
+          )
+        )?.libraryPath
+      : undefined
+    const projectPathData = params.id
+      ? parseProjectRoute(appSettings.configuration, params.id, {
+          activeProjectPath: currentProjectPath,
+          candidateProjectDirectories: targetLibraryPath
+            ? [targetLibraryPath]
+            : [],
+        })
+      : undefined
 
     if (!projectPathData) {
       return Promise.reject(
         new Error('bug: projectPathData undefined, early return')
       )
     }
+
+    await loadRouteSettings(app, wasmInstance, projectPathData.projectPath)
+    assertCurrent()
 
     const { projectName, projectPath, currentFileName, currentFilePath } =
       projectPathData
@@ -172,8 +272,13 @@ export const fileLoader =
           routerData.request.url,
           Boolean(window.electron)
         )
+        const onboardingChildRoute = params.id
+          ? getOnboardingChildRoute(routerData.request.url, params.id)
+          : ''
         return redirect(
-          `${PATHS.FILE}/${encodeURIComponent(fallbackFile)}${routerSearch}`
+          `${PATHS.FILE}/${encodeURIComponent(
+            fallbackFile
+          )}${onboardingChildRoute}${routerSearch}`
         )
       }
     }
@@ -194,19 +299,22 @@ export const fileLoader =
     }
 
     const maybeProjectInfo = await getProjectInfo(projectPath, wasmInstance)
+    assertCurrent()
 
     const project = maybeProjectInfo ?? defaultProjectData
 
     // Fire off the event to load the project settings
     // once we know it's idle.
     await waitFor(settingsActor, (state) => state.matches('idle'))
+    assertCurrent()
     settingsActor.send({
       type: 'load.project',
       project,
     })
     await waitFor(settingsActor, (state) => state.matches('idle'))
+    assertCurrent()
 
-    const projectRef = await app.openProject(project)
+    const projectRef = await app.openProject(project, assertCurrent)
     const editor = await projectRef.openEditor(
       currentFilePath || PROJECT_ENTRYPOINT,
       app.singletons.kclManager,
@@ -214,19 +322,44 @@ export const fileLoader =
       // through *anything*. INTENDED FOR TESTS.
       window.electron?.process.env.NODE_ENV === 'test'
         ? kclManager.localStoragePersistCode()
-        : undefined
+        : undefined,
+      true,
+      assertCurrent
     )
+    assertCurrent()
 
-    const appProjectDir = settings.settings.app.projectDirectory.current
-    const requestedProjectDirectoryPath = project.path.includes(appProjectDir)
-      ? appProjectDir
-      : getParentAbsolutePath(project.path) // Fallback to parent directory if foreign to app project dir
-    app.systemIOActor.send({
-      type: SystemIOMachineEvents.setProjectDirectoryPath,
-      data: {
-        requestedProjectDirectoryPath,
-      },
-    })
+    const requestedFileName =
+      app.systemIOActor.getSnapshot().context.requestedFileName
+    if (
+      isRequestedFileLoaded({
+        requestedFileName,
+        projectName,
+        projectPath,
+        currentFilePath,
+      })
+    ) {
+      requestedFileName.onProjectLoaderComplete?.()
+    }
+
+    const requestedProjectDirectoryPath =
+      projectRef.projectIORefSignal.value.libraryPath ??
+      getParentAbsolutePath(project.path)
+    const systemIOSnapshot = app.systemIOActor.getSnapshot()
+    // Same-directory file navigation should not restart SystemIO's own
+    // post-mutation folder refresh.
+    const shouldSyncProjectDirectory =
+      requestedProjectDirectoryPath !==
+        systemIOSnapshot.context.projectDirectoryPath ||
+      (systemIOSnapshot.matches(SystemIOMachineStates.idle) &&
+        systemIOSnapshot.context.folders === undefined)
+    if (shouldSyncProjectDirectory) {
+      app.systemIOActor.send({
+        type: SystemIOMachineEvents.setProjectDirectoryPath,
+        data: {
+          requestedProjectDirectoryPath,
+        },
+      })
+    }
 
     const projectData: IndexLoaderData = {
       code: editor.code,
@@ -248,23 +381,12 @@ export const fileLoader =
 
 // Should also clear currently loaded projects in SystemIO. They may be stale.
 export const homeLoader =
-  ({
-    app,
-  }: {
-    app: App
-  }): LoaderFunction =>
-  async ({ request }): Promise<HomeLoaderData | Response> => {
-    // If on web, bump out to root, which will redirect to a project.
-    if (!window.electron) {
+  ({ app }: { app: App }): LoaderFunction =>
+  async (): Promise<HomeLoaderData | Response> => {
+    // If on unflagged web, bump out to root, which will redirect to a project.
+    if (!window.electron && !(await webHomeRouteEnabled(app))) {
       return redirect(PATHS.INDEX)
     }
 
-    app.systemIOActor.send({
-      type: SystemIOMachineEvents.readFoldersFromProjectDirectory,
-    })
-    app.closeProject()
-    app.settings.actor.send({
-      type: 'clear.project',
-    })
-    return {}
+    return loadHomeProjects(app)
   }

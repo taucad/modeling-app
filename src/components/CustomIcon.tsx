@@ -440,6 +440,22 @@ const CustomIconMap = Object.freeze({
       />
     </svg>
   ),
+  caretLeft: (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="caret left"
+    >
+      <title>caret left</title>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8.70709 10.0001L12.3536 6.35352L11.6465 5.64642L7.64642 9.64655L7.64643 10.3537L11.6465 14.3535L12.3536 13.6464L8.70709 10.0001Z"
+        fill="currentColor"
+      />
+    </svg>
+  ),
   caretUp: (
     <svg
       viewBox="0 0 20 20"
@@ -1036,6 +1052,47 @@ const CustomIconMap = Object.freeze({
       <circle cx="10" cy="10" r="6.5" stroke="currentColor" fill="none" />
     </svg>
   ),
+  gdtConcentricity: (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="gdt concentricity"
+    >
+      <circle cx="10" cy="10" r="6.5" stroke="currentColor" fill="none" />
+      <circle cx="10" cy="10" r="3.25" stroke="currentColor" fill="none" />
+    </svg>
+  ),
+  gdtSymmetry: (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="gdt symmetry"
+    >
+      <path d="M4 6H16" stroke="currentColor" />
+      <path d="M3 10H17" stroke="currentColor" />
+      <path d="M4 14H16" stroke="currentColor" />
+    </svg>
+  ),
+  gdtRunout: (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="gdt runout"
+    >
+      <path d="M4 15L14.5 4.5" stroke="currentColor" />
+      <path d="M10.5 4H15V8.5" stroke="currentColor" />
+      <circle cx="6" cy="14" r="2.25" stroke="currentColor" fill="none" />
+    </svg>
+  ),
   gdtCylindricity: (
     <svg
       width="20"
@@ -1474,6 +1531,24 @@ const CustomIconMap = Object.freeze({
       />
     </svg>
   ),
+  namedView: (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="named view"
+    >
+      <path
+        d="M9 7L13.5 9.25V13.75L9 16L4.5 13.75V9.25L9 7Z"
+        stroke="currentColor"
+      />
+      <path
+        d="M9 11.5L4.5 9.25M9 11.5L13.5 9.25M9 11.5V16"
+        stroke="currentColor"
+      />
+      <path d="M13.5 3H17.5V9.5L15.5 8L13.5 9.5V3Z" fill="currentColor" />
+    </svg>
+  ),
   normal: (
     <svg
       viewBox="0 0 20 20"
@@ -1532,6 +1607,19 @@ const CustomIconMap = Object.freeze({
       />
     </svg>
   ),
+  ruler: (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="ruler"
+    >
+      <path
+        d="M17.7783 6.46484L6.46484 17.7783L2.22168 13.5352L13.5352 2.22168L17.7783 6.46484ZM11.2959 5.875L13.0635 7.64355L12.3564 8.35059L10.5889 6.58301L8.93945 8.23242L10 9.29297L9.29297 10L8.23242 8.93945L6.58301 10.5889L8.35059 12.3564L7.64355 13.0635L5.875 11.2959L3.63574 13.5352L6.46484 16.3643L16.3643 6.46484L13.5352 3.63574L11.2959 5.875Z"
+        fill="currentColor"
+      />
+    </svg>
+  ),
   clone: (
     <svg
       viewBox="0 0 20 20"
@@ -1543,6 +1631,21 @@ const CustomIconMap = Object.freeze({
         fillRule="evenodd"
         clipRule="evenodd"
         d="M17 17H6V6H17V17ZM7 16H16V7H7V16ZM12 11H14V12H12V14H11V12H9V11H11V9H12V11ZM13 5H12V4H4V12H5V13H3V3H13V5Z"
+        fill="currentColor"
+      />
+    </svg>
+  ),
+  cloud: (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="cloud"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M10.25 4C12.9151 4 15.1422 5.89666 15.6504 8.41504C17.5432 8.72257 19 10.3746 19 12.3555C19 14.5546 17.205 16.3496 15.0059 16.3496H5.25C2.90279 16.3496 1 14.4468 1 12.0996C1 9.89411 2.68035 8.07981 4.83008 7.86523C5.68051 5.59669 7.81515 4 10.25 4ZM10.25 5C8.13564 5 6.29621 6.44544 5.68066 8.50684L5.58008 8.8418H5.23047C3.44473 8.85218 2 10.304 2 12.0996C2 13.8945 3.45507 15.3496 5.25 15.3496H15.0059C16.6527 15.3496 18 14.0023 18 12.3555C18 10.7087 16.6527 9.36133 15.0059 9.36133H14.7861L14.6992 8.86133C14.3349 6.65701 12.4593 5 10.25 5Z"
         fill="currentColor"
       />
     </svg>
@@ -1819,6 +1922,31 @@ const CustomIconMap = Object.freeze({
       />
     </svg>
   ),
+  // Balance scales, for physical/mass properties. Distinct from `scale`,
+  // which is the scale transform operation.
+  scales: (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="scales"
+    >
+      <path
+        d="M10 4.5V16.5M6.5 16.5H13.5M3.5 6.5H16.5M10 4.5C10.5523 4.5 11 4.94772 11 5.5C11 6.05228 10.5523 6.5 10 6.5C9.44772 6.5 9 6.05228 9 5.5C9 4.94772 9.44772 4.5 10 4.5Z"
+        stroke="currentColor"
+      />
+      <path
+        d="M1.5 11.5C1.5 11.5 2.5 13 4 13C5.5 13 6.5 11.5 6.5 11.5L4 6.5L1.5 11.5Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M13.5 11.5C13.5 11.5 14.5 13 16 13C17.5 13 18.5 11.5 18.5 11.5L16 6.5L13.5 11.5Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
   scale: (
     <svg
       viewBox="0 0 20 20"
@@ -1990,6 +2118,26 @@ const CustomIconMap = Object.freeze({
       />
     </svg>
   ),
+  note: (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="note"
+    >
+      <path
+        d="M5 3H12L15 6V17H5V3Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+      />
+      <path d="M12 3V6H15" stroke="currentColor" strokeLinejoin="round" />
+      <path
+        d="M7.5 9.5H12.5M7.5 12H12.5M7.5 14.5H10.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+      />
+    </svg>
+  ),
   'three-dots': (
     <svg
       viewBox="0 0 20 20"
@@ -2129,6 +2277,36 @@ const CustomIconMap = Object.freeze({
       <path
         d="M13.9814 7C15.6383 7 16.9814 8.34317 16.9814 10C16.9814 11.6569 15.6383 13 13.9814 13C12.3764 12.9999 11.0656 11.7394 10.9854 10.1543L10.9814 10L10.9707 9.85352C10.9635 9.80499 10.9527 9.75695 10.9385 9.70996L10.9053 9.61719C10.8676 9.52625 10.8171 9.44105 10.7549 9.36523L10.6885 9.29297C10.5957 9.20021 10.4855 9.1264 10.3643 9.07617C10.243 9.02598 10.1127 9 9.98145 9C9.88308 9.00002 9.7852 9.01454 9.69141 9.04297L9.59863 9.07617C9.50772 9.11387 9.42249 9.16435 9.34668 9.22656L9.27441 9.29297C9.20485 9.36255 9.14585 9.44188 9.09961 9.52832L9.05762 9.61719C9.02796 9.6888 9.00749 9.76366 8.99512 9.83984C8.99791 9.89289 9 9.94626 9 10C9 11.6569 7.65685 13 6 13C4.3432 12.9999 3 11.6568 3 10C3.00003 8.34321 4.34322 7.00007 6 7C7.12596 7 8.10505 7.62155 8.61816 8.53906L8.71289 8.4541C8.86453 8.32967 9.03396 8.22772 9.21582 8.15234L9.40137 8.08594C9.58903 8.02906 9.78464 8.00002 9.98145 8C10.244 8 10.5045 8.0519 10.7471 8.15234L10.9248 8.23633C11.0819 8.32036 11.2268 8.42596 11.3564 8.54883C11.8679 7.6256 12.8513 7.00009 13.9814 7ZM6 8C4.89551 8.00007 4.00003 8.8955 4 10C4 11.1045 4.89549 11.9999 6 12C7.0357 12 7.88804 11.2128 7.99023 10.2041L8 10H7.98145C7.98145 9.93633 7.98419 9.87275 7.99023 9.80957C7.89427 8.79439 7.04029 8 6 8ZM13.9814 8C12.877 8.00013 11.9815 8.89554 11.9814 10C11.9814 11.1045 12.877 11.9999 13.9814 12C15.086 12 15.9814 11.1046 15.9814 10C15.9814 8.89546 15.086 8 13.9814 8Z"
         fill="currentColor"
+      />
+    </svg>
+  ),
+  gem: (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="gem"
+    >
+      <path
+        d="M6.75 4.75H13.25L15.75 8.25L10 15.5L4.25 8.25L6.75 4.75Z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9 4.75L7.5 8.25L10 15.5L12.5 8.25L11 4.75"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M4.25 8.25H15.75"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   ),

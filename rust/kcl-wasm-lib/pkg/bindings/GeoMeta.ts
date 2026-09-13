@@ -4,11 +4,11 @@ import type { SourceRange } from "./SourceRange.js";
 /**
  * Geometry metadata.
  */
-export type GeoMeta = { 
+export type GeoMeta = {
 /**
  * The id of the geometry.
  */
-id: string, 
+id: string,
 /**
  * The source range.
  */

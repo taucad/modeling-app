@@ -206,7 +206,7 @@ fn build_stale_body_error_message(
 
 #[cfg(test)]
 mod tests {
-    use kittycad_modeling_cmds::units::UnitLength;
+    use kcl_api::UnitLength;
     use uuid::Uuid;
 
     use super::*;
@@ -220,8 +220,12 @@ mod tests {
         Solid {
             id,
             value_id,
+            topology_id: id,
+            pattern_source_artifact_id: None,
+            best_guess_body_type: None,
             artifact_id: ArtifactId::new(id),
             value: vec![],
+            faces: Default::default(),
             creator: SolidCreator::Procedural,
             start_cap_id: None,
             end_cap_id: None,
@@ -235,7 +239,7 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn consumed_solid_diagnostic_names_match_between_memory_backends() {
-        for backend in [MemoryBackendKind::Legacy, MemoryBackendKind::Arena] {
+        for &backend in MemoryBackendKind::all() {
             let ctx = crate::ExecutorContext::new_mock(None).await;
             let mut exec_state = ExecState::new_mock_with_memory_backend(&ctx, &MockConfig::default(), backend);
             let target = procedural_solid(Uuid::from_u128(1), Uuid::from_u128(2));

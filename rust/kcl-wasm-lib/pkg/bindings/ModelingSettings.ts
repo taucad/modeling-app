@@ -9,36 +9,36 @@ import type { JsonValue } from "./serde_json/JsonValue.js";
 /**
  * Settings that affect the behavior while modeling.
  */
-export type ModelingSettings = { 
+export type ModelingSettings = {
 /**
  * The default unit to use in modeling dimensions.
  * If not given, defaults to millimeters.
  */
-base_unit?: LengthDefaultMm | null, 
+base_unit?: LengthDefaultMm | null,
 /**
  * The projection mode the camera should use while modeling.
  */
-camera_projection?: CameraProjectionType | null, 
+camera_projection?: CameraProjectionType | null,
 /**
  * The methodology the camera should use to orbit around the model.
  */
-camera_orbit?: CameraOrbitType | null, 
+camera_orbit?: CameraOrbitType | null,
 /**
  * Highlight edges of 3D objects?
  */
-highlight_edges?: DefaultTrue | null, 
+highlight_edges?: DefaultTrue | null,
 /**
  * Whether or not Screen Space Ambient Occlusion (SSAO) is enabled.
  */
-enable_ssao?: DefaultTrue | null, 
+enable_ssao?: DefaultTrue | null,
 /**
  * The default color to use for surface backfaces.
  */
-backface_color?: BackfaceDefault | null, 
+backface_color?: BackfaceDefault | null,
 /**
  * Whether or not to show a scale grid in the 3D modeling view
  */
-show_scale_grid?: boolean | null, 
+show_scale_grid?: boolean | null,
 /**
  * When enabled, the grid will use a fixed size based on your selected units rather than automatically scaling with zoom level.
  * If true, the grid cells will be fixed-size, where the width is your default length unit.

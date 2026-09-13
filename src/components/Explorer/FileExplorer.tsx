@@ -10,11 +10,13 @@ import {
   isRowFake,
   shouldDroppedEntryBeMoved,
 } from '@src/components/Explorer/utils'
-import { DeleteConfirmationDialog } from '@src/components/ProjectCard/DeleteProjectDialog'
+import { DeleteConfirmationDialog } from '@src/components/DeleteProjectDialog'
 import { noAutofillFormProps, noAutofillInputProps } from '@src/lib/autofill'
+import { removeDragPreviewElement, setDragPreview } from '@src/lib/dragPreview'
 import fsZds from '@src/lib/fs-zds'
 import type { MaybePressOrBlur, SubmitByPressOrBlur } from '@src/lib/types'
 import { uuidv4 } from '@src/lib/utils'
+import type { ProjectExplorerRowContextMenuItem } from '@src/registry/contracts/projectExplorer'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export const StatusDot = () => {
@@ -68,8 +70,10 @@ export const FileExplorer = ({
   isRenaming,
   isDeleting,
   isCopying,
+  isInteractionDisabled,
   isExternalDragOver,
   highlightedEntry,
+  rowContextMenuItems = [],
   onDeleteEnd,
   onExternalDragOverRow,
 }: {
@@ -79,8 +83,10 @@ export const FileExplorer = ({
   isRenaming: boolean
   isDeleting: boolean
   isCopying: boolean
+  isInteractionDisabled: boolean
   isExternalDragOver?: boolean
   highlightedEntry?: FileExplorerEntry | null
+  rowContextMenuItems?: readonly ProjectExplorerRowContextMenuItem[]
   onDeleteEnd: () => void
   onExternalDragOverRow?: (entry: FileExplorerEntry | null) => void
 }) => {
@@ -108,8 +114,10 @@ export const FileExplorer = ({
             isRenaming={isRenaming}
             isDeleting={isDeleting}
             isCopying={isCopying}
+            isInteractionDisabled={isInteractionDisabled}
             isExternalDragHighlighted={isHighlighted}
             isExternalDragOver={isExternalDragOver}
+            rowContextMenuItems={rowContextMenuItems}
             onDeleteEnd={onDeleteEnd}
             onExternalDragOverRow={onExternalDragOverRow}
           />
@@ -124,6 +132,7 @@ export const FileExplorer = ({
  */
 function FileExplorerRowContextMenu({
   itemRef,
+  row,
   onRename,
   onDelete,
   onCopy,
@@ -131,12 +140,47 @@ function FileExplorerRowContextMenu({
   callback,
   onPaste,
   isCopying,
+  rowContextMenuItems,
 }: FileExplorerRowContextMenuProps) {
+  const extensionItems = rowContextMenuItems.flatMap((item) => {
+    const context = { row }
+    if (item.isVisible && !item.isVisible(context)) {
+      return []
+    }
+
+    const disabled =
+      typeof item.disabled === 'function'
+        ? item.disabled(context)
+        : item.disabled
+
+    return [
+      <ContextMenuItem
+        key={item.id}
+        data-testid={item.dataTestId}
+        disabled={disabled}
+        onClick={() => item.onSelect(context)}
+      >
+        {item.label}
+      </ContextMenuItem>,
+    ]
+  })
+
   return (
     <ContextMenu
       menuTargetElement={itemRef}
       callback={callback}
       items={[
+        ...(row.isFolder && !row.isFake
+          ? [
+              <ContextMenuItem
+                key="create-file"
+                data-testid="context-menu-create-file"
+                onClick={row.onCreateFile}
+              >
+                Create new file
+              </ContextMenuItem>,
+            ]
+          : []),
         <ContextMenuItem data-testid="context-menu-rename" onClick={onRename}>
           Rename
         </ContextMenuItem>,
@@ -159,6 +203,7 @@ function FileExplorerRowContextMenu({
         >
           Open in new window
         </ContextMenuItem>,
+        ...extensionItems,
       ]}
     />
   )
@@ -260,8 +305,10 @@ export const FileExplorerRowElement = ({
   isRenaming,
   isDeleting,
   isCopying,
+  isInteractionDisabled,
   isExternalDragHighlighted,
   isExternalDragOver,
+  rowContextMenuItems,
   onDeleteEnd,
   onExternalDragOverRow,
 }: {
@@ -271,44 +318,18 @@ export const FileExplorerRowElement = ({
   isRenaming: boolean
   isDeleting: boolean
   isCopying: boolean
+  isInteractionDisabled: boolean
   isExternalDragHighlighted?: boolean
   isExternalDragOver?: boolean
+  rowContextMenuItems: readonly ProjectExplorerRowContextMenuItem[]
   onDeleteEnd: () => void
   onExternalDragOverRow?: (entry: FileExplorerEntry | null) => void
 }) => {
-  const dragPreviewId = `drag-preview-${row.name}`
-  // Adds a preview element that is a pill-shaped element with the row's name
-  const createDragPreviewElem = useCallback(() => {
-    if (!window) {
-      return
-    }
-    const elem = window.document.createElement('div')
-    elem.id = dragPreviewId
-    elem.classList.add(
-      'text-xs',
-      'py-1',
-      'px-2',
-      'rounded-full',
-      'border-primary',
-      'border',
-      'bg-default'
-    )
-    elem.style.position = 'fixed'
-    elem.style.top = '-1000px'
-    elem.innerText = row.name
-    document.body.appendChild(elem)
-    return elem
-  }, [row.name, dragPreviewId])
+  const dragPreviewId = `drag-preview-${row.key}`
 
   // Removes the drag preview element from the DOM
   const removeDragPreviewElem = useCallback(() => {
-    if (!window) {
-      return
-    }
-    const dragPreviewElem = window.document.getElementById(dragPreviewId)
-    if (dragPreviewElem) {
-      document.body.removeChild(dragPreviewElem)
-    }
+    removeDragPreviewElement(dragPreviewId)
   }, [dragPreviewId])
 
   const delayRef = useRef<ReturnType<typeof setTimeout>>(undefined)
@@ -348,6 +369,9 @@ export const FileExplorerRowElement = ({
   const externalHighlightCSS = isExternalDragHighlighted
     ? 'ring-2 ring-inset ring-blue-500 bg-blue-500/10'
     : ''
+  const interactionCSS = isInteractionDisabled
+    ? 'cursor-wait opacity-70'
+    : 'cursor-pointer hover:outline hover:outline-1 hover:bg-gray-300/50'
   const handleDeleteDismiss = useCallback(() => {
     setIsConfirmingDelete(false)
     onDeleteEnd()
@@ -360,10 +384,11 @@ export const FileExplorerRowElement = ({
       ref={rowElementRef}
       role="treeitem"
       data-testid="file-tree-item"
-      className={`h-5 flex flex-row items-center text-xs cursor-pointer -outline-offset-1 ${outlineCSS} hover:outline hover:outline-1 hover:bg-gray-300/50 ${isSelected ? 'bg-primary/10' : ''} ${externalHighlightCSS} transition-all duration-100`}
+      className={`h-5 flex flex-row items-center text-xs -outline-offset-1 ${outlineCSS} ${interactionCSS} ${isSelected ? 'bg-primary/10' : ''} ${externalHighlightCSS} transition-all duration-100`}
       data-index={row.domIndex}
       data-last-element={row.domIndex === row.domLength - 1}
       data-parity={row.domIndex % 2 === 0}
+      aria-disabled={isInteractionDisabled}
       aria-setsize={row.setSize}
       aria-posinset={row.positionInSet}
       aria-label={row.name}
@@ -371,18 +396,27 @@ export const FileExplorerRowElement = ({
       aria-level={row.level + 1}
       aria-expanded={row.isFolder && row.isOpen}
       onClick={() => {
+        if (isInteractionDisabled) {
+          return
+        }
         row.onClick(row.domIndex)
       }}
       onDoubleClick={
         row.onDoubleClick
           ? (event) => {
+              if (isInteractionDisabled) {
+                return
+              }
               event.preventDefault()
               row.onDoubleClick?.(row.domIndex)
             }
           : undefined
       }
-      draggable="true"
+      draggable={!isInteractionDisabled}
       onDragOver={(event) => {
+        if (isInteractionDisabled) {
+          return
+        }
         event.preventDefault()
 
         if (isExternalFileDrag(event)) {
@@ -402,6 +436,9 @@ export const FileExplorerRowElement = ({
         }
       }}
       onDragLeave={(event) => {
+        if (isInteractionDisabled) {
+          return
+        }
         event.preventDefault()
 
         if (isExternalFileDrag(event)) {
@@ -416,6 +453,10 @@ export const FileExplorerRowElement = ({
         }
       }}
       onDragStart={(event) => {
+        if (isInteractionDisabled) {
+          event.preventDefault()
+          return
+        }
         event.dataTransfer.effectAllowed = 'move'
         event.dataTransfer.setData(
           'json',
@@ -426,15 +467,18 @@ export const FileExplorerRowElement = ({
             parentPath: row.parentPath,
           } satisfies FileExplorerDropData)
         )
-        const previewElem = createDragPreviewElem()
-        if (previewElem) {
-          event.dataTransfer.setDragImage(previewElem, 0, 0)
-        }
+        setDragPreview(event.dataTransfer, {
+          id: dragPreviewId,
+          text: row.name,
+        })
       }}
       onDragEnd={() => {
         removeDragPreviewElem()
       }}
       onDrop={(event) => {
+        if (isInteractionDisabled) {
+          return
+        }
         event.preventDefault()
 
         if (isExternalFileDrag(event)) {
@@ -487,28 +531,32 @@ export const FileExplorerRowElement = ({
       {(isConfirmingDelete || isMyRowDeleting) && (
         <DeleteFileTreeItemDialog row={row} onDismiss={handleDeleteDismiss} />
       )}
-      <FileExplorerRowContextMenu
-        itemRef={rowElementRef}
-        onRename={() => {
-          row.onRenameStart()
-        }}
-        onDelete={() => {
-          setIsConfirmingDelete(true)
-        }}
-        onOpenInNewWindow={() => {
-          row.onOpenInNewWindow()
-        }}
-        onCopy={() => {
-          row.onCopy()
-        }}
-        callback={() => {
-          row.onContextMenuOpen(row.domIndex)
-        }}
-        onPaste={() => {
-          row.onPaste()
-        }}
-        isCopying={isCopying}
-      />
+      {!isInteractionDisabled && (
+        <FileExplorerRowContextMenu
+          itemRef={rowElementRef}
+          row={row}
+          onRename={() => {
+            row.onRenameStart()
+          }}
+          onDelete={() => {
+            setIsConfirmingDelete(true)
+          }}
+          onOpenInNewWindow={() => {
+            row.onOpenInNewWindow()
+          }}
+          onCopy={() => {
+            row.onCopy()
+          }}
+          callback={() => {
+            row.onContextMenuOpen(row.domIndex)
+          }}
+          onPaste={() => {
+            row.onPaste()
+          }}
+          isCopying={isCopying}
+          rowContextMenuItems={rowContextMenuItems}
+        />
+      )}
     </div>
   )
 }

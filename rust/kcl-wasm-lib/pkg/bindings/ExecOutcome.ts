@@ -2,36 +2,41 @@
 import type { ArtifactGraph } from "./Artifact.js";
 import type { CompilationIssue } from "./CompilationIssue.js";
 import type { DefaultPlanes } from "./DefaultPlanes.js";
-import type { KclValue } from "./KclValue.js";
+import type { KclValueView } from "./KclValueView.js";
 import type { ModuleId } from "./ModuleId.js";
 import type { ModulePath } from "./ModulePath.js";
-import type { Operation } from "./Operation.js";
+import type { OperationsByModule } from "./OperationsByModule.js";
+import type { RefactorMetadata } from "./RefactorMetadata.js";
 
 /**
  * Outcome of executing a program.  This is used in TS.
  */
-export type ExecOutcome = { 
+export type ExecOutcome = {
 /**
  * Variables in the top-level of the root module. Note that functions will have an invalid env ref.
  */
-variables: { [key in string]: KclValue }, 
+variables: { [key in string]: KclValueView },
 /**
- * Operations that have been performed in execution order, for display in
- * the Feature Tree.
+ * Operations that have been performed in execution order, grouped by
+ * owning module id, for display in the Feature Tree.
  */
-operations: Array<Operation>, 
+operations: OperationsByModule,
 /**
  * Output artifact graph.
  */
-artifactGraph: ArtifactGraph, 
+artifactGraph: ArtifactGraph,
+/**
+ * Execution-backed metadata used by Z0006 and future auto-refactors.
+ */
+refactorMetadata: Array<RefactorMetadata>,
 /**
  * Non-fatal errors and warnings.
  */
-issues: Array<CompilationIssue>, 
+issues: Array<CompilationIssue>,
 /**
  * File Names in module Id array index order
  */
-filenames: { [key in ModuleId]: ModulePath }, 
+filenames: { [key in ModuleId]: ModulePath },
 /**
  * The default planes.
  */

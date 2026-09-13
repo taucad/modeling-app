@@ -8,8 +8,7 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
     "value": {
       "artifactId": "[uuid]",
       "id": "[uuid]",
-      "kind": "XY",
-      "objectId": 0,
+      "kind": "Custom",
       "origin": {
         "x": 0.0,
         "y": 0.0,
@@ -41,8 +40,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
     "value": {
       "artifactId": "[uuid]",
       "id": "[uuid]",
-      "kind": "Custom",
       "objectId": 23,
+      "kind": "Custom",
       "origin": {
         "x": 0.0,
         "y": 0.0,
@@ -74,8 +73,7 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
     "value": {
       "artifactId": "[uuid]",
       "id": "[uuid]",
-      "kind": "XY",
-      "objectId": 46,
+      "kind": "Custom",
       "origin": {
         "x": 0.0,
         "y": 0.0,
@@ -123,7 +121,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
       },
       "parentSolid": {
         "solidId": "[uuid]",
-        "creatorSketchId": "[uuid]"
+        "creatorSketchId": "[uuid]",
+        "creatorSketchIsClosed": "explicitly"
       },
       "units": "mm"
     }
@@ -133,8 +132,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
     "value": {
       "artifactId": "[uuid]",
       "id": "[uuid]",
-      "kind": "Custom",
       "objectId": 58,
+      "kind": "Custom",
       "origin": {
         "x": 0.0,
         "y": 0.0,
@@ -166,6 +165,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -173,10 +174,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2659,
-            "end": 2666,
+            "commentStart": 2580,
+            "end": 2587,
             "moduleId": 0,
-            "start": 2659,
+            "start": 2580,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -195,7 +196,7 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
             },
             "ccw": true,
             "center": [
-              0.00000001874999197920074,
+              0.00000001874999206357573,
               0.0
             ],
             "from": [
@@ -204,10 +205,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
             ],
             "radius": 75.00000000000001,
             "tag": {
-              "commentStart": 2659,
-              "end": 2666,
+              "commentStart": 2580,
+              "end": 2587,
               "moduleId": 0,
-              "start": 2659,
+              "start": 2580,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -220,17 +221,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "XY",
           "objectId": 46,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -274,8 +275,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -324,6 +325,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -331,10 +334,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 779,
-            "end": 784,
+            "commentStart": 780,
+            "end": 785,
             "moduleId": 0,
-            "start": 779,
+            "start": 780,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -345,10 +348,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 848,
-            "end": 853,
+            "commentStart": 849,
+            "end": 854,
             "moduleId": 0,
-            "start": 848,
+            "start": 849,
             "type": "TagDeclarator",
             "value": "line2"
           },
@@ -359,10 +362,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 957,
-            "end": 962,
+            "commentStart": 958,
+            "end": 963,
             "moduleId": 0,
-            "start": 957,
+            "start": 958,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -373,10 +376,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1067,
-            "end": 1072,
+            "commentStart": 1068,
+            "end": 1073,
             "moduleId": 0,
-            "start": 1067,
+            "start": 1068,
             "type": "TagDeclarator",
             "value": "line4"
           },
@@ -398,10 +401,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               0.0
             ],
             "tag": {
-              "commentStart": 779,
-              "end": 784,
+              "commentStart": 780,
+              "end": 785,
               "moduleId": 0,
-              "start": 779,
+              "start": 780,
               "type": "TagDeclarator",
               "value": "line1"
             },
@@ -422,10 +425,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               0.0
             ],
             "tag": {
-              "commentStart": 848,
-              "end": 853,
+              "commentStart": 849,
+              "end": 854,
               "moduleId": 0,
-              "start": 848,
+              "start": 849,
               "type": "TagDeclarator",
               "value": "line2"
             },
@@ -446,10 +449,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               35.0
             ],
             "tag": {
-              "commentStart": 957,
-              "end": 962,
+              "commentStart": 958,
+              "end": 963,
               "moduleId": 0,
-              "start": 957,
+              "start": 958,
               "type": "TagDeclarator",
               "value": "line3"
             },
@@ -470,10 +473,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               35.0
             ],
             "tag": {
-              "commentStart": 1067,
-              "end": 1072,
+              "commentStart": 1068,
+              "end": 1073,
               "moduleId": 0,
-              "start": 1067,
+              "start": 1068,
               "type": "TagDeclarator",
               "value": "line4"
             },
@@ -486,17 +489,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "XY",
           "objectId": 0,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -552,7 +555,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -586,6 +590,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -593,10 +599,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 779,
-                "end": 784,
+                "commentStart": 780,
+                "end": 785,
                 "moduleId": 0,
-                "start": 779,
+                "start": 780,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -607,10 +613,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 848,
-                "end": 853,
+                "commentStart": 849,
+                "end": 854,
                 "moduleId": 0,
-                "start": 848,
+                "start": 849,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -621,10 +627,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 957,
-                "end": 962,
+                "commentStart": 958,
+                "end": 963,
                 "moduleId": 0,
-                "start": 957,
+                "start": 958,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -635,10 +641,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 1067,
-                "end": 1072,
+                "commentStart": 1068,
+                "end": 1073,
                 "moduleId": 0,
-                "start": 1067,
+                "start": 1068,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -660,10 +666,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 779,
-                  "end": 784,
+                  "commentStart": 780,
+                  "end": 785,
                   "moduleId": 0,
-                  "start": 779,
+                  "start": 780,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -684,10 +690,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 848,
-                  "end": 853,
+                  "commentStart": 849,
+                  "end": 854,
                   "moduleId": 0,
-                  "start": 848,
+                  "start": 849,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -708,10 +714,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 957,
-                  "end": 962,
+                  "commentStart": 958,
+                  "end": 963,
                   "moduleId": 0,
-                  "start": 957,
+                  "start": 958,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -732,10 +738,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 1067,
-                  "end": 1072,
+                  "commentStart": 1068,
+                  "end": 1073,
                   "moduleId": 0,
-                  "start": 1067,
+                  "start": 1068,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -748,17 +754,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "XY",
               "objectId": 0,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 0.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -814,7 +820,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "units": "mm"
+            "units": "mm",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -827,6 +834,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -834,10 +843,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 779,
-                "end": 784,
+                "commentStart": 780,
+                "end": 785,
                 "moduleId": 0,
-                "start": 779,
+                "start": 780,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -848,10 +857,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 848,
-                "end": 853,
+                "commentStart": 849,
+                "end": 854,
                 "moduleId": 0,
-                "start": 848,
+                "start": 849,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -862,10 +871,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 957,
-                "end": 962,
+                "commentStart": 958,
+                "end": 963,
                 "moduleId": 0,
-                "start": 957,
+                "start": 958,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -876,10 +885,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 1067,
-                "end": 1072,
+                "commentStart": 1068,
+                "end": 1073,
                 "moduleId": 0,
-                "start": 1067,
+                "start": 1068,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -901,10 +910,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 779,
-                  "end": 784,
+                  "commentStart": 780,
+                  "end": 785,
                   "moduleId": 0,
-                  "start": 779,
+                  "start": 780,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -925,10 +934,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 848,
-                  "end": 853,
+                  "commentStart": 849,
+                  "end": 854,
                   "moduleId": 0,
-                  "start": 848,
+                  "start": 849,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -949,10 +958,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 957,
-                  "end": 962,
+                  "commentStart": 958,
+                  "end": 963,
                   "moduleId": 0,
-                  "start": 957,
+                  "start": 958,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -973,10 +982,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 1067,
-                  "end": 1072,
+                  "commentStart": 1068,
+                  "end": 1073,
                   "moduleId": 0,
-                  "start": 1067,
+                  "start": 1068,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -989,17 +998,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "XY",
               "objectId": 0,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 0.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -1055,7 +1064,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "units": "mm"
+            "units": "mm",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -1068,6 +1078,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -1075,10 +1087,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 779,
-                "end": 784,
+                "commentStart": 780,
+                "end": 785,
                 "moduleId": 0,
-                "start": 779,
+                "start": 780,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -1089,10 +1101,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 848,
-                "end": 853,
+                "commentStart": 849,
+                "end": 854,
                 "moduleId": 0,
-                "start": 848,
+                "start": 849,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -1103,10 +1115,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 957,
-                "end": 962,
+                "commentStart": 958,
+                "end": 963,
                 "moduleId": 0,
-                "start": 957,
+                "start": 958,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -1117,10 +1129,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 1067,
-                "end": 1072,
+                "commentStart": 1068,
+                "end": 1073,
                 "moduleId": 0,
-                "start": 1067,
+                "start": 1068,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -1142,10 +1154,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 779,
-                  "end": 784,
+                  "commentStart": 780,
+                  "end": 785,
                   "moduleId": 0,
-                  "start": 779,
+                  "start": 780,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -1166,10 +1178,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 848,
-                  "end": 853,
+                  "commentStart": 849,
+                  "end": 854,
                   "moduleId": 0,
-                  "start": 848,
+                  "start": 849,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -1190,10 +1202,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 957,
-                  "end": 962,
+                  "commentStart": 958,
+                  "end": 963,
                   "moduleId": 0,
-                  "start": 957,
+                  "start": 958,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -1214,10 +1226,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 1067,
-                  "end": 1072,
+                  "commentStart": 1068,
+                  "end": 1073,
                   "moduleId": 0,
-                  "start": 1067,
+                  "start": 1068,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -1230,17 +1242,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "XY",
               "objectId": 0,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 0.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -1296,7 +1308,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "units": "mm"
+            "units": "mm",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -1309,6 +1322,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -1316,10 +1331,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 779,
-                "end": 784,
+                "commentStart": 780,
+                "end": 785,
                 "moduleId": 0,
-                "start": 779,
+                "start": 780,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -1330,10 +1345,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 848,
-                "end": 853,
+                "commentStart": 849,
+                "end": 854,
                 "moduleId": 0,
-                "start": 848,
+                "start": 849,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -1344,10 +1359,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 957,
-                "end": 962,
+                "commentStart": 958,
+                "end": 963,
                 "moduleId": 0,
-                "start": 957,
+                "start": 958,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -1358,10 +1373,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 1067,
-                "end": 1072,
+                "commentStart": 1068,
+                "end": 1073,
                 "moduleId": 0,
-                "start": 1067,
+                "start": 1068,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -1383,10 +1398,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 779,
-                  "end": 784,
+                  "commentStart": 780,
+                  "end": 785,
                   "moduleId": 0,
-                  "start": 779,
+                  "start": 780,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -1407,10 +1422,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 848,
-                  "end": 853,
+                  "commentStart": 849,
+                  "end": 854,
                   "moduleId": 0,
-                  "start": 848,
+                  "start": 849,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -1431,10 +1446,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 957,
-                  "end": 962,
+                  "commentStart": 958,
+                  "end": 963,
                   "moduleId": 0,
-                  "start": 957,
+                  "start": 958,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -1455,10 +1470,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 1067,
-                  "end": 1072,
+                  "commentStart": 1068,
+                  "end": 1073,
                   "moduleId": 0,
-                  "start": 1067,
+                  "start": 1068,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -1471,17 +1486,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "XY",
               "objectId": 0,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 0.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -1537,7 +1552,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "units": "mm"
+            "units": "mm",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -1550,6 +1566,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -1557,10 +1575,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 779,
-                "end": 784,
+                "commentStart": 780,
+                "end": 785,
                 "moduleId": 0,
-                "start": 779,
+                "start": 780,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -1571,10 +1589,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 848,
-                "end": 853,
+                "commentStart": 849,
+                "end": 854,
                 "moduleId": 0,
-                "start": 848,
+                "start": 849,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -1585,10 +1603,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 957,
-                "end": 962,
+                "commentStart": 958,
+                "end": 963,
                 "moduleId": 0,
-                "start": 957,
+                "start": 958,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -1599,10 +1617,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 1067,
-                "end": 1072,
+                "commentStart": 1068,
+                "end": 1073,
                 "moduleId": 0,
-                "start": 1067,
+                "start": 1068,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -1624,10 +1642,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 779,
-                  "end": 784,
+                  "commentStart": 780,
+                  "end": 785,
                   "moduleId": 0,
-                  "start": 779,
+                  "start": 780,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -1648,10 +1666,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 848,
-                  "end": 853,
+                  "commentStart": 849,
+                  "end": 854,
                   "moduleId": 0,
-                  "start": 848,
+                  "start": 849,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -1672,10 +1690,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 957,
-                  "end": 962,
+                  "commentStart": 958,
+                  "end": 963,
                   "moduleId": 0,
-                  "start": 957,
+                  "start": 958,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -1696,10 +1714,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 1067,
-                  "end": 1072,
+                  "commentStart": 1068,
+                  "end": 1073,
                   "moduleId": 0,
-                  "start": 1067,
+                  "start": 1068,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -1712,17 +1730,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "XY",
               "objectId": 0,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 0.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -1778,7 +1796,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "units": "mm"
+            "units": "mm",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -1791,6 +1810,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -1798,10 +1819,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 779,
-                "end": 784,
+                "commentStart": 780,
+                "end": 785,
                 "moduleId": 0,
-                "start": 779,
+                "start": 780,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -1812,10 +1833,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 848,
-                "end": 853,
+                "commentStart": 849,
+                "end": 854,
                 "moduleId": 0,
-                "start": 848,
+                "start": 849,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -1826,10 +1847,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 957,
-                "end": 962,
+                "commentStart": 958,
+                "end": 963,
                 "moduleId": 0,
-                "start": 957,
+                "start": 958,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -1840,10 +1861,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 1067,
-                "end": 1072,
+                "commentStart": 1068,
+                "end": 1073,
                 "moduleId": 0,
-                "start": 1067,
+                "start": 1068,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -1865,10 +1886,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 779,
-                  "end": 784,
+                  "commentStart": 780,
+                  "end": 785,
                   "moduleId": 0,
-                  "start": 779,
+                  "start": 780,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -1889,10 +1910,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 848,
-                  "end": 853,
+                  "commentStart": 849,
+                  "end": 854,
                   "moduleId": 0,
-                  "start": 848,
+                  "start": 849,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -1913,10 +1934,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 957,
-                  "end": 962,
+                  "commentStart": 958,
+                  "end": 963,
                   "moduleId": 0,
-                  "start": 957,
+                  "start": 958,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -1937,10 +1958,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 1067,
-                  "end": 1072,
+                  "commentStart": 1068,
+                  "end": 1073,
                   "moduleId": 0,
-                  "start": 1067,
+                  "start": 1068,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -1953,17 +1974,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "XY",
               "objectId": 0,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 0.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -2019,7 +2040,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "units": "mm"
+            "units": "mm",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -2032,6 +2054,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -2039,10 +2063,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 779,
-                "end": 784,
+                "commentStart": 780,
+                "end": 785,
                 "moduleId": 0,
-                "start": 779,
+                "start": 780,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -2053,10 +2077,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 848,
-                "end": 853,
+                "commentStart": 849,
+                "end": 854,
                 "moduleId": 0,
-                "start": 848,
+                "start": 849,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -2067,10 +2091,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 957,
-                "end": 962,
+                "commentStart": 958,
+                "end": 963,
                 "moduleId": 0,
-                "start": 957,
+                "start": 958,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -2081,10 +2105,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 1067,
-                "end": 1072,
+                "commentStart": 1068,
+                "end": 1073,
                 "moduleId": 0,
-                "start": 1067,
+                "start": 1068,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -2106,10 +2130,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 779,
-                  "end": 784,
+                  "commentStart": 780,
+                  "end": 785,
                   "moduleId": 0,
-                  "start": 779,
+                  "start": 780,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -2130,10 +2154,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 848,
-                  "end": 853,
+                  "commentStart": 849,
+                  "end": 854,
                   "moduleId": 0,
-                  "start": 848,
+                  "start": 849,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -2154,10 +2178,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 957,
-                  "end": 962,
+                  "commentStart": 958,
+                  "end": 963,
                   "moduleId": 0,
-                  "start": 957,
+                  "start": 958,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -2178,10 +2202,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 1067,
-                  "end": 1072,
+                  "commentStart": 1068,
+                  "end": 1073,
                   "moduleId": 0,
-                  "start": 1067,
+                  "start": 1068,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -2194,17 +2218,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "XY",
               "objectId": 0,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 0.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -2260,7 +2284,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "units": "mm"
+            "units": "mm",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -2273,6 +2298,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -2280,10 +2307,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 779,
-                "end": 784,
+                "commentStart": 780,
+                "end": 785,
                 "moduleId": 0,
-                "start": 779,
+                "start": 780,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -2294,10 +2321,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 848,
-                "end": 853,
+                "commentStart": 849,
+                "end": 854,
                 "moduleId": 0,
-                "start": 848,
+                "start": 849,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -2308,10 +2335,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 957,
-                "end": 962,
+                "commentStart": 958,
+                "end": 963,
                 "moduleId": 0,
-                "start": 957,
+                "start": 958,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -2322,10 +2349,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 1067,
-                "end": 1072,
+                "commentStart": 1068,
+                "end": 1073,
                 "moduleId": 0,
-                "start": 1067,
+                "start": 1068,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -2347,10 +2374,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 779,
-                  "end": 784,
+                  "commentStart": 780,
+                  "end": 785,
                   "moduleId": 0,
-                  "start": 779,
+                  "start": 780,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -2371,10 +2398,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 848,
-                  "end": 853,
+                  "commentStart": 849,
+                  "end": 854,
                   "moduleId": 0,
-                  "start": 848,
+                  "start": 849,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -2395,10 +2422,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 957,
-                  "end": 962,
+                  "commentStart": 958,
+                  "end": 963,
                   "moduleId": 0,
-                  "start": 957,
+                  "start": 958,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -2419,10 +2446,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 1067,
-                  "end": 1072,
+                  "commentStart": 1068,
+                  "end": 1073,
                   "moduleId": 0,
-                  "start": 1067,
+                  "start": 1068,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -2435,17 +2462,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "XY",
               "objectId": 0,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 0.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -2501,7 +2528,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "units": "mm"
+            "units": "mm",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -2514,6 +2542,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -2521,10 +2551,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 779,
-                "end": 784,
+                "commentStart": 780,
+                "end": 785,
                 "moduleId": 0,
-                "start": 779,
+                "start": 780,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -2535,10 +2565,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 848,
-                "end": 853,
+                "commentStart": 849,
+                "end": 854,
                 "moduleId": 0,
-                "start": 848,
+                "start": 849,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -2549,10 +2579,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 957,
-                "end": 962,
+                "commentStart": 958,
+                "end": 963,
                 "moduleId": 0,
-                "start": 957,
+                "start": 958,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -2563,10 +2593,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 1067,
-                "end": 1072,
+                "commentStart": 1068,
+                "end": 1073,
                 "moduleId": 0,
-                "start": 1067,
+                "start": 1068,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -2588,10 +2618,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 779,
-                  "end": 784,
+                  "commentStart": 780,
+                  "end": 785,
                   "moduleId": 0,
-                  "start": 779,
+                  "start": 780,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -2612,10 +2642,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 848,
-                  "end": 853,
+                  "commentStart": 849,
+                  "end": 854,
                   "moduleId": 0,
-                  "start": 848,
+                  "start": 849,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -2636,10 +2666,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 957,
-                  "end": 962,
+                  "commentStart": 958,
+                  "end": 963,
                   "moduleId": 0,
-                  "start": 957,
+                  "start": 958,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -2660,10 +2690,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 1067,
-                  "end": 1072,
+                  "commentStart": 1068,
+                  "end": 1073,
                   "moduleId": 0,
-                  "start": 1067,
+                  "start": 1068,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -2676,17 +2706,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "XY",
               "objectId": 0,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 0.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -2742,7 +2772,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "units": "mm"
+            "units": "mm",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -2755,6 +2786,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -2762,10 +2795,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 779,
-                "end": 784,
+                "commentStart": 780,
+                "end": 785,
                 "moduleId": 0,
-                "start": 779,
+                "start": 780,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -2776,10 +2809,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 848,
-                "end": 853,
+                "commentStart": 849,
+                "end": 854,
                 "moduleId": 0,
-                "start": 848,
+                "start": 849,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -2790,10 +2823,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 957,
-                "end": 962,
+                "commentStart": 958,
+                "end": 963,
                 "moduleId": 0,
-                "start": 957,
+                "start": 958,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -2804,10 +2837,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 1067,
-                "end": 1072,
+                "commentStart": 1068,
+                "end": 1073,
                 "moduleId": 0,
-                "start": 1067,
+                "start": 1068,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -2829,10 +2862,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 779,
-                  "end": 784,
+                  "commentStart": 780,
+                  "end": 785,
                   "moduleId": 0,
-                  "start": 779,
+                  "start": 780,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -2853,10 +2886,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 848,
-                  "end": 853,
+                  "commentStart": 849,
+                  "end": 854,
                   "moduleId": 0,
-                  "start": 848,
+                  "start": 849,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -2877,10 +2910,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 957,
-                  "end": 962,
+                  "commentStart": 958,
+                  "end": 963,
                   "moduleId": 0,
-                  "start": 957,
+                  "start": 958,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -2901,10 +2934,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 1067,
-                  "end": 1072,
+                  "commentStart": 1068,
+                  "end": 1073,
                   "moduleId": 0,
-                  "start": 1067,
+                  "start": 1068,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -2917,17 +2950,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "XY",
               "objectId": 0,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 0.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -2983,7 +3016,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "units": "mm"
+            "units": "mm",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -2996,6 +3030,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -3003,10 +3039,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 779,
-                "end": 784,
+                "commentStart": 780,
+                "end": 785,
                 "moduleId": 0,
-                "start": 779,
+                "start": 780,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -3017,10 +3053,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 848,
-                "end": 853,
+                "commentStart": 849,
+                "end": 854,
                 "moduleId": 0,
-                "start": 848,
+                "start": 849,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -3031,10 +3067,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 957,
-                "end": 962,
+                "commentStart": 958,
+                "end": 963,
                 "moduleId": 0,
-                "start": 957,
+                "start": 958,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -3045,10 +3081,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 1067,
-                "end": 1072,
+                "commentStart": 1068,
+                "end": 1073,
                 "moduleId": 0,
-                "start": 1067,
+                "start": 1068,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -3070,10 +3106,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 779,
-                  "end": 784,
+                  "commentStart": 780,
+                  "end": 785,
                   "moduleId": 0,
-                  "start": 779,
+                  "start": 780,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -3094,10 +3130,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 848,
-                  "end": 853,
+                  "commentStart": 849,
+                  "end": 854,
                   "moduleId": 0,
-                  "start": 848,
+                  "start": 849,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -3118,10 +3154,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 957,
-                  "end": 962,
+                  "commentStart": 958,
+                  "end": 963,
                   "moduleId": 0,
-                  "start": 957,
+                  "start": 958,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -3142,10 +3178,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 1067,
-                  "end": 1072,
+                  "commentStart": 1068,
+                  "end": 1073,
                   "moduleId": 0,
-                  "start": 1067,
+                  "start": 1068,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -3158,17 +3194,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "XY",
               "objectId": 0,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 0.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -3224,7 +3260,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "units": "mm"
+            "units": "mm",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -3237,6 +3274,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -3244,10 +3283,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 779,
-                "end": 784,
+                "commentStart": 780,
+                "end": 785,
                 "moduleId": 0,
-                "start": 779,
+                "start": 780,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -3258,10 +3297,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 848,
-                "end": 853,
+                "commentStart": 849,
+                "end": 854,
                 "moduleId": 0,
-                "start": 848,
+                "start": 849,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -3272,10 +3311,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 957,
-                "end": 962,
+                "commentStart": 958,
+                "end": 963,
                 "moduleId": 0,
-                "start": 957,
+                "start": 958,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -3286,10 +3325,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 1067,
-                "end": 1072,
+                "commentStart": 1068,
+                "end": 1073,
                 "moduleId": 0,
-                "start": 1067,
+                "start": 1068,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -3311,10 +3350,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 779,
-                  "end": 784,
+                  "commentStart": 780,
+                  "end": 785,
                   "moduleId": 0,
-                  "start": 779,
+                  "start": 780,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -3335,10 +3374,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 848,
-                  "end": 853,
+                  "commentStart": 849,
+                  "end": 854,
                   "moduleId": 0,
-                  "start": 848,
+                  "start": 849,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -3359,10 +3398,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 957,
-                  "end": 962,
+                  "commentStart": 958,
+                  "end": 963,
                   "moduleId": 0,
-                  "start": 957,
+                  "start": 958,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -3383,10 +3422,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   35.0
                 ],
                 "tag": {
-                  "commentStart": 1067,
-                  "end": 1072,
+                  "commentStart": 1068,
+                  "end": 1073,
                   "moduleId": 0,
-                  "start": 1067,
+                  "start": 1068,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -3399,17 +3438,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "XY",
               "objectId": 0,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 0.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -3465,7 +3504,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "units": "mm"
+            "units": "mm",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -3480,6 +3520,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -3487,10 +3529,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3303,
-            "end": 3310,
+            "commentStart": 3156,
+            "end": 3163,
             "moduleId": 0,
-            "start": 3303,
+            "start": 3156,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -3509,24 +3551,24 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
             },
             "ccw": true,
             "center": [
-              0.000000003749999755927745,
+              0.00000000375000556306655,
               0.0
             ],
             "from": [
-              15.00000000375,
+              15.000000003750005,
               0.0
             ],
             "radius": 15.0,
             "tag": {
-              "commentStart": 3303,
-              "end": 3310,
+              "commentStart": 3156,
+              "end": 3163,
               "moduleId": 0,
-              "start": 3303,
+              "start": 3156,
               "type": "TagDeclarator",
               "value": "circle1"
             },
             "to": [
-              15.00000000375,
+              15.000000003750005,
               0.0
             ],
             "type": "Circle",
@@ -3534,17 +3576,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 58,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": -12.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -3566,11 +3608,11 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         },
         "start": {
           "from": [
-            15.00000000375,
+            15.000000003750005,
             0.0
           ],
           "to": [
-            15.00000000375,
+            15.000000003750005,
             0.0
           ],
           "units": "mm",
@@ -3588,8 +3630,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -3612,7 +3654,7 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   "circle": {
                     "start": [
                       {
-                        "n": 15.00000000375,
+                        "n": 15.000000003750005,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -3630,7 +3672,7 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                     ],
                     "center": [
                       {
-                        "n": 0.000000003749999755927745,
+                        "n": 0.00000000375000556306655,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -3736,24 +3778,24 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   },
                   "ccw": true,
                   "center": [
-                    0.000000003749999755927745,
+                    0.00000000375000556306655,
                     0.0
                   ],
                   "from": [
-                    15.00000000375,
+                    15.000000003750005,
                     0.0
                   ],
                   "radius": 15.0,
                   "tag": {
-                    "commentStart": 3303,
-                    "end": 3310,
+                    "commentStart": 3156,
+                    "end": 3163,
                     "moduleId": 0,
-                    "start": 3303,
+                    "start": 3156,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
                   "to": [
-                    15.00000000375,
+                    15.000000003750005,
                     0.0
                   ],
                   "type": "Circle",
@@ -3761,17 +3803,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 58,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": -12.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -3793,11 +3835,11 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               },
               "start": {
                 "from": [
-                  15.00000000375,
+                  15.000000003750005,
                   0.0
                 ],
                 "to": [
-                  15.00000000375,
+                  15.000000003750005,
                   0.0
                 ],
                 "units": "mm",
@@ -3834,39 +3876,6 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
       "angle": "degrees"
     }
   },
-  "boreSketch": {
-    "type": "Plane",
-    "value": {
-      "artifactId": "[uuid]",
-      "id": "[uuid]",
-      "kind": "Custom",
-      "objectId": 58,
-      "origin": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": -12.0,
-        "units": "mm"
-      },
-      "xAxis": {
-        "x": 1.0,
-        "y": 0.0,
-        "z": 0.0,
-        "units": null
-      },
-      "yAxis": {
-        "x": 0.0,
-        "y": 1.0,
-        "z": 0.0,
-        "units": null
-      },
-      "zAxis": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 1.0,
-        "units": null
-      }
-    }
-  },
   "diskCircle": {
     "type": "Object",
     "value": {
@@ -3900,7 +3909,7 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                     ],
                     "center": [
                       {
-                        "n": 0.00000001874999197920074,
+                        "n": 0.00000001874999206357573,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -3952,7 +3961,7 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                 "surface": {
                   "artifactId": "[uuid]",
                   "id": "[uuid]",
-                  "kind": "XY",
+                  "kind": "Custom",
                   "objectId": 46,
                   "origin": {
                     "x": 0.0,
@@ -4006,7 +4015,7 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   },
                   "ccw": true,
                   "center": [
-                    0.00000001874999197920074,
+                    0.00000001874999206357573,
                     0.0
                   ],
                   "from": [
@@ -4015,10 +4024,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   ],
                   "radius": 75.00000000000001,
                   "tag": {
-                    "commentStart": 2659,
-                    "end": 2666,
+                    "commentStart": 2580,
+                    "end": 2587,
                     "moduleId": 0,
-                    "start": 2659,
+                    "start": 2580,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -4031,17 +4040,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "XY",
                 "objectId": 46,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": 0.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -4095,44 +4104,13 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
     },
     "constrainable": false
   },
-  "diskSketch": {
-    "type": "Plane",
-    "value": {
-      "artifactId": "[uuid]",
-      "id": "[uuid]",
-      "kind": "XY",
-      "objectId": 46,
-      "origin": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 0.0,
-        "units": "mm"
-      },
-      "xAxis": {
-        "x": 1.0,
-        "y": 0.0,
-        "z": 0.0,
-        "units": null
-      },
-      "yAxis": {
-        "x": 0.0,
-        "y": 1.0,
-        "z": 0.0,
-        "units": null
-      },
-      "zAxis": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 1.0,
-        "units": null
-      }
-    }
-  },
   "hub": {
     "type": "Solid",
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -4140,10 +4118,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2975,
-            "end": 2982,
+            "commentStart": 2867,
+            "end": 2874,
             "moduleId": 0,
-            "start": 2975,
+            "start": 2867,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -4162,24 +4140,24 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
             },
             "ccw": true,
             "center": [
-              0.000000005000000307354519,
+              0.000000005000006825303125,
               0.0
             ],
             "from": [
-              20.000000005,
+              20.000000005000004,
               0.0
             ],
-            "radius": 20.0,
+            "radius": 19.999999999999996,
             "tag": {
-              "commentStart": 2975,
-              "end": 2982,
+              "commentStart": 2867,
+              "end": 2874,
               "moduleId": 0,
-              "start": 2975,
+              "start": 2867,
               "type": "TagDeclarator",
               "value": "circle1"
             },
             "to": [
-              20.000000005,
+              20.000000005000004,
               0.0
             ],
             "type": "Circle",
@@ -4206,17 +4184,18 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           },
           "parentSolid": {
             "solidId": "[uuid]",
-            "creatorSketchId": "[uuid]"
+            "creatorSketchId": "[uuid]",
+            "creatorSketchIsClosed": "explicitly"
           },
           "units": "mm"
         },
         "start": {
           "from": [
-            20.000000005,
+            20.000000005000004,
             0.0
           ],
           "to": [
-            20.000000005,
+            20.000000005000004,
             0.0
           ],
           "units": "mm",
@@ -4234,8 +4213,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": null,
       "endCapId": "[uuid]",
@@ -4258,7 +4237,7 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   "circle": {
                     "start": [
                       {
-                        "n": 20.000000005,
+                        "n": 20.000000005000004,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -4276,7 +4255,7 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                     ],
                     "center": [
                       {
-                        "n": 0.000000005000000307354519,
+                        "n": 0.000000005000006825303125,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -4345,7 +4324,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   },
                   "parentSolid": {
                     "solidId": "[uuid]",
-                    "creatorSketchId": "[uuid]"
+                    "creatorSketchId": "[uuid]",
+                    "creatorSketchIsClosed": "explicitly"
                   },
                   "units": "mm"
                 },
@@ -4375,24 +4355,24 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                   },
                   "ccw": true,
                   "center": [
-                    0.000000005000000307354519,
+                    0.000000005000006825303125,
                     0.0
                   ],
                   "from": [
-                    20.000000005,
+                    20.000000005000004,
                     0.0
                   ],
-                  "radius": 20.0,
+                  "radius": 19.999999999999996,
                   "tag": {
-                    "commentStart": 2975,
-                    "end": 2982,
+                    "commentStart": 2867,
+                    "end": 2874,
                     "moduleId": 0,
-                    "start": 2975,
+                    "start": 2867,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
                   "to": [
-                    20.000000005,
+                    20.000000005000004,
                     0.0
                   ],
                   "type": "Circle",
@@ -4419,17 +4399,18 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                 },
                 "parentSolid": {
                   "solidId": "[uuid]",
-                  "creatorSketchId": "[uuid]"
+                  "creatorSketchId": "[uuid]",
+                  "creatorSketchIsClosed": "explicitly"
                 },
                 "units": "mm"
               },
               "start": {
                 "from": [
-                  20.000000005,
+                  20.000000005000004,
                   0.0
                 ],
                 "to": [
-                  20.000000005,
+                  20.000000005000004,
                   0.0
                 ],
                 "units": "mm",
@@ -4475,37 +4456,13 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
       "angle": "degrees"
     }
   },
-  "hubSketch": {
-    "type": "Face",
-    "value": {
-      "id": "[uuid]",
-      "artifactId": "[uuid]",
-      "objectId": 52,
-      "value": "end",
-      "xAxis": {
-        "x": 1.0,
-        "y": 0.0,
-        "z": 0.0,
-        "units": null
-      },
-      "yAxis": {
-        "x": 0.0,
-        "y": 1.0,
-        "z": 0.0,
-        "units": null
-      },
-      "parentSolid": {
-        "solidId": "[uuid]",
-        "creatorSketchId": "[uuid]"
-      },
-      "units": "mm"
-    }
-  },
   "impeller": {
     "type": "Solid",
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -4513,10 +4470,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2975,
-            "end": 2982,
+            "commentStart": 2867,
+            "end": 2874,
             "moduleId": 0,
-            "start": 2975,
+            "start": 2867,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -4535,24 +4492,24 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
             },
             "ccw": true,
             "center": [
-              0.000000005000000307354519,
+              0.000000005000006825303125,
               0.0
             ],
             "from": [
-              20.000000005,
+              20.000000005000004,
               0.0
             ],
-            "radius": 20.0,
+            "radius": 19.999999999999996,
             "tag": {
-              "commentStart": 2975,
-              "end": 2982,
+              "commentStart": 2867,
+              "end": 2874,
               "moduleId": 0,
-              "start": 2975,
+              "start": 2867,
               "type": "TagDeclarator",
               "value": "circle1"
             },
             "to": [
-              20.000000005,
+              20.000000005000004,
               0.0
             ],
             "type": "Circle",
@@ -4579,17 +4536,18 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           },
           "parentSolid": {
             "solidId": "[uuid]",
-            "creatorSketchId": "[uuid]"
+            "creatorSketchId": "[uuid]",
+            "creatorSketchIsClosed": "explicitly"
           },
           "units": "mm"
         },
         "start": {
           "from": [
-            20.000000005,
+            20.000000005000004,
             0.0
           ],
           "to": [
-            20.000000005,
+            20.000000005000004,
             0.0
           ],
           "units": "mm",
@@ -4607,8 +4565,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": null,
       "endCapId": "[uuid]",
@@ -4701,7 +4659,7 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                 "surface": {
                   "artifactId": "[uuid]",
                   "id": "[uuid]",
-                  "kind": "XY",
+                  "kind": "Custom",
                   "objectId": 0,
                   "origin": {
                     "x": 0.0,
@@ -4821,7 +4779,7 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                 "surface": {
                   "artifactId": "[uuid]",
                   "id": "[uuid]",
-                  "kind": "XY",
+                  "kind": "Custom",
                   "objectId": 0,
                   "origin": {
                     "x": 0.0,
@@ -4941,7 +4899,7 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                 "surface": {
                   "artifactId": "[uuid]",
                   "id": "[uuid]",
-                  "kind": "XY",
+                  "kind": "Custom",
                   "objectId": 0,
                   "origin": {
                     "x": 0.0,
@@ -5061,7 +5019,7 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                 "surface": {
                   "artifactId": "[uuid]",
                   "id": "[uuid]",
-                  "kind": "XY",
+                  "kind": "Custom",
                   "objectId": 0,
                   "origin": {
                     "x": 0.0,
@@ -5118,10 +5076,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                     0.0
                   ],
                   "tag": {
-                    "commentStart": 779,
-                    "end": 784,
+                    "commentStart": 780,
+                    "end": 785,
                     "moduleId": 0,
-                    "start": 779,
+                    "start": 780,
                     "type": "TagDeclarator",
                     "value": "line1"
                   },
@@ -5142,10 +5100,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                     0.0
                   ],
                   "tag": {
-                    "commentStart": 848,
-                    "end": 853,
+                    "commentStart": 849,
+                    "end": 854,
                     "moduleId": 0,
-                    "start": 848,
+                    "start": 849,
                     "type": "TagDeclarator",
                     "value": "line2"
                   },
@@ -5166,10 +5124,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                     35.0
                   ],
                   "tag": {
-                    "commentStart": 957,
-                    "end": 962,
+                    "commentStart": 958,
+                    "end": 963,
                     "moduleId": 0,
-                    "start": 957,
+                    "start": 958,
                     "type": "TagDeclarator",
                     "value": "line3"
                   },
@@ -5190,10 +5148,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                     35.0
                   ],
                   "tag": {
-                    "commentStart": 1067,
-                    "end": 1072,
+                    "commentStart": 1068,
+                    "end": 1073,
                     "moduleId": 0,
-                    "start": 1067,
+                    "start": 1068,
                     "type": "TagDeclarator",
                     "value": "line4"
                   },
@@ -5206,17 +5164,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "XY",
                 "objectId": 0,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": 0.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -5282,39 +5240,6 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
     },
     "constrainable": false
   },
-  "leadSketch": {
-    "type": "Plane",
-    "value": {
-      "artifactId": "[uuid]",
-      "id": "[uuid]",
-      "kind": "XY",
-      "objectId": 0,
-      "origin": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 0.0,
-        "units": "mm"
-      },
-      "xAxis": {
-        "x": 1.0,
-        "y": 0.0,
-        "z": 0.0,
-        "units": null
-      },
-      "yAxis": {
-        "x": 0.0,
-        "y": 1.0,
-        "z": 0.0,
-        "units": null
-      },
-      "zAxis": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 1.0,
-        "units": null
-      }
-    }
-  },
   "line1": {
     "type": "TagIdentifier",
     "type": "TagIdentifier",
@@ -5349,6 +5274,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -5356,10 +5283,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 779,
-            "end": 784,
+            "commentStart": 780,
+            "end": 785,
             "moduleId": 0,
-            "start": 779,
+            "start": 780,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -5370,10 +5297,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 848,
-            "end": 853,
+            "commentStart": 849,
+            "end": 854,
             "moduleId": 0,
-            "start": 848,
+            "start": 849,
             "type": "TagDeclarator",
             "value": "line2"
           },
@@ -5384,10 +5311,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 957,
-            "end": 962,
+            "commentStart": 958,
+            "end": 963,
             "moduleId": 0,
-            "start": 957,
+            "start": 958,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -5398,10 +5325,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1067,
-            "end": 1072,
+            "commentStart": 1068,
+            "end": 1073,
             "moduleId": 0,
-            "start": 1067,
+            "start": 1068,
             "type": "TagDeclarator",
             "value": "line4"
           },
@@ -5423,10 +5350,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               0.0
             ],
             "tag": {
-              "commentStart": 779,
-              "end": 784,
+              "commentStart": 780,
+              "end": 785,
               "moduleId": 0,
-              "start": 779,
+              "start": 780,
               "type": "TagDeclarator",
               "value": "line1"
             },
@@ -5447,10 +5374,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               0.0
             ],
             "tag": {
-              "commentStart": 848,
-              "end": 853,
+              "commentStart": 849,
+              "end": 854,
               "moduleId": 0,
-              "start": 848,
+              "start": 849,
               "type": "TagDeclarator",
               "value": "line2"
             },
@@ -5471,10 +5398,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               35.0
             ],
             "tag": {
-              "commentStart": 957,
-              "end": 962,
+              "commentStart": 958,
+              "end": 963,
               "moduleId": 0,
-              "start": 957,
+              "start": 958,
               "type": "TagDeclarator",
               "value": "line3"
             },
@@ -5495,10 +5422,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
               35.0
             ],
             "tag": {
-              "commentStart": 1067,
-              "end": 1072,
+              "commentStart": 1068,
+              "end": 1073,
               "moduleId": 0,
-              "start": 1067,
+              "start": 1068,
               "type": "TagDeclarator",
               "value": "line4"
             },
@@ -5511,17 +5438,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "XY",
           "objectId": 0,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -5577,7 +5504,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -5598,7 +5526,7 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           },
           "ccw": true,
           "center": [
-            0.00000001874999197920074,
+            0.00000001874999206357573,
             0.0
           ],
           "from": [
@@ -5607,10 +5535,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           ],
           "radius": 75.00000000000001,
           "tag": {
-            "commentStart": 2659,
-            "end": 2666,
+            "commentStart": 2580,
+            "end": 2587,
             "moduleId": 0,
-            "start": 2659,
+            "start": 2580,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -5623,17 +5551,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "XY",
         "objectId": 46,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 0.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -5677,8 +5605,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "region002": {
@@ -5694,24 +5622,24 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           },
           "ccw": true,
           "center": [
-            0.000000005000000307354519,
+            0.000000005000006825303125,
             0.0
           ],
           "from": [
-            20.000000005,
+            20.000000005000004,
             0.0
           ],
-          "radius": 20.0,
+          "radius": 19.999999999999996,
           "tag": {
-            "commentStart": 2975,
-            "end": 2982,
+            "commentStart": 2867,
+            "end": 2874,
             "moduleId": 0,
-            "start": 2975,
+            "start": 2867,
             "type": "TagDeclarator",
             "value": "circle1"
           },
           "to": [
-            20.000000005,
+            20.000000005000004,
             0.0
           ],
           "type": "Circle",
@@ -5738,17 +5666,18 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         },
         "parentSolid": {
           "solidId": "[uuid]",
-          "creatorSketchId": "[uuid]"
+          "creatorSketchId": "[uuid]",
+          "creatorSketchIsClosed": "explicitly"
         },
         "units": "mm"
       },
       "start": {
         "from": [
-          20.000000005,
+          20.000000005000004,
           0.0
         ],
         "to": [
-          20.000000005,
+          20.000000005000004,
           0.0
         ],
         "units": "mm",
@@ -5766,8 +5695,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "region003": {
@@ -5783,24 +5712,24 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
           },
           "ccw": true,
           "center": [
-            0.000000003749999755927745,
+            0.00000000375000556306655,
             0.0
           ],
           "from": [
-            15.00000000375,
+            15.000000003750005,
             0.0
           ],
           "radius": 15.0,
           "tag": {
-            "commentStart": 3303,
-            "end": 3310,
+            "commentStart": 3156,
+            "end": 3163,
             "moduleId": 0,
-            "start": 3303,
+            "start": 3156,
             "type": "TagDeclarator",
             "value": "circle1"
           },
           "to": [
-            15.00000000375,
+            15.000000003750005,
             0.0
           ],
           "type": "Circle",
@@ -5808,17 +5737,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 58,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": -12.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -5840,11 +5769,11 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
       },
       "start": {
         "from": [
-          15.00000000375,
+          15.000000003750005,
           0.0
         ],
         "to": [
-          15.00000000375,
+          15.000000003750005,
           0.0
         ],
         "units": "mm",
@@ -5862,8 +5791,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "rootR": {
@@ -5889,8 +5818,8 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
     "value": {
       "artifactId": "[uuid]",
       "id": "[uuid]",
-      "kind": "Custom",
       "objectId": 23,
+      "kind": "Custom",
       "origin": {
         "x": 0.0,
         "y": 0.0,
@@ -6419,10 +6348,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                     0.0
                   ],
                   "tag": {
-                    "commentStart": 1613,
-                    "end": 1618,
+                    "commentStart": 1573,
+                    "end": 1578,
                     "moduleId": 0,
-                    "start": 1613,
+                    "start": 1573,
                     "type": "TagDeclarator",
                     "value": "line1"
                   },
@@ -6443,10 +6372,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                     0.0
                   ],
                   "tag": {
-                    "commentStart": 1682,
-                    "end": 1687,
+                    "commentStart": 1642,
+                    "end": 1647,
                     "moduleId": 0,
-                    "start": 1682,
+                    "start": 1642,
                     "type": "TagDeclarator",
                     "value": "line2"
                   },
@@ -6467,10 +6396,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                     35.0
                   ],
                   "tag": {
-                    "commentStart": 1791,
-                    "end": 1796,
+                    "commentStart": 1751,
+                    "end": 1756,
                     "moduleId": 0,
-                    "start": 1791,
+                    "start": 1751,
                     "type": "TagDeclarator",
                     "value": "line3"
                   },
@@ -6491,10 +6420,10 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                     35.0
                   ],
                   "tag": {
-                    "commentStart": 1901,
-                    "end": 1906,
+                    "commentStart": 1861,
+                    "end": 1866,
                     "moduleId": 0,
-                    "start": 1901,
+                    "start": 1861,
                     "type": "TagDeclarator",
                     "value": "line4"
                   },
@@ -6507,17 +6436,17 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 23,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": 40.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -6582,38 +6511,5 @@ description: Variables in memory after executing radial-flow-centrifugal-impelle
       }
     },
     "constrainable": false
-  },
-  "trailSketch": {
-    "type": "Plane",
-    "value": {
-      "artifactId": "[uuid]",
-      "id": "[uuid]",
-      "kind": "Custom",
-      "objectId": 23,
-      "origin": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 40.0,
-        "units": "mm"
-      },
-      "xAxis": {
-        "x": 1.0,
-        "y": 0.0,
-        "z": 0.0,
-        "units": null
-      },
-      "yAxis": {
-        "x": 0.0,
-        "y": 1.0,
-        "z": 0.0,
-        "units": null
-      },
-      "zAxis": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 1.0,
-        "units": null
-      }
-    }
   }
 }

@@ -10,10 +10,10 @@ import {
   BrowserWindow,
   Menu,
   app,
-  autoUpdater,
   dialog,
   ipcMain,
   nativeTheme,
+  protocol,
   screen,
   shell,
 } from 'electron'
@@ -41,11 +41,74 @@ import {
 import { registerFileProtocolCsp } from '@src/lib/csp'
 import { DeviceFlowSessionStore } from '@src/lib/deviceFlowSessions'
 import { discoverMachineApi } from '@src/lib/discoverMachineApi'
+import {
+  ELECTRON_LIFECYCLE_DRAIN_REPORTS_CHANNEL,
+  ELECTRON_LIFECYCLE_REPORT_AVAILABLE_CHANNEL,
+  type ElectronLifecycleDiagnostics,
+  type ElectronLifecycleReport,
+  ElectronLifecycleReportQueue,
+  MAX_ELECTRON_LIFECYCLE_REPORT_STORE_BYTES,
+  compactAppProcessMetrics,
+  compactSystemMemoryInfo,
+  parseElectronLifecycleReportStore,
+  serializeElectronLifecycleReportStore,
+} from '@src/lib/electronLifecycle'
+import { getAllowedExternalURL } from '@src/lib/externalUrls'
 import getCurrentProjectFile from '@src/lib/getCurrentProjectFile'
+import { prepareMacUpdateInstall } from '@src/lib/macUpdateInstall'
 import { reportRejection } from '@src/lib/trap'
+import { isArray } from '@src/lib/utils'
 import type { ModuleType } from '@src/lib/wasm_lib_wrapper'
 import { WindowMenuManager, isAppMenuPage } from '@src/menu/windowMenus'
+import {
+  type ElectronPluginContext,
+  PLUGIN_IPC_SYNC_ACTIVE_PLUGINS_CHANNEL,
+  type PluginIpcChannel,
+  type PluginIpcHandler,
+} from '@src/registry/pluginIpc'
 import { configureSystemCertificates } from '@src/systemCertificates'
+
+type ElectronPluginModule = {
+  register?: (context: ElectronPluginContext) => void
+}
+
+const electronPluginModules: Record<string, ElectronPluginModule> =
+  import.meta.glob('./registry/plugins/*/electron.ts', {
+    eager: true,
+  })
+
+const activeElectronPluginIds = new Set<string>()
+
+function isPluginEnabled(pluginId: string) {
+  return activeElectronPluginIds.has(pluginId)
+}
+
+function handlePluginInvoke(
+  pluginId: string,
+  channel: PluginIpcChannel,
+  handler: PluginIpcHandler
+) {
+  ipcMain.handle(channel, (event, ...args) => {
+    if (!isPluginEnabled(pluginId)) {
+      return {
+        ok: false,
+        error: `The ${pluginId} plugin is disabled.`,
+      }
+    }
+
+    return handler(event, ...args)
+  })
+}
+
+function registerElectronPluginModules() {
+  for (const pluginModule of Object.values(electronPluginModules)) {
+    pluginModule.register?.({
+      ipcMain,
+      isPluginEnabled,
+      handlePluginInvoke,
+    })
+  }
+}
 
 // Linux hack for electron >= 38, here we're forcing XWayland due to issues we've experienced
 // https://github.com/electron/electron/issues/41551#issuecomment-3590685943
@@ -66,6 +129,7 @@ let mainWindow: BrowserWindow | null = null
 let isInstallingUpdate = false
 /** All Electron windows will share this WASM module */
 const initPromise = initialiseWasmNode()
+let electronLifecycleReportSequence = 0
 
 type MachineApiSignal = 'on' | 'off'
 
@@ -93,7 +157,10 @@ dotenv.config({ path: [`.env.${NODE_ENV}.local`, `.env.${NODE_ENV}`] })
 // default vite values based on mode
 process.env.NODE_ENV ??= viteEnv.MODE
 process.env.VITE_KITTYCAD_WEBSOCKET_URL ??= viteEnv.VITE_KITTYCAD_WEBSOCKET_URL
-process.env.VITE_MLEPHANT_WEBSOCKET_URL ??= viteEnv.VITE_MLEPHANT_WEBSOCKET_URL
+process.env.VITE_ZOOKEEPER_WEBSOCKET_URL ??=
+  process.env.VITE_MLEPHANT_WEBSOCKET_URL ??
+  viteEnv.VITE_ZOOKEEPER_WEBSOCKET_URL ??
+  viteEnv.VITE_MLEPHANT_WEBSOCKET_URL
 process.env.VITE_ZOO_BASE_DOMAIN ??= viteEnv.VITE_ZOO_BASE_DOMAIN
 
 // Likely convenient to keep for debugging
@@ -113,6 +180,49 @@ const appProfilePath = path.join(
 fs.mkdirSync(appProfilePath, { recursive: true })
 app.setPath('userData', appProfilePath)
 app.setPath('sessionData', appProfilePath)
+
+const electronLifecycleReportStorePath = path.join(
+  app.getPath('userData'),
+  'electron_lifecycle_reports.json'
+)
+const loadElectronLifecycleReports = () => {
+  try {
+    if (
+      fs.statSync(electronLifecycleReportStorePath).size >
+      MAX_ELECTRON_LIFECYCLE_REPORT_STORE_BYTES
+    ) {
+      console.warn('Ignoring oversized Electron lifecycle report store')
+      return []
+    }
+    return parseElectronLifecycleReportStore(
+      fs.readFileSync(electronLifecycleReportStorePath, 'utf8')
+    )
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+      console.warn('Failed to read Electron lifecycle report store', error)
+    }
+    return []
+  }
+}
+const electronLifecycleReports = new ElectronLifecycleReportQueue()
+for (const report of loadElectronLifecycleReports()) {
+  electronLifecycleReports.enqueue(report)
+}
+const persistElectronLifecycleReports = () => {
+  const temporaryPath = `${electronLifecycleReportStorePath}.tmp`
+  try {
+    fs.writeFileSync(
+      temporaryPath,
+      serializeElectronLifecycleReportStore(
+        electronLifecycleReports.snapshot()
+      ),
+      { encoding: 'utf8', mode: 0o600 }
+    )
+    fs.renameSync(temporaryPath, electronLifecycleReportStorePath)
+  } catch (error) {
+    console.warn('Failed to persist Electron lifecycle reports', error)
+  }
+}
 
 /// Register our application to handle all "zoo-studio:" protocols.
 const singleInstanceLock = app.requestSingleInstanceLock()
@@ -227,11 +337,7 @@ const createWindow = (pathToOpen?: string): BrowserWindow => {
   }
 
   newWindow.on('close', () => {
-    const bounds = newWindow.getBounds()
-    saveLocalDeviceState({
-      version: '0.1', // Version of the config file, so we add migrations if we break it later
-      windowBounds: bounds,
-    })
+    saveWindowBounds(newWindow)
   })
   newWindow.on('closed', () => {
     // BrowserWindow-scoped resources must die with that exact window.
@@ -245,6 +351,18 @@ const createWindow = (pathToOpen?: string): BrowserWindow => {
   })
   newWindow.on('focus', () => {
     windowMenuManager.rebuildWindowMenu(newWindow)
+  })
+  let rendererUnresponsiveReported = false
+  newWindow.on('unresponsive', () => {
+    if (rendererUnresponsiveReported) return
+    rendererUnresponsiveReported = true
+    queueElectronLifecycleReport({
+      ...createElectronLifecycleReportBase(newWindow),
+      eventType: 'renderer-unresponsive',
+    })
+  })
+  newWindow.on('responsive', () => {
+    rendererUnresponsiveReported = false
   })
 
   const pathIsCustomProtocolLink =
@@ -331,6 +449,119 @@ function sendToAllWindows(channel: string, ...args: unknown[]) {
   }
 }
 
+const safelyReadDiagnostic = <T>(read: () => T): T | undefined => {
+  try {
+    return read()
+  } catch {
+    return undefined
+  }
+}
+
+const getRendererProcessId = (browserWindow: BrowserWindow) => {
+  const processId = safelyReadDiagnostic(() =>
+    browserWindow.webContents.getOSProcessId()
+  )
+  return processId && processId > 0 ? processId : undefined
+}
+
+const captureElectronLifecycleDiagnostics = (
+  targetWindow?: BrowserWindow | null
+): ElectronLifecycleDiagnostics => {
+  const windows = BrowserWindow.getAllWindows().filter(
+    (browserWindow) => !browserWindow.isDestroyed()
+  )
+  const systemMemory = safelyReadDiagnostic(() =>
+    compactSystemMemoryInfo(process.getSystemMemoryInfo())
+  )
+  const appProcesses = safelyReadDiagnostic(() =>
+    compactAppProcessMetrics(app.getAppMetrics())
+  )
+
+  return {
+    appProcesses,
+    runtime: {
+      appVersion: app.getVersion(),
+      arch: process.arch,
+      chromeVersion: process.versions.chrome ?? 'unknown',
+      electronVersion: process.versions.electron ?? 'unknown',
+      osRelease: os.release(),
+      platform: process.platform,
+    },
+    systemMemory,
+    targetWindowId:
+      targetWindow && !targetWindow.isDestroyed() ? targetWindow.id : undefined,
+    windowCount: windows.length,
+    windows: windows.map((browserWindow) => ({
+      id: browserWindow.id,
+      isFocused: browserWindow.isFocused(),
+      isMinimized: browserWindow.isMinimized(),
+      isVisible: browserWindow.isVisible(),
+      rendererProcessId: getRendererProcessId(browserWindow),
+    })),
+  }
+}
+
+const createElectronLifecycleReportBase = (
+  targetWindow?: BrowserWindow | null
+) => ({
+  diagnostics: captureElectronLifecycleDiagnostics(targetWindow),
+  id: `${Date.now()}-${++electronLifecycleReportSequence}`,
+  occurredAt: new Date().toISOString(),
+})
+
+function notifyElectronLifecycleReportAvailable() {
+  for (const browserWindow of BrowserWindow.getAllWindows()) {
+    if (browserWindow.isDestroyed()) continue
+    const { webContents } = browserWindow
+    if (webContents.isDestroyed() || webContents.isCrashed()) continue
+
+    try {
+      webContents.send(ELECTRON_LIFECYCLE_REPORT_AVAILABLE_CHANNEL)
+    } catch {
+      // Another healthy or subsequently-created renderer can drain the queue.
+    }
+  }
+}
+
+function queueElectronLifecycleReport(report: ElectronLifecycleReport) {
+  electronLifecycleReports.enqueue(report)
+  persistElectronLifecycleReports()
+  notifyElectronLifecycleReportAvailable()
+}
+
+app.on('render-process-gone', (_event, webContents, details) => {
+  if (details.reason === 'clean-exit') return
+
+  queueElectronLifecycleReport({
+    ...createElectronLifecycleReportBase(
+      BrowserWindow.fromWebContents(webContents)
+    ),
+    eventType: 'render-process-gone',
+    exitCode: details.exitCode,
+    reason: details.reason,
+  })
+})
+
+app.on('child-process-gone', (_event, details) => {
+  if (details.reason === 'clean-exit') return
+
+  queueElectronLifecycleReport({
+    ...createElectronLifecycleReportBase(),
+    eventType: 'child-process-gone',
+    exitCode: details.exitCode,
+    name: details.name,
+    processType: details.type,
+    reason: details.reason,
+    serviceName: details.serviceName,
+  })
+})
+
+ipcMain.handle(ELECTRON_LIFECYCLE_DRAIN_REPORTS_CHANNEL, () => {
+  const reports = electronLifecycleReports.drain()
+  persistElectronLifecycleReports()
+  return reports
+})
+
 interface LocalDeviceState {
   windowBounds: Electron.Rectangle
   version: string // "0.1"
@@ -355,6 +586,13 @@ const loadLocalDeviceState = (): LocalDeviceState | null => {
 const saveLocalDeviceState = (state: LocalDeviceState) => {
   fs.writeFileSync(localDeviceStatePath, JSON.stringify(state), {
     encoding: 'utf8',
+  })
+}
+
+function saveWindowBounds(browserWindow: BrowserWindow) {
+  saveLocalDeviceState({
+    version: '0.1', // Version of the config file, so we add migrations if we break it later
+    windowBounds: browserWindow.getBounds(),
   })
 }
 
@@ -392,6 +630,18 @@ app.on('window-all-closed', () => {
 
   app.quit()
 })
+
+// Required for registerFileProtocolCsp file:// intercepting
+// This fixes media file streaming
+// see https://github.com/electron/electron/issues/40447
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'file',
+    privileges: {
+      stream: true,
+    },
+  },
+])
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -475,6 +725,29 @@ ipcMain.handle('app.getPath', (event, data) => {
   return app.getPath(data)
 })
 
+ipcMain.handle(
+  PLUGIN_IPC_SYNC_ACTIVE_PLUGINS_CHANNEL,
+  (_event, pluginIds: unknown) => {
+    if (!isArray(pluginIds)) {
+      return
+    }
+    if (
+      !pluginIds.every(
+        (pluginId): pluginId is string => typeof pluginId === 'string'
+      )
+    ) {
+      return
+    }
+
+    activeElectronPluginIds.clear()
+    for (const pluginId of pluginIds) {
+      activeElectronPluginIds.add(pluginId)
+    }
+  }
+)
+
+registerElectronPluginModules()
+
 ipcMain.handle('dialog.showOpenDialog', (event, data) => {
   const targetWindow = BrowserWindow.fromWebContents(event.sender)
   if (targetWindow && !targetWindow.isDestroyed()) {
@@ -496,8 +769,13 @@ ipcMain.handle('shell.showItemInFolder', (event, data) => {
   return shell.showItemInFolder(data)
 })
 
-ipcMain.handle('shell.openExternal', (event, data) => {
-  return shell.openExternal(data)
+ipcMain.handle('shell.openExternal', (_event, data) => {
+  const allowedURL = getAllowedExternalURL(data)
+  if (allowedURL instanceof Error) {
+    return Promise.reject(allowedURL)
+  }
+
+  return shell.openExternal(allowedURL)
 })
 
 ipcMain.handle('openInNewWindow', (event, data) => {
@@ -582,7 +860,14 @@ ipcMain.handle('loginWithDeviceFlow', async (event) => {
   }
 
   if (NODE_ENV !== 'test') {
-    shell.openExternal(deviceFlowSession.verificationUri).catch(reportRejection)
+    const verificationUri = getAllowedExternalURL(
+      deviceFlowSession.verificationUri
+    )
+    if (verificationUri instanceof Error) {
+      return Promise.reject(verificationUri)
+    }
+
+    shell.openExternal(verificationUri).catch(reportRejection)
   }
 
   // Wait for the user to login.
@@ -723,44 +1008,19 @@ app.on('ready', () => {
     })
   })
 
-  // Based on https://github.com/electron-userland/electron-builder/issues/8997#issuecomment-2846114257
-  const prepareMacUpdateInstall = () => {
-    const beforeQuitListeners = app.listeners('before-quit')
-    app.removeAllListeners('before-quit')
-    for (const browserWindow of BrowserWindow.getAllWindows()) {
-      browserWindow.removeAllListeners('close')
-    }
-
-    autoUpdater.once('before-quit-for-update', () => {
-      // Do any before-quit cleanup here
-      for (const listener of beforeQuitListeners) {
-        try {
-          listener.call(app, {
-            preventDefault: () => {
-              // `preventDefault` during update install causes quit+install to hang.
-            },
-          })
-        } catch (error) {
-          console.error(
-            'Failed to run before-quit listener during update install',
-            error
-          )
-        }
-      }
-
-      // Force app to exit
-      app.exit()
-    })
-  }
-
-  ipcMain.handle('app.restart', () => {
+  ipcMain.handle('app.restart', (event) => {
     if (isInstallingUpdate) {
       return
     }
 
     isInstallingUpdate = true
     if (process.platform === 'darwin') {
-      prepareMacUpdateInstall()
+      const requestingWindow = BrowserWindow.fromWebContents(event.sender)
+      prepareMacUpdateInstall(
+        app,
+        requestingWindow ? [requestingWindow] : BrowserWindow.getAllWindows(),
+        saveWindowBounds
+      )
     }
 
     try {

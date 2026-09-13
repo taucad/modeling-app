@@ -5,11 +5,11 @@ import type { JsonValue } from "./serde_json/JsonValue.js";
 /**
  * Application wide settings.
  */
-export type AppSettings = { 
+export type AppSettings = {
 /**
  * The settings for the appearance of the app.
  */
-appearance?: AppearanceSettings | null, 
+appearance?: AppearanceSettings | null,
 /**
  * When the user is idle, teardown the stream after some time.
  */

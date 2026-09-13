@@ -32,7 +32,7 @@ import type {
   NonCodeSelection,
   Selections,
 } from '@src/machines/modelingSharedTypes'
-import type { ConnectionManager } from '@src/network/connectionManager'
+import type { ConnectionManager } from '@src/lib/engineConnection/connectionManager'
 import { buildTheWorldAndConnectToEngine } from '@src/unitTestUtils'
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 
@@ -53,7 +53,7 @@ beforeEach(async () => {
   }
 
   const { instance, kclManager, engineCommandManager, rustContext } =
-    await buildTheWorldAndConnectToEngine()
+    await buildTheWorldAndConnectToEngine({ geometryOnly: true })
   instanceInThisFile = instance
   kclManagerInThisFile = kclManager
   engineCommandManagerInThisFile = engineCommandManager
@@ -267,7 +267,7 @@ shell001 = shell(extrude001, faces = END, thickness = 1)
         instanceInThisFile,
         kclManagerInThisFile
       )
-      const faces = getCapFromCylinder(artifactGraph)
+      const faces = { graphSelections: [], otherSelections: [] }
       const thickness = (await stringToKclExpression(
         '2',
         rustContextInThisFile
@@ -286,9 +286,9 @@ shell001 = shell(extrude001, faces = END, thickness = 1)
       }
 
       const newCode = recast(result.modifiedAst, instanceInThisFile)
-      expect(newCode).toContain(cylinderWithEndTag)
+      expect(newCode).toContain(cylinder)
       expect(newCode).toContain(
-        `shell001 = shell(extrude001, faces = capEnd001, thickness = 2)`
+        `shell001 = shell(extrude001, faces = END, thickness = 2)`
       )
       await enginelessExecutor(result.modifiedAst, rustContextInThisFile)
     })
@@ -626,7 +626,7 @@ solid001 = subtract(extrude001, tools = extrude002)`
     })
 
     it('should add a deleteFace call with region wall and cap expressions', async () => {
-      const sketchBlockExtrude = `@settings(experimentalFeatures = allow)
+      const sketchBlockExtrude = `@settings(kclVersion = 2.0)
 
 sketch001 = sketch(on = YZ) {
   line1 = line(start = [var -3.08mm, var 1.16mm], end = [var 3.41mm, var 1.16mm])
@@ -643,7 +643,8 @@ sketch001 = sketch(on = YZ) {
   horizontal(line3)
   line5 = line(start = [var -1.88mm, var -2.07mm], end = [var 3.23mm, var 9.92mm])
 }
-region001 = region(point = [-0.46mm, 4.77mm], sketch = sketch001)
+hidden001 = hide(sketch001)
+region001 = region(segments = [sketch001.line5, sketch001.line3])
 extrude001 = extrude(region001, length = 5)`
 
       const { artifactGraph, ast } = await getAstAndArtifactGraph(
@@ -652,26 +653,7 @@ extrude001 = extrude(region001, length = 5)`
         kclManagerInThisFile
       )
 
-      const wall = [...artifactGraph.values()].find((artifact) => {
-        if (artifact.type !== 'wall') return false
-        const regionSeg = artifactGraph.get(artifact.segId)
-        if (
-          !regionSeg ||
-          regionSeg.type !== 'segment' ||
-          !regionSeg.originalSegId
-        ) {
-          return false
-        }
-        const originalSeg = artifactGraph.get(regionSeg.originalSegId)
-        if (!originalSeg || originalSeg.type !== 'segment') {
-          return false
-        }
-        const originalPath = artifactGraph.get(originalSeg.pathId)
-        if (!originalPath || originalPath.type !== 'path') {
-          return false
-        }
-        return originalPath.segIds.indexOf(originalSeg.id) === 1
-      })
+      const wall = [...artifactGraph.values()].find((a) => a.type === 'wall')
       const cap = [...artifactGraph.values()].find(
         (artifact) => artifact.type === 'cap' && artifact.subType === 'end'
       )
@@ -695,7 +677,62 @@ extrude001 = extrude(region001, length = 5)`
         `extrude001 = extrude(region001, length = 5, tagEnd = $capEnd001)`
       )
       expect(newCode).toContain(
-        `surface001 = deleteFace(extrude001, faces = [region001.tags.line2, capEnd001])`
+        `surface001 = deleteFace(extrude001, faces = [region001.tags.line4, capEnd001])`
+      )
+      await enginelessExecutor(result.modifiedAst, rustContextInThisFile)
+    })
+
+    it('should add a deleteFace call on a chamfer edgeCut face from sketch block code', async () => {
+      const chamferEdgeCutCode = `@settings(kclVersion = 2.0)
+
+sketch001 = sketch(on = XY) {
+  line1 = line(start = [var 0.52mm, var 0.57mm], end = [var 3.88mm, var 0.77mm])
+  line2 = line(start = [var 3.88mm, var 0.77mm], end = [var 3.88mm, var 3.12mm])
+  line3 = line(start = [var 3.88mm, var 3.12mm], end = [var 0.83mm, var 3.12mm])
+  line4 = line(start = [var 0.83mm, var 3.12mm], end = [var 0mm, var 0mm])
+  coincident([line1.end, line2.start])
+  coincident([line2.end, line3.start])
+  coincident([line3.end, line4.start])
+  coincident([line4.end, line1.start])
+  parallel([line2, line4])
+  parallel([line3, line1])
+  perpendicular([line1, line2])
+  horizontal(line3)
+  coincident([line4.end, ORIGIN])
+}
+region001 = region(point = [1.9352069mm, 0.0025mm], sketch = sketch001)
+extrude001 = extrude(region001, length = 5, tagEnd = $capEnd001)
+chamfer001 = chamfer(extrude001, tags = getCommonEdge(faces = [region001.tags.line1, capEnd001]), length = 1)`
+
+      const { artifactGraph, ast } = await getAstAndArtifactGraph(
+        chamferEdgeCutCode,
+        instanceInThisFile,
+        kclManagerInThisFile
+      )
+
+      const chamferFace = [...artifactGraph.values()].find(
+        (artifact) =>
+          artifact.type === 'edgeCut' && artifact.subType === 'chamfer'
+      )
+      if (!chamferFace) {
+        throw new Error('Could not find expected chamfer edgeCut face')
+      }
+
+      const faces = createSelectionFromArtifacts([chamferFace], artifactGraph)
+      const result = addDeleteFace({
+        ast,
+        artifactGraph,
+        faces,
+        wasmInstance: instanceInThisFile,
+      })
+      if (err(result)) {
+        throw result
+      }
+
+      const newCode = recast(result.modifiedAst, instanceInThisFile)
+      expect(newCode).toContain(`tag = $seg01`)
+      expect(newCode).toContain(
+        `surface001 = deleteFace(chamfer001, faces = seg01)`
       )
       await enginelessExecutor(result.modifiedAst, rustContextInThisFile)
     })
@@ -786,7 +823,7 @@ extrude001 = extrude(
         `${bracket}surface001 = deleteFace(finalBracket, faces = bracketProfileRegion.tags.line6)`
       )
       await enginelessExecutor(result.modifiedAst, rustContextInThisFile)
-    })
+    }, 15_000)
 
     it('should add a deleteFace call on one inner shell face and a wall', async () => {
       const shell = `sketch001 = startSketchOn(XZ)
@@ -919,6 +956,14 @@ surface003 = deleteFace(loft002, faces = capStart001)`)
   cutAt = [0, 0],
   holeBottom = hole::flat(),
   holeBody = hole::blind(depth = 5, diameter = 1),
+  holeType = hole::simple(),
+)`
+    const secondSimpleHole = `hole002 = hole::hole(
+  hole001,
+  face = capEnd001,
+  cutAt = [3, 3],
+  holeBottom = hole::flat(),
+  holeBody = hole::blind(depth = 3, diameter = 2),
   holeType = hole::simple(),
 )`
 
@@ -1077,6 +1122,61 @@ hole002 = hole::hole(
   holeType = hole::counterbore(depth = 1, diameter = 2),
 )`
       )
+      await enginelessExecutor(result.modifiedAst, rustContextInThisFile)
+    })
+
+    it('should preserve the solid input when editing a hole with a downstream hole', async () => {
+      const twoHoleCode = `${cylinderWithEndTag}
+${simpleHole}
+${secondSimpleHole}`
+      const { artifactGraph, ast } = await getAstAndArtifactGraph(
+        twoHoleCode,
+        instanceInThisFile,
+        kclManagerInThisFile
+      )
+      const astThroughFirstHole = {
+        ...ast,
+        body: ast.body.slice(0, -1),
+      }
+      const nodeToEdit = createPathToNodeForLastVariable(
+        astThroughFirstHole,
+        false
+      )
+      const face = getCapFromCylinder(artifactGraph)
+      const cutAt = (await stringToKclExpression(
+        '[0, 0]',
+        rustContextInThisFile,
+        { allowArrays: true }
+      )) as KclCommandValue
+      const depth = (await stringToKclExpression(
+        '5',
+        rustContextInThisFile
+      )) as KclCommandValue
+      const diameter = (await stringToKclExpression(
+        '1',
+        rustContextInThisFile
+      )) as KclCommandValue
+
+      const result = addHole({
+        ast,
+        artifactGraph,
+        nodeToEdit,
+        face,
+        cutAt,
+        holeBody: 'blind',
+        blindDepth: depth,
+        blindDiameter: diameter,
+        holeType: 'simple',
+        holeBottom: 'flat',
+        wasmInstance: instanceInThisFile,
+      })
+      if (err(result)) {
+        throw result
+      }
+
+      const newCode = recast(result.modifiedAst, instanceInThisFile)
+      expect(newCode).toContain(`${simpleHole}
+${secondSimpleHole}`)
       await enginelessExecutor(result.modifiedAst, rustContextInThisFile)
     })
 

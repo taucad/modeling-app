@@ -4,4 +4,4 @@ import type { Identifier } from "./Identifier.js";
 import type { Node } from "./Node.js";
 import type { NumericSuffix } from "./NumericSuffix.js";
 
-export type PrimitiveType = { "p_type": "Any" } | { "p_type": "None" } | { "p_type": "String" } | { "p_type": "Number" } & NumericSuffix | { "p_type": "bool" } | { "p_type": "TagDecl" } | { "p_type": "ImportedGeometry" } | { "p_type": "Function" } & FunctionType | { "p_type": "Named", id: Node<Identifier>, };
+export type PrimitiveType = { "p_type": "Any" } | { "p_type": "Never" } | { "p_type": "None" } | { "p_type": "String" } | { "p_type": "Number" } & NumericSuffix | { "p_type": "bool" } | { "p_type": "TagDecl" } | { "p_type": "ImportedGeometry" } | { "p_type": "Function" } & FunctionType | { "p_type": "Named", id: Node<Identifier>, };

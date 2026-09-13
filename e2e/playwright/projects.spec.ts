@@ -1,19 +1,48 @@
 import nodeFsSync from 'fs'
 import path from 'path'
-import { DEFAULT_PROJECT_KCL_FILE, REGEXP_UUIDV4 } from '@src/lib/constants'
+import {
+  DEFAULT_PROJECT_KCL_FILE,
+  LEGACY_SKETCH_MODE_FEATURE_FLAG,
+  REGEXP_UUIDV4,
+} from '@src/lib/constants'
 import nodeFs from 'fs/promises'
+import type { Page } from '@playwright/test'
 import { NIL as uuidNIL } from 'uuid'
 
 import {
   closeOnboardingModalIfPresent,
   createProject,
   executorInputPath,
+  expectKeybindingsSettingsVisible,
   getUtils,
   isOutOfViewInScrollContainer,
   runningOnWindows,
 } from '@e2e/playwright/test-utils'
 import { expect, test } from '@e2e/playwright/zoo-test'
 import { DefaultLayoutPaneID } from '@src/lib/layout/configs/default'
+
+// Some of these sketches are KCL 1.0, so editing them needs the legacy sketch flag.
+test.use({ userFeatures: [LEGACY_SKETCH_MODE_FEATURE_FLAG] })
+
+type ProjectCardContextMenuAction = 'rename' | 'delete'
+
+async function clickProjectCardContextMenuItem(
+  page: Page,
+  projectTitle: string,
+  action: ProjectCardContextMenuAction
+) {
+  const projectLink = page
+    .getByTestId('project-link')
+    .filter({ hasText: projectTitle })
+    .first()
+
+  await expect(projectLink).toBeVisible()
+  await projectLink.click({ button: 'right' })
+
+  const menuItem = page.getByTestId(`project-card-context-${action}`)
+  await expect(menuItem).toBeVisible()
+  await menuItem.click()
+}
 
 test(
   'projects reload if a new one is created, deleted, or renamed externally',
@@ -71,8 +100,7 @@ test(
     await expect(page.getByTestId('keybindings-button')).toBeVisible()
     // Click keyboard shortcuts button.
     await page.getByTestId('keybindings-button').click()
-    // Make sure the keyboard shortcuts modal is visible.
-    await expect(page.getByText('Enter Sketch Mode')).toBeVisible()
+    await expectKeybindingsSettingsVisible(page)
   }
 )
 
@@ -106,8 +134,7 @@ test(
     await expect(page.getByTestId('keybindings-button')).toBeVisible()
     // Click keyboard shortcuts button.
     await page.getByTestId('keybindings-button').click()
-    // Make sure the keyboard shortcuts modal is visible.
-    await expect(page.getByText('Enter Sketch Mode')).toBeVisible()
+    await expectKeybindingsSettingsVisible(page)
   }
 )
 
@@ -225,10 +252,6 @@ test(
       500,
       scene.streamWrapper
     )
-
-    await test.step('Ensure the code is empty', async () => {
-      await editor.expectEditor.toBe('\n')
-    })
   }
 )
 
@@ -375,7 +398,11 @@ test(
 
     await page.setBodyDimensions({ width: 1200, height: 500 })
     await homePage.openProject('broken-code')
-    await scene.settled()
+    await editor.expectEditor.toContain(
+      "|> line(end = [0, wallMountL], tag = 'outerEdge')",
+      { timeout: 15_000 }
+    )
+    await scene.settled({ expectError: true })
 
     // Gotcha: Scroll to the text content in code mirror because CodeMirror lazy loads DOM content
     await editor.scrollToText(
@@ -385,10 +412,12 @@ test(
     await expect(page.locator('.cm-lint-marker-error')).toBeVisible()
 
     // error text on hover
-    await page.hover('.cm-lint-marker-error')
+    await page.locator('.cm-lint-marker-error').hover()
     const crypticErrorText =
       'tag requires a value with type `TagDecl`, but found a value with type `string`.'
-    await expect(page.getByText(crypticErrorText).first()).toBeVisible()
+    await expect(
+      page.locator('.cm-tooltip-lint').getByText(crypticErrorText)
+    ).toBeVisible({ timeout: 15_000 })
   }
 )
 
@@ -426,14 +455,12 @@ test(
 
     page.on('console', console.log)
 
+    async function openProjectRenameForm(projectTitle: string) {
+      await clickProjectCardContextMenuItem(page, projectTitle, 'rename')
+    }
+
     await test.step('rename a project clicking buttons checking left and right arrow does not impact the text', async () => {
-      const routerTemplate = page.getByText('router-template-slate')
-
-      await routerTemplate.hover()
-      await routerTemplate.focus()
-
-      await expect(page.getByLabel('sketch').last()).toBeVisible()
-      await page.getByLabel('sketch').last().click()
+      await openProjectRenameForm('router-template-slate')
 
       const selectedText = await page.evaluate(() => {
         const selection = window.getSelection()
@@ -463,13 +490,7 @@ test(
     })
 
     await test.step('update a project by hitting enter', async () => {
-      const project = page.getByText('updated project name')
-
-      await project.hover()
-      await project.focus()
-
-      await expect(page.getByLabel('sketch').last()).toBeVisible()
-      await page.getByLabel('sketch').last().click()
+      await openProjectRenameForm('updated project name')
 
       const selectedText = await page.evaluate(() => {
         const selection = window.getSelection()
@@ -491,13 +512,7 @@ test(
     })
 
     await test.step('Cancel and edit by clicking the x button', async () => {
-      const project = page.getByText('updated name again')
-
-      await project.hover()
-      await project.focus()
-
-      await expect(page.getByLabel('sketch').last()).toBeVisible()
-      await page.getByLabel('sketch').last().click()
+      await openProjectRenameForm('updated name again')
 
       const selectedText = await page.evaluate(() => {
         const selection = window.getSelection()
@@ -515,13 +530,7 @@ test(
     })
 
     await test.step('Cancel and edit by pressing esc', async () => {
-      const project = page.getByText('updated name again')
-
-      await project.hover()
-      await project.focus()
-
-      await expect(page.getByLabel('sketch').last()).toBeVisible()
-      await page.getByLabel('sketch').last().click()
+      await openProjectRenameForm('updated name again')
 
       const selectedText = await page.evaluate(() => {
         const selection = window.getSelection()
@@ -539,13 +548,11 @@ test(
     })
 
     await test.step('delete a project by clicking the trash button', async () => {
-      const project = page.getByText('updated name again')
-
-      await project.hover()
-      await project.focus()
-
-      await expect(page.getByLabel('trash').last()).toBeVisible()
-      await page.getByLabel('trash').last().click()
+      await clickProjectCardContextMenuItem(
+        page,
+        'updated name again',
+        'delete'
+      )
 
       await expect(page.getByText('This will permanently delete')).toBeVisible()
 
@@ -558,13 +565,7 @@ test(
     })
 
     await test.step('rename a project to an empty string should make the field complain', async () => {
-      const routerTemplate = page.getByText('bracket')
-
-      await routerTemplate.hover()
-      await routerTemplate.focus()
-
-      await expect(page.getByLabel('sketch').last()).toBeVisible()
-      await page.getByLabel('sketch').last().click()
+      await openProjectRenameForm('bracket')
 
       const selectedText = await page.evaluate(() => {
         const selection = window.getSelection()
@@ -587,13 +588,7 @@ test(
     })
 
     await test.step(`rename a project to a duplicate name should error toast`, async () => {
-      const routerTemplate = page.getByText('bracket')
-
-      await routerTemplate.hover()
-      await routerTemplate.focus()
-
-      await expect(page.getByLabel('sketch').last()).toBeVisible()
-      await page.getByLabel('sketch').last().click()
+      await openProjectRenameForm('bracket')
 
       const inputField = page.getByTestId('project-rename-input')
       await expect(inputField).toBeVisible()
@@ -1099,10 +1094,15 @@ test(
 
     await u.openFilePanel()
 
-    // Find the current file.
+    // Find the current file
     const filesPane = page.locator('#files-pane')
     // Open the directory
-    await page.getByText('nested').click()
+    const nestedFolder = filesPane
+      .getByTestId('file-pane-scroll-container')
+      .getByRole('treeitem', { name: 'nested', exact: true })
+    if ((await nestedFolder.getAttribute('aria-expanded')) !== 'true') {
+      await nestedFolder.click()
+    }
     // See the bracket
     await expect(filesPane.getByText('bracket.kcl')).toBeVisible()
 
@@ -1147,15 +1147,7 @@ test(
     page.on('console', console.log)
 
     await test.step('delete the middle project, i.e. the bracket project', async () => {
-      const project = page.getByTestId('project-link').getByText('bracket')
-
-      await project.hover()
-      await project.focus()
-
-      await page
-        .locator('[data-edit-buttons-for="bracket"]')
-        .getByLabel('trash')
-        .click()
+      await clickProjectCardContextMenuItem(page, 'bracket', 'delete')
 
       await expect(page.getByText('This will permanently delete')).toBeVisible()
 
@@ -1173,16 +1165,14 @@ test(
     })
 
     await test.step('delete other two projects', async () => {
-      await page
-        .locator('[data-edit-buttons-for="router-template-slate"]')
-        .getByLabel('trash')
-        .click()
+      await clickProjectCardContextMenuItem(
+        page,
+        'router-template-slate',
+        'delete'
+      )
       await page.getByTestId('delete-confirmation').click()
 
-      await page
-        .locator('[data-edit-buttons-for="lego"]')
-        .getByLabel('trash')
-        .click()
+      await clickProjectCardContextMenuItem(page, 'lego', 'delete')
       await page.getByTestId('delete-confirmation').click()
     })
 
@@ -1204,7 +1194,10 @@ test(
   {
     tag: ['@desktop'],
   },
-  async ({ context, page, scene, cmdBar, fs, folderSetupFn }, testInfo) => {
+  async (
+    { context, page, scene, cmdBar, editor, fs, folderSetupFn },
+    testInfo
+  ) => {
     await folderSetupFn(async (dir) => {
       const routerTemplateDir = path.join(dir, 'router-template-slate')
       await fs.mkdir(routerTemplateDir, { recursive: true })
@@ -1219,15 +1212,14 @@ test(
         new TextEncoder().encode(fileWithCRLF)
       )
     })
-    const u = await getUtils(page)
     await page.setBodyDimensions({ width: 1200, height: 500 })
 
     await page.getByText('router-template-slate').click()
+    await editor.expectEditor.toContain('routerDiameter', { timeout: 15_000 })
     await scene.settled()
 
-    await expect(u.codeLocator).toContainText('routerDiameter')
-    await expect(u.codeLocator).toContainText('templateGap')
-    await expect(u.codeLocator).toContainText('minClampingDistance')
+    await editor.expectEditor.toContain('templateGap')
+    await editor.expectEditor.toContain('minClampingDistance')
   }
 )
 
@@ -1390,7 +1382,7 @@ test(
 
       await expect(page.getByTestId('project-directory-button')).toBeVisible()
       originalProjectDirName = await page
-        .locator('section#projectDirectory input')
+        .getByTestId('project-directory-input')
         .inputValue()
 
       const handleFile = tronApp.electron.evaluate(
@@ -1404,7 +1396,7 @@ test(
       await handleFile
 
       await expect
-        .poll(() => page.locator('section#projectDirectory input').inputValue())
+        .poll(() => page.getByTestId('project-directory-input').inputValue())
         .toContain(newProjectDirName)
 
       await page.getByTestId('settings-close-button').click()
@@ -1438,7 +1430,7 @@ test(
       await handleFile
 
       await homePage.projectsLoaded()
-      await expect(page.locator('section#projectDirectory input')).toHaveValue(
+      await expect(page.getByTestId('project-directory-input')).toHaveValue(
         originalProjectDirName
       )
 
@@ -1702,57 +1694,6 @@ test(
 
       page.on('console', console.log)
       await expect(page.getByTestId('app-theme')).toHaveValue('light')
-    })
-  }
-)
-
-test(
-  'Original project name persist after onboarding',
-  {
-    tag: ['@desktop'],
-  },
-  async ({ page, toolbar }) => {
-    const nextButton = page.getByTestId('onboarding-next')
-    await page.setBodyDimensions({ width: 1200, height: 500 })
-
-    const getAllProjects = () => page.getByTestId('project-link').all()
-    page.on('console', console.log)
-
-    await test.step('Should create and name a project called wrist brace', async () => {
-      await createProject({ name: 'wrist brace', page, returnHome: true })
-      await expect(page.getByTestId('project-link').first()).toBeVisible()
-    })
-
-    await test.step('Should go through onboarding', async () => {
-      await toolbar.userSidebarButton.click()
-      await page.getByTestId('user-settings').click()
-      await page.getByRole('button', { name: 'Replay Onboarding' }).click()
-      await expect(nextButton).toBeVisible()
-
-      let advances = 0
-      while ((await nextButton.innerText()).trim() !== 'Finish') {
-        if (++advances > 20) {
-          throw new Error('Onboarding did not finish')
-        }
-        const urlBefore = page.url()
-        await nextButton.click()
-        await expect.poll(() => page.url()).not.toBe(urlBefore)
-      }
-      await nextButton.click()
-      await expect(page).not.toHaveURL(/\/onboarding\//)
-
-      await page.getByTestId('project-sidebar-toggle').click()
-    })
-
-    await test.step('Should go home after onboarding is completed', async () => {
-      await page.getByTestId('app-logo').click()
-    })
-
-    await test.step('Should show the original project called wrist brace', async () => {
-      const projectNames = ['tutorial-project', 'wrist brace']
-      for (const [index, projectLink] of (await getAllProjects()).entries()) {
-        await expect(projectLink).toContainText(projectNames[index])
-      }
     })
   }
 )

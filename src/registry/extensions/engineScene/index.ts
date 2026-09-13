@@ -4,18 +4,113 @@ import {
   provide,
 } from '@kittycad/registry'
 import { computed } from '@preact/signals-core'
+import type { Command } from '@src/lib/commandTypes'
+import {
+  FILE_COMMAND_SCOPES,
+  MODE_MODELING_COMMAND_SCOPE,
+  provideCommand,
+} from '@src/registry/contracts/commands'
+import {
+  type EngineSceneExtensionContext,
+  defineEngineSceneStreamClassName,
+  defineEngineSceneViewExtension,
+  engineSceneStreamClassNamesValueSpec,
+  engineSceneViewExtensionsValueSpec,
+} from '@src/registry/contracts/engineScene'
 import { executingEditorService } from '@src/registry/contracts/executingEditor'
 import {
+  type KeymapItem,
+  provideKeymapItem,
+} from '@src/registry/contracts/keymap'
+import {
   nullableStatusBarItem,
+  statusBarGlobalItemsValueSpec,
   statusBarLocalItemsValueSpec,
 } from '@src/registry/contracts/statusBar'
 import { Suspense, createElement, lazy } from 'react'
 import executionIndicator from './executionIndicator'
+import { measurementToolService } from './measurementToolService'
+import { physicalAnalysisService } from './physicalAnalysis/physicalAnalysisService'
+import { saveViewportScreenshot } from './saveViewportScreenshot'
+import {
+  EngineSceneGizmoViewExtension,
+  EngineSceneToolbarViewExtension,
+  SketchBackgroundOpacityViewExtension,
+  SketchConstraintsToggleViewExtension,
+} from './viewExtensionControls'
+
+const ENGINE_SCENE_COMMAND_GROUP_ID = 'engineScene'
+const ENGINE_SCENE_KEYMAP_SOURCE = 'Engine scene'
+
+export const ENGINE_SCENE_COMMAND_IDS = Object.freeze({
+  captureScreenshot: 'zds.engineScene.captureScreenshot',
+  openMeasureTool: 'zds.engineScene.openMeasureTool',
+  openPhysicalAnalysisTool: 'zds.engineScene.openPhysicalAnalysisTool',
+} as const)
+
+const captureScreenshotCommand: Command = {
+  scopes: FILE_COMMAND_SCOPES,
+  id: ENGINE_SCENE_COMMAND_IDS.captureScreenshot,
+  name: ENGINE_SCENE_COMMAND_IDS.captureScreenshot,
+  groupId: ENGINE_SCENE_COMMAND_GROUP_ID,
+  displayName: 'Capture screenshot',
+  description: 'Save the current modeling viewport as a PNG image.',
+  icon: 'camera',
+  needsReview: false,
+  onSubmit: saveViewportScreenshot,
+}
+
+const openMeasureToolCommand: Command = {
+  scopes: [MODE_MODELING_COMMAND_SCOPE],
+  id: ENGINE_SCENE_COMMAND_IDS.openMeasureTool,
+  name: ENGINE_SCENE_COMMAND_IDS.openMeasureTool,
+  groupId: ENGINE_SCENE_COMMAND_GROUP_ID,
+  displayName: 'Open measure tool',
+  description: 'Open the measurement panel for the current modeling selection.',
+  icon: 'ruler',
+  needsReview: false,
+  onSubmit: () => {
+    measurementToolService.open()
+    return true
+  },
+}
+
+const openPhysicalAnalysisToolCommand: Command = {
+  scopes: [MODE_MODELING_COMMAND_SCOPE],
+  id: ENGINE_SCENE_COMMAND_IDS.openPhysicalAnalysisTool,
+  name: ENGINE_SCENE_COMMAND_IDS.openPhysicalAnalysisTool,
+  groupId: ENGINE_SCENE_COMMAND_GROUP_ID,
+  displayName: 'Open physical analysis tool',
+  description: 'Open the physical analysis panel for the whole modeling scene.',
+  icon: 'scales',
+  needsReview: false,
+  onSubmit: () => {
+    physicalAnalysisService.open()
+    return true
+  },
+}
+
+const openMeasureToolKeymapItem: KeymapItem = {
+  id: 'engine-scene.measure.open',
+  title: 'Open measure tool',
+  source: ENGINE_SCENE_KEYMAP_SOURCE,
+  when: [MODE_MODELING_COMMAND_SCOPE],
+  keystrokes: ['shift+m'],
+  command: ENGINE_SCENE_COMMAND_IDS.openMeasureTool,
+}
+
+const openPhysicalAnalysisToolKeymapItem: KeymapItem = {
+  id: 'engine-scene.physical-analysis.open',
+  title: 'Open physical analysis tool',
+  source: ENGINE_SCENE_KEYMAP_SOURCE,
+  when: [MODE_MODELING_COMMAND_SCOPE],
+  keystrokes: ['shift+p'],
+  command: ENGINE_SCENE_COMMAND_IDS.openPhysicalAnalysisTool,
+}
 
 // Registry extension entrypoints are imported eagerly while App is still
-// initializing. SelectionFilterControls pulls in useModelingContext, which
-// reaches boot.ts through ModelingMachineProvider/useMenu; importing it here
-// eagerly creates an App <-> boot cycle where App is still undefined.
+// initializing. These status bar components can reach boot.ts, so keep them
+// behind lazy imports to avoid an App <-> boot cycle.
 const SelectionFilterControls = lazy(async () => {
   const { SelectionFilterControls } = await import('./SelectionFilterControls')
   return { default: SelectionFilterControls }
@@ -33,6 +128,37 @@ const ExperimentalFeaturesMenu = lazy(async () => {
   return { default: ExperimentalFeaturesMenu }
 })
 
+const SelectionStatusBarItem = lazy(async () => {
+  const { SelectionStatusBarItem } = await import(
+    '@src/components/SelectionStatusBarItem'
+  )
+  return { default: SelectionStatusBarItem }
+})
+
+const SelectionReferencesPopover = lazy(async () => {
+  const { SelectionReferencesPopover } = await import(
+    '@src/components/SelectionReferencesPopover'
+  )
+  return { default: SelectionReferencesPopover }
+})
+
+const MeasurementStatusBarItem = lazy(async () => {
+  const { MeasurementStatusBarItem } = await import('./MeasurementTool')
+  return { default: MeasurementStatusBarItem }
+})
+
+const PhysicalAnalysisStatusBarItem = lazy(async () => {
+  const { PhysicalAnalysisStatusBarItem } = await import(
+    './physicalAnalysis/PhysicalAnalysisTool'
+  )
+  return { default: PhysicalAnalysisStatusBarItem }
+})
+
+const ScreenshotStatusBarItem = lazy(async () => {
+  const { ScreenshotStatusBarItem } = await import('./ScreenshotStatusBarItem')
+  return { default: ScreenshotStatusBarItem }
+})
+
 const EngineSceneUnitsMenu = () =>
   createElement(Suspense, { fallback: null }, createElement(UnitsMenu))
 
@@ -43,6 +169,21 @@ const EngineSceneExperimentalFeaturesMenu = () =>
     createElement(ExperimentalFeaturesMenu)
   )
 
+const EngineSceneSelectionStatusBarItem = ({ label }: { label: string }) =>
+  createElement(
+    Suspense,
+    { fallback: null },
+    createElement(SelectionStatusBarItem, {
+      label,
+      popoverSections: [
+        {
+          id: 'selection-references',
+          component: SelectionReferencesPopover,
+        },
+      ],
+    })
+  )
+
 const EngineSceneSelectionFilterControls = () =>
   createElement(
     Suspense,
@@ -50,28 +191,124 @@ const EngineSceneSelectionFilterControls = () =>
     createElement(SelectionFilterControls)
   )
 
+const isSketchSolveMode = (context: EngineSceneExtensionContext) =>
+  context.modelingState.matches('sketchSolveMode')
+
+const defaultStreamClassName = defineEngineSceneStreamClassName({
+  id: 'engine-scene.stream-default',
+  order: 0,
+  className: 'absolute inset-x-[-4px] inset-y-[-4px] z-0',
+})
+
+const toolbarViewExtension = defineEngineSceneViewExtension({
+  id: 'engine-scene.toolbar',
+  zone: 'top',
+  order: 0,
+  Component: EngineSceneToolbarViewExtension,
+  wrapperClassName: 'w-full min-w-0 flex justify-center',
+})
+
+const sketchBackgroundOpacityViewExtension = defineEngineSceneViewExtension({
+  id: 'engine-scene.sketch-background-opacity',
+  zone: 'bottom-left',
+  order: 0,
+  Component: SketchBackgroundOpacityViewExtension,
+  shouldRegister: isSketchSolveMode,
+})
+
+const sketchConstraintsToggleViewExtension = defineEngineSceneViewExtension({
+  id: 'engine-scene.sketch-constraints-toggle',
+  zone: 'bottom-left',
+  order: 10,
+  Component: SketchConstraintsToggleViewExtension,
+  shouldRegister: isSketchSolveMode,
+})
+
+const gizmoViewExtension = defineEngineSceneViewExtension({
+  id: 'engine-scene.gizmo',
+  zone: 'bottom-right',
+  order: 0,
+  Component: EngineSceneGizmoViewExtension,
+})
+
+const EngineSceneMeasurementStatusBarItem = () =>
+  createElement(
+    Suspense,
+    { fallback: null },
+    createElement(MeasurementStatusBarItem)
+  )
+
+const EngineScenePhysicalAnalysisStatusBarItem = () =>
+  createElement(
+    Suspense,
+    { fallback: null },
+    createElement(PhysicalAnalysisStatusBarItem)
+  )
+
+const EngineSceneScreenshotStatusBarItem = () =>
+  createElement(
+    Suspense,
+    { fallback: null },
+    createElement(ScreenshotStatusBarItem)
+  )
+
 /**
  * Engine scene extension.
  *
  * Future home for the whole engine scene layout and modeling state machine
  * behavior. For now it contributes always-on local status bar items owned by
- * the scene.
+ * the scene and the default view chrome rendered around the engine stream.
  */
 const engineSceneExtension = defineRegistryItemFactory((ctx) => {
   const executionService = ctx.services.signal(executingEditorService)
-  const selectionStatusBarItem = computed(() =>
+  const selectionStatusBarItem = computed(() => {
+    const selectionStatusLabel = executionService.value?.selectionStatusLabel
+    return nullableStatusBarItem(
+      selectionStatusLabel
+        ? {
+            id: 'selection',
+            component: () =>
+              createElement(EngineSceneSelectionStatusBarItem, {
+                label: selectionStatusLabel.value,
+              }),
+            order: 10,
+            scopes: ['file'],
+          }
+        : null
+    )
+  })
+  const measurementStatusBarItem = computed(() =>
     nullableStatusBarItem(
       executionService.value
         ? {
-            id: 'selection',
-            'data-testid': 'selection-status',
-            element: 'text' as const,
-            label: executionService.value.selectionStatusLabel.value,
-            order: 10,
+            id: 'measure',
+            component: EngineSceneMeasurementStatusBarItem,
+            order: 9,
             scopes: ['file'],
-            toolTip: {
-              children: 'Currently selected geometry',
-            },
+          }
+        : null
+    )
+  )
+  const physicalAnalysisStatusBarItem = computed(() =>
+    nullableStatusBarItem(
+      executionService.value
+        ? {
+            id: 'physical-analysis',
+            component: EngineScenePhysicalAnalysisStatusBarItem,
+            order: 9.5,
+            scopes: ['file'],
+          }
+        : null
+    )
+  )
+  const screenshotStatusBarItem = computed(() =>
+    nullableStatusBarItem(
+      executionService.value
+        ? {
+            id: 'capture-screenshot',
+            component: EngineSceneScreenshotStatusBarItem,
+            order: 8,
+            scopes: ['file'],
           }
         : null
     )
@@ -117,6 +354,14 @@ const engineSceneExtension = defineRegistryItemFactory((ctx) => {
     item: defineRuntimeRegistryItem({
       id: 'engine-scene-extension',
       provides: [
+        provideCommand(captureScreenshotCommand),
+        provideCommand(openMeasureToolCommand),
+        provideCommand(openPhysicalAnalysisToolCommand),
+        provideKeymapItem(openMeasureToolKeymapItem),
+        provideKeymapItem(openPhysicalAnalysisToolKeymapItem),
+        provide(statusBarGlobalItemsValueSpec, screenshotStatusBarItem),
+        provide(statusBarLocalItemsValueSpec, measurementStatusBarItem),
+        provide(statusBarLocalItemsValueSpec, physicalAnalysisStatusBarItem),
         provide(statusBarLocalItemsValueSpec, selectionFilterStatusBarItem),
         provide(statusBarLocalItemsValueSpec, selectionStatusBarItem),
         provide(statusBarLocalItemsValueSpec, unitsStatusBarItem),
@@ -124,6 +369,29 @@ const engineSceneExtension = defineRegistryItemFactory((ctx) => {
           statusBarLocalItemsValueSpec,
           experimentalFeaturesStatusBarItem
         ),
+        provide(engineSceneStreamClassNamesValueSpec, defaultStreamClassName, {
+          key: defaultStreamClassName.id,
+        }),
+        provide(engineSceneViewExtensionsValueSpec, toolbarViewExtension, {
+          key: toolbarViewExtension.id,
+        }),
+        provide(
+          engineSceneViewExtensionsValueSpec,
+          sketchBackgroundOpacityViewExtension,
+          {
+            key: sketchBackgroundOpacityViewExtension.id,
+          }
+        ),
+        provide(
+          engineSceneViewExtensionsValueSpec,
+          sketchConstraintsToggleViewExtension,
+          {
+            key: sketchConstraintsToggleViewExtension.id,
+          }
+        ),
+        provide(engineSceneViewExtensionsValueSpec, gizmoViewExtension, {
+          key: gizmoViewExtension.id,
+        }),
       ],
       uses: [executionIndicator],
     }),

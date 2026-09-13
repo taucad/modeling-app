@@ -1,24 +1,38 @@
 import { Combobox } from '@headlessui/react'
+import type { Feature } from '@kittycad/lib'
+import { useSignalEffect } from '@preact/signals-react'
+import { useSignals } from '@preact/signals-react/runtime'
+import { getKeybindingRows } from '@src/components/Settings/keybindingRows'
 import Fuse from 'fuse.js'
-import { useMemo, useRef, useState } from 'react'
-import { useHotkeys } from 'react-hotkeys-hook'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { CustomIcon } from '@src/components/CustomIcon'
 import { noAutofillInputProps } from '@src/lib/autofill'
 import { useApp } from '@src/lib/boot'
-import { isDesktop } from '@src/lib/isDesktop'
-import { interactionMap } from '@src/lib/settings/initialKeybindings'
+import { settingsSearchFocusRequest } from '@src/lib/searchFocusRequests'
 import type { SettingsLevel } from '@src/lib/settings/settingsTypes'
 import {
   formatSettingsLabel,
-  hiddenOnPlatform,
+  shouldHideSetting,
 } from '@src/lib/settings/settingsUtils'
+import { userFeaturesContextHas } from '@src/machines/userFeaturesMachine'
+import {
+  type CommandScope,
+  commandScopesValueSpec,
+} from '@src/registry/contracts/commands'
+import {
+  KEYMAP_SCHEMA_VERSION,
+  getKeymapItemWhen,
+  keymapService,
+  keymapValueSpec,
+} from '@src/registry/contracts/keymap'
 
 type ExtendedSettingsLevel = SettingsLevel | 'keybindings'
 
 interface SettingsSearchBarProps {
-  showPlugins: boolean
+  keybinding?: string
+  hasOpenProject: boolean
 }
 
 export type SettingsSearchItem = {
@@ -29,31 +43,54 @@ export type SettingsSearchItem = {
   level: ExtendedSettingsLevel
 }
 
-export function SettingsSearchBar({ showPlugins }: SettingsSearchBarProps) {
-  const { settings } = useApp()
-  const inputRef = useRef<HTMLInputElement>(null)
-  useHotkeys(
-    'Ctrl+.',
-    (e) => {
-      e.preventDefault()
-      inputRef.current?.focus()
-    },
-    { enableOnFormTags: true }
+export function SettingsSearchBar({
+  keybinding,
+  hasOpenProject,
+}: SettingsSearchBarProps) {
+  useSignals()
+  const { settings, registry, userFeatures } = useApp()
+  const keymap = registry.optional(keymapService)
+  const contributedKeymap = registry.signal(keymapValueSpec).value
+  const persistedKeymap = keymap?.persistedKeymap.value ?? {
+    version: KEYMAP_SCHEMA_VERSION,
+    bindings: [],
+  }
+  const keybindingRows = useMemo(
+    () => getKeybindingRows(contributedKeymap.items, persistedKeymap.bindings),
+    [contributedKeymap.items, persistedKeymap.bindings]
   )
+  const commandScopes = registry.signal(commandScopesValueSpec).value
+  const inputRef = useRef<HTMLInputElement>(null)
+  const lastHandledFocusRequest = useRef(settingsSearchFocusRequest.value)
+  useSignalEffect(() => {
+    const request = settingsSearchFocusRequest.value
+    if (request === lastHandledFocusRequest.current) {
+      return
+    }
+    lastHandledFocusRequest.current = request
+    inputRef.current?.focus()
+  })
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const settingsValues = settings.useSettings()
+  const userFeaturesContext = userFeatures.useContext()
+  const hasFeature = useCallback(
+    (feature: Feature) =>
+      userFeaturesContextHas(userFeaturesContext, feature, false),
+    [userFeaturesContext]
+  )
   const settingsAsSearchable: SettingsSearchItem[] = useMemo(
     () => [
-      ...Object.entries(settingsValues)
-        .filter(([category]) => showPlugins || category !== 'plugins')
-        .flatMap(([category, categorySettings]) =>
+      ...Object.entries(settingsValues).flatMap(
+        ([category, categorySettings]) =>
           Object.entries(categorySettings).flatMap(([settingName, setting]) => {
             const s = setting
-            return (['project', 'user'] satisfies SettingsLevel[])
-              .filter(
-                (l) => s.hideOnLevel !== l && !hiddenOnPlatform(s, isDesktop())
-              )
+            return (
+              hasOpenProject
+                ? (['project', 'user'] satisfies SettingsLevel[])
+                : (['user'] satisfies SettingsLevel[])
+            )
+              .filter((l) => !shouldHideSetting(s, l, hasFeature))
               .map((l) => ({
                 category: formatSettingsLabel(category),
                 name: settingName,
@@ -62,21 +99,22 @@ export function SettingsSearchBar({ showPlugins }: SettingsSearchBarProps) {
                 level: l,
               }))
           })
-        ),
-      ...Object.entries(interactionMap).flatMap(
-        ([category, categoryKeybindings]) =>
-          categoryKeybindings.map(
-            (keybinding): SettingsSearchItem => ({
-              name: keybinding.name,
-              displayName: keybinding.title,
-              description: keybinding.description,
-              category: category,
-              level: 'keybindings',
-            })
-          )
+      ),
+      ...keybindingRows.map(
+        (keybinding) =>
+          ({
+            name: keybinding.id,
+            displayName: keybinding.title,
+            description:
+              keybinding.state === 'unbound'
+                ? `Unbound - ${keybinding.command}`
+                : keybinding.command,
+            category: formatKeymapSearchCategory(keybinding, commandScopes),
+            level: 'keybindings',
+          }) satisfies SettingsSearchItem
       ),
     ],
-    [settingsValues, showPlugins]
+    [settingsValues, keybindingRows, commandScopes, hasOpenProject, hasFeature]
   )
   const fuse = useMemo(
     () =>
@@ -95,7 +133,7 @@ export function SettingsSearchBar({ showPlugins }: SettingsSearchBarProps) {
   )
 
   function handleSelection({ level, name }: SettingsSearchItem) {
-    void navigate(`?tab=${level}#${name}`)
+    void navigate(`?tab=${level}#${encodeURIComponent(name)}`)
   }
 
   return (
@@ -107,7 +145,9 @@ export function SettingsSearchBar({ showPlugins }: SettingsSearchBarProps) {
             ref={inputRef}
             onChange={(event) => setQuery(event.target.value)}
             className="w-full bg-transparent focus:outline-none selection:bg-primary/20 dark:selection:bg-primary/40 dark:focus:outline-none"
-            placeholder="Search settings (Ctrl+.)"
+            placeholder={
+              keybinding ? `Search settings (${keybinding})` : 'Search settings'
+            }
             autoFocus
           />
           <CustomIcon
@@ -136,4 +176,17 @@ export function SettingsSearchBar({ showPlugins }: SettingsSearchBarProps) {
       </div>
     </Combobox>
   )
+}
+
+function formatKeymapSearchCategory(
+  keybinding: Parameters<typeof getKeymapItemWhen>[0],
+  commandScopes: readonly CommandScope[]
+) {
+  const commandScopesById = new Map(
+    commandScopes.map((scope) => [scope.id, scope.displayName])
+  )
+
+  return getKeymapItemWhen(keybinding)
+    .map((scope) => commandScopesById.get(scope) ?? formatSettingsLabel(scope))
+    .join(', ')
 }

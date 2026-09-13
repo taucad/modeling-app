@@ -2,6 +2,6 @@
 import type { Identifier } from "./Identifier.js";
 import type { ItemVisibility } from "./ItemVisibility.js";
 import type { Node } from "./Node.js";
-import type { Type } from "./Type.js";
+import type { TypeDeclarationDefinition } from "./TypeDeclarationDefinition.js";
 
-export type TypeDeclaration = { "type": "TypeDeclaration", name: Node<Identifier>, args: Array<Node<Identifier>> | null, visibility?: ItemVisibility, alias: Node<Type> | null, digest?: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], };
+export type TypeDeclaration = { "type": "TypeDeclaration", name: Node<Identifier>, args: Array<Node<Identifier>> | null, visibility?: ItemVisibility, definition: TypeDeclarationDefinition, digest?: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number], };

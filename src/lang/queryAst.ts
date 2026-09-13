@@ -1,6 +1,9 @@
+import type { Block } from '@rust/kcl-lib/bindings/Block'
+import type { ElseIf } from '@rust/kcl-lib/bindings/ElseIf'
 import type { FunctionExpression } from '@rust/kcl-lib/bindings/FunctionExpression'
 import type { ImportStatement } from '@rust/kcl-lib/bindings/ImportStatement'
 import type { Node } from '@rust/kcl-lib/bindings/Node'
+import type { NumericLiteral } from '@rust/kcl-lib/bindings/NumericLiteral'
 import type { TypeDeclaration } from '@rust/kcl-lib/bindings/TypeDeclaration'
 import {
   createLiteral,
@@ -8,7 +11,6 @@ import {
   createMemberExpression,
   createPipeSubstitution,
 } from '@src/lang/create'
-import type { ToolTip } from '@src/lang/langHelpers'
 import { splitPathAtLastIndex } from '@src/lang/modifyAst'
 import { getNodePathFromSourceRange } from '@src/lang/queryAstNodePathUtils'
 import { sourceRangeContains } from '@src/lang/sourceRange'
@@ -25,6 +27,7 @@ import {
   getConstraintLevelFromSourceRange,
   getConstraintType,
 } from '@src/lang/std/sketchcombos'
+import type { ToolTip } from '@src/lang/toolTips'
 import { topLevelRange } from '@src/lang/util'
 import type {
   ArrayExpression,
@@ -43,6 +46,7 @@ import type {
   SegmentArtifact,
   SourceRange,
   SyntaxType,
+  UnaryExpression,
   VariableDeclaration,
   VariableDeclarator,
   VariableMap,
@@ -66,10 +70,10 @@ import type { KclCommandValue } from '@src/lib/commandTypes'
 import type { ModuleType } from '@src/lib/wasm_lib_wrapper'
 import type {
   EdgeCutInfo,
+  EnginePrimitiveSelection,
   Selection,
   Selections,
 } from '@src/machines/modelingSharedTypes'
-import type { UnaryExpression } from 'typescript'
 
 /**
  * Retrieves a node from a given path within a Program node structure, optionally stopping at a specified node type.
@@ -223,7 +227,8 @@ export function getNodeFromPathCurry(
   }
 }
 
-type KCLNode = Node<
+export type KCLNode = Node<
+  | Program
   | Expr
   | ExpressionStatement
   | ImportStatement
@@ -232,51 +237,86 @@ type KCLNode = Node<
   | TypeDeclaration
   | ReturnStatement
   | Identifier
+  | Block
+  | ElseIf
+  | NumericLiteral
 >
 
 export function traverse(
-  node: KCLNode | Node<Program>,
+  node: KCLNode,
   option: {
     enter?: (node: KCLNode, pathToNode: PathToNode) => void
     leave?: (node: KCLNode) => void
   },
   pathToNode: PathToNode = []
 ) {
-  const _node = node as KCLNode
-  option?.enter?.(_node, pathToNode)
+  option?.enter?.(node, pathToNode)
   const _traverse = (node: KCLNode, pathToNode: PathToNode) =>
     traverse(node, option, pathToNode)
+  // If-expression arm bodies are Program nodes, but their items' path labels
+  // predate container visits and differ from what the Program branch below
+  // emits, so arm bodies are visited manually: visitors get enter/leave for
+  // the arm container itself (at `[key, 'IfExpression']`), and item paths
+  // stay exactly as they were.
+  const _traverseIfArmBody = (
+    arm: Node<Program>,
+    key: 'then_val' | 'final_else'
+  ) => {
+    const armPath: PathToNode = [...pathToNode, [key, 'IfExpression']]
+    option?.enter?.(arm, armPath)
+    arm.body.forEach((item, index) =>
+      _traverse(item, [...armPath, ['body', 'IfExpression'], [index, 'index']])
+    )
+    option?.leave?.(arm)
+  }
 
-  if (_node.type === 'VariableDeclaration') {
-    _traverse(_node.declaration, [
+  if (node.type === 'VariableDeclaration') {
+    _traverse(node.declaration, [
       ...pathToNode,
       ['declaration', 'VariableDeclaration'],
     ])
-  } else if (_node.type === 'VariableDeclarator') {
-    _traverse(_node.init, [...pathToNode, ['init', '']])
-  } else if (_node.type === 'ExpressionStatement') {
-    _traverse(_node.expression, [
+  } else if (node.type === 'VariableDeclarator') {
+    _traverse(node.init, [...pathToNode, ['init', '']])
+  } else if (node.type === 'ExpressionStatement') {
+    _traverse(node.expression, [
       ...pathToNode,
       ['expression', 'ExpressionStatement'],
     ])
-  } else if (_node.type === 'PipeExpression') {
-    _node.body.forEach((expression, index) =>
+  } else if (node.type === 'PipeExpression') {
+    node.body.forEach((expression, index) =>
       _traverse(expression, [
         ...pathToNode,
         ['body', 'PipeExpression'],
         [index, 'index'],
       ])
     )
-  } else if (_node.type === 'CallExpressionKw') {
-    _traverse(_node.callee, [...pathToNode, ['callee', 'CallExpressionKw']])
-    if (_node.unlabeled !== null) {
-      _traverse(_node.unlabeled, [
-        ...pathToNode,
-        ['unlabeled', 'Unlabeled arg'],
-      ])
+  } else if (node.type === 'FunctionExpression') {
+    if (node.name) {
+      _traverse(node.name, [...pathToNode, ['name', 'FunctionExpression']])
     }
-    if (_node.arguments) {
-      _node.arguments.forEach((arg, index) =>
+    node.params.forEach((param, index) =>
+      _traverse(param.identifier, [
+        ...pathToNode,
+        ['params', 'FunctionExpression'],
+        [index, 'index'],
+        ['identifier', 'Parameter'],
+      ])
+    )
+    node.body.body.forEach((item, index) =>
+      _traverse(item, [
+        ...pathToNode,
+        ['body', 'FunctionExpression'],
+        ['body', 'FunctionExpression'],
+        [index, 'index'],
+      ])
+    )
+  } else if (node.type === 'CallExpressionKw') {
+    _traverse(node.callee, [...pathToNode, ['callee', 'CallExpressionKw']])
+    if (node.unlabeled !== null) {
+      _traverse(node.unlabeled, [...pathToNode, ['unlabeled', 'Unlabeled arg']])
+    }
+    if (node.arguments) {
+      node.arguments.forEach((arg, index) =>
         _traverse(arg.arg, [
           ...pathToNode,
           ['arguments', 'CallExpressionKw'],
@@ -285,25 +325,36 @@ export function traverse(
         ])
       )
     }
-  } else if (_node.type === 'BinaryExpression') {
-    _traverse(_node.left, [...pathToNode, ['left', 'BinaryExpression']])
-    _traverse(_node.right, [...pathToNode, ['right', 'BinaryExpression']])
-  } else if (_node.type === 'Name') {
+  } else if (node.type === 'BinaryExpression') {
+    _traverse(node.left, [...pathToNode, ['left', 'BinaryExpression']])
+    _traverse(node.right, [...pathToNode, ['right', 'BinaryExpression']])
+  } else if (node.type === 'Name') {
     // do nothing
-  } else if (_node.type === 'Literal') {
+  } else if (node.type === 'Literal') {
     // do nothing
-  } else if (_node.type === 'TagDeclarator') {
+  } else if (node.type === 'TagDeclarator') {
     // do nothing
-  } else if (_node.type === 'ArrayExpression') {
-    _node.elements.forEach((el, index) =>
+  } else if (node.type === 'NumericLiteral') {
+    // do nothing
+  } else if (node.type === 'ArrayExpression') {
+    node.elements.forEach((el, index) =>
       _traverse(el, [
         ...pathToNode,
         ['elements', 'ArrayExpression'],
         [index, 'index'],
       ])
     )
-  } else if (_node.type === 'ObjectExpression') {
-    _node.properties.forEach(({ key, value }, index) => {
+  } else if (node.type === 'ArrayRangeExpression') {
+    _traverse(node.startElement, [
+      ...pathToNode,
+      ['startElement', 'ArrayRangeExpression'],
+    ])
+    _traverse(node.endElement, [
+      ...pathToNode,
+      ['endElement', 'ArrayRangeExpression'],
+    ])
+  } else if (node.type === 'ObjectExpression') {
+    node.properties.forEach(({ key, value }, index) => {
       _traverse(key, [
         ...pathToNode,
         ['properties', 'ObjectExpression'],
@@ -317,22 +368,62 @@ export function traverse(
         ['value', 'Property'],
       ])
     })
-  } else if (_node.type === 'UnaryExpression') {
-    _traverse(_node.argument, [...pathToNode, ['argument', 'UnaryExpression']])
-  } else if (_node.type === 'MemberExpression') {
+  } else if (node.type === 'UnaryExpression') {
+    _traverse(node.argument, [...pathToNode, ['argument', 'UnaryExpression']])
+  } else if (node.type === 'MemberExpression') {
     // hmm this smell
-    _traverse(_node.object, [...pathToNode, ['object', 'MemberExpression']])
-    _traverse(_node.property, [...pathToNode, ['property', 'MemberExpression']])
-  } else if (_node.type === 'ImportStatement') {
+    _traverse(node.object, [...pathToNode, ['object', 'MemberExpression']])
+    _traverse(node.property, [...pathToNode, ['property', 'MemberExpression']])
+  } else if (node.type === 'IfExpression') {
+    _traverse(node.cond, [...pathToNode, ['cond', 'IfExpression']])
+    _traverseIfArmBody(node.then_val, 'then_val')
+    node.else_ifs.forEach((elseIf, index) =>
+      _traverse(elseIf, [
+        ...pathToNode,
+        ['else_ifs', 'IfExpression'],
+        [index, 'index'],
+      ])
+    )
+    _traverseIfArmBody(node.final_else, 'final_else')
+  } else if (node.type === 'ElseIf') {
+    _traverse(node.cond, [...pathToNode, ['cond', 'IfExpression']])
+    _traverseIfArmBody(node.then_val, 'then_val')
+  } else if (node.type === 'LabelledExpression') {
+    _traverse(node.expr, [...pathToNode, ['expr', 'LabelledExpression']])
+    _traverse(node.label, [...pathToNode, ['label', 'LabelledExpression']])
+  } else if (node.type === 'AscribedExpression') {
+    _traverse(node.expr, [...pathToNode, ['expr', 'AscribedExpression']])
+  } else if (node.type === 'SketchBlock') {
+    node.arguments.forEach((arg, index) =>
+      _traverse(arg.arg, [
+        ...pathToNode,
+        ['arguments', 'SketchBlock'],
+        [index, ARG_INDEX_FIELD],
+        ['arg', LABELED_ARG_FIELD],
+      ])
+    )
+    // The Block branch below emits the same item paths this branch used to
+    // build inline, and visitors additionally get enter/leave for the body's
+    // Block node itself.
+    _traverse(node.body, [...pathToNode, ['body', 'SketchBlock']])
+  } else if (node.type === 'SketchVar') {
+    if (node.initial) {
+      _traverse(node.initial, [...pathToNode, ['initial', 'SketchVar']])
+    }
+  } else if (node.type === 'Block') {
+    node.items.forEach((item, index) =>
+      _traverse(item, [...pathToNode, ['items', 'Block'], [index, 'index']])
+    )
+  } else if (node.type === 'ReturnStatement') {
+    _traverse(node.argument, [...pathToNode, ['argument', 'ReturnStatement']])
+  } else if (node.type === 'ImportStatement') {
     // Do nothing.
-  } else if ('body' in _node && isArray(_node.body)) {
-    // TODO: Program should have a type field, but it currently doesn't.
-    const program = node as Node<Program>
-    program.body.forEach((expression, index) => {
+  } else if (node.type === 'Program') {
+    node.body.forEach((expression, index) => {
       _traverse(expression, [...pathToNode, ['body', ''], [index, 'index']])
     })
   }
-  option?.leave?.(_node)
+  option?.leave?.(node)
 }
 
 export interface PrevVariable<T> {
@@ -383,7 +474,9 @@ export function findAllPreviousVariablesPath(
     if (item.type !== 'VariableDeclaration' || item.end > startRange) return
     const varName = item.declaration.id.name
     const varValue = memVars[varName]
-    if (!varValue || typeof varValue?.value !== type) return
+    if (!varValue || !('value' in varValue) || typeof varValue.value !== type) {
+      return
+    }
     variables.push({
       key: varName,
       value: varValue.value,
@@ -1174,17 +1267,13 @@ export function getVariableExprsFromSelection(
   let exprs: Expr[] = []
   const pushedNames = {} as Record<string, boolean>
   for (const s of selection.graphSelections) {
-    const patternCopyExpr = getPatternCopyExprFromSelection(
-      s,
-      ast,
-      wasmInstance
-    )
-    if (patternCopyExpr) {
-      const key = outputExprKey(patternCopyExpr)
+    const patternExpr = getPatternExprFromSelection(s, ast, wasmInstance)
+    if (patternExpr) {
+      const key = outputExprKey(patternExpr)
       if (pushedNames[key]) {
         continue
       }
-      exprs.push(patternCopyExpr)
+      exprs.push(patternExpr)
       pushedNames[key] = true
       continue
     }
@@ -1220,6 +1309,48 @@ export function getVariableExprsFromSelection(
       exprs.push(sweepOutputExpr)
       pushedNames[key] = true
       continue
+    }
+
+    if (s.artifact?.type === 'edgeCut') {
+      const edgeCutVariable = getNodeFromPath<VariableDeclaration>(
+        ast,
+        s.codeRef.pathToNode,
+        wasmInstance,
+        'VariableDeclaration',
+        false,
+        true
+      )
+      if (
+        !err(edgeCutVariable) &&
+        edgeCutVariable.node.type === 'VariableDeclaration'
+      ) {
+        const name = edgeCutVariable.node.declaration.id.name
+        if (pushedNames[name]) {
+          continue
+        }
+        exprs.push(createLocalName(name))
+        pushedNames[name] = true
+        continue
+      }
+
+      const edgeCutCall = getNodeFromPath<CallExpressionKw>(
+        ast,
+        s.codeRef.pathToNode,
+        wasmInstance,
+        'CallExpressionKw',
+        false,
+        true
+      )
+      if (!err(edgeCutCall) && edgeCutCall.node.unlabeled) {
+        const input = structuredClone(edgeCutCall.node.unlabeled)
+        const key = outputExprKey(input)
+        if (pushedNames[key]) {
+          continue
+        }
+        exprs.push(input)
+        pushedNames[key] = true
+        continue
+      }
     }
 
     if (s.artifact?.type === 'segment') {
@@ -1367,7 +1498,7 @@ export function getVariableExprsFromSelection(
   return { exprs, pathIfPipe }
 }
 
-function getPatternCopyExprFromSelection(
+function getPatternExprFromSelection(
   selection: Selection,
   ast: Node<Program>,
   wasmInstance: ModuleType
@@ -1381,8 +1512,8 @@ function getPatternCopyExprFromSelection(
     selection.patternIndex ??
     (selection.engineEntityId
       ? artifact.copyIds.indexOf(selection.engineEntityId) + 1
-      : -1)
-  if (patternIndex < 0) {
+      : undefined)
+  if (patternIndex !== undefined && patternIndex < 0) {
     return null
   }
 
@@ -1399,6 +1530,9 @@ function getPatternCopyExprFromSelection(
       wasmInstance
     )
     if (patternVariableName) {
+      if (patternIndex === undefined) {
+        return createLocalName(patternVariableName)
+      }
       return createMemberExpression(
         patternVariableName,
         createLiteral(patternIndex, wasmInstance),
@@ -1555,7 +1689,7 @@ function hasLaterMatchingArtifact(
   return false
 }
 
-function getSketchVariableNameForSegment(
+export function getSketchVariableNameForSegment(
   ast: Node<Program>,
   segmentId: string,
   artifactGraph: ArtifactGraph,
@@ -1611,6 +1745,8 @@ export function retrieveSelectionsFromOpArg(
     artifactIds = [opArg.value.value.artifactId]
   } else if (opArg.value.type === 'Segment') {
     artifactIds = [opArg.value.artifact_id]
+  } else if (opArg.value.type === 'Uuid') {
+    artifactIds = [opArg.value.value]
   } else if (opArg.value.type === 'ImportedGeometry') {
     artifactIds = [opArg.value.artifact_id]
   } else if (opArg.value.type === 'Array') {
@@ -1620,6 +1756,9 @@ export function retrieveSelectionsFromOpArg(
       }
       if (v.type === 'Segment') {
         return [v.artifact_id]
+      }
+      if (v.type === 'Uuid') {
+        return [v.value]
       }
       if (v.type === 'TagIdentifier' && v.artifact_id) {
         return [v.artifact_id]
@@ -1642,9 +1781,9 @@ export function retrieveSelectionsFromOpArg(
     }
 
     if (artifact.type === 'segment') {
-      const correspondingWall = artifactGraph
-        .values()
-        .find((a) => a.type === 'wall' && a.segId === artifact?.id)
+      const correspondingWall = Array.from(artifactGraph.values()).find(
+        (a) => a.type === 'wall' && a.segId === artifact?.id
+      )
       if (correspondingWall) {
         artifact = correspondingWall
       }
@@ -1684,15 +1823,12 @@ export function findOperationArtifact(
   artifactGraph: ArtifactGraph
 ) {
   const nodePath = JSON.stringify(operation.nodePath)
-  const artifact = artifactGraph
-    .values()
-    .toArray()
-    .find(
-      (a) =>
-        'codeRef' in a &&
-        JSON.stringify(a.codeRef?.nodePath) === nodePath &&
-        a.codeRef.range.every((v, i) => v === operation.sourceRange[i])
-    )
+  const artifact = Array.from(artifactGraph.values()).find(
+    (a) =>
+      'codeRef' in a &&
+      JSON.stringify(a.codeRef?.nodePath) === nodePath &&
+      a.codeRef.range.every((v, i) => v === operation.sourceRange[i])
+  )
   return artifact
 }
 
@@ -1790,6 +1926,15 @@ export function getSelectedSketchTarget(
     return defaultPlane.id
   }
 
+  const primitiveFace = selectionRanges.otherSelections.find(
+    (selection): selection is EnginePrimitiveSelection =>
+      isEnginePrimitiveSelection(selection) &&
+      selection.primitiveType === 'face'
+  )
+  if (primitiveFace) {
+    return primitiveFace.entityId
+  }
+
   // Try to find an offset plane or wall or cap or chamfer edgeCut
   const planeSelection = selectionRanges.graphSelections.find((selection) => {
     const artifactType = selection.artifact?.type || ''
@@ -1804,6 +1949,16 @@ export function getSelectedSketchTarget(
   }
 
   return null
+}
+
+export function isEnginePrimitiveSelection(
+  selection: Selections['otherSelections'][number]
+): selection is EnginePrimitiveSelection {
+  return (
+    typeof selection === 'object' &&
+    'type' in selection &&
+    selection.type === 'enginePrimitive'
+  )
 }
 
 export function getSelectedPlaneAsNode(
@@ -2225,6 +2380,19 @@ export function getSketchSegmentName(
   return null
 }
 
+export function createSketchTagMemberExpression(
+  sourceSurfaceExpr: Expr,
+  segmentName: string
+): Expr {
+  return createMemberExpression(
+    createMemberExpression(
+      createMemberExpression(structuredClone(sourceSurfaceExpr), 'sketch'),
+      'tags'
+    ),
+    segmentName
+  )
+}
+
 export function getSketchSegmentNameFromSourceSurface(
   sourceSurfaceArtifact: Artifact,
   segmentArtifact: Artifact,
@@ -2295,6 +2463,7 @@ export function getSketchSegmentNameFromSourceSurface(
     if (!err(pathArtifact) && pathArtifact.type === 'path') {
       const matchingSegmentIndex = pathArtifact.segIds.findIndex(
         (segmentId) =>
+          segmentId === selectedSegment.sourceSegmentId ||
           segmentId === selectedSegment.originalSegId ||
           segmentId === selectedSegment.id
       )
@@ -2327,6 +2496,56 @@ export function getSketchSegmentNameFromSourceSurface(
   }
 
   return null
+}
+
+export function getRegionSketchTagExprFromSourceSurface(
+  sourceSurfaceArtifact: Artifact,
+  segmentArtifact: Artifact,
+  artifactGraph: ArtifactGraph,
+  ast: Node<Program>,
+  wasmInstance: ModuleType
+): Expr | null {
+  if (sourceSurfaceArtifact.type !== 'sweep') {
+    return null
+  }
+
+  const sourceSurfaceNode = getNodeFromPath<CallExpressionKw>(
+    ast,
+    sourceSurfaceArtifact.codeRef.pathToNode,
+    wasmInstance,
+    ['CallExpressionKw']
+  )
+  if (
+    err(sourceSurfaceNode) ||
+    sourceSurfaceNode.node.type !== 'CallExpressionKw'
+  ) {
+    return null
+  }
+
+  const sweepInput = sourceSurfaceNode.node.unlabeled
+  if (!sweepInput || sweepInput.type !== 'Name') {
+    return null
+  }
+
+  const segmentId =
+    segmentArtifact.type === 'segment'
+      ? segmentArtifact.id
+      : segmentArtifact.type === 'sweepEdge'
+        ? segmentArtifact.segId
+        : segmentArtifact.type === 'wall'
+          ? segmentArtifact.segId
+          : null
+  if (!segmentId) {
+    return null
+  }
+
+  return getRegionTagExprFromSegmentId(
+    ast,
+    segmentId,
+    artifactGraph,
+    wasmInstance,
+    sweepInput.name.name
+  )
 }
 
 /**

@@ -1,5 +1,8 @@
 import path, { join } from 'path'
-import { KCL_DEFAULT_LENGTH } from '@src/lib/constants'
+import {
+  KCL_DEFAULT_LENGTH,
+  LEGACY_SKETCH_MODE_FEATURE_FLAG,
+} from '@src/lib/constants'
 import * as fsp from 'fs/promises'
 
 import { executorInputPath, getUtils } from '@e2e/playwright/test-utils'
@@ -7,10 +10,15 @@ import { expect, test } from '@e2e/playwright/zoo-test'
 import { DefaultLayoutPaneID } from '@src/lib/layout/configs/default'
 
 test.describe('Command bar tests', { tag: '@desktop' }, () => {
+  // Some of these sketches are KCL 1.0, so editing them needs the legacy sketch flag.
+  test.use({ userFeatures: [LEGACY_SKETCH_MODE_FEATURE_FLAG] })
+
   test('Extrude from command bar selects extrude line after', async ({
     page,
     homePage,
     toolbar,
+    scene,
+    editor,
     cmdBar,
   }) => {
     await page.addInitScript(async () => {
@@ -34,12 +42,7 @@ test.describe('Command bar tests', { tag: '@desktop' }, () => {
     await u.openDebugPanel()
     await u.expectCmdLog('[data-message-type="execution-done"]')
     await u.closeDebugPanel()
-
-    // Click the line of code for xLine.
-    await page.getByText(`startProfile(at = [-10, -10])`).click()
-
-    // Wait for the selection to register (TODO: we need a definitive way to wait for this)
-    await page.waitForTimeout(200)
+    await scene.settled()
 
     await toolbar.extrudeButton.click()
     await cmdBar.expectState({
@@ -53,7 +56,19 @@ test.describe('Command bar tests', { tag: '@desktop' }, () => {
       },
       highlightedHeaderArg: 'Profiles',
     })
+    await editor.selectText('startProfile(at = [-10, -10])')
     await cmdBar.progressCmdBar()
+    await cmdBar.expectState({
+      stage: 'arguments',
+      commandName: 'Extrude',
+      currentArgKey: 'length',
+      currentArgValue: '5',
+      headerArguments: {
+        Profiles: '1 profile',
+        Length: '5',
+      },
+      highlightedHeaderArg: 'length',
+    })
     await cmdBar.progressCmdBar()
     await cmdBar.expectState({
       stage: 'review',
@@ -105,8 +120,9 @@ test.describe('Command bar tests', { tag: '@desktop' }, () => {
     await page.keyboard.press('Escape')
     await expect(cmdSearchBar).not.toBeVisible()
 
-    // Now try the same, but with the keyboard shortcut, check focus
-    await page.keyboard.press('ControlOrMeta+K')
+    // Reopen through the in-app control. The dedicated test below owns the
+    // Mod+K coverage and starts from an explicitly focused editor.
+    await commandBarButton.click()
     await expect(cmdSearchBar).toBeVisible()
     await expect(cmdSearchBar).toBeFocused()
 
@@ -155,7 +171,7 @@ test.describe('Command bar tests', { tag: '@desktop' }, () => {
     // Test case for https://github.com/KittyCAD/modeling-app/issues/2881
     await commandThemeArgButton.click()
     await expect(commandThemeArgButton).toBeDisabled()
-    await expect(commandLevelArgButton).toHaveText('level: project')
+    await expect(commandLevelArgButton).toHaveText(/^Level:\s+project$/)
   })
 
   test('Command bar keybinding works from code editor and can change a setting', async ({
@@ -214,10 +230,7 @@ test.describe('Command bar tests', { tag: '@desktop' }, () => {
     scene,
     editor,
   }) => {
-    await page.addInitScript(async () => {
-      localStorage.setItem(
-        'persistCode',
-        `distance = sqrt(20)
+    const initialCode = `distance = sqrt(20)
     sketch001 = startSketchOn(XZ)
     |> startProfile(at = [-6.95, 10.98])
     |> line(end = [25.1, 0.41])
@@ -225,12 +238,20 @@ test.describe('Command bar tests', { tag: '@desktop' }, () => {
     |> line(end = [-23.44, 0.52])
     |> close()
         `
-      )
-    })
+    const u = await getUtils(page)
 
     await page.setBodyDimensions({ width: 1200, height: 500 })
     await homePage.goToModelingScene()
     await scene.settled()
+
+    await u.openDebugPanel()
+    await u.clearCommandLogs()
+    await u.closeDebugPanel()
+    await editor.replaceCode('', initialCode)
+    await editor.expectEditor.toContain('startProfile(at = [-6.95, 10.98])')
+    await u.openDebugPanel()
+    await u.expectCmdLog('[data-message-type="execution-done"]')
+    await u.closeDebugPanel()
 
     let cmdSearchBar = page.getByPlaceholder('Search commands')
     await page.keyboard.press('ControlOrMeta+K')
@@ -329,7 +350,7 @@ test.describe('Command bar tests', { tag: '@desktop' }, () => {
     })
 
     // Clear optional arg
-    await page.getByRole('button', { name: 'BidirectionalLength' }).click()
+    await page.getByRole('button', { name: 'Bidirectional length' }).click()
     await cmdBar.expectState({
       stage: 'arguments',
       commandName: 'Extrude',
@@ -400,6 +421,24 @@ test.describe('Command bar tests', { tag: '@desktop' }, () => {
 
     await page.mouse.click(700, 200)
     await expect(toolbar.exitSketchBtn).toBeVisible()
+    await rectangleToolButton.click()
+    await expect(rectangleToolButton).toHaveAttribute('aria-pressed', 'true')
+
+    await page.keyboard.press('ControlOrMeta+K')
+    await expect(page.getByPlaceholder('Search commands')).toBeFocused()
+    await expect(
+      page.getByRole('option', { name: 'Reset view', exact: false })
+    ).toBeVisible()
+    await expect(
+      page.getByRole('option', {
+        name: 'Pull a sketch into 3D',
+        exact: false,
+      })
+    ).toHaveCount(0)
+    await page.keyboard.press('Escape')
+    await expect(page.getByPlaceholder('Search commands')).not.toBeVisible()
+    await page.keyboard.press('l')
+    await expect(lineToolButton).toHaveAttribute('aria-pressed', 'true')
 
     // Switch between sketch tools via the command bar
     if ((await lineToolButton.getAttribute('aria-pressed')) !== 'true') {
@@ -765,6 +804,11 @@ export exported = 2`,
     { tag: '@web' },
     async ({ page, cmdBar }) => {
       await page.goto(`${page.url()}/?cmd=app.theme&groupId=settings`)
+      await expect(page).toHaveURL(
+        (url) =>
+          !url.searchParams.has('cmd') && !url.searchParams.has('groupId'),
+        { timeout: 15_000 }
+      )
       await cmdBar.expectCommandName('Settings · app · theme')
     }
   )
@@ -819,16 +863,6 @@ export exported = 2`,
 
     await cmdBar.progressCmdBar()
     await cmdBar.expectState({
-      stage: 'review',
-      commandName: 'Extrude',
-      headerArguments: {
-        Profiles: '1 edge',
-        Length: '5',
-      },
-    })
-
-    await cmdBar.clickOptionalArgument('bodyType')
-    await cmdBar.expectState({
       stage: 'arguments',
       commandName: 'Extrude',
       currentArgKey: 'bodyType',
@@ -840,14 +874,15 @@ export exported = 2`,
       },
       highlightedHeaderArg: 'bodyType',
     })
-    await cmdBar.selectOption({ name: 'Solid' }).click()
+
+    await cmdBar.selectOption({ name: 'Surface' }).click()
     await cmdBar.expectState({
       stage: 'review',
       commandName: 'Extrude',
       headerArguments: {
         Profiles: '1 edge',
         Length: '5',
-        BodyType: 'SOLID',
+        BodyType: 'SURFACE',
       },
     })
 
@@ -860,7 +895,7 @@ export exported = 2`,
       headerArguments: {
         Profiles: '1 edge',
         Length: '5',
-        BodyType: 'SOLID',
+        BodyType: 'SURFACE',
         Method: '',
       },
       highlightedHeaderArg: 'method',
@@ -876,7 +911,7 @@ export exported = 2`,
       headerArguments: {
         Profiles: '1 edge',
         Length: '5',
-        BodyType: 'SOLID',
+        BodyType: 'SURFACE',
       },
       highlightedHeaderArg: 'bodyType',
     })
@@ -890,7 +925,7 @@ export exported = 2`,
       headerArguments: {
         Profiles: '1 edge',
         Length: '5',
-        BodyType: 'SOLID',
+        BodyType: 'SURFACE',
       },
       highlightedHeaderArg: 'length',
     })
@@ -904,7 +939,7 @@ export exported = 2`,
       headerArguments: {
         Profiles: '1 edge',
         Length: '5',
-        BodyType: 'SOLID',
+        BodyType: 'SURFACE',
       },
       highlightedHeaderArg: 'Profiles',
     })

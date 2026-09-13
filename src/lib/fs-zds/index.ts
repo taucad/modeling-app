@@ -62,7 +62,7 @@ export const moduleFsViaObject = async (
 }
 
 export const moduleFsViaWindow = async (backing: StorageBacking) => {
-  window['fsZds'] = STORAGE_IMPL[backing.type]
+  window.fsZds = STORAGE_IMPL[backing.type]
 }
 
 export const moduleFsViaModuleImport = async (backing: StorageBacking) => {

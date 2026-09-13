@@ -4,36 +4,36 @@ import type { ApiObjectId } from "./FrontendApi.js";
 import type { PlaneKind } from "./PlaneKind.js";
 import type { Point3d } from "./Point3d.js";
 
-export type Plane = { 
+export type Plane = {
 /**
  * The id of the plane.
  */
-id: string, 
+id: string,
 /**
  * The artifact ID.
  */
-artifactId: ArtifactId, 
+artifactId: ArtifactId,
 /**
  * The scene object ID. If this is None, then the plane has not been
  * sent to the engine yet. It must be sent before it is used.
  */
-objectId: ApiObjectId | null, 
+objectId: ApiObjectId | null,
 /**
  * The kind of plane or custom.
  */
-kind: PlaneKind, 
+kind: PlaneKind,
 /**
  * Origin of the plane.
  */
-origin: Point3d, 
+origin: Point3d,
 /**
  * What should the plane's X axis be?
  */
-xAxis: Point3d, 
+xAxis: Point3d,
 /**
  * What should the plane's Y axis be?
  */
-yAxis: Point3d, 
+yAxis: Point3d,
 /**
  * What should the plane's Z axis be?
  */

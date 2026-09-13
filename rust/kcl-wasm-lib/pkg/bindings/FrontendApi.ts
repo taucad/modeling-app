@@ -9,17 +9,26 @@ import type { PlaneName } from "./PlaneName.js";
 import type { SketchCheckpointId } from "./SketchCheckpointId.js";
 import type { SourceRange } from "./SourceRange.js";
 
-export type Angle = { lines: Array<ApiObjectId>, angle: Number, source: ConstraintSource, };
+export type Angle = { lines: Array<ApiObjectId>, angle: Number, sector?: number, inverse?: boolean, labelPosition?: ApiPoint2d<Number>, source: ConstraintSource, };
 
-export type ApiArc = { start: ApiObjectId, end: ApiObjectId, center: ApiObjectId, ctor: SegmentCtor, ctor_applicable: boolean, construction: boolean, };
+export type ApiArc = { start: ApiObjectId, end: ApiObjectId, center: ApiObjectId, ctor: SegmentCtor, ctor_applicable: boolean, construction: boolean,
+/**
+ * The direction that the arc sweeps from start to end. Omitted when it's
+ * the default, counterclockwise.
+ */
+direction?: ArcDirection, };
 
-export type ApiCap = { id: ApiObjectId, kind: ApiCapKind, };
+export type ApiCap = { id: ApiObjectId, kind: ApiCapKind, source: ApiCapSource, solidOutputIndex?: number, };
 
 export type ApiCapKind = "start" | "end";
+
+export type ApiCapSource = { solid: ApiSourceRefRange, sweep: ApiSourceRefRange, };
 
 export type ApiCircle = { start: ApiObjectId, center: ApiObjectId, ctor: SegmentCtor, ctor_applicable: boolean, construction: boolean, };
 
 export type ApiConstraint = { "type": "Coincident" } & Coincident | { "type": "Distance" } & Distance | { "type": "Angle" } & Angle | { "type": "Diameter" } & Diameter | { "type": "EqualRadius" } & EqualRadius | { "type": "Fixed" } & Fixed | { "type": "HorizontalDistance" } & Distance | { "type": "VerticalDistance" } & Distance | { "type": "Horizontal" } & Horizontal | { "type": "LinesEqualLength" } & LinesEqualLength | { "type": "Midpoint" } & Midpoint | { "type": "Parallel" } & Parallel | { "type": "Perpendicular" } & Perpendicular | { "type": "Radius" } & Radius | { "type": "Symmetric" } & Symmetric | { "type": "Tangent" } & Tangent | { "type": "Vertical" } & Vertical;
+
+export type ApiControlPointSpline = { controls: Array<ApiObjectId>, degree: number, ctor: SegmentCtor, ctor_applicable: boolean, construction: boolean, };
 
 export type ApiFace = { id: ApiObjectId, };
 
@@ -27,7 +36,7 @@ export type ApiFile = { id: ApiFileId, path: string, text: string, };
 
 export type ApiFileId = number;
 
-export type ApiLine = { start: ApiObjectId, end: ApiObjectId, ctor: SegmentCtor, ctor_applicable: boolean, construction: boolean, };
+export type ApiLine = { start: ApiObjectId, end: ApiObjectId, owner?: ApiObjectId, ctor: SegmentCtor, ctor_applicable: boolean, construction: boolean, };
 
 export type ApiObject = { id: ApiObjectId, kind: ApiObjectKind, label: string, comments: string, artifact_id: ArtifactId, source: ApiSourceRef, };
 
@@ -35,7 +44,7 @@ export type ApiObjectId = number;
 
 export type ApiObjectKind = { "type": "Nil" } | { "type": "Plane" } & ApiPlane | { "type": "Face" } & ApiFace | { "type": "Wall" } & ApiWall | { "type": "Cap" } & ApiCap | { "type": "Sketch" } & ApiSketch | { "type": "Segment", segment: ApiSegment, } | { "type": "Constraint", constraint: ApiConstraint, };
 
-export type ApiPlane = { "object": ApiObjectId } | { "default": PlaneName };
+export type ApiPlane = { "object": ApiObjectId } | { "default": PlaneName } | { "primitiveFace": PrimitiveFacePlane };
 
 export type ApiPoint = { position: ApiPoint2d<Number>, ctor: PointCtor | null, owner: ApiObjectId | null, freedom: Freedom, constraints: Array<ApiObjectId>, };
 
@@ -43,31 +52,49 @@ export type ApiPoint2d<U> = { x: U, y: U, };
 
 export type ApiProjectId = number;
 
-export type ApiSegment = { "type": "Point" } & ApiPoint | { "type": "Line" } & ApiLine | { "type": "Arc" } & ApiArc | { "type": "Circle" } & ApiCircle;
+export type ApiSegment = { "type": "Point" } & ApiPoint | { "type": "Line" } & ApiLine | { "type": "Arc" } & ApiArc | { "type": "Circle" } & ApiCircle | { "type": "ControlPointSpline" } & ApiControlPointSpline;
 
 export type ApiSketch = { args: SketchCtor, plane: ApiObjectId, segments: Array<ApiObjectId>, constraints: Array<ApiObjectId>, };
 
 export type ApiSourceRef = { "type": "Simple", range: SourceRange, node_path: NodePath | null, } | { "type": "BackTrace", ranges: Array<[SourceRange, NodePath | null]>, };
 
+export type ApiSourceRefRange = { range: SourceRange, nodePath: NodePath | null, };
+
 export type ApiStartOrEnd<T> = { "type": "Start" } & T | { "type": "End" } & T;
 
 export type ApiVersion = number;
 
-export type ApiWall = { id: ApiObjectId, };
+export type ApiWall = { id: ApiObjectId, source: ApiWallSource, solidOutputIndex?: number, };
 
-export type ArcCtor = { start: ApiPoint2d<Expr>, end: ApiPoint2d<Expr>, center: ApiPoint2d<Expr>, construction?: boolean, };
+export type ApiWallSource = { solid: ApiSourceRefRange, sweep: ApiSourceRefRange, path?: ApiSourceRefRange, segment: ApiSourceRefRange, };
+
+export type ArcCtor = { start: ApiPoint2d<Expr>, end: ApiPoint2d<Expr>, center: ApiPoint2d<Expr>,
+/**
+ * The direction that the arc sweeps from start to end. `None` means it
+ * wasn't written in the source, which defaults to counterclockwise.
+ */
+direction?: ArcDirection, construction?: boolean, };
+
+/**
+ * The direction that an arc sweeps from its start point to its end point.
+ */
+export type ArcDirection = "ccw" | "cw";
 
 export type CircleCtor = { start: ApiPoint2d<Expr>, center: ApiPoint2d<Expr>, construction?: boolean, };
 
 export type Coincident = { segments: Array<ConstraintSegment>, };
 
+export type ConstraintLabelPositionEdit = { constraintId: ApiObjectId, labelPosition: ApiPoint2d<Number>, };
+
 export type ConstraintSegment = ApiObjectId | OriginLiteral;
 
 export type ConstraintSource = { expr: string, is_literal: boolean, };
 
-export type Diameter = { arc: ApiObjectId, diameter: Number, source: ConstraintSource, };
+export type ControlPointSplineCtor = { points: Array<ApiPoint2d<Expr>>, construction?: boolean, };
 
-export type Distance = { points: Array<ConstraintSegment>, distance: Number, labelPosition?: ApiPoint2d<Number>, source: ConstraintSource, };
+export type Diameter = { arc: ApiObjectId, diameter: Number, labelPosition?: ApiPoint2d<Number>, source: ConstraintSource, };
+
+export type Distance = { segments: Array<ConstraintSegment>, distance: Number, labelPosition?: ApiPoint2d<Number>, source: ConstraintSource, };
 
 export type EditSketchOutcome = { sceneGraphDelta: SceneGraphDelta, checkpointId: SketchCheckpointId | null, };
 
@@ -100,7 +127,7 @@ export type LineCtor = { start: ApiPoint2d<Expr>, end: ApiPoint2d<Expr>, constru
 
 export type LinesEqualLength = { lines: Array<ApiObjectId>, };
 
-export type Midpoint = { point: ApiObjectId, segment: ApiObjectId, };
+export type Midpoint = { point: ConstraintSegment, segment: ApiObjectId, };
 
 export type NewSketchOutcome = { sourceDelta: SourceDelta, sceneGraphDelta: SceneGraphDelta, sketchId: ApiObjectId, checkpointId: SketchCheckpointId | null, };
 
@@ -114,7 +141,17 @@ export type Perpendicular = { lines: Array<ApiObjectId>, };
 
 export type PointCtor = { position: ApiPoint2d<Expr>, };
 
-export type Radius = { arc: ApiObjectId, radius: Number, source: ConstraintSource, };
+/**
+ * An indexed face on a solid which has not yet been materialized as a KCL
+ * `Face` value.
+ */
+export type PrimitiveFacePlane = {
+/**
+ * Engine ID of the solid which owns the face.
+ */
+solidId: string, index: number, };
+
+export type Radius = { arc: ApiObjectId, radius: Number, labelPosition?: ApiPoint2d<Number>, source: ConstraintSource, };
 
 export type RestoreSketchCheckpointOutcome = { sourceDelta: SourceDelta, sceneGraphDelta: SceneGraphDelta, };
 
@@ -122,7 +159,9 @@ export type SceneGraph = { project: ApiProjectId, file: ApiFileId, version: ApiV
 
 export type SceneGraphDelta = { new_graph: SceneGraph, new_objects: Array<ApiObjectId>, invalidates_ids: boolean, exec_outcome: ExecOutcome, };
 
-export type SegmentCtor = { "type": "Point" } & PointCtor | { "type": "Line" } & LineCtor | { "type": "Arc" } & ArcCtor | { "type": "Circle" } & CircleCtor;
+export type SegmentCtor = { "type": "Point" } & PointCtor | { "type": "Line" } & LineCtor | { "type": "Arc" } & ArcCtor | { "type": "Circle" } & CircleCtor | { "type": "ControlPointSpline" } & ControlPointSplineCtor;
+
+export type SegmentDragAnchor = { segmentId: ApiObjectId, target: ApiPoint2d<Number>, };
 
 export type SetProgramOutcome = { "type": "Success", sceneGraph: SceneGraph, execOutcome: ExecOutcome, checkpointId: SketchCheckpointId | null, } | { "type": "ExecFailure", error: KclErrorWithOutputs, };
 
@@ -131,7 +170,7 @@ export type SetProgramOutcome = { "type": "Success", sceneGraph: SceneGraph, exe
  * other kinds of objects in that it is the inputs to the sketch, not the
  * outputs.
  */
-export type SketchCtor = { 
+export type SketchCtor = {
 /**
  * The sketch surface.
  */

@@ -40,6 +40,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -152,8 +154,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              -0.000000000013537208475017735,
-              0.00000000001487602247279773
+              -0.00000000000000022912815726336754,
+              0.00000000000000025201671544293544
             ],
             "tag": {
               "commentStart": 32,
@@ -164,8 +166,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line1"
             },
             "to": [
-              4.999999999995438,
-              0.000000000017851242805712417
+              5.0,
+              0.00000000000000030241057775311037
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -176,8 +178,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              4.999999999995438,
-              0.000000000017851242805712417
+              5.0,
+              0.00000000000000030241057775311037
             ],
             "tag": {
               "commentStart": 171,
@@ -188,8 +190,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line2"
             },
             "to": [
-              1.999999999925243,
-              2.7272727273510315
+              1.9999999999999987,
+              2.7272727272727426
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -200,8 +202,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              1.999999999925243,
-              2.7272727273510315
+              1.9999999999999987,
+              2.7272727272727426
             ],
             "tag": {
               "commentStart": 282,
@@ -212,8 +214,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line3"
             },
             "to": [
-              4.999999999997193,
-              2.727272727378552
+              5.0,
+              2.727272727272743
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -224,8 +226,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              4.999999999997193,
-              2.727272727378552
+              5.0,
+              2.727272727272743
             ],
             "tag": {
               "commentStart": 396,
@@ -236,8 +238,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line4"
             },
             "to": [
-              1.9999999999288034,
-              5.454545454694512
+              1.9999999999999987,
+              5.454545454545484
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -248,8 +250,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              1.9999999999288034,
-              5.454545454694512
+              1.9999999999999987,
+              5.454545454545484
             ],
             "tag": {
               "commentStart": 510,
@@ -260,8 +262,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line5"
             },
             "to": [
-              4.999999999983656,
-              5.454545454692033
+              5.0,
+              5.454545454545484
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -272,8 +274,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              4.999999999983656,
-              5.454545454692033
+              5.0,
+              5.454545454545484
             ],
             "tag": {
               "commentStart": 624,
@@ -284,8 +286,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line6"
             },
             "to": [
-              0.000000000013537191667278716,
-              10.000000000059504
+              0.0000000000000002290951795724419,
+              10.000000000000002
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -296,8 +298,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              0.000000000013537191667278716,
-              10.000000000059504
+              0.0000000000000002290951795724419,
+              10.000000000000002
             ],
             "tag": {
               "commentStart": 768,
@@ -308,25 +310,25 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line7"
             },
             "to": [
-              -0.00000000003604960242087521,
-              0.00000000002975204496047148
+              -0.0000000000000006109793523865808,
+              0.0000000000000005040319428848841
             ],
             "type": "ToPoint",
             "units": "mm"
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 0,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -348,12 +350,12 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
         },
         "start": {
           "from": [
-            -0.000000000013537208475017735,
-            0.00000000001487602247279773
+            -0.00000000000000022912815726336754,
+            0.00000000000000025201671544293544
           ],
           "to": [
-            -0.000000000013537208475017735,
-            0.00000000001487602247279773
+            -0.00000000000000022912815726336754,
+            0.00000000000000025201671544293544
           ],
           "units": "mm",
           "tag": null,
@@ -394,8 +396,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -408,6 +410,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -520,8 +524,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              -0.000000000013537208475017735,
-              0.00000000001487602247279773
+              -0.00000000000000022912815726336754,
+              0.00000000000000025201671544293544
             ],
             "tag": {
               "commentStart": 32,
@@ -532,8 +536,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line1"
             },
             "to": [
-              4.999999999995438,
-              0.000000000017851242805712417
+              5.0,
+              0.00000000000000030241057775311037
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -544,8 +548,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              4.999999999995438,
-              0.000000000017851242805712417
+              5.0,
+              0.00000000000000030241057775311037
             ],
             "tag": {
               "commentStart": 171,
@@ -556,8 +560,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line2"
             },
             "to": [
-              1.999999999925243,
-              2.7272727273510315
+              1.9999999999999987,
+              2.7272727272727426
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -568,8 +572,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              1.999999999925243,
-              2.7272727273510315
+              1.9999999999999987,
+              2.7272727272727426
             ],
             "tag": {
               "commentStart": 282,
@@ -580,8 +584,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line3"
             },
             "to": [
-              4.999999999997193,
-              2.727272727378552
+              5.0,
+              2.727272727272743
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -592,8 +596,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              4.999999999997193,
-              2.727272727378552
+              5.0,
+              2.727272727272743
             ],
             "tag": {
               "commentStart": 396,
@@ -604,8 +608,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line4"
             },
             "to": [
-              1.9999999999288034,
-              5.454545454694512
+              1.9999999999999987,
+              5.454545454545484
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -616,8 +620,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              1.9999999999288034,
-              5.454545454694512
+              1.9999999999999987,
+              5.454545454545484
             ],
             "tag": {
               "commentStart": 510,
@@ -628,8 +632,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line5"
             },
             "to": [
-              4.999999999983656,
-              5.454545454692033
+              5.0,
+              5.454545454545484
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -640,8 +644,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              4.999999999983656,
-              5.454545454692033
+              5.0,
+              5.454545454545484
             ],
             "tag": {
               "commentStart": 624,
@@ -652,8 +656,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line6"
             },
             "to": [
-              0.000000000013537191667278716,
-              10.000000000059504
+              0.0000000000000002290951795724419,
+              10.000000000000002
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -664,8 +668,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              0.000000000013537191667278716,
-              10.000000000059504
+              0.0000000000000002290951795724419,
+              10.000000000000002
             ],
             "tag": {
               "commentStart": 768,
@@ -676,25 +680,25 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line7"
             },
             "to": [
-              -0.00000000003604960242087521,
-              0.00000000002975204496047148
+              -0.0000000000000006109793523865808,
+              0.0000000000000005040319428848841
             ],
             "type": "ToPoint",
             "units": "mm"
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 0,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -716,12 +720,12 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
         },
         "start": {
           "from": [
-            -0.000000000013537208475017735,
-            0.00000000001487602247279773
+            -0.00000000000000022912815726336754,
+            0.00000000000000025201671544293544
           ],
           "to": [
-            -0.000000000013537208475017735,
-            0.00000000001487602247279773
+            -0.00000000000000022912815726336754,
+            0.00000000000000025201671544293544
           ],
           "units": "mm",
           "tag": null,
@@ -762,8 +766,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -827,8 +831,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "sourceRange": []
           },
           "from": [
-            -0.000000000013537208475017735,
-            0.00000000001487602247279773
+            -0.00000000000000022912815726336754,
+            0.00000000000000025201671544293544
           ],
           "tag": {
             "commentStart": 32,
@@ -839,8 +843,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "value": "line1"
           },
           "to": [
-            4.999999999995438,
-            0.000000000017851242805712417
+            5.0,
+            0.00000000000000030241057775311037
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -851,8 +855,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "sourceRange": []
           },
           "from": [
-            4.999999999995438,
-            0.000000000017851242805712417
+            5.0,
+            0.00000000000000030241057775311037
           ],
           "tag": {
             "commentStart": 171,
@@ -863,8 +867,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "value": "line2"
           },
           "to": [
-            1.999999999925243,
-            2.7272727273510315
+            1.9999999999999987,
+            2.7272727272727426
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -875,8 +879,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "sourceRange": []
           },
           "from": [
-            1.999999999925243,
-            2.7272727273510315
+            1.9999999999999987,
+            2.7272727272727426
           ],
           "tag": {
             "commentStart": 282,
@@ -887,8 +891,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "value": "line3"
           },
           "to": [
-            4.999999999997193,
-            2.727272727378552
+            5.0,
+            2.727272727272743
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -899,8 +903,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "sourceRange": []
           },
           "from": [
-            4.999999999997193,
-            2.727272727378552
+            5.0,
+            2.727272727272743
           ],
           "tag": {
             "commentStart": 396,
@@ -911,8 +915,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "value": "line4"
           },
           "to": [
-            1.9999999999288034,
-            5.454545454694512
+            1.9999999999999987,
+            5.454545454545484
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -923,8 +927,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "sourceRange": []
           },
           "from": [
-            1.9999999999288034,
-            5.454545454694512
+            1.9999999999999987,
+            5.454545454545484
           ],
           "tag": {
             "commentStart": 510,
@@ -935,8 +939,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "value": "line5"
           },
           "to": [
-            4.999999999983656,
-            5.454545454692033
+            5.0,
+            5.454545454545484
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -947,8 +951,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "sourceRange": []
           },
           "from": [
-            4.999999999983656,
-            5.454545454692033
+            5.0,
+            5.454545454545484
           ],
           "tag": {
             "commentStart": 624,
@@ -959,8 +963,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "value": "line6"
           },
           "to": [
-            0.000000000013537191667278716,
-            10.000000000059504
+            0.0000000000000002290951795724419,
+            10.000000000000002
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -971,8 +975,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "sourceRange": []
           },
           "from": [
-            0.000000000013537191667278716,
-            10.000000000059504
+            0.0000000000000002290951795724419,
+            10.000000000000002
           ],
           "tag": {
             "commentStart": 768,
@@ -983,25 +987,25 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "value": "line7"
           },
           "to": [
-            -0.00000000003604960242087521,
-            0.00000000002975204496047148
+            -0.0000000000000006109793523865808,
+            0.0000000000000005040319428848841
           ],
           "type": "ToPoint",
           "units": "mm"
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 0,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 0.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -1023,12 +1027,12 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
       },
       "start": {
         "from": [
-          -0.000000000013537208475017735,
-          0.00000000001487602247279773
+          -0.00000000000000022912815726336754,
+          0.00000000000000025201671544293544
         ],
         "to": [
-          -0.000000000013537208475017735,
-          0.00000000001487602247279773
+          -0.00000000000000022912815726336754,
+          0.00000000000000025201671544293544
         ],
         "units": "mm",
         "tag": null,
@@ -1120,8 +1124,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "sourceRange": []
           },
           "from": [
-            -0.000000000013537208475017735,
-            0.00000000001487602247279773
+            -0.00000000000000022912815726336754,
+            0.00000000000000025201671544293544
           ],
           "tag": {
             "commentStart": 32,
@@ -1132,8 +1136,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "value": "line1"
           },
           "to": [
-            4.999999999995438,
-            0.000000000017851242805712417
+            5.0,
+            0.00000000000000030241057775311037
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -1144,8 +1148,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "sourceRange": []
           },
           "from": [
-            4.999999999995438,
-            0.000000000017851242805712417
+            5.0,
+            0.00000000000000030241057775311037
           ],
           "tag": {
             "commentStart": 171,
@@ -1156,8 +1160,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "value": "line2"
           },
           "to": [
-            1.999999999925243,
-            2.7272727273510315
+            1.9999999999999987,
+            2.7272727272727426
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -1168,8 +1172,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "sourceRange": []
           },
           "from": [
-            1.999999999925243,
-            2.7272727273510315
+            1.9999999999999987,
+            2.7272727272727426
           ],
           "tag": {
             "commentStart": 282,
@@ -1180,8 +1184,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "value": "line3"
           },
           "to": [
-            4.999999999997193,
-            2.727272727378552
+            5.0,
+            2.727272727272743
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -1192,8 +1196,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "sourceRange": []
           },
           "from": [
-            4.999999999997193,
-            2.727272727378552
+            5.0,
+            2.727272727272743
           ],
           "tag": {
             "commentStart": 396,
@@ -1204,8 +1208,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "value": "line4"
           },
           "to": [
-            1.9999999999288034,
-            5.454545454694512
+            1.9999999999999987,
+            5.454545454545484
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -1216,8 +1220,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "sourceRange": []
           },
           "from": [
-            1.9999999999288034,
-            5.454545454694512
+            1.9999999999999987,
+            5.454545454545484
           ],
           "tag": {
             "commentStart": 510,
@@ -1228,8 +1232,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "value": "line5"
           },
           "to": [
-            4.999999999983656,
-            5.454545454692033
+            5.0,
+            5.454545454545484
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -1240,8 +1244,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "sourceRange": []
           },
           "from": [
-            4.999999999983656,
-            5.454545454692033
+            5.0,
+            5.454545454545484
           ],
           "tag": {
             "commentStart": 624,
@@ -1252,8 +1256,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "value": "line6"
           },
           "to": [
-            0.000000000013537191667278716,
-            10.000000000059504
+            0.0000000000000002290951795724419,
+            10.000000000000002
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -1264,8 +1268,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "sourceRange": []
           },
           "from": [
-            0.000000000013537191667278716,
-            10.000000000059504
+            0.0000000000000002290951795724419,
+            10.000000000000002
           ],
           "tag": {
             "commentStart": 768,
@@ -1276,25 +1280,25 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
             "value": "line7"
           },
           "to": [
-            -0.00000000003604960242087521,
-            0.00000000002975204496047148
+            -0.0000000000000006109793523865808,
+            0.0000000000000005040319428848841
           ],
           "type": "ToPoint",
           "units": "mm"
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 0,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 0.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -1316,12 +1320,12 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
       },
       "start": {
         "from": [
-          -0.000000000013537208475017735,
-          0.00000000001487602247279773
+          -0.00000000000000022912815726336754,
+          0.00000000000000025201671544293544
         ],
         "to": [
-          -0.000000000013537208475017735,
-          0.00000000001487602247279773
+          -0.00000000000000022912815726336754,
+          0.00000000000000025201671544293544
         ],
         "units": "mm",
         "tag": null,
@@ -1362,8 +1366,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "sketch001": {
@@ -1381,7 +1385,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                   "line": {
                     "start": [
                       {
-                        "n": -0.000000000013537208475017735,
+                        "n": -0.00000000000000022912815726336754,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1389,7 +1393,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                         }
                       },
                       {
-                        "n": 0.00000000001487602247279773,
+                        "n": 0.00000000000000025201671544293544,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1399,7 +1403,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     ],
                     "end": [
                       {
-                        "n": 4.999999999995438,
+                        "n": 5.0,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1407,7 +1411,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                         }
                       },
                       {
-                        "n": 0.000000000017851242805712417,
+                        "n": 0.00000000000000030241057775311037,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1501,7 +1505,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                   "line": {
                     "start": [
                       {
-                        "n": 5.000000000004413,
+                        "n": 5.0,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1509,7 +1513,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                         }
                       },
                       {
-                        "n": 0.00000000003570248562927608,
+                        "n": 0.000000000000000604819371381037,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1519,7 +1523,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     ],
                     "end": [
                       {
-                        "n": 1.999999999925243,
+                        "n": 1.9999999999999987,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1527,7 +1531,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                         }
                       },
                       {
-                        "n": 2.7272727273510315,
+                        "n": 2.7272727272727426,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1621,7 +1625,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                   "line": {
                     "start": [
                       {
-                        "n": 1.999999999941438,
+                        "n": 1.999999999999999,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1629,7 +1633,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                         }
                       },
                       {
-                        "n": 2.7272727273661554,
+                        "n": 2.7272727272727426,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1639,7 +1643,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     ],
                     "end": [
                       {
-                        "n": 4.999999999997193,
+                        "n": 5.0,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1647,7 +1651,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                         }
                       },
                       {
-                        "n": 2.727272727378552,
+                        "n": 2.727272727272743,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1741,7 +1745,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                   "line": {
                     "start": [
                       {
-                        "n": 4.999999999997193,
+                        "n": 5.0,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1749,7 +1753,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                         }
                       },
                       {
-                        "n": 2.727272727388222,
+                        "n": 2.727272727272743,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1759,7 +1763,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     ],
                     "end": [
                       {
-                        "n": 1.9999999999288034,
+                        "n": 1.9999999999999987,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1767,7 +1771,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                         }
                       },
                       {
-                        "n": 5.454545454694512,
+                        "n": 5.454545454545484,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1861,7 +1865,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                   "line": {
                     "start": [
                       {
-                        "n": 1.9999999999351206,
+                        "n": 1.999999999999999,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1869,7 +1873,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                         }
                       },
                       {
-                        "n": 5.4545454546959995,
+                        "n": 5.454545454545484,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1879,7 +1883,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     ],
                     "end": [
                       {
-                        "n": 4.999999999983656,
+                        "n": 5.0,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1887,7 +1891,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                         }
                       },
                       {
-                        "n": 5.454545454692033,
+                        "n": 5.454545454545484,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1981,7 +1985,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                   "line": {
                     "start": [
                       {
-                        "n": 4.999999999983656,
+                        "n": 5.0,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1989,7 +1993,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                         }
                       },
                       {
-                        "n": 5.454545454682611,
+                        "n": 5.454545454545484,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1999,7 +2003,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     ],
                     "end": [
                       {
-                        "n": 0.000000000013537191667278716,
+                        "n": 0.0000000000000002290951795724419,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2007,7 +2011,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                         }
                       },
                       {
-                        "n": 10.000000000059504,
+                        "n": 10.000000000000002,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2101,7 +2105,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                   "line": {
                     "start": [
                       {
-                        "n": -0.00000000003604960242087521,
+                        "n": -0.0000000000000006109793523865808,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2109,7 +2113,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                         }
                       },
                       {
-                        "n": 0.00000000002975204496047148,
+                        "n": 0.0000000000000005040319428848841,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2119,7 +2123,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     ],
                     "end": [
                       {
-                        "n": 0.000000000013537191653741522,
+                        "n": 0.000000000000000229096531791408,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2127,7 +2131,7 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                         }
                       },
                       {
-                        "n": 10.000000000044627,
+                        "n": 10.000000000000002,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -2224,8 +2228,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     "sourceRange": []
                   },
                   "from": [
-                    -0.000000000013537208475017735,
-                    0.00000000001487602247279773
+                    -0.00000000000000022912815726336754,
+                    0.00000000000000025201671544293544
                   ],
                   "tag": {
                     "commentStart": 32,
@@ -2236,8 +2240,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     "value": "line1"
                   },
                   "to": [
-                    4.999999999995438,
-                    0.000000000017851242805712417
+                    5.0,
+                    0.00000000000000030241057775311037
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -2248,8 +2252,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     "sourceRange": []
                   },
                   "from": [
-                    4.999999999995438,
-                    0.000000000017851242805712417
+                    5.0,
+                    0.00000000000000030241057775311037
                   ],
                   "tag": {
                     "commentStart": 171,
@@ -2260,8 +2264,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     "value": "line2"
                   },
                   "to": [
-                    1.999999999925243,
-                    2.7272727273510315
+                    1.9999999999999987,
+                    2.7272727272727426
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -2272,8 +2276,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     "sourceRange": []
                   },
                   "from": [
-                    1.999999999925243,
-                    2.7272727273510315
+                    1.9999999999999987,
+                    2.7272727272727426
                   ],
                   "tag": {
                     "commentStart": 282,
@@ -2284,8 +2288,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     "value": "line3"
                   },
                   "to": [
-                    4.999999999997193,
-                    2.727272727378552
+                    5.0,
+                    2.727272727272743
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -2296,8 +2300,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     "sourceRange": []
                   },
                   "from": [
-                    4.999999999997193,
-                    2.727272727378552
+                    5.0,
+                    2.727272727272743
                   ],
                   "tag": {
                     "commentStart": 396,
@@ -2308,8 +2312,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     "value": "line4"
                   },
                   "to": [
-                    1.9999999999288034,
-                    5.454545454694512
+                    1.9999999999999987,
+                    5.454545454545484
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -2320,8 +2324,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     "sourceRange": []
                   },
                   "from": [
-                    1.9999999999288034,
-                    5.454545454694512
+                    1.9999999999999987,
+                    5.454545454545484
                   ],
                   "tag": {
                     "commentStart": 510,
@@ -2332,8 +2336,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     "value": "line5"
                   },
                   "to": [
-                    4.999999999983656,
-                    5.454545454692033
+                    5.0,
+                    5.454545454545484
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -2344,8 +2348,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     "sourceRange": []
                   },
                   "from": [
-                    4.999999999983656,
-                    5.454545454692033
+                    5.0,
+                    5.454545454545484
                   ],
                   "tag": {
                     "commentStart": 624,
@@ -2356,8 +2360,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     "value": "line6"
                   },
                   "to": [
-                    0.000000000013537191667278716,
-                    10.000000000059504
+                    0.0000000000000002290951795724419,
+                    10.000000000000002
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -2368,8 +2372,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     "sourceRange": []
                   },
                   "from": [
-                    0.000000000013537191667278716,
-                    10.000000000059504
+                    0.0000000000000002290951795724419,
+                    10.000000000000002
                   ],
                   "tag": {
                     "commentStart": 768,
@@ -2380,25 +2384,25 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
                     "value": "line7"
                   },
                   "to": [
-                    -0.00000000003604960242087521,
-                    0.00000000002975204496047148
+                    -0.0000000000000006109793523865808,
+                    0.0000000000000005040319428848841
                   ],
                   "type": "ToPoint",
                   "units": "mm"
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 0,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": 0.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -2420,12 +2424,12 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               },
               "start": {
                 "from": [
-                  -0.000000000013537208475017735,
-                  0.00000000001487602247279773
+                  -0.00000000000000022912815726336754,
+                  0.00000000000000025201671544293544
                 ],
                 "to": [
-                  -0.000000000013537208475017735,
-                  0.00000000001487602247279773
+                  -0.00000000000000022912815726336754,
+                  0.00000000000000025201671544293544
                 ],
                 "units": "mm",
                 "tag": null,
@@ -2481,6 +2485,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -2593,8 +2599,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              -0.000000000013537208475017735,
-              0.00000000001487602247279773
+              -0.00000000000000022912815726336754,
+              0.00000000000000025201671544293544
             ],
             "tag": {
               "commentStart": 32,
@@ -2605,8 +2611,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line1"
             },
             "to": [
-              4.999999999995438,
-              0.000000000017851242805712417
+              5.0,
+              0.00000000000000030241057775311037
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -2617,8 +2623,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              4.999999999995438,
-              0.000000000017851242805712417
+              5.0,
+              0.00000000000000030241057775311037
             ],
             "tag": {
               "commentStart": 171,
@@ -2629,8 +2635,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line2"
             },
             "to": [
-              1.999999999925243,
-              2.7272727273510315
+              1.9999999999999987,
+              2.7272727272727426
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -2641,8 +2647,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              1.999999999925243,
-              2.7272727273510315
+              1.9999999999999987,
+              2.7272727272727426
             ],
             "tag": {
               "commentStart": 282,
@@ -2653,8 +2659,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line3"
             },
             "to": [
-              4.999999999997193,
-              2.727272727378552
+              5.0,
+              2.727272727272743
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -2665,8 +2671,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              4.999999999997193,
-              2.727272727378552
+              5.0,
+              2.727272727272743
             ],
             "tag": {
               "commentStart": 396,
@@ -2677,8 +2683,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line4"
             },
             "to": [
-              1.9999999999288034,
-              5.454545454694512
+              1.9999999999999987,
+              5.454545454545484
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -2689,8 +2695,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              1.9999999999288034,
-              5.454545454694512
+              1.9999999999999987,
+              5.454545454545484
             ],
             "tag": {
               "commentStart": 510,
@@ -2701,8 +2707,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line5"
             },
             "to": [
-              4.999999999983656,
-              5.454545454692033
+              5.0,
+              5.454545454545484
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -2713,8 +2719,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              4.999999999983656,
-              5.454545454692033
+              5.0,
+              5.454545454545484
             ],
             "tag": {
               "commentStart": 624,
@@ -2725,8 +2731,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line6"
             },
             "to": [
-              0.000000000013537191667278716,
-              10.000000000059504
+              0.0000000000000002290951795724419,
+              10.000000000000002
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -2737,8 +2743,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              0.000000000013537191667278716,
-              10.000000000059504
+              0.0000000000000002290951795724419,
+              10.000000000000002
             ],
             "tag": {
               "commentStart": 768,
@@ -2749,25 +2755,25 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line7"
             },
             "to": [
-              -0.00000000003604960242087521,
-              0.00000000002975204496047148
+              -0.0000000000000006109793523865808,
+              0.0000000000000005040319428848841
             ],
             "type": "ToPoint",
             "units": "mm"
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 0,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -2789,12 +2795,12 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
         },
         "start": {
           "from": [
-            -0.000000000013537208475017735,
-            0.00000000001487602247279773
+            -0.00000000000000022912815726336754,
+            0.00000000000000025201671544293544
           ],
           "to": [
-            -0.000000000013537208475017735,
-            0.00000000001487602247279773
+            -0.00000000000000022912815726336754,
+            0.00000000000000025201671544293544
           ],
           "units": "mm",
           "tag": null,
@@ -2835,8 +2841,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -2849,6 +2855,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -2961,8 +2969,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              -0.000000000013537208475017735,
-              0.00000000001487602247279773
+              -0.00000000000000022912815726336754,
+              0.00000000000000025201671544293544
             ],
             "tag": {
               "commentStart": 32,
@@ -2973,8 +2981,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line1"
             },
             "to": [
-              4.999999999995438,
-              0.000000000017851242805712417
+              5.0,
+              0.00000000000000030241057775311037
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -2985,8 +2993,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              4.999999999995438,
-              0.000000000017851242805712417
+              5.0,
+              0.00000000000000030241057775311037
             ],
             "tag": {
               "commentStart": 171,
@@ -2997,8 +3005,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line2"
             },
             "to": [
-              1.999999999925243,
-              2.7272727273510315
+              1.9999999999999987,
+              2.7272727272727426
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -3009,8 +3017,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              1.999999999925243,
-              2.7272727273510315
+              1.9999999999999987,
+              2.7272727272727426
             ],
             "tag": {
               "commentStart": 282,
@@ -3021,8 +3029,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line3"
             },
             "to": [
-              4.999999999997193,
-              2.727272727378552
+              5.0,
+              2.727272727272743
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -3033,8 +3041,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              4.999999999997193,
-              2.727272727378552
+              5.0,
+              2.727272727272743
             ],
             "tag": {
               "commentStart": 396,
@@ -3045,8 +3053,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line4"
             },
             "to": [
-              1.9999999999288034,
-              5.454545454694512
+              1.9999999999999987,
+              5.454545454545484
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -3057,8 +3065,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              1.9999999999288034,
-              5.454545454694512
+              1.9999999999999987,
+              5.454545454545484
             ],
             "tag": {
               "commentStart": 510,
@@ -3069,8 +3077,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line5"
             },
             "to": [
-              4.999999999983656,
-              5.454545454692033
+              5.0,
+              5.454545454545484
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -3081,8 +3089,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              4.999999999983656,
-              5.454545454692033
+              5.0,
+              5.454545454545484
             ],
             "tag": {
               "commentStart": 624,
@@ -3093,8 +3101,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line6"
             },
             "to": [
-              0.000000000013537191667278716,
-              10.000000000059504
+              0.0000000000000002290951795724419,
+              10.000000000000002
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -3105,8 +3113,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "sourceRange": []
             },
             "from": [
-              0.000000000013537191667278716,
-              10.000000000059504
+              0.0000000000000002290951795724419,
+              10.000000000000002
             ],
             "tag": {
               "commentStart": 768,
@@ -3117,25 +3125,25 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
               "value": "line7"
             },
             "to": [
-              -0.00000000003604960242087521,
-              0.00000000002975204496047148
+              -0.0000000000000006109793523865808,
+              0.0000000000000005040319428848841
             ],
             "type": "ToPoint",
             "units": "mm"
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 0,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -3157,12 +3165,12 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
         },
         "start": {
           "from": [
-            -0.000000000013537208475017735,
-            0.00000000001487602247279773
+            -0.00000000000000022912815726336754,
+            0.00000000000000025201671544293544
           ],
           "to": [
-            -0.000000000013537208475017735,
-            0.00000000001487602247279773
+            -0.00000000000000022912815726336754,
+            0.00000000000000025201671544293544
           ],
           "units": "mm",
           "tag": null,
@@ -3203,8 +3211,8 @@ description: Variables in memory after executing christmas_tree_mirror3d_union.k
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",

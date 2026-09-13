@@ -4,6 +4,7 @@ import type { NonCodeMeta } from '@rust/kcl-lib/bindings/NonCodeMeta'
 
 import {
   createArrayExpression,
+  createAnnotation,
   createCallExpressionStdLibKw,
   createExpressionStatement,
   createImportAsSelector,
@@ -11,6 +12,7 @@ import {
   createLabeledArg,
   createLiteral,
   createLocalName,
+  createMemberExpression,
   createPipeExpression,
   createUnaryExpression,
   createVariableDeclaration,
@@ -21,10 +23,13 @@ import {
   getBodyIndex,
   getNodeFromPath,
   getSettingsAnnotation,
+  getSketchSegmentName,
+  getVariableExprsFromSelection,
   getVariableNameFromNodePath,
   isCallExprWithName,
   isNodeSafeToReplace,
   isNodeSafeToReplacePath,
+  stringifyPathToNode,
   valueOrVariable,
 } from '@src/lang/queryAst'
 import { ARG_INDEX_FIELD, LABELED_ARG_FIELD } from '@src/lang/queryAstConstants'
@@ -36,6 +41,7 @@ import type {
   CallExpressionKw,
   Expr,
   ExpressionStatement,
+  LabeledArg,
   NumericSuffix,
   PathToNode,
   PipeExpression,
@@ -63,6 +69,10 @@ import type { DefaultPlaneStr } from '@src/lib/planes'
 
 import { ARG_AT } from '@src/lang/constants'
 import {
+  getOriginalSegmentArtifact,
+  getSketchBlockForArtifact,
+} from '@src/lang/std/artifactGraph'
+import {
   type addTagForSketchOnFace as AddTagForSketchOnFaceFn,
   type getConstraintInfoKw as GetConstraintInfoKwFn,
 } from '@src/lang/std/sketch'
@@ -77,6 +87,7 @@ import type { ModuleType } from '@src/lib/wasm_lib_wrapper'
 import type {
   EngineRegionSelection,
   ExtrudeFacePlane,
+  Selections,
 } from '@src/machines/modelingSharedTypes'
 
 export function startSketchOnDefault(
@@ -395,10 +406,12 @@ export function addModuleImport({
   ast,
   path,
   localName,
+  representation,
 }: {
   ast: Node<Program>
   path: string
   localName: string
+  representation?: 'mesh' | 'brep'
 }): {
   modifiedAst: Node<Program>
   pathToNode: PathToNode
@@ -410,6 +423,13 @@ export function addModuleImport({
     createImportAsSelector(localName),
     { type: 'Kcl', filename: path }
   )
+  if (representation) {
+    importStatement.outerAttrs = [
+      createAnnotation({
+        targetRepresentation: createLocalName(representation),
+      }),
+    ]
+  }
   const lastImportIndex = modifiedAst.body.findLastIndex(
     (v) => v.type === 'ImportStatement'
   )
@@ -1061,6 +1081,47 @@ export function insertVariableAndOffsetPathToNode(
   }
 }
 
+function getSegmentExprForEngineRegion({
+  segmentId,
+  sketchId,
+  sketchVarName,
+  modifiedAst,
+  artifactGraph,
+  wasmInstance,
+}: {
+  segmentId: string
+  sketchId: string
+  sketchVarName: string
+  modifiedAst: Node<Program>
+  artifactGraph: ArtifactGraph
+  wasmInstance: ModuleType
+}): Error | Expr {
+  const segmentArtifact = getOriginalSegmentArtifact(segmentId, artifactGraph)
+  if (!segmentArtifact) {
+    return new Error("Couldn't retrieve region segment artifact")
+  }
+
+  const sketchArtifact = getSketchBlockForArtifact(
+    segmentArtifact,
+    artifactGraph
+  )
+  if (sketchArtifact?.id !== sketchId) {
+    return new Error('Region segment is not part of the selected sketch')
+  }
+
+  const segmentVarName = getSketchSegmentName(
+    modifiedAst,
+    segmentArtifact.id,
+    artifactGraph,
+    wasmInstance
+  )
+  if (!segmentVarName) {
+    return new Error("Couldn't retrieve region segment variable")
+  }
+
+  return createMemberExpression(sketchVarName, segmentVarName)
+}
+
 export function insertRegionVariablesAndOffsetPathToNode({
   engineRegions,
   modifiedAst,
@@ -1076,13 +1137,15 @@ export function insertRegionVariablesAndOffsetPathToNode({
     return []
   }
 
-  const settings = getSettingsAnnotation(modifiedAst, wasmInstance)
-  if (err(settings)) {
-    return settings
+  const pointRegions = engineRegions.filter(({ point }) => point)
+  let unitSuffix: NumericSuffix | undefined
+  if (pointRegions.length > 0) {
+    const settings = getSettingsAnnotation(modifiedAst, wasmInstance)
+    if (err(settings)) {
+      return settings
+    }
+    unitSuffix = baseUnitToNumericSuffix(settings.defaultLengthUnit)
   }
-  const unitSuffix: NumericSuffix = baseUnitToNumericSuffix(
-    settings.defaultLengthUnit
-  )
 
   let insertIndex = modifiedAst.body.length
   const regionExprs: Expr[] = []
@@ -1100,22 +1163,78 @@ export function insertRegionVariablesAndOffsetPathToNode({
       return new Error("Couldn't retrieve sketch block variable")
     }
 
-    const { x, y } = regionSelection.point
-    if (!Number.isFinite(x) || !Number.isFinite(y)) {
-      return new Error('Region point coordinates are invalid')
-    }
+    let regionExpr: Expr
+    if (regionSelection.resolvableIntersectionInfo) {
+      const {
+        segment,
+        intersection_segment: intersectionSegment,
+        intersection_count: intersectionCount,
+        intersection_index: intersectionIndex,
+        curve_clockwise: curveClockwise,
+      } = regionSelection.resolvableIntersectionInfo
+      // Closed primitive curves, such as circles, can report the same curve as
+      // both the walking curve and intersecting curve. KCL only needs that curve
+      // once to resolve the region.
+      const segmentIds =
+        segment === intersectionSegment
+          ? [segment]
+          : [segment, intersectionSegment]
 
-    const decimals = DEFAULT_LENGTH_UNIT_CONVERSION_DECIMAL_PLACES
-    const regionExpr = createCallExpressionStdLibKw('region', null, [
-      createLabeledArg(
-        'point',
-        createArrayExpression([
-          createLiteral(x, wasmInstance, unitSuffix, decimals),
-          createLiteral(y, wasmInstance, unitSuffix, decimals),
-        ])
-      ),
-      createLabeledArg('sketch', createLocalName(sketchVarName)),
-    ])
+      const segmentExprs: Expr[] = []
+      for (const segmentId of segmentIds) {
+        const segmentExpr = getSegmentExprForEngineRegion({
+          segmentId,
+          sketchId: regionSelection.sketchId,
+          sketchVarName,
+          modifiedAst,
+          artifactGraph,
+          wasmInstance,
+        })
+        if (err(segmentExpr)) {
+          return segmentExpr
+        }
+        segmentExprs.push(segmentExpr)
+      }
+
+      const labeledArgs = [
+        createLabeledArg('segments', createArrayExpression(segmentExprs)),
+      ]
+      // KCL defaults to -1, which resolves the last intersection.
+      // The engine reports that same case as the final zero-based index.
+      if (intersectionIndex !== intersectionCount - 1) {
+        labeledArgs.push(
+          createLabeledArg(
+            'intersectionIndex',
+            createLiteral(intersectionIndex, wasmInstance)
+          )
+        )
+      }
+      if (curveClockwise) {
+        labeledArgs.push(createLabeledArg('direction', createLocalName('CW')))
+      }
+
+      regionExpr = createCallExpressionStdLibKw('region', null, labeledArgs)
+    } else {
+      const { x, y } = regionSelection.point
+      if (!Number.isFinite(x) || !Number.isFinite(y)) {
+        return new Error('Region point coordinates are invalid')
+      }
+      if (!unitSuffix) {
+        return new Error("Couldn't retrieve region point unit suffix")
+      }
+
+      const decimals = DEFAULT_LENGTH_UNIT_CONVERSION_DECIMAL_PLACES
+      regionExpr = createCallExpressionStdLibKw('region', null, [
+        createLabeledArg(
+          'point',
+          createArrayExpression([
+            createLiteral(x, wasmInstance, unitSuffix, decimals),
+            createLiteral(y, wasmInstance, unitSuffix, decimals),
+          ])
+        ),
+        createLabeledArg('sketch', createLocalName(sketchVarName)),
+      ])
+    }
 
     const variableName = findUniqueName(modifiedAst, 'region')
     const variableIdentifierAst = createLocalName(variableName)
@@ -1155,6 +1274,35 @@ export function createVariableExpressionsArray(exprs: Expr[]): Expr | null {
   return expr
 }
 
+export function getSelectionVarsForCall({
+  selection,
+  artifactGraph,
+  modifiedAst,
+  wasmInstance,
+  nodeToEdit,
+}: {
+  selection: Selections
+  artifactGraph: ArtifactGraph
+  modifiedAst: Node<Program>
+  wasmInstance: ModuleType
+  nodeToEdit?: PathToNode
+}) {
+  // Edit codemods preserve the existing selection argument, so only rebuild
+  // selection expressions when creating a new call.
+  if (nodeToEdit) {
+    return { exprs: [] }
+  }
+
+  return getVariableExprsFromSelection(
+    selection,
+    artifactGraph,
+    modifiedAst,
+    wasmInstance,
+    undefined,
+    { lastChildLookup: true }
+  )
+}
+
 // Create a path to node to the last variable declaroator of an ast
 // Optionally, can point to the first kwarg of the CallExpressionKw
 export function createPathToNodeForLastVariable(
@@ -1179,12 +1327,52 @@ export function createPathToNodeForLastVariable(
   return pathToCall
 }
 
+export function pathsReferToSamePipe(
+  first: PathToNode,
+  second: PathToNode
+): boolean {
+  const firstPipe = splitPathAtPipeExpression(first)
+  const secondPipe = splitPathAtPipeExpression(second)
+  return (
+    firstPipe.index !== -1 &&
+    secondPipe.index !== -1 &&
+    stringifyPathToNode(firstPipe.path) === stringifyPathToNode(secondPipe.path)
+  )
+}
+
+export function replaceCallInPlace(
+  existingCall: CallExpressionKw,
+  replacementCall: CallExpressionKw,
+  labeledSelectionArgNames: readonly string[] = []
+) {
+  // Until selection edits can roll back, reconstructed selections are
+  // display-only. Drop them, then restore the originals at their old positions.
+  const isLabeledSelectionArgument = (argument: LabeledArg) =>
+    argument.label !== null &&
+    labeledSelectionArgNames.includes(argument.label.name)
+  const mergedArguments = replacementCall.arguments.filter(
+    (argument) => !isLabeledSelectionArgument(argument)
+  )
+
+  for (const [index, argument] of existingCall.arguments.entries()) {
+    if (isLabeledSelectionArgument(argument)) {
+      mergedArguments.splice(index, 0, structuredClone(argument))
+    }
+  }
+
+  Object.assign(existingCall, replacementCall, {
+    unlabeled: structuredClone(existingCall.unlabeled),
+    arguments: mergedArguments,
+  })
+}
+
 export function setCallInAst({
   ast,
   call,
   pathToEdit,
   pathIfNewPipe,
   variableIfNewDecl,
+  labeledSelectionArgNames,
   wasmInstance,
 }: {
   ast: Node<Program>
@@ -1192,10 +1380,18 @@ export function setCallInAst({
   pathToEdit?: PathToNode
   pathIfNewPipe?: PathToNode
   variableIfNewDecl?: string
+  labeledSelectionArgNames?: readonly string[]
   wasmInstance: ModuleType
 }): Error | PathToNode {
   let pathToNode: PathToNode | undefined
   if (pathToEdit) {
+    if (pathIfNewPipe && !pathsReferToSamePipe(pathIfNewPipe, pathToEdit)) {
+      // A pipe substitution reconstructed outside the edited call's pipe is
+      // invalid. Discard the reconstruction so replaceCallInPlace preserves
+      // the existing unlabeled argument and applies only the labeled edits.
+      call.unlabeled = null
+    }
+
     const result = getNodeFromPath<CallExpressionKw>(
       ast,
       pathToEdit,
@@ -1206,7 +1402,7 @@ export function setCallInAst({
       return result
     }
 
-    Object.assign(result.node, call)
+    replaceCallInPlace(result.node, call, labeledSelectionArgNames)
     pathToNode = pathToEdit
   } else if (pathIfNewPipe) {
     const pipe = getNodeFromPath<PipeExpression>(

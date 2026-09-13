@@ -7,7 +7,8 @@ import type { Discovered } from '@rust/kcl-lib/bindings/Discovered'
 import type { ExecOutcome as RustExecOutcome } from '@rust/kcl-lib/bindings/ExecOutcome'
 import type { KclError as RustKclError } from '@rust/kcl-lib/bindings/KclError'
 import type { KclErrorWithOutputs } from '@rust/kcl-lib/bindings/KclErrorWithOutputs'
-import type { KclValue } from '@rust/kcl-lib/bindings/KclValue'
+import type { KclValueView } from '@rust/kcl-lib/bindings/KclValueView'
+import type { LegacyAngleRefactorMeta } from '@rust/kcl-lib/bindings/LegacyAngleRefactorMeta'
 import type { MetaSettings } from '@rust/kcl-lib/bindings/MetaSettings'
 import type { UnitLength } from '@rust/kcl-lib/bindings/ModelingCmd'
 import type { ModulePath } from '@rust/kcl-lib/bindings/ModulePath'
@@ -18,11 +19,14 @@ import type { Operation } from '@rust/kcl-lib/bindings/Operation'
 import type { OperationCallbackArgs } from '@rust/kcl-lib/bindings/OperationCallbackArgs'
 import type { Program } from '@rust/kcl-lib/bindings/Program'
 import type { ProjectConfiguration } from '@rust/kcl-lib/bindings/ProjectConfiguration'
-import type { Sketch } from '@rust/kcl-lib/bindings/Sketch'
+import type { SketchView as Sketch } from '@rust/kcl-lib/bindings/SketchView'
 import type { SourceRange } from '@rust/kcl-lib/bindings/SourceRange'
 
+import type { DirectTagFilletMeta } from '@rust/kcl-lib/bindings/DirectTagFilletMeta'
+import type { EdgeRefactorMeta } from '@rust/kcl-lib/bindings/EdgeRefactorMeta'
 import type { Number } from '@rust/kcl-lib/bindings/FrontendApi'
 import type { NumericType } from '@rust/kcl-lib/bindings/NumericType'
+import type { RefactorMetadata } from '@rust/kcl-lib/bindings/RefactorMetadata'
 import type { WarningLevel } from '@rust/kcl-lib/bindings/WarningLevel'
 import { KCLError } from '@src/lang/errors'
 import {
@@ -52,6 +56,7 @@ export type {
   PrimitiveEdge as PrimitiveEdgeArtifact,
   EdgeCut,
   GdtAnnotationArtifact,
+  NamedViewArtifact as KclNamedViewArtifact,
   PrimitiveFace as PrimitiveFaceArtifact,
   Path as PathArtifact,
   Plane as PlaneArtifact,
@@ -66,6 +71,9 @@ export type { BinaryExpression } from '@rust/kcl-lib/bindings/BinaryExpression'
 export type { BinaryPart } from '@rust/kcl-lib/bindings/BinaryPart'
 export type { CallExpressionKw } from '@rust/kcl-lib/bindings/CallExpressionKw'
 export type { Configuration } from '@rust/kcl-lib/bindings/Configuration'
+export type { EdgeRefactorMeta } from '@rust/kcl-lib/bindings/EdgeRefactorMeta'
+export type { DirectTagFilletMeta } from '@rust/kcl-lib/bindings/DirectTagFilletMeta'
+export type { DirectTagFilletTagEntry } from '@rust/kcl-lib/bindings/DirectTagFilletTagEntry'
 export type { Expr } from '@rust/kcl-lib/bindings/Expr'
 export type { ExpressionStatement } from '@rust/kcl-lib/bindings/ExpressionStatement'
 export type { Identifier } from '@rust/kcl-lib/bindings/Identifier'
@@ -111,11 +119,11 @@ export type SyntaxType =
   | 'ImportStatement'
   | 'SketchBlock'
 
-export type { ExtrudeSurface } from '@rust/kcl-lib/bindings/ExtrudeSurface'
-export type { KclValue } from '@rust/kcl-lib/bindings/KclValue'
-export type { Path } from '@rust/kcl-lib/bindings/Path'
-export type { Sketch } from '@rust/kcl-lib/bindings/Sketch'
-export type { Solid } from '@rust/kcl-lib/bindings/Solid'
+export type { ExtrudeSurfaceView as ExtrudeSurface } from '@rust/kcl-lib/bindings/ExtrudeSurfaceView'
+export type { KclValueView } from '@rust/kcl-lib/bindings/KclValueView'
+export type { PathView as Path } from '@rust/kcl-lib/bindings/PathView'
+export type { SketchView as Sketch } from '@rust/kcl-lib/bindings/SketchView'
+export type { SolidView as Solid } from '@rust/kcl-lib/bindings/SolidView'
 
 function bestSourceRange(error: RustKclError): SourceRange {
   if (error.details.sourceRanges.length === 0) {
@@ -240,7 +248,7 @@ export function assertParse(code: string, instance: ModuleType): Node<Program> {
   return result.program
 }
 
-export type VariableMap = { [key in string]?: KclValue }
+export type VariableMap = { [key in string]?: KclValueView }
 
 export interface OperationsByModule {
   map: { [moduleId: number]: Operation[] }
@@ -268,12 +276,17 @@ export const isPathToNode = (input: unknown): input is PathToNode =>
   typeof input[0][1] === 'string'
 
 export interface ExecState {
-  variables: { [key in string]?: KclValue }
+  variables: { [key in string]?: KclValueView }
   operations: OperationsByModule
   artifactGraph: ArtifactGraph
+  legacyAngleRefactorMetadata: LegacyAngleRefactorMeta[]
   issues: CompilationIssue[]
   filenames: { [x: number]: ModulePath | undefined }
   defaultPlanes: DefaultPlanes | null
+  /** Populated when deprecated edge stdlib functions run (e.g. getOppositeEdge in a fillet). */
+  edgeRefactorMetadata: EdgeRefactorMeta[]
+  /** Populated when fillet/chamfer is called with direct tags (e.g. tags = [e1]). Used for Z0006 code mod. */
+  directTagFilletMetadata: DirectTagFilletMeta[]
 }
 
 export function emptyOperationsByModule(): OperationsByModule {
@@ -310,10 +323,37 @@ export function emptyExecState(): ExecState {
     variables: {},
     operations: emptyOperationsByModule(),
     artifactGraph: defaultArtifactGraph(),
+    legacyAngleRefactorMetadata: [],
     issues: [],
     filenames: [],
     defaultPlanes: null,
+    edgeRefactorMetadata: [],
+    directTagFilletMetadata: [],
   }
+}
+
+function edgeRefactorMetadataFromUnified(
+  metadata: RefactorMetadata[]
+): EdgeRefactorMeta[] {
+  return metadata
+    .filter(
+      (entry): entry is Extract<RefactorMetadata, { kind: 'edgeRefactor' }> =>
+        entry.kind === 'edgeRefactor'
+    )
+    .map((entry) => entry.data)
+}
+
+function directTagFilletMetadataFromUnified(
+  metadata: RefactorMetadata[]
+): DirectTagFilletMeta[] {
+  return metadata
+    .filter(
+      (
+        entry
+      ): entry is Extract<RefactorMetadata, { kind: 'directTagFillet' }> =>
+        entry.kind === 'directTagFillet'
+    )
+    .map((entry) => entry.data)
 }
 
 export function getOperationsForModule(
@@ -376,14 +416,31 @@ export function countOperations(
 
 export function execStateFromRust(execOutcome: RustExecOutcome): ExecState {
   const artifactGraph = artifactGraphFromRust(execOutcome.artifactGraph)
+  const legacyAngleRefactorMetadata = execOutcome.refactorMetadata
+    .filter(
+      (
+        metadata
+      ): metadata is Extract<RefactorMetadata, { kind: 'legacyAngle' }> =>
+        metadata.kind === 'legacyAngle'
+    )
+    .map((metadata) => metadata.data)
+  const edgeRefactorMetadata = edgeRefactorMetadataFromUnified(
+    execOutcome.refactorMetadata
+  )
+  const directTagFilletMetadata = directTagFilletMetadataFromUnified(
+    execOutcome.refactorMetadata
+  )
 
   return {
     variables: execOutcome.variables,
     operations: execOutcome.operations,
     artifactGraph,
+    legacyAngleRefactorMetadata,
     issues: execOutcome.issues,
     filenames: execOutcome.filenames,
     defaultPlanes: execOutcome.defaultPlanes,
+    edgeRefactorMetadata,
+    directTagFilletMetadata,
   }
 }
 
@@ -410,7 +467,7 @@ function artifactGraphFromRust(
 }
 
 export function sketchFromKclValueOptional(
-  obj: KclValue | undefined,
+  obj: KclValueView | undefined,
   varName: string | null
 ): Sketch | Reason {
   if (obj?.type === 'Sketch') return obj.value
@@ -442,7 +499,7 @@ export function sketchFromKclValueOptional(
 }
 
 export function sketchFromKclValue(
-  obj: KclValue | undefined,
+  obj: KclValueView | undefined,
   varName: string | null
 ): Sketch | Error {
   const result = sketchFromKclValueOptional(obj, varName)
@@ -483,11 +540,13 @@ export const errFromErrWithOutputs = (e: any): KCLError => {
 
 export const kclLint = async (
   ast: Program,
-  instance: ModuleType
+  instance: ModuleType,
+  enableZ0006 = false
 ): Promise<Array<Discovered>> => {
   try {
     const discoveredFindings: Array<Discovered> = await instance.kcl_lint(
-      JSON.stringify(ast)
+      JSON.stringify(ast),
+      enableZ0006
     )
     return discoveredFindings
   } catch (e: any) {

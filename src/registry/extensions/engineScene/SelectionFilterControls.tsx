@@ -42,9 +42,7 @@ const selectionFilterOptions: Array<{
   },
 ]
 
-function getOptionFilter(option: {
-  filter?: EntityType[]
-}): EntityType[] {
+function getOptionFilter(option: { filter?: EntityType[] }): EntityType[] {
   return option.filter ?? defaultSelectionFilter
 }
 
@@ -94,7 +92,7 @@ export function SelectionFilterControls() {
       {(popover) => (
         <>
           <Popover.Button
-            className={`${defaultStatusBarItemClassNames} gap-1`}
+            className={`${defaultStatusBarItemClassNames} gap-2`}
             data-testid="selection-filter-status"
             title="Selection filter"
           >

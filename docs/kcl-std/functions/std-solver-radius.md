@@ -1,11 +1,11 @@
 ---
 title: "solver::radius"
 subtitle: "Function in std::solver"
-excerpt: "Constrain the radius of an arc segment. Accepts a single arc segment and constrains the distance from its center to its start point."
+excerpt: "Constrain the radius of an arc or circle segment. Accepts a single arc or circle segment and constrains the distance from its center to its start point."
 layout: manual
 ---
 
-Constrain the radius of an arc segment. Accepts a single arc segment and constrains the distance from its center to its start point.
+Constrain the radius of an arc or circle segment. Accepts a single arc or circle segment and constrains the distance from its center to its start point.
 
 ```kcl
 solver::radius(
@@ -20,7 +20,7 @@ solver::radius(
 
 | Name | Type | Description | Required |
 |----------|------|-------------|----------|
-| `points` | [`Segment`](/docs/kcl-std/types/std-types-Segment) | The arc segment whose radius should match the value set with `==`. | Yes |
+| `points` | [`Segment`](/docs/kcl-std/types/std-types-Segment) | The arc or circle segment whose radius should match the value set with `==`. | Yes |
 | `labelPosition` | [`Point2d`](/docs/kcl-std/types/std-types-Point2d) | Optional position for the displayed constraint label in the sketch's local 2D coordinate system. | No |
 
 
@@ -35,7 +35,7 @@ profile = sketch(on = XY) {
   radius(arch) == 4mm
 }
 
-solid = extrude(region(point = [0mm, 1mm], sketch = profile), length = 2)
+solid = extrude(region(segments = [profile.base, profile.arch]), length = 2)
 
 ```
 

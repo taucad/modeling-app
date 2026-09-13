@@ -1,0 +1,8 @@
+---
+source: kcl-lib/src/frontend.rs
+expression: src_delta.text.as_str()
+---
+sketch001 = sketch(on = XY) {
+  arc1 = arc(start = [var -4.17mm, var -0.39mm], end = [var -3.55mm, var 3.24mm], center = [var -4.83mm, var 1.59mm])
+  distance([arc1, ORIGIN]) == 3mm
+}

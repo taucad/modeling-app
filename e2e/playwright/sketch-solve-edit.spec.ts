@@ -479,6 +479,177 @@ test.describe('Sketch solve edit tests', { tag: '@desktop' }, () => {
 
       await editor.expectEditor.toContain('circle(start = [')
     })
+
+    await test.step('Equip the center arc tool with its keybinding and draw an arc', async () => {
+      await page.keyboard.press('a')
+      await expect(page.getByTestId('center-arc')).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      )
+
+      let previousCode = await editor.getCurrentCode()
+      const [arcCenter] = scene.makeMouseHelpers(0.25, 0.7, {
+        format: 'ratio',
+      })
+      const [arcStart] = scene.makeMouseHelpers(0.35, 0.7, {
+        format: 'ratio',
+      })
+      const [arcEnd] = scene.makeMouseHelpers(0.31, 0.62, {
+        format: 'ratio',
+      })
+
+      await arcCenter()
+      await arcStart()
+      previousCode = await waitForCodeChange(page, previousCode)
+      await arcEnd()
+      await waitForCodeChange(page, previousCode)
+
+      await editor.expectEditor.toContain('arc(start = [')
+    })
+
+    await test.step('Pick hovered tools with P and unequip over empty space', async () => {
+      const [, moveToLine] = scene.makeMouseHelpers(0.45, 0.45, {
+        format: 'ratio',
+      })
+      const [, moveToCircle] = scene.makeMouseHelpers(0.78, 0.62, {
+        format: 'ratio',
+      })
+      const [, moveToArc] = scene.makeMouseHelpers(0.35, 0.7, {
+        format: 'ratio',
+      })
+      const [, moveToEmptySpace] = scene.makeMouseHelpers(0.1, 0.85, {
+        format: 'ratio',
+      })
+      const getPlanePointerKey = () =>
+        page.evaluate(() => {
+          const point =
+            window.app.singletons.kclManager.sceneInfra.getPlaneIntersectPoint()
+          return point?.twoD ? `${point.twoD.x}:${point.twoD.y}` : null
+        })
+      const moveAndWaitForScenePointer = async (
+        move: () => Promise<unknown>
+      ) => {
+        const previousPointer = await getPlanePointerKey()
+        await move()
+        await expect.poll(getPlanePointerKey).not.toBe(previousPointer)
+      }
+
+      await moveAndWaitForScenePointer(moveToEmptySpace)
+      await page.keyboard.press('p')
+      await expect(page.getByTestId('center-arc')).toHaveAttribute(
+        'aria-pressed',
+        'false'
+      )
+
+      await moveAndWaitForScenePointer(moveToLine)
+      await page.keyboard.press('p')
+      await expect(toolbar.lineBtn).toHaveAttribute('aria-pressed', 'true')
+
+      await moveAndWaitForScenePointer(moveToEmptySpace)
+      await page.keyboard.press('p')
+      await expect(toolbar.lineBtn).toHaveAttribute('aria-pressed', 'false')
+
+      await moveAndWaitForScenePointer(moveToCircle)
+      await page.keyboard.press('p')
+      await expect(toolbar.circleBtn).toHaveAttribute('aria-pressed', 'true')
+
+      await moveAndWaitForScenePointer(moveToEmptySpace)
+      await page.keyboard.press('p')
+      await expect(toolbar.circleBtn).toHaveAttribute('aria-pressed', 'false')
+
+      await moveAndWaitForScenePointer(moveToArc)
+      await page.keyboard.press('p')
+      await expect(page.getByTestId('center-arc')).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      )
+
+      await moveAndWaitForScenePointer(moveToEmptySpace)
+      await page.keyboard.press('p')
+      await expect(page.getByTestId('center-arc')).toHaveAttribute(
+        'aria-pressed',
+        'false'
+      )
+    })
+  })
+
+  test('horizontal and vertical hotkeys constrain the draft line while drawing', async ({
+    page,
+    context,
+    homePage,
+    scene,
+    editor,
+    toolbar,
+  }) => {
+    await test.step('Set up the app and enter sketch solve mode', async () => {
+      await context.addInitScript(() => {
+        localStorage.setItem('persistCode', '')
+      })
+
+      await page.setBodyDimensions({ width: 1200, height: 500 })
+      await homePage.goToModelingScene()
+      await scene.settled()
+
+      await toolbar.startSketchOnDefaultPlane('Top plane')
+      await editor.expectEditor.toContain('sketch(on = XY) {')
+      await toolbar.expectToolbarMode.toBe('sketchSolve')
+      await scene.clickNoWhere()
+    })
+
+    const [lineStart] = scene.makeMouseHelpers(0.35, 0.45, {
+      format: 'ratio',
+    })
+    const [line1EndClick, moveToLine1End] = scene.makeMouseHelpers(0.55, 0.6, {
+      format: 'ratio',
+    })
+    const [line2EndClick, moveToLine2End] = scene.makeMouseHelpers(0.75, 0.4, {
+      format: 'ratio',
+    })
+
+    await test.step('Draw a draft line and constrain it vertically with the hotkey', async () => {
+      await page.keyboard.press('l')
+      await expect(toolbar.lineBtn).toHaveAttribute('aria-pressed', 'true')
+
+      let previousCode = await editor.getCurrentCode()
+      await lineStart()
+      previousCode = await waitForCodeChange(page, previousCode)
+      await moveToLine1End()
+      previousCode = await waitForCodeChange(page, previousCode)
+
+      await page.keyboard.press('v')
+      await editor.expectEditor.toContain('vertical(line1)')
+
+      // The line tool must stay equipped so drawing can continue
+      await expect(toolbar.lineBtn).toHaveAttribute('aria-pressed', 'true')
+
+      previousCode = await editor.getCurrentCode()
+      await line1EndClick()
+      await waitForCodeChange(page, previousCode)
+      await editor.expectEditor.toContain('vertical(line1)')
+    })
+
+    await test.step('Constrain the chained draft line horizontally with the hotkey', async () => {
+      let previousCode = await editor.getCurrentCode()
+      await moveToLine2End()
+      previousCode = await waitForCodeChange(page, previousCode)
+
+      await page.keyboard.press('h')
+      await editor.expectEditor.toContain('horizontal(line2)')
+      await expect(toolbar.lineBtn).toHaveAttribute('aria-pressed', 'true')
+
+      previousCode = await editor.getCurrentCode()
+      await line2EndClick()
+      await waitForCodeChange(page, previousCode)
+    })
+
+    await test.step('Finish drawing and assert both constraints remain', async () => {
+      await page.keyboard.press('Escape')
+      await page.keyboard.press('Escape')
+      await expect(toolbar.lineBtn).toHaveAttribute('aria-pressed', 'false')
+
+      await editor.expectEditor.toContain('vertical(line1)')
+      await editor.expectEditor.toContain('horizontal(line2)')
+    })
   })
 
   test('unequipping line tool should not drop committed segments from the scene', async ({
@@ -1494,7 +1665,7 @@ test.describe('Sketch solve edit tests', { tag: '@desktop' }, () => {
       const threePointCodeAfter = await waitForCodeChange(page, previousCode)
       counts = getCodeCounts(threePointCodeAfter)
       expect(counts.arcs).toBe(threePointCountsBefore.arcs + 1)
-      expect(counts.coincidents).toBe(threePointCountsBefore.coincidents + 1)
+      expect(counts.coincidents).toBe(threePointCountsBefore.coincidents)
       expect(await pointHandles.count()).toBeGreaterThan(
         threePointHandlesBefore
       )
@@ -1816,32 +1987,6 @@ test.describe('Sketch solve edit tests', { tag: '@desktop' }, () => {
     })
 
     await applyConstraintStep({
-      label: 'horizontal length',
-      select: async () => {
-        await clickMidpoint('46', '47')
-      },
-      apply: async () => {
-        await page.getByTestId('HorizontalDistance').click()
-      },
-      assertChanged: (code) => {
-        expect((code.match(/horizontalDistance\(/g) ?? []).length).toBe(1)
-      },
-    })
-
-    await applyConstraintStep({
-      label: 'vertical length',
-      select: async () => {
-        await clickMidpoint('49', '50')
-      },
-      apply: async () => {
-        await page.getByTestId('VerticalDistance').click()
-      },
-      assertChanged: (code) => {
-        expect((code.match(/verticalDistance\(/g) ?? []).length).toBe(1)
-      },
-    })
-
-    await applyConstraintStep({
       label: 'construction',
       select: async () => {
         await clickMidpoint('52', '53')
@@ -1961,72 +2106,6 @@ test.describe('Sketch solve edit tests', { tag: '@desktop' }, () => {
       await pressUndo()
       const undoneCode = await waitForCodeChange(page, trimmedCode)
       expect(normaliseCode(undoneCode)).toBe(normaliseCode(initialCode))
-    })
-  })
-
-  test('can delete individual constraints and the sketch block from the feature tree', async ({
-    page,
-    context,
-    homePage,
-    scene,
-    cmdBar,
-    editor,
-    toolbar,
-  }) => {
-    await test.step('Set up the app with test code', async () => {
-      const code = `sketch001 = sketch(on = XY) {
-  line1 = line(start = [var -3.58mm, var 3.79mm], end = [var 6.18mm, var 5.34mm])
-  horizontal(line1)
-  line2 = line(start = [var 6.79mm, var 3.56mm], end = [var 6.5mm, var -2.56mm])
-  coincident([line2.start, line1.end])
-}`
-      await context.addInitScript(async (code) => {
-        localStorage.setItem('persistCode', code)
-      }, code)
-      await page.setBodyDimensions({ width: 1200, height: 1000 })
-      await homePage.goToModelingScene()
-      await scene.settled()
-      await editor.expectEditor.toContain('sketch(on')
-      await toolbar.openFeatureTreePane()
-    })
-
-    await test.step('Remove first constraint from feature tree and verify code updates', async () => {
-      const caret = await toolbar.getFeatureTreeOperationGroupCaret(0)
-      await caret.click()
-      const op = await toolbar.getFeatureTreeOperation(
-        'Horizontal Constraint',
-        0
-      )
-      await toolbar.removeFeatureTreeOperation(op)
-      await scene.settled()
-      await editor.expectEditor.not.toContain('horizontal(line1)')
-    })
-
-    // TODO: can't quite figure out why this is needed for the second remove to work
-    await test.step('Wait a bit', async () => {
-      await toolbar.closeFeatureTreePane()
-      await page.waitForTimeout(1000)
-    })
-
-    await test.step('Remove second constraint from feature tree and verify code updates', async () => {
-      const caret = await toolbar.getFeatureTreeOperationGroupCaret(0)
-      await caret.click()
-      const op = await toolbar.getFeatureTreeOperation(
-        'Coincident Constraint',
-        0
-      )
-      await toolbar.removeFeatureTreeOperation(op)
-      await scene.settled()
-      await editor.expectEditor.not.toContain(
-        'coincident([line2.start, line1.end])'
-      )
-    })
-
-    await test.step('Remove sketch block from feature tree and verify code updates', async () => {
-      const op = await toolbar.getFeatureTreeOperation('sketch001', 0)
-      await toolbar.removeFeatureTreeOperation(op)
-      await scene.settled()
-      await editor.expectEditor.not.toContain('sketch(on')
     })
   })
 

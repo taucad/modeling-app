@@ -1,4 +1,4 @@
-import type { UserFeature, WebSocketResponse } from '@kittycad/lib'
+import type { Feature, WebSocketResponse } from '@kittycad/lib'
 
 import type { UnitLength } from '@rust/kcl-lib/bindings/ModelingCmd'
 import type { WarningLevel } from '@rust/kcl-lib/bindings/WarningLevel'
@@ -24,10 +24,25 @@ export const PROJECT_FOLDER = 'zoo-design-studio-projects'
  * @link - https://zoo.dev/docs/kcl
  * */
 export const FILE_EXT = '.kcl'
+/**
+ * Non-KCL text files that can be opened and edited directly in the code pane.
+ * Lowercased, with leading dot. Add extensions here to broaden support.
+ */
+export const EDITABLE_TEXT_FILE_EXTENSIONS = ['.md', '.txt'] as const
 export const DEFAULT_KCL_VERSION = '2.0'
-export const BODIES_PANE_FEATURE_FLAG: UserFeature = 'bodies_pane'
-export const EXPERIMENTAL_POINT_AND_CLICK_FLAG: UserFeature =
+export const EXPERIMENTAL_POINT_AND_CLICK_FLAG: Feature =
   'sketch_experimental_features'
+export const OPFS_CLOUD_FEATURE_FLAG: Feature = 'web_app_file_browser'
+export const SEGMENTS_BASED_REGIONS_FEATURE_FLAG: Feature =
+  'segments_based_regions'
+export const KCL_CEK_EXECUTOR_FEATURE_FLAG: Feature = 'kcl_cek_executor'
+export const KCL_NEW_LEXER_PARSER_FEATURE_FLAG: Feature = 'kcl_new_lexer_parser'
+/** Gates named view changes to ZDS UI */
+export const NAMED_VIEWS_UI_FEATURE_FLAG: Feature = 'named_views_ui'
+/** Allows legacy sketches to be edited using point-and-click */
+export const LEGACY_SKETCH_MODE_FEATURE_FLAG: Feature = 'legacy_sketch_mode'
+export const LEGACY_SKETCH_MODE_REMOVED_MESSAGE =
+  'Editing of KCL 1.0 sketches is no longer supported.'
 /** Default file to open when a project is opened */
 export const PROJECT_ENTRYPOINT = `main${FILE_EXT}` as const
 /** Thumbnail file name */
@@ -82,8 +97,17 @@ export const KCL_DEFAULT_INSTANCES = `3`
 /** The default KCL transform arg value that means no transform */
 export const KCL_DEFAULT_TRANSFORM = `0`
 
+/** The default KCL translation along the x axis */
+export const KCL_DEFAULT_TRANSLATE_X = `5`
+
+/** The default KCL rotation angle */
+export const KCL_DEFAULT_ROTATE_ANGLE = `45deg`
+
 /** The default KCL scale arg value that means no scale */
 export const KCL_DEFAULT_SCALE = `1`
+
+/** The default KCL uniform scale factor */
+export const KCL_DEFAULT_SCALE_FACTOR = `2`
 
 /** The default KCL degree expression */
 export const KCL_DEFAULT_DEGREE = `360deg`
@@ -156,12 +180,19 @@ export const KCL_DEFAULT_LEADER_SCALE = `1.0`
 export const KCL_DEFAULT_FONT_SIZE = `10mm`
 
 export const SETTINGS_FILE_NAME = 'settings.toml'
+export const KEYMAP_FILE_NAME = 'keymap.toml'
 export const PROJECT_SETTINGS_FILE_NAME = 'project.toml'
+export const DUPLICATE_PROJECT_TEMPORARY_PREFIX = '.zds-duplicate-'
 export const LEGACY_COOKIE_NAME = '__Secure-next-auth.session-token'
 export const COOKIE_NAME_PREFIX = '__Secure-session-token-'
 export const TELEMETRY_FILE_NAME = 'boot.txt'
 export const TELEMETRY_RAW_FILE_NAME = 'raw-metrics.txt'
 export const ENVIRONMENT_FILE_NAME = 'environment.txt'
+
+/** Predefined Zoo environment base domains */
+export const ZOO_DOMAIN_STAGING = 'dev.zoo.dev'
+export const ZOO_DOMAIN_PRODUCTION = 'zoo.dev'
+export const ZOO_DOMAIN_REGULATED = 'zoogov.dev'
 
 /** Custom error message to match when rejectAllModelCommands is called
  * allows us to match if the execution of executeAst was interrupted
@@ -210,6 +241,9 @@ export const ONBOARDING_TOAST_ID = 'onboarding-toast'
 
 /** Toast id for the wasm init err toast on web */
 export const WASM_INIT_FAILED_TOAST_ID = 'wasm-init-failed-toast'
+
+/** Toast id for Zookeeper bulk file writes */
+export const ZOOKEEPER_FILE_WRITE_TOAST_ID = 'zookeeper-file-write-toast'
 
 /** Local sketch axis values in KCL for operations, it could either be 'X' or 'Y' */
 export const KCL_AXIS_X = 'X'
@@ -318,6 +352,8 @@ export const CODE_QUERY_PARAM = 'code'
 /** A query parameter to skip the sign-on view if unnecessary. */
 export const IMMEDIATE_SIGN_IN_IF_NECESSARY_QUERY_PARAM =
   'immediate-sign-in-if-necessary'
+/** React Router state flag that starts desktop sign-in after accepting the session-expired dialog. */
+export const SESSION_EXPIRED_SIGN_IN_ROUTE_STATE_KEY = 'sessionExpiredSignIn'
 /**
  * A query parameter to allow the app to be accessed on mobile devices.
  * Used to test mobile experience as we improve it to be release-able.
@@ -335,7 +371,9 @@ export type EnvironmentConfiguration = {
   domain: string // same name as the file development for development.json
   token: string // authentication token from signing in. Can be empty string
   kittycadWebSocketUrl?: string // optional override for Engine WebSocket URL
-  mlephantWebSocketUrl?: string // optional override for Zookeeper WebSocket URL
+  zookeeperWebSocketUrl?: string // optional override for Zookeeper WebSocket URL
+  /** Legacy key accepted for existing environment files. */
+  mlephantWebSocketUrl?: string
 }
 
 /**
@@ -345,7 +383,9 @@ export type EnvironmentConfiguration = {
 export type EnvironmentConfigurationRuntime = {
   domain: string // same name as the file development for development.json
   kittycadWebSocketUrl?: string // optional override for Engine WebSocket URL
-  mlephantWebSocketUrl?: string // optional override for Zookeeper WebSocket URL
+  zookeeperWebSocketUrl?: string // optional override for Zookeeper WebSocket URL
+  /** Legacy key accepted for existing environment files. */
+  mlephantWebSocketUrl?: string
 }
 
 export const ENVIRONMENT_CONFIGURATION_FOLDER = 'envs'
@@ -355,12 +395,13 @@ export const MAX_PROJECT_NAME_LENGTH = 240
 // It's so ugh that `uuid` package doesn't export this.
 export const REGEXP_UUIDV4 = /^[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}$/i
 
-export const LOCAL_STORAGE_ML_CONVERSATIONS = 'mlConversations'
-/** URL query param key we watch for prompt input
+export const LOCAL_STORAGE_ZOOKEEPER_CONVERSATIONS = 'mlConversations'
+/** URL query param key we watch for Zookeeper prompt input
  *  we should never set this search param from the app,
  *  only read and delete.
  */
-export const SEARCH_PARAM_ML_PROMPT_KEY = 'ttc-prompt'
+export const SEARCH_PARAM_ZOOKEEPER_PROMPT_KEY = 'zookeeper-prompt'
+export const LEGACY_SEARCH_PARAM_ZOOKEEPER_PROMPT_KEY = 'ttc-prompt'
 
 /**
  * Number of engine connection retries within a cycle before the application stops automatically trying
@@ -394,8 +435,8 @@ export type KclPreludeExtrudeMethod = 'MERGE' | 'NEW'
 export const KCL_PRELUDE_EXTRUDE_METHOD_MERGE: KclPreludeExtrudeMethod = 'MERGE'
 export const KCL_PRELUDE_EXTRUDE_METHOD_NEW: KclPreludeExtrudeMethod = 'NEW'
 export const KCL_PRELUDE_EXTRUDE_METHOD_VALUES: KclPreludeExtrudeMethod[] = [
-  KCL_PRELUDE_EXTRUDE_METHOD_MERGE,
   KCL_PRELUDE_EXTRUDE_METHOD_NEW,
+  KCL_PRELUDE_EXTRUDE_METHOD_MERGE,
 ]
 
 export const ARCHIVE_DIR = 'archive'

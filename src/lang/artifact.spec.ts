@@ -2,7 +2,7 @@ import { assertParse } from '@src/lang/wasm'
 import type RustContext from '@src/lib/rustContext'
 import { enginelessExecutor } from '@src/lib/testHelpers'
 import type { ModuleType } from '@src/lib/wasm_lib_wrapper'
-import type { ConnectionManager } from '@src/network/connectionManager'
+import type { ConnectionManager } from '@src/lib/engineConnection/connectionManager'
 import { buildTheWorldAndConnectToEngine } from '@src/unitTestUtils'
 import { afterAll, beforeEach, describe, expect, test } from 'vitest'
 
@@ -22,7 +22,7 @@ beforeEach(async () => {
   }
 
   const { instance, engineCommandManager, rustContext } =
-    await buildTheWorldAndConnectToEngine()
+    await buildTheWorldAndConnectToEngine({ geometryOnly: true })
   instanceInThisFile = instance
   engineCommandManagerInThisFile = engineCommandManager
   rustContextInThisFile = rustContext
@@ -113,6 +113,8 @@ mySketch001 = startSketchOn(XY)
       value: {
         type: 'Solid',
         id: expect.any(String),
+        originalId: expect.any(String),
+        topologyId: expect.any(String),
         artifactId: expect.any(String),
         value: [
           {
@@ -143,6 +145,7 @@ mySketch001 = startSketchOn(XY)
           artifactId: expect.any(String),
           creatorType: 'sketch',
           units: 'mm',
+          isClosed: 'explicitly',
           on: expect.any(Object),
           start: expect.any(Object),
           type: 'Sketch',
@@ -227,6 +230,8 @@ sk2 = startSketchOn(XY)
         value: {
           type: 'Solid',
           id: expect.any(String),
+          originalId: expect.any(String),
+          topologyId: expect.any(String),
           artifactId: expect.any(String),
           value: [
             {
@@ -274,6 +279,7 @@ sk2 = startSketchOn(XY)
             start: expect.any(Object),
             type: 'Sketch',
             units: 'mm',
+            isClosed: 'explicitly',
             tags: {
               p: {
                 type: 'TagIdentifier',
@@ -345,6 +351,8 @@ sk2 = startSketchOn(XY)
         value: {
           type: 'Solid',
           id: expect.any(String),
+          originalId: expect.any(String),
+          topologyId: expect.any(String),
           artifactId: expect.any(String),
           value: [
             {
@@ -389,6 +397,7 @@ sk2 = startSketchOn(XY)
             artifactId: expect.any(String),
             creatorType: 'sketch',
             units: 'mm',
+            isClosed: 'explicitly',
             on: expect.any(Object),
             start: expect.any(Object),
             type: 'Sketch',

@@ -4,11 +4,12 @@ import type {
   Command,
   CommandArgument,
   CommandArgumentWithName,
+  CommandReviewValidationDetails,
   KclCommandValue,
 } from '@src/lib/commandTypes'
 import { getCommandArgumentKclValuesOnly } from '@src/lib/commandUtils'
 import { isDesktop } from '@src/lib/isDesktop'
-import { err } from '@src/lib/trap'
+import { isErr } from '@src/lib/trap'
 import { reportRejection } from '@src/lib/trap'
 import type { ModuleType } from '@src/lib/wasm_lib_wrapper'
 import type { UserFeaturesService } from '@src/machines/userFeaturesMachine'
@@ -63,6 +64,7 @@ export type CommandBarContext = CommandBarInput & {
   currentArgument?: CommandArgument<unknown> & { name: string }
   argumentsToSubmit: { [x: string]: unknown }
   reviewValidationError?: string
+  reviewValidationDetails?: CommandReviewValidationDetails
   machineManager: MachineManager
   kclManager?: KclManager
   userFeatures?: UserFeaturesService
@@ -112,6 +114,7 @@ export type CommandBarMachineEvent =
       output: {
         argumentsToSubmit: { [x: string]: unknown }
         reviewValidationError?: string
+        reviewValidationDetails?: CommandReviewValidationDetails
       }
     }
   | {
@@ -124,10 +127,6 @@ export type CommandBarMachineEvent =
         name: string
         groupId: string
         argDefaultValues?: { [x: string]: unknown }
-
-        // I'm sorry but the way we did share URL called for this.
-        isRestrictedToOrg?: boolean
-        password?: string
       }
     }
   | {
@@ -201,9 +200,19 @@ export const commandBarMachine = setup({
         }
         return event.output.reviewValidationError
       },
+      reviewValidationDetails: ({ context, event }) => {
+        const { selectedCommand } = context
+        if (!selectedCommand) return undefined
+        if (event.type !== 'xstate.done.actor.validateArguments') {
+          return undefined
+        }
+        return event.output.reviewValidationDetails
+      },
     }),
     'Clear selected command': assign({
       selectedCommand: undefined,
+      reviewValidationError: undefined,
+      reviewValidationDetails: undefined,
     }),
     'Set current argument to first non-skippable': assign({
       currentArgument: ({ context, event }) => {
@@ -306,6 +315,8 @@ export const commandBarMachine = setup({
       selectedCommand: undefined,
       currentArgument: undefined,
       argumentsToSubmit: {},
+      reviewValidationError: undefined,
+      reviewValidationDetails: undefined,
     }),
     'Set selected command': assign({
       selectedCommand: ({ context, event }) =>
@@ -330,22 +341,27 @@ export const commandBarMachine = setup({
         if (
           event.type !== 'Select command' &&
           event.type !== 'Find and select command'
-        )
+        ) {
           return {}
+        }
         const command =
           'data' in event && 'command' in event.data
             ? event.data.command
             : context.selectedCommand
-        if (!command?.args) return {}
-        const args: { [x: string]: unknown } = {}
+        const args: { [x: string]: unknown } = {
+          ...(event.data.argDefaultValues ?? {}),
+        }
+        if (!command?.args) {
+          return args
+        }
         for (const [argName, arg] of Object.entries(command.args)) {
+          if (argName in args) {
+            continue
+          }
           args[argName] =
-            event.data.argDefaultValues &&
-            argName in event.data.argDefaultValues
-              ? event.data.argDefaultValues[argName]
-              : (arg.skip || arg.prepopulate) && 'defaultValue' in arg
-                ? arg.defaultValue
-                : undefined
+            (arg.skip || arg.prepopulate) && 'defaultValue' in arg
+              ? arg.defaultValue
+              : undefined
         }
         return args
       },
@@ -573,6 +589,7 @@ export const commandBarMachine = setup({
         }
 
         let reviewValidationError: string | undefined
+        let reviewValidationDetails: CommandReviewValidationDetails | undefined
         if (
           input.selectedCommand?.needsReview &&
           input.selectedCommand.reviewValidation
@@ -581,14 +598,16 @@ export const commandBarMachine = setup({
             input,
             input.selectedCommand?.machineActor
           )
-          if (err(result)) {
+          if (isErr(result)) {
             reviewValidationError = result.message
+            reviewValidationDetails = result.reviewDetails
           }
         }
 
         return {
           argumentsToSubmit: input.argumentsToSubmit,
           reviewValidationError,
+          reviewValidationDetails,
         }
       }
     ),
@@ -606,6 +625,7 @@ export const commandBarMachine = setup({
     },
     argumentsToSubmit: {},
     reviewValidationError: undefined,
+    reviewValidationDetails: undefined,
   }),
   id: 'Command Bar',
   initial: 'Closed',

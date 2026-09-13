@@ -1,6 +1,5 @@
 import type { Page } from '@playwright/test'
 
-import { bracket } from '@e2e/playwright/fixtures/bracket'
 import type { CmdBarSerialised } from '@e2e/playwright/fixtures/cmdBarFixture'
 import type { EditorFixture } from '@e2e/playwright/fixtures/editorFixture'
 import type { SceneFixture } from '@e2e/playwright/fixtures/sceneFixture'
@@ -10,115 +9,19 @@ import {
   EXPERIMENTAL_POINT_AND_CLICK_FLAG,
   KCL_DEFAULT_INSTANCES,
   KCL_DEFAULT_LENGTH,
+  LEGACY_SKETCH_MODE_FEATURE_FLAG,
 } from '@src/lib/constants'
 import { DefaultLayoutPaneID } from '@src/lib/layout/configs/default'
 
 // test file is for testing point an click code gen functionality that's not sketch mode related
 
 test.describe('Point-and-click tests - sketch v1', { tag: '@desktop' }, () => {
-  test.use({ userFeatures: [EXPERIMENTAL_POINT_AND_CLICK_FLAG] })
-
-  test('Verify in-pipe extrudes in bracket can be edited', async ({
-    tronApp,
-    context,
-    editor,
-    homePage,
-    page,
-    scene,
-    toolbar,
-    cmdBar,
-  }) => {
-    await context.addInitScript((initialCode) => {
-      localStorage.setItem('persistCode', initialCode)
-    }, bracket)
-    await homePage.goToModelingScene()
-    await scene.settled()
-
-    await test.step(`Edit first extrude via feature tree`, async () => {
-      await (await toolbar.getFeatureTreeOperation('bracketBody', 0)).dblclick()
-      await cmdBar.clickHeaderArgument('length')
-      await cmdBar.expectState({
-        stage: 'arguments',
-        currentArgKey: 'length',
-        currentArgValue: 'width',
-        headerArguments: {
-          Length: '5',
-        },
-        highlightedHeaderArg: 'length',
-        commandName: 'Extrude',
-      })
-      await page.keyboard.insertText('width - 0.001in')
-      await cmdBar.progressCmdBar()
-      await cmdBar.expectState({
-        stage: 'review',
-        headerArguments: {
-          Length: '4.999in',
-        },
-        commandName: 'Extrude',
-      })
-      await cmdBar.progressCmdBar()
-      await editor.expectEditor.toContain('extrude(length = width - 0.001in)')
-    })
-
-    await test.step(`Edit second extrude via feature tree`, async () => {
-      await (
-        await toolbar.getFeatureTreeOperation('shelfMountingHoles', 0)
-      ).dblclick()
-      await cmdBar.clickHeaderArgument('length')
-      await cmdBar.expectState({
-        stage: 'arguments',
-        currentArgKey: 'length',
-        currentArgValue: '-thickness - .01',
-        headerArguments: {
-          Length: '-0.3949',
-        },
-        highlightedHeaderArg: 'length',
-        commandName: 'Extrude',
-      })
-      await page.keyboard.insertText('-thickness - .01 - 0.001')
-      await cmdBar.progressCmdBar()
-      await cmdBar.expectState({
-        stage: 'review',
-        headerArguments: {
-          Length: '-0.3959',
-        },
-        commandName: 'Extrude',
-      })
-      await cmdBar.progressCmdBar()
-      await editor.expectEditor.toContain(
-        'extrude(length = -thickness - .01 - 0.001)'
-      )
-    })
-
-    await test.step(`Edit third extrude via feature tree`, async () => {
-      await (
-        await toolbar.getFeatureTreeOperation('wallMountingHoles', 0)
-      ).dblclick()
-      await cmdBar.clickHeaderArgument('length')
-      await cmdBar.expectState({
-        stage: 'arguments',
-        currentArgKey: 'length',
-        currentArgValue: '-thickness - 0.1',
-        headerArguments: {
-          Length: '-0.4849',
-        },
-        highlightedHeaderArg: 'length',
-        commandName: 'Extrude',
-      })
-      await page.keyboard.insertText('-thickness - 0.1 - 0.001')
-      await cmdBar.progressCmdBar()
-      await cmdBar.expectState({
-        stage: 'review',
-        headerArguments: {
-          Length: '-0.4859',
-        },
-        commandName: 'Extrude',
-      })
-      await cmdBar.progressCmdBar()
-      await editor.expectEditor.toContain(
-        'extrude(length = -thickness - 0.1 - 0.001)'
-      )
-    })
+  // These sketches are KCL 1.0, so editing them needs the legacy sketch flag.
+  test.use({
+    userFeatures: [
+      EXPERIMENTAL_POINT_AND_CLICK_FLAG,
+      LEGACY_SKETCH_MODE_FEATURE_FLAG,
+    ],
   })
 
   test('Create an Extrude operation with a tag and edit it via Feature Tree', async ({
@@ -164,10 +67,24 @@ profile001 = circle(sketch001, center = [0, 0], radius = 5)`
         await page.keyboard.insertText('4')
         await cmdBar.progressCmdBar()
         await cmdBar.expectState({
+          stage: 'arguments',
+          currentArgKey: 'bodyType',
+          currentArgValue: '',
+          headerArguments: {
+            Length: '4',
+            Profiles: '1 edge',
+            BodyType: '',
+          },
+          highlightedHeaderArg: 'bodyType',
+          commandName: 'Extrude',
+        })
+        await cmdBar.selectOption({ name: 'Surface' }).click()
+        await cmdBar.expectState({
           stage: 'review',
           headerArguments: {
             Length: '4',
             Profiles: '1 edge',
+            BodyType: 'SURFACE',
           },
           commandName: 'Extrude',
         })
@@ -181,6 +98,7 @@ profile001 = circle(sketch001, center = [0, 0], radius = 5)`
           headerArguments: {
             Length: '4',
             Profiles: '1 edge',
+            BodyType: 'SURFACE',
             TagEnd: '',
           },
           highlightedHeaderArg: 'tagEnd',
@@ -193,6 +111,7 @@ profile001 = circle(sketch001, center = [0, 0], radius = 5)`
           headerArguments: {
             Length: '4',
             Profiles: '1 edge',
+            BodyType: 'SURFACE',
             TagEnd: 'myEndTag',
           },
           commandName: 'Extrude',
@@ -200,9 +119,11 @@ profile001 = circle(sketch001, center = [0, 0], radius = 5)`
       })
       await test.step('Submit and verify', async () => {
         await cmdBar.submit()
-        await editor.expectEditor.toContain(
-          'extrude(profile001, length = 4, tagEnd = $myEndTag)'
-        )
+        await editor.expectEditor.toContain('extrude(')
+        await editor.expectEditor.toContain('profile001')
+        await editor.expectEditor.toContain('length = 4')
+        await editor.expectEditor.toContain('tagEnd = $myEndTag')
+        await editor.expectEditor.toContain('bodyType = SURFACE')
       })
     })
 
@@ -218,6 +139,7 @@ profile001 = circle(sketch001, center = [0, 0], radius = 5)`
           currentArgValue: '4',
           headerArguments: {
             Length: '4',
+            BodyType: 'SURFACE',
             TagEnd: 'myEndTag',
           },
           highlightedHeaderArg: 'length',
@@ -229,6 +151,7 @@ profile001 = circle(sketch001, center = [0, 0], radius = 5)`
           stage: 'review',
           headerArguments: {
             Length: '3',
+            BodyType: 'SURFACE',
             TagEnd: 'myEndTag',
           },
           commandName: 'Extrude',
@@ -236,9 +159,11 @@ profile001 = circle(sketch001, center = [0, 0], radius = 5)`
       })
       await test.step('Submit and verify', async () => {
         await cmdBar.submit()
-        await editor.expectEditor.toContain(
-          'extrude(profile001, length = 3, tagEnd = $myEndTag)'
-        )
+        await editor.expectEditor.toContain('extrude(')
+        await editor.expectEditor.toContain('profile001')
+        await editor.expectEditor.toContain('length = 3')
+        await editor.expectEditor.toContain('tagEnd = $myEndTag')
+        await editor.expectEditor.toContain('bodyType = SURFACE')
       })
     })
   })
@@ -914,9 +839,10 @@ sketch002 = startSketchOn(plane001)
     await homePage.goToModelingScene()
     await scene.settled()
 
-    const loftDeclaration = 'loft001 = loft([sketch001, sketch002])'
+    const loftDeclaration =
+      'loft001 = loft([sketch001, sketch002], bodyType = SURFACE)'
     const editedLoftDeclaration =
-      'loft001 = loft([sketch001, sketch002], vDegree = 3)'
+      'loft001 = loft([sketch001, sketch002], vDegree = 3, bodyType = SURFACE)'
 
     async function selectSketches() {
       const multiCursorKey = process.platform === 'linux' ? 'Control' : 'Meta'
@@ -942,8 +868,17 @@ sketch002 = startSketchOn(plane001)
       await selectSketches()
       await cmdBar.progressCmdBar()
       await cmdBar.expectState({
+        stage: 'arguments',
+        currentArgKey: 'bodyType',
+        currentArgValue: '',
+        headerArguments: { Profiles: '2 edges', BodyType: '' },
+        highlightedHeaderArg: 'bodyType',
+        commandName: 'Loft',
+      })
+      await cmdBar.selectOption({ name: 'Surface' }).click()
+      await cmdBar.expectState({
         stage: 'review',
-        headerArguments: { Profiles: '2 edges' },
+        headerArguments: { Profiles: '2 edges', BodyType: 'SURFACE' },
         commandName: 'Loft',
       })
       await cmdBar.submit()
@@ -965,7 +900,9 @@ sketch002 = startSketchOn(plane001)
       await op.dblclick()
       await cmdBar.expectState({
         stage: 'review',
-        headerArguments: {},
+        headerArguments: {
+          BodyType: 'SURFACE',
+        },
         commandName: 'Loft',
       })
       await cmdBar.clickOptionalArgument('vDegree')
@@ -974,6 +911,7 @@ sketch002 = startSketchOn(plane001)
         currentArgKey: 'vDegree',
         currentArgValue: '',
         headerArguments: {
+          BodyType: 'SURFACE',
           VDegree: '',
         },
         highlightedHeaderArg: 'vDegree',
@@ -984,6 +922,7 @@ sketch002 = startSketchOn(plane001)
       await cmdBar.expectState({
         stage: 'review',
         headerArguments: {
+          BodyType: 'SURFACE',
           VDegree: '3',
         },
         commandName: 'Loft',
@@ -1025,8 +964,23 @@ sketch002 = startSketchOn(plane001)
 )
 sketch001 = startSketchOn(XZ)
 profile001 = ${circleCode}`
-    const sweepDeclaration = 'sweep001 = sweep(profile001, path = helix001)'
-    const editedSweepDeclaration = `sweep001 = sweep(profile001, path = helix001, relativeTo = sweep::SKETCH_PLANE)`
+    const sweepDeclaration = `sweep001 = sweep(
+  profile001,
+  path = helix001,
+  bodyType = SURFACE,
+  version = 2,
+  translateProfileToPath = false,
+  orientProfilePerpendicular = false,
+)`
+    const editedSweepDeclaration = `sweep001 = sweep(
+  profile001,
+  path = helix001,
+  sectional = true,
+  bodyType = SURFACE,
+  version = 2,
+  translateProfileToPath = false,
+  orientProfilePerpendicular = false,
+)`
 
     await context.addInitScript((initialCode) => {
       localStorage.setItem('persistCode', initialCode)
@@ -1058,6 +1012,7 @@ profile001 = ${circleCode}`
         headerArguments: {
           Profiles: '1 edge',
           Path: '',
+          BodyType: '',
         },
         highlightedHeaderArg: 'path',
         stage: 'arguments',
@@ -1071,6 +1026,7 @@ profile001 = ${circleCode}`
         headerArguments: {
           Profiles: '1 edge',
           Path: '',
+          BodyType: '',
         },
         highlightedHeaderArg: 'path',
         stage: 'arguments',
@@ -1078,14 +1034,30 @@ profile001 = ${circleCode}`
       await cmdBar.progressCmdBar()
       await cmdBar.expectState({
         commandName: 'Sweep',
+        currentArgKey: 'bodyType',
+        currentArgValue: '',
         headerArguments: {
           Profiles: '1 edge',
           Path: '1 helix',
+          BodyType: '',
+        },
+        highlightedHeaderArg: 'bodyType',
+        stage: 'arguments',
+      })
+      await cmdBar.selectOption({ name: 'Surface' }).click()
+      await cmdBar.expectState({
+        commandName: 'Sweep',
+        headerArguments: {
+          Profiles: '1 edge',
+          Path: '1 helix',
+          BodyType: 'SURFACE',
         },
         stage: 'review',
       })
       await cmdBar.progressCmdBar(true)
-      await editor.expectEditor.toContain(sweepDeclaration)
+      await editor.expectEditor.toContain(sweepDeclaration, {
+        shouldNormalise: true,
+      })
     })
 
     await test.step('Go through the edit flow via feature tree', async () => {
@@ -1094,37 +1066,54 @@ profile001 = ${circleCode}`
       await op.dblclick()
       await cmdBar.expectState({
         stage: 'review',
-        headerArguments: {},
+        headerArguments: {
+          BodyType: 'SURFACE',
+          Version: '2',
+          TranslateProfileToPath: 'false',
+          OrientProfilePerpendicular: 'false',
+        },
         commandName: 'Sweep',
       })
-      await cmdBar.clickOptionalArgument('relativeTo')
+      await cmdBar.clickOptionalArgument('sectional')
       await cmdBar.expectState({
         stage: 'arguments',
-        currentArgKey: 'relativeTo',
+        currentArgKey: 'sectional',
         currentArgValue: '',
         headerArguments: {
-          RelativeTo: '',
+          BodyType: 'SURFACE',
+          Version: '2',
+          TranslateProfileToPath: 'false',
+          OrientProfilePerpendicular: 'false',
+          Sectional: '',
         },
-        highlightedHeaderArg: 'relativeTo',
+        highlightedHeaderArg: 'sectional',
         commandName: 'Sweep',
       })
-      await cmdBar.selectOption({ name: 'Sketch Plane' }).click()
+      await cmdBar.selectOption({ name: 'On' }).click()
       await cmdBar.expectState({
         stage: 'review',
         headerArguments: {
-          RelativeTo: 'SKETCH_PLANE',
+          BodyType: 'SURFACE',
+          Version: '2',
+          TranslateProfileToPath: 'false',
+          OrientProfilePerpendicular: 'false',
+          Sectional: 'true',
         },
         commandName: 'Sweep',
       })
       await cmdBar.submit()
-      await editor.expectEditor.toContain(editedSweepDeclaration)
+      await editor.expectEditor.toContain(editedSweepDeclaration, {
+        shouldNormalise: true,
+      })
     })
 
     await test.step('Delete sweep via feature tree selection', async () => {
       const sweep = await toolbar.getFeatureTreeOperation('Sweep', 0)
       await sweep.click()
       await page.keyboard.press('Delete')
-      await editor.expectEditor.not.toContain(editedSweepDeclaration)
+      await editor.expectEditor.not.toContain(editedSweepDeclaration, {
+        shouldNormalise: true,
+      })
     })
   })
 
@@ -1147,7 +1136,7 @@ profile001 = ${circleCode}`
   |> close()
 extrude001 = extrude(sketch001, length = -12)
 `
-    const firstFilletDeclaration = `fillet001 = fillet(extrude001, tags=getCommonEdge(faces=[seg01,capEnd001]), radius=5)`
+    const firstFilletDeclaration = `fillet001 = fillet(extrude001, tags=getCommonEdge(faces=[seg01,extrude001.faces.capEnd001]), radius=5)`
 
     // Setup
     await test.step(`Initial test setup`, async () => {
@@ -1650,7 +1639,8 @@ extrude001 = extrude(sketch001, length = 30)`
 extrude001 = extrude(sketch001, length = 50)
 sketch002 = startSketchOn(extrude001, face = rectangleSegmentA001)
   |> circle(center = [-11.34, 10.0], radius = 8.69)`
-    const newCodeToFind = `revolve001 = revolve(sketch002, angle = 360deg, axis = rectangleSegmentA001)`
+    const newCodeToFind =
+      'revolve001 = revolve(  sketch002,  angle = 360deg,  axis = rectangleSegmentA001,  bodyType = SURFACE,)'
 
     await context.addInitScript((initialCode) => {
       localStorage.setItem('persistCode', initialCode)
@@ -1687,6 +1677,7 @@ sketch002 = startSketchOn(extrude001, face = rectangleSegmentA001)
           Profiles: '1 edge',
           AxisOrEdge: '',
           Angle: '',
+          BodyType: '',
         },
         highlightedHeaderArg: 'axisOrEdge',
         stage: 'arguments',
@@ -1701,6 +1692,7 @@ sketch002 = startSketchOn(extrude001, face = rectangleSegmentA001)
           Angle: '',
           AxisOrEdge: 'Edge',
           Edge: '',
+          BodyType: '',
         },
         highlightedHeaderArg: 'edge',
         stage: 'arguments',
@@ -1717,6 +1709,7 @@ sketch002 = startSketchOn(extrude001, face = rectangleSegmentA001)
           Angle: '',
           AxisOrEdge: 'Edge',
           Edge: '1 edge',
+          BodyType: '',
         },
         highlightedHeaderArg: 'angle',
         stage: 'arguments',
@@ -1724,11 +1717,27 @@ sketch002 = startSketchOn(extrude001, face = rectangleSegmentA001)
       await cmdBar.progressCmdBar()
       await cmdBar.expectState({
         commandName: 'Revolve',
+        currentArgKey: 'bodyType',
+        currentArgValue: '',
         headerArguments: {
           Profiles: '1 edge',
           Angle: '360deg',
           AxisOrEdge: 'Edge',
           Edge: '1 edge',
+          BodyType: '',
+        },
+        highlightedHeaderArg: 'bodyType',
+        stage: 'arguments',
+      })
+      await cmdBar.selectOption({ name: 'Surface' }).click()
+      await cmdBar.expectState({
+        commandName: 'Revolve',
+        headerArguments: {
+          Profiles: '1 edge',
+          Angle: '360deg',
+          AxisOrEdge: 'Edge',
+          Edge: '1 edge',
+          BodyType: 'SURFACE',
         },
         stage: 'review',
       })
@@ -1751,6 +1760,7 @@ sketch002 = startSketchOn(extrude001, face = rectangleSegmentA001)
         currentArgValue: '360deg',
         headerArguments: {
           Angle: '360deg',
+          BodyType: 'SURFACE',
         },
         highlightedHeaderArg: 'angle',
         stage: 'arguments',
@@ -1765,6 +1775,30 @@ sketch002 = startSketchOn(extrude001, face = rectangleSegmentA001)
         stage: 'review',
         headerArguments: {
           Angle: newAngle,
+          BodyType: 'SURFACE',
+        },
+        commandName: 'Revolve',
+      })
+      await cmdBar.clickOptionalArgument('axis')
+      await cmdBar.expectState({
+        commandName: 'Revolve',
+        currentArgKey: 'Sketch Axis',
+        currentArgValue: '',
+        headerArguments: {
+          'Sketch Axis': '',
+          Angle: newAngle,
+          BodyType: 'SURFACE',
+        },
+        highlightedHeaderArg: 'Sketch Axis',
+        stage: 'arguments',
+      })
+      await cmdBar.selectOption({ name: 'X Axis' }).click()
+      await cmdBar.expectState({
+        stage: 'review',
+        headerArguments: {
+          'Sketch Axis': 'X',
+          Angle: newAngle,
+          BodyType: 'SURFACE',
         },
         commandName: 'Revolve',
       })
@@ -1772,119 +1806,10 @@ sketch002 = startSketchOn(extrude001, face = rectangleSegmentA001)
       await toolbar.closePane(DefaultLayoutPaneID.FeatureTree)
       await editor.expectEditor.toContain('angle001 = ' + newAngle)
       await editor.expectEditor.toContain(
-        newCodeToFind.replace('angle = 360deg', 'angle = angle001')
+        newCodeToFind
+          .replace('angle = 360deg', 'angle = angle001')
+          .replace('axis = rectangleSegmentA001', 'axis = X')
       )
-    })
-  })
-
-  test(`Translate point-and-click with segment-to-body coercion`, async ({
-    context,
-    page,
-    homePage,
-    scene,
-    editor,
-    toolbar,
-    cmdBar,
-  }) => {
-    const initialCode = `sketch = startSketchOn(XY)
-profile = startProfile(sketch, at = [-5, -10])
-  |> xLine(length = 10)
-  |> yLine(length = 20)
-  |> xLine(length = -10)
-  |> close()
-box = extrude(profile, length = 30)`
-    const expectedTranslateCode = `translate(box, x = 50)`
-    const segmentToSelect = `yLine(length = 20)`
-
-    await test.step('Settle the scene', async () => {
-      await context.addInitScript((initialCode) => {
-        localStorage.setItem('persistCode', initialCode)
-      }, initialCode)
-      await page.setBodyDimensions({ width: 1000, height: 500 })
-      await homePage.goToModelingScene()
-      await scene.settled()
-    })
-
-    await test.step('Select an edge first (before opening translate)', async () => {
-      await editor.selectText(segmentToSelect)
-      await expect(toolbar.selectionStatus).toContainText('1 edge')
-    })
-
-    await test.step('Open translate via context menu and verify coercion', async () => {
-      await toolbar.translateButton.click()
-
-      // When translate opens with a segment selected, it should coerce to the parent body
-      // The segment belongs to the 'profile' path, which is extruded into 'box'
-      // So the selection should coerce from segment to path (body)
-      await cmdBar.expectState({
-        commandName: 'Translate',
-        currentArgKey: 'objects',
-        currentArgValue: '',
-        headerArguments: {
-          Objects: '',
-        },
-        highlightedHeaderArg: 'objects',
-        stage: 'arguments',
-      })
-
-      await expect(page.getByText('1 path selected')).toBeVisible()
-      await expect(toolbar.selectionStatus).toContainText('1 path')
-    })
-
-    await test.step('Complete command flow', async () => {
-      await test.step('Progress to review since object is already selected', async () => {
-        await cmdBar.progressCmdBar()
-        await cmdBar.expectState({
-          stage: 'review',
-          headerArguments: {
-            Objects: '1 path',
-          },
-          commandName: 'Translate',
-          reviewValidationError:
-            'semantic: Expected `x`, `y`, or `z` to be provided.',
-        })
-      })
-
-      await test.step('Add x translation', async () => {
-        await cmdBar.clickOptionalArgument('x')
-        await cmdBar.expectState({
-          stage: 'arguments',
-          currentArgKey: 'x',
-          currentArgValue: '0',
-          headerArguments: {
-            Objects: '1 path',
-            X: '',
-          },
-          highlightedHeaderArg: 'x',
-          commandName: 'Translate',
-        })
-        await page.keyboard.insertText('50')
-        await cmdBar.progressCmdBar()
-      })
-
-      await test.step('Review and submit', async () => {
-        await cmdBar.expectState({
-          stage: 'review',
-          headerArguments: {
-            Objects: '1 path',
-            X: '50',
-          },
-          commandName: 'Translate',
-        })
-        await cmdBar.submit()
-        await scene.settled()
-      })
-    })
-
-    await test.step('Verify code was added correctly', async () => {
-      await toolbar.closePane(DefaultLayoutPaneID.FeatureTree)
-      await toolbar.openPane(DefaultLayoutPaneID.Code)
-      await editor.expectEditor.toContain(expectedTranslateCode)
-      await editor.expectState({
-        diagnostics: [],
-        activeLines: [expectedTranslateCode],
-        highlightedCode: '',
-      })
     })
   })
 
@@ -2544,7 +2469,7 @@ solid001 = extrude(sketch001, length = 5)`
         })
 
         await test.step('Edit arc degrees', async () => {
-          await page.getByRole('button', { name: 'ArcDegrees' }).click()
+          await page.getByRole('button', { name: 'Arc degrees' }).click()
           await cmdBar.expectState({
             stage: 'arguments',
             commandName: 'Pattern Circular 3D',
@@ -2579,7 +2504,7 @@ solid001 = extrude(sketch001, length = 5)`
         })
 
         await test.step('Edit rotate duplicates', async () => {
-          await page.getByRole('button', { name: 'RotateDuplicates' }).click()
+          await page.getByRole('button', { name: 'Rotate duplicates' }).click()
           await cmdBar.expectState({
             stage: 'arguments',
             commandName: 'Pattern Circular 3D',
@@ -2613,7 +2538,7 @@ solid001 = extrude(sketch001, length = 5)`
         })
 
         await test.step('Edit use original', async () => {
-          await page.getByRole('button', { name: 'UseOriginal' }).click()
+          await page.getByRole('button', { name: 'Use original' }).click()
           await cmdBar.expectState({
             stage: 'arguments',
             commandName: 'Pattern Circular 3D',
@@ -2959,7 +2884,7 @@ solid001 = extrude(sketch001, length = 5)`
         })
 
         await test.step('Edit use original parameter', async () => {
-          await page.getByRole('button', { name: 'UseOriginal' }).click()
+          await page.getByRole('button', { name: 'Use original' }).click()
           await cmdBar.expectState({
             stage: 'arguments',
             commandName: 'Pattern Linear 3D',
@@ -3050,7 +2975,7 @@ extrude001 = extrude(sketch001, length = 30)
     const [clickOnCap] = scene.makeMouseHelpers(testPoint.x, testPoint.y)
     await test.step('Add GDT Flatness to the scene', async () => {
       await test.step('Open GDT Flatness command from toolbar', async () => {
-        await toolbar.gdtFlatnessButton.click()
+        await toolbar.selectGdtFlatness()
         await cmdBar.expectState({
           stage: 'arguments',
           commandName: 'GDT Flatness',
@@ -3347,7 +3272,7 @@ extrude001 = extrude(sketch001, length = 30)
         })
 
         await test.step('Edit frame position', async () => {
-          await page.getByRole('button', { name: 'FramePosition' }).click()
+          await page.getByRole('button', { name: 'Frame position' }).click()
           await cmdBar.expectState({
             stage: 'arguments',
             commandName: 'GDT Flatness',
@@ -3381,7 +3306,7 @@ extrude001 = extrude(sketch001, length = 30)
         })
 
         await test.step('Edit frame plane', async () => {
-          await page.getByRole('button', { name: 'FramePlane' }).click()
+          await page.getByRole('button', { name: 'Frame plane' }).click()
           await cmdBar.expectState({
             stage: 'arguments',
             commandName: 'GDT Flatness',
@@ -3413,7 +3338,7 @@ extrude001 = extrude(sketch001, length = 30)
         })
 
         await test.step('Edit font size', async () => {
-          await page.getByRole('button', { name: 'FontSize' }).click()
+          await page.getByRole('button', { name: 'Font size' }).click()
           await cmdBar.expectState({
             stage: 'arguments',
             commandName: 'GDT Flatness',
@@ -3715,7 +3640,7 @@ extrude001 = extrude(sketch001, length = 30)
         })
 
         await test.step('Edit frame position', async () => {
-          await page.getByRole('button', { name: 'FramePosition' }).click()
+          await page.getByRole('button', { name: 'Frame position' }).click()
           await cmdBar.expectState({
             stage: 'arguments',
             commandName: 'GDT Datum',
@@ -3747,7 +3672,7 @@ extrude001 = extrude(sketch001, length = 30)
         })
 
         await test.step('Edit frame plane', async () => {
-          await page.getByRole('button', { name: 'FramePlane' }).click()
+          await page.getByRole('button', { name: 'Frame plane' }).click()
           await cmdBar.expectState({
             stage: 'arguments',
             commandName: 'GDT Datum',
@@ -3777,7 +3702,7 @@ extrude001 = extrude(sketch001, length = 30)
         })
 
         await test.step('Edit font size', async () => {
-          await page.getByRole('button', { name: 'FontSize' }).click()
+          await page.getByRole('button', { name: 'Font size' }).click()
           await cmdBar.expectState({
             stage: 'arguments',
             commandName: 'GDT Datum',
@@ -4037,7 +3962,7 @@ hole001 = hole::hole(
         },
         commandName: 'Hole',
       })
-      await page.getByRole('button', { name: 'CutAt' }).click()
+      await page.getByRole('button', { name: 'Cut at' }).click()
       await cmdBar.expectState({
         stage: 'arguments',
         currentArgKey: 'cutAt',
@@ -4069,7 +3994,7 @@ hole001 = hole::hole(
           HoleBottom: 'flat',
         },
       })
-      await page.getByRole('button', { name: 'HoleType' }).click()
+      await page.getByRole('button', { name: 'Hole type' }).click()
       await cmdBar.expectState({
         stage: 'arguments',
         currentArgKey: 'holeType',

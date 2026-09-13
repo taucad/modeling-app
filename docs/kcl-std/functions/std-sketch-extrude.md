@@ -9,11 +9,11 @@ Extend a 2-dimensional sketch or individual segment of a sketch through a third 
 
 ```kcl
 extrude(
-  @sketches: [Sketch | Face | TaggedFace | Segment; 1+],
+  @sketches: [Sketch | Face | TaggedFace | TaggedEdge | Edge | Segment | any; 1+],
   length?: number(Length),
   to?: Point3d | Axis3d | Plane | Edge | Face | Sketch | Solid | TaggedEdge | TaggedFace | any,
   symmetric?: bool,
-  direction?: Point3d | Edge | TaggedEdge | Segment,
+  direction?: Point3d | Edge | TaggedEdge | Segment | any,
   bidirectionalLength?: number(Length),
   tagStart?: TagDecl,
   tagEnd?: TagDecl,
@@ -39,12 +39,12 @@ can change this behavior by using the `method` parameter. See
 
 | Name | Type | Description | Required |
 |----------|------|-------------|----------|
-| `sketches` | [[`Sketch`](/docs/kcl-std/types/std-types-Sketch) or [`Face`](/docs/kcl-std/types/std-types-Face) or [`TaggedFace`](/docs/kcl-std/types/std-types-TaggedFace) or [`Segment`](/docs/kcl-std/types/std-types-Segment); 1+] | Which sketch or sketches should be extruded. | Yes |
+| `sketches` | [[`Sketch`](/docs/kcl-std/types/std-types-Sketch) or [`Face`](/docs/kcl-std/types/std-types-Face) or [`TaggedFace`](/docs/kcl-std/types/std-types-TaggedFace) or [`TaggedEdge`](/docs/kcl-std/types/std-types-TaggedEdge) or [`Edge`](/docs/kcl-std/types/std-types-Edge) or [`Segment`](/docs/kcl-std/types/std-types-Segment) or [`any`](/docs/kcl-std/types/std-types-any); 1+] | Which sketch or sketches should be extruded. Experimental face API: edge specifier objects (`{ sideFaces = [faceTag1, faceTag2], endFaces? = [...], index? }`) are not ready for generated or user-facing KCL yet; prefer existing sketch, face, tagged face, tagged edge, edge, or segment forms until point-and-click and migration support ships. | Yes |
 | `length` | [`number(Length)`](/docs/kcl-std/types/std-types-number) | How far to extrude the given sketches. Incompatible with `to`. | No |
 | `to` | [`Point3d`](/docs/kcl-std/types/std-types-Point3d) or [`Axis3d`](/docs/kcl-std/types/std-types-Axis3d) or [`Plane`](/docs/kcl-std/types/std-types-Plane) or [`Edge`](/docs/kcl-std/types/std-types-Edge) or [`Face`](/docs/kcl-std/types/std-types-Face) or [`Sketch`](/docs/kcl-std/types/std-types-Sketch) or [`Solid`](/docs/kcl-std/types/std-types-Solid) or [`TaggedEdge`](/docs/kcl-std/types/std-types-TaggedEdge) or [`TaggedFace`](/docs/kcl-std/types/std-types-TaggedFace) or [`any`](/docs/kcl-std/types/std-types-any) | Reference to extrude to. Incompatible with `length` and `twistAngle`. Experimental face API: edge specifier objects (`{ sideFaces = [faceTag1, faceTag2], endFaces? = [...], index? }`) are not ready for generated or user-facing KCL yet; prefer existing point, axis, plane, edge, face, sketch, solid, or tag forms until point-and-click and migration support ships. | No |
 | `symmetric` | [`bool`](/docs/kcl-std/types/std-types-bool) | If true, the extrusion will happen symmetrically around the sketch. Otherwise, the extrusion will happen on only one side of the sketch. | No |
-| `direction` | [`Point3d`](/docs/kcl-std/types/std-types-Point3d) or [`Edge`](/docs/kcl-std/types/std-types-Edge) or [`TaggedEdge`](/docs/kcl-std/types/std-types-TaggedEdge) or [`Segment`](/docs/kcl-std/types/std-types-Segment) | **Experimental.** If specified, will extrude in this direction instead of the sketch plane normal | No |
-| `bidirectionalLength` | [`number(Length)`](/docs/kcl-std/types/std-types-number) | If specified, will also extrude in the opposite direction to 'distance' to the specified distance. If 'symmetric' is true, this value is ignored. | No |
+| `direction` | [`Point3d`](/docs/kcl-std/types/std-types-Point3d) or [`Edge`](/docs/kcl-std/types/std-types-Edge) or [`TaggedEdge`](/docs/kcl-std/types/std-types-TaggedEdge) or [`Segment`](/docs/kcl-std/types/std-types-Segment) or [`any`](/docs/kcl-std/types/std-types-any) | If specified, will extrude in this direction instead of the sketch plane normal. If an edge is being extruded, this defaults to halfway between the faces on either side of the edge. | No |
+| `bidirectionalLength` | [`number(Length)`](/docs/kcl-std/types/std-types-number) | How far to extrude opposite the primary extrusion direction. Only used with `length`; incompatible with `symmetric`. | No |
 | `tagStart` | [`TagDecl`](/docs/kcl-std/types/std-types-TagDecl) | A named tag for the face at the start of the extrusion, i.e. the original sketch. | No |
 | `tagEnd` | [`TagDecl`](/docs/kcl-std/types/std-types-TagDecl) | A named tag for the face at the end of the extrusion, i.e. the new face created by extruding the original sketch. | No |
 | `draftAngle` | [`number(Angle)`](/docs/kcl-std/types/std-types-number) | **Experimental.** Positive draft angle means the sketch gets smaller while extruding, i.e. inwards draft. Negative draft angle means the sketch gets bigger while extruding, i.e. outwards draft. Defaults to zero, i.e. no draft. | No |
@@ -514,9 +514,9 @@ sketch001 = sketch(on = XY) {
 }
 
 // Three triangular regions
-region001 = region(point = [-3.9529799mm, 1.7335272mm], sketch = sketch001)
-region002 = region(point = [1.1371714mm, 1.758761mm], sketch = sketch001)
-region003 = region(point = [-1.5426816mm, 1.7040645mm], sketch = sketch001)
+region001 = region(segments = [sketch001.line1, sketch001.line2])
+region002 = region(segments = [sketch001.line4, sketch001.line5])
+region003 = region(segments = [sketch001.line7, sketch001.line8])
 hidden001 = hide(sketch001)
 
 // Extrude the regions, with a positive draft, negative draft, and no draft at all.
@@ -583,7 +583,7 @@ profile = sketch(on = XY) {
   vertical(edge4)
 }
 
-solid = extrude(region(point = [2mm, 1mm], sketch = profile), length = 5)
+solid = extrude(region(segments = [profile.edge1, profile.edge2]), length = 5)
 
 ```
 
@@ -646,9 +646,9 @@ extrude(
 </model-viewer>
 
 ```kcl
-@settings(kclVersion = 2.0, experimentalFeatures = allow)
+@settings(kclVersion = 2.0)
 
-// The direction parameter can apply to sketches or edges
+// The direction parameter can apply to sketches, segments, or edges
 // Directions can be specified by an axis, a sketch segment, or a body's edge.
 sketch001 = sketch(on = XY) {
   point1 = point(at = [var -3.75mm, var 4.46mm])
@@ -669,7 +669,7 @@ sketch001 = sketch(on = XY) {
   coincident([arc3.end, arc2.start])
 }
 hidden001 = hide(sketch001)
-region001 = region(point = [-2.8386997mm, 4.2713868mm], sketch = sketch001)
+region001 = region(segments = [sketch001.arc2, sketch001.arc1])
 extrude001 = extrude(region001, length = 5, direction = [-1, 0, 1])
 sketch002 = sketch(on = XY) {
   line1 = line(start = [var 0mm, var 3.96mm], end = [var 0mm, var 0mm])
@@ -716,6 +716,51 @@ extrude003 = extrude(
   ar
   environment-image="/moon_1k.hdr"
   poster="/kcl-test-outputs/serial_test_example_fn_std-sketch-extrude16.png"
+  shadow-intensity="1"
+  camera-controls
+  touch-action="pan-y"
+>
+</model-viewer>
+
+```kcl
+@settings(kclVersion = 2.0)
+
+// Extruding edges can infer a direction or accept a custom direction
+sketch001 = sketch(on = XY) {
+  circle1 = circle(start = [var 1.84mm, var -0.32mm], center = [var -1.32mm, var 0mm])
+  horizontal([circle1.center, ORIGIN])
+  circle2 = circle(start = [var 3.37mm, var 2.21mm], center = [var 0mm, var 1.52mm])
+  vertical([circle2.center, ORIGIN])
+  line1 = line(start = [var -6.36mm, var -3.01mm], end = [var 3.61mm, var 6.24mm])
+}
+hidden001 = hide(sketch001)
+region001 = region(segments = [sketch001.circle1])
+extrude001 = extrude(region001, length = 5, bodyType = SURFACE)
+sketch002 = sketch(on = XY) {
+  line1 = line(start = [var -9.26mm, var 4.04mm], end = [var -3.48mm, var 5.98mm])
+}
+
+a = extrude001.sketch.tags.line1
+// b = getPreviousAdjacentEdge(a)
+b = getOppositeEdge(a)
+
+extrude002 = extrude(
+  b,
+  length = 6.7,
+  bodyType = SURFACE,
+  method = NEW,
+)
+
+```
+
+
+<model-viewer
+  class="kcl-example"
+  alt="Example showing a rendered KCL program that uses the extrude function"
+  src="/kcl-test-outputs/models/serial_test_example_fn_std-sketch-extrude17_output.gltf"
+  ar
+  environment-image="/moon_1k.hdr"
+  poster="/kcl-test-outputs/serial_test_example_fn_std-sketch-extrude17.png"
   shadow-intensity="1"
   camera-controls
   touch-action="pan-y"

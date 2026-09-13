@@ -1,11 +1,12 @@
 use std::num::NonZeroU32;
 
 use anyhow::Result;
+use kcl_api::UnitAngle;
+use kcl_api::UnitLength;
 use kcmc::shared::BodyType;
-use kcmc::units::UnitAngle;
-use kcmc::units::UnitLength;
 use kittycad_modeling_cmds as kcmc;
 use serde::Serialize;
+use uuid::Uuid;
 
 use super::fillet::EdgeReference;
 use crate::CompilationIssue;
@@ -18,7 +19,9 @@ use crate::execution::BoundedEdge;
 use crate::execution::ExecState;
 use crate::execution::Extrudable;
 use crate::execution::ExtrudeSurface;
+use crate::execution::Face;
 use crate::execution::Geometry;
+use crate::execution::HasAppearance;
 use crate::execution::Helix;
 use crate::execution::KclObjectFields;
 use crate::execution::KclValue;
@@ -33,8 +36,10 @@ use crate::execution::TagIdentifier;
 use crate::execution::annotations;
 pub use crate::execution::fn_call::Args;
 use crate::execution::kcl_value::FunctionSource;
+use crate::execution::types::CoercionMode;
 use crate::execution::types::NumericSuffixTypeConvertError;
 use crate::execution::types::NumericType;
+use crate::execution::types::NumericTypeExt;
 use crate::execution::types::PrimitiveType;
 use crate::execution::types::RuntimeType;
 use crate::execution::types::UnitType;
@@ -184,7 +189,7 @@ impl Args {
             )));
         };
 
-        let arg = arg.value.coerce(ty, true, exec_state).map_err(|_| {
+        let arg = arg.value.coerce(ty, CoercionMode::implicit(), exec_state).map_err(|_| {
             let actual_type = arg.value.principal_type();
             let actual_type_name = actual_type
                 .as_ref()
@@ -210,7 +215,7 @@ impl Args {
                 None => msg_base,
                 Some(sugg) => format!("{msg_base}. {sugg}"),
             };
-            if message.contains("one or more Solids or ImportedGeometry but it's actually of type Sketch") {
+            if message.contains("one or more Solids or ImportedGeometry") && message.contains("actually of type Sketch") {
                 message = format!("{message}. {ERROR_STRING_SKETCH_TO_SOLID_HELPER}");
             }
             KclError::new_semantic(KclErrorDetails::new(message, arg.source_ranges()))
@@ -306,7 +311,7 @@ impl Args {
                 vec![self.source_range],
             )))?;
 
-        let arg = arg.value.coerce(ty, true, exec_state).map_err(|_| {
+        let arg = arg.value.coerce(ty, CoercionMode::implicit(), exec_state).map_err(|_| {
             let actual_type = arg.value.principal_type();
             let actual_type_name = actual_type
                 .as_ref()
@@ -339,7 +344,7 @@ impl Args {
                 Some(sugg) => format!("{msg_base}. {sugg}"),
             };
 
-            if message.contains("one or more Solids or ImportedGeometry but it's actually of type Sketch") {
+            if message.contains("one or more Solids or ImportedGeometry") && message.contains("actually of type Sketch") {
                 message = format!("{message}. {ERROR_STRING_SKETCH_TO_SOLID_HELPER}");
             }
             KclError::new_semantic(KclErrorDetails::new(message, arg.source_ranges()))
@@ -1036,18 +1041,23 @@ impl<'a> FromKclValue<'a> for crate::execution::SolidOrSketchOrImportedGeometry 
         match arg {
             KclValue::Solid { value } => Some(Self::SolidSet(vec![(**value).clone()])),
             KclValue::Sketch { value } => Some(Self::SketchSet(vec![(**value).clone()])),
+            KclValue::Helix { value } => Some(Self::HelixSet(vec![(**value).clone()])),
             KclValue::HomArray { value, .. } => {
                 let mut solids = vec![];
                 let mut sketches = vec![];
+                let mut helices = vec![];
                 for item in value {
                     match item {
                         KclValue::Solid { value } => solids.push((**value).clone()),
                         KclValue::Sketch { value } => sketches.push((**value).clone()),
+                        KclValue::Helix { value } => helices.push((**value).clone()),
                         _ => return None,
                     }
                 }
                 if !solids.is_empty() {
                     Some(Self::SolidSet(solids))
+                } else if !helices.is_empty() {
+                    Some(Self::HelixSet(helices))
                 } else {
                     Some(Self::SketchSet(sketches))
                 }
@@ -1263,11 +1273,28 @@ impl<'a> FromKclValue<'a> for super::axis_or_reference::Point3dAxis3dOrGeometryR
     }
 }
 
+impl<'a> FromKclValue<'a> for Box<Face> {
+    fn from_kcl_val(arg: &'a KclValue) -> Option<Self> {
+        let KclValue::Face { value } = arg else {
+            return None;
+        };
+        Some(value.to_owned())
+    }
+}
+
 impl<'a> FromKclValue<'a> for Extrudable {
     fn from_kcl_val(arg: &'a KclValue) -> Option<Self> {
         let case1 = Box::<Sketch>::from_kcl_val;
         let case2 = FaceTag::from_kcl_val;
-        case1(arg).map(Self::Sketch).or_else(|| case2(arg).map(Self::Face))
+        let case3 = Box::<Face>::from_kcl_val;
+        let case4 = Uuid::from_kcl_val;
+        let case5 = Box::<TagIdentifier>::from_kcl_val;
+        case1(arg)
+            .map(Self::Sketch)
+            .or_else(|| case2(arg).map(Self::FaceTag))
+            .or_else(|| case3(arg).map(Self::Face))
+            .or_else(|| case4(arg).map(Self::Edge))
+            .or_else(|| case5(arg).map(Self::EdgeTag))
     }
 }
 
@@ -1337,6 +1364,45 @@ impl<'a> FromKclValue<'a> for TyF64 {
             KclValue::Number { value, ty, .. } => Some(TyF64::new(*value, *ty)),
             _ => None,
         }
+    }
+}
+
+// The next three impls map by variant name alone. The declared KCL signature
+// has already coerced the argument, and enum coercion is nominal, so a value
+// reaching them is a variant of the right enum.
+impl<'a> FromKclValue<'a> for crate::execution::Orientation {
+    fn from_kcl_val(arg: &'a KclValue) -> Option<Self> {
+        let KclValue::Enum { value } = arg else {
+            return None;
+        };
+        Self::from_kcl_variant(value.variant())
+    }
+}
+
+impl<'a> FromKclValue<'a> for crate::execution::Visibility {
+    fn from_kcl_val(arg: &'a KclValue) -> Option<Self> {
+        let KclValue::Enum { value } = arg else {
+            return None;
+        };
+        Self::from_kcl_variant(value.variant())
+    }
+}
+
+impl<'a> FromKclValue<'a> for crate::execution::Projection {
+    fn from_kcl_val(arg: &'a KclValue) -> Option<Self> {
+        let KclValue::Enum { value } = arg else {
+            return None;
+        };
+        Self::from_kcl_variant(value.variant())
+    }
+}
+
+impl<'a> FromKclValue<'a> for crate::execution::CameraView {
+    fn from_kcl_val(arg: &'a KclValue) -> Option<Self> {
+        let KclValue::CameraView { value } = arg else {
+            return None;
+        };
+        Some((**value).clone())
     }
 }
 
@@ -1496,6 +1562,27 @@ impl<'a> FromKclValue<'a> for Box<TagIdentifier> {
 impl<'a> FromKclValue<'a> for FunctionSource {
     fn from_kcl_val(arg: &'a KclValue) -> Option<Self> {
         arg.as_function().cloned()
+    }
+}
+
+impl<'a> FromKclValue<'a> for HasAppearance {
+    fn from_kcl_val(arg: &'a KclValue) -> Option<Self> {
+        match arg {
+            KclValue::Solid { value } => Some(Self::SolidSet(vec![(**value).clone()])),
+            KclValue::Plane { value } => Some(Self::Plane(value.to_owned())),
+            KclValue::HomArray { value, .. } => {
+                let mut solids = vec![];
+                for item in value {
+                    match item {
+                        KclValue::Solid { value } => solids.push((**value).clone()),
+                        _ => return None,
+                    }
+                }
+                Some(Self::SolidSet(solids))
+            }
+            KclValue::ImportedGeometry(value) => Some(Self::ImportedGeometry(Box::new(value.clone()))),
+            _ => None,
+        }
     }
 }
 

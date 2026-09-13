@@ -3,35 +3,53 @@
 /**
  * The executor settings.
  */
-export type ExecutorSettings = { 
+export type ExecutorSettings = {
 /**
  * Highlight edges of 3D objects?
  */
-highlight_edges: boolean, 
+highlight_edges: boolean,
 /**
  * Whether or not Screen Space Ambient Occlusion (SSAO) is enabled.
  */
-enable_ssao: boolean, 
+enable_ssao: boolean,
 /**
  * Show grid?
  */
-show_grid: boolean, 
+show_grid: boolean,
 /**
  * Should engine store this for replay?
  * If so, under what name?
  */
-replay: string | null, 
+replay: string | null,
 /**
  * The directory of the current project.  This is used for resolving import
  * paths.  If None is given, the current working directory is used.
  */
-project_directory: string | null, 
+project_directory: string | null,
 /**
  * This is the path to the current file being executed.
  * We use this for preventing cyclic imports.
  */
-current_file: string | null, 
+current_file: string | null,
 /**
  * Whether or not to automatically scale the grid when user zooms.
  */
-fixed_size_grid: boolean, };
+fixed_size_grid: boolean,
+/**
+ * Skip sending the engine messages that are only needed to build the
+ * artifact graph. When this is true, the artifact graph will be
+ * incomplete. So you should only use this option if you know you don't
+ * need the artifact graph or anything that depends on it. In that case,
+ * skipping these commands can make execution slightly faster.
+ */
+skip_artifact_graph?: boolean,
+/**
+ * If Some(N), sends a heartbeat to keep the WebSocket active, every N seconds.
+ * If None, no heartbeats will be sent.
+ */
+heartbeats?: bigint | null,
+/**
+ * If given, sets the default backface colour.
+ * If not, defaults to whatever the engine's default is.
+ */
+default_backface_color?: string | null, };

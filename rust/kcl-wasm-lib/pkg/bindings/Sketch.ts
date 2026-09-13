@@ -7,38 +7,38 @@ import type { ProfileClosed } from "./ProfileClosed.js";
 import type { SketchSurface } from "./SketchSurface.js";
 import type { TagIdentifier } from "./TagIdentifier.js";
 
-export type Sketch = { "type": "Sketch", 
+export type Sketch = { "type": "Sketch",
 /**
  * The id of the sketch (this will change when the engine's reference to it changes).
  */
-id: string, 
+id: string,
 /**
  * The paths in the sketch.
  * Only paths on the "outside" i.e. the perimeter.
  * Does not include paths "inside" the profile (for example, edges made by subtracting a profile)
  */
-paths: Array<Path>, 
+paths: Array<Path>,
 /**
  * Inner paths, resulting from subtract2d to carve profiles out of the sketch.
  */
-innerPaths?: Array<Path>, 
+innerPaths?: Array<Path>,
 /**
  * What the sketch is on (can be a plane or a face).
  */
-on: SketchSurface, 
+on: SketchSurface,
 /**
  * The starting path.
  */
-start: BasePath, 
+start: BasePath,
 /**
  * Tag identifiers that have been declared in this sketch.
  */
-tags?: { [key in string]: TagIdentifier }, 
+tags?: { [key in string]: TagIdentifier },
 /**
  * The original id of the sketch. This stays the same even if the sketch is
  * is sketched on face etc.
  */
-artifactId: ArtifactId, units: UnitLength, 
+artifactId: ArtifactId, units: UnitLength,
 /**
  * Has the profile been closed?
  * If not given, defaults to yes, closed explicitly.

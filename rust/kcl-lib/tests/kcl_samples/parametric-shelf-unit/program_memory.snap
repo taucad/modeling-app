@@ -72,8 +72,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
     "value": {
       "artifactId": "[uuid]",
       "id": "[uuid]",
-      "kind": "Custom",
       "objectId": 51,
+      "kind": "Custom",
       "origin": {
         "x": 0.0,
         "y": 0.0,
@@ -114,6 +114,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -121,10 +123,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3068,
-            "end": 3073,
+            "commentStart": 3084,
+            "end": 3089,
             "moduleId": 0,
-            "start": 3068,
+            "start": 3084,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -135,10 +137,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3145,
-            "end": 3150,
+            "commentStart": 3161,
+            "end": 3166,
             "moduleId": 0,
-            "start": 3145,
+            "start": 3161,
             "type": "TagDeclarator",
             "value": "line2"
           },
@@ -149,10 +151,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3264,
-            "end": 3269,
+            "commentStart": 3280,
+            "end": 3285,
             "moduleId": 0,
-            "start": 3264,
+            "start": 3280,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -163,10 +165,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3378,
-            "end": 3383,
+            "commentStart": 3394,
+            "end": 3399,
             "moduleId": 0,
-            "start": 3378,
+            "start": 3394,
             "type": "TagDeclarator",
             "value": "line4"
           },
@@ -188,10 +190,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               0.0
             ],
             "tag": {
-              "commentStart": 3068,
-              "end": 3073,
+              "commentStart": 3084,
+              "end": 3089,
               "moduleId": 0,
-              "start": 3068,
+              "start": 3084,
               "type": "TagDeclarator",
               "value": "line1"
             },
@@ -212,10 +214,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               -0.37
             ],
             "tag": {
-              "commentStart": 3145,
-              "end": 3150,
+              "commentStart": 3161,
+              "end": 3166,
               "moduleId": 0,
-              "start": 3145,
+              "start": 3161,
               "type": "TagDeclarator",
               "value": "line2"
             },
@@ -236,10 +238,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               -0.37
             ],
             "tag": {
-              "commentStart": 3264,
-              "end": 3269,
+              "commentStart": 3280,
+              "end": 3285,
               "moduleId": 0,
-              "start": 3264,
+              "start": 3280,
               "type": "TagDeclarator",
               "value": "line3"
             },
@@ -260,10 +262,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               0.0
             ],
             "tag": {
-              "commentStart": 3378,
-              "end": 3383,
+              "commentStart": 3394,
+              "end": 3399,
               "moduleId": 0,
-              "start": 3378,
+              "start": 3394,
               "type": "TagDeclarator",
               "value": "line4"
             },
@@ -276,17 +278,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 31,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -342,8 +344,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "m"
+        "units": "m",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -880,10 +882,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                     0.0
                   ],
                   "tag": {
-                    "commentStart": 3068,
-                    "end": 3073,
+                    "commentStart": 3084,
+                    "end": 3089,
                     "moduleId": 0,
-                    "start": 3068,
+                    "start": 3084,
                     "type": "TagDeclarator",
                     "value": "line1"
                   },
@@ -904,10 +906,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                     -0.37
                   ],
                   "tag": {
-                    "commentStart": 3145,
-                    "end": 3150,
+                    "commentStart": 3161,
+                    "end": 3166,
                     "moduleId": 0,
-                    "start": 3145,
+                    "start": 3161,
                     "type": "TagDeclarator",
                     "value": "line2"
                   },
@@ -928,10 +930,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                     -0.37
                   ],
                   "tag": {
-                    "commentStart": 3264,
-                    "end": 3269,
+                    "commentStart": 3280,
+                    "end": 3285,
                     "moduleId": 0,
-                    "start": 3264,
+                    "start": 3280,
                     "type": "TagDeclarator",
                     "value": "line3"
                   },
@@ -952,10 +954,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                     0.0
                   ],
                   "tag": {
-                    "commentStart": 3378,
-                    "end": 3383,
+                    "commentStart": 3394,
+                    "end": 3399,
                     "moduleId": 0,
-                    "start": 3378,
+                    "start": 3394,
                     "type": "TagDeclarator",
                     "value": "line4"
                   },
@@ -968,17 +970,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 31,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": 0.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -1058,6 +1060,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -1065,10 +1069,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3857,
-            "end": 3862,
+            "commentStart": 3822,
+            "end": 3827,
             "moduleId": 0,
-            "start": 3857,
+            "start": 3822,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -1079,10 +1083,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3933,
-            "end": 3938,
+            "commentStart": 3898,
+            "end": 3903,
             "moduleId": 0,
-            "start": 3933,
+            "start": 3898,
             "type": "TagDeclarator",
             "value": "line2"
           },
@@ -1093,10 +1097,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 4050,
-            "end": 4055,
+            "commentStart": 4015,
+            "end": 4020,
             "moduleId": 0,
-            "start": 4050,
+            "start": 4015,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -1107,10 +1111,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 4163,
-            "end": 4168,
+            "commentStart": 4128,
+            "end": 4133,
             "moduleId": 0,
-            "start": 4163,
+            "start": 4128,
             "type": "TagDeclarator",
             "value": "line4"
           },
@@ -1132,10 +1136,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               0.0
             ],
             "tag": {
-              "commentStart": 3857,
-              "end": 3862,
+              "commentStart": 3822,
+              "end": 3827,
               "moduleId": 0,
-              "start": 3857,
+              "start": 3822,
               "type": "TagDeclarator",
               "value": "line1"
             },
@@ -1156,10 +1160,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               -0.4
             ],
             "tag": {
-              "commentStart": 3933,
-              "end": 3938,
+              "commentStart": 3898,
+              "end": 3903,
               "moduleId": 0,
-              "start": 3933,
+              "start": 3898,
               "type": "TagDeclarator",
               "value": "line2"
             },
@@ -1180,10 +1184,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               -0.4
             ],
             "tag": {
-              "commentStart": 4050,
-              "end": 4055,
+              "commentStart": 4015,
+              "end": 4020,
               "moduleId": 0,
-              "start": 4050,
+              "start": 4015,
               "type": "TagDeclarator",
               "value": "line3"
             },
@@ -1204,10 +1208,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               0.0
             ],
             "tag": {
-              "commentStart": 4163,
-              "end": 4168,
+              "commentStart": 4128,
+              "end": 4133,
               "moduleId": 0,
-              "start": 4163,
+              "start": 4128,
               "type": "TagDeclarator",
               "value": "line4"
             },
@@ -1220,17 +1224,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 51,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 50.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -1286,8 +1290,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "m"
+        "units": "m",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -1300,8 +1304,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
     "value": {
       "artifactId": "[uuid]",
       "id": "[uuid]",
-      "kind": "Custom",
       "objectId": 51,
+      "kind": "Custom",
       "origin": {
         "x": 0.0,
         "y": 0.0,
@@ -1830,10 +1834,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                     0.0
                   ],
                   "tag": {
-                    "commentStart": 3857,
-                    "end": 3862,
+                    "commentStart": 3822,
+                    "end": 3827,
                     "moduleId": 0,
-                    "start": 3857,
+                    "start": 3822,
                     "type": "TagDeclarator",
                     "value": "line1"
                   },
@@ -1854,10 +1858,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                     -0.4
                   ],
                   "tag": {
-                    "commentStart": 3933,
-                    "end": 3938,
+                    "commentStart": 3898,
+                    "end": 3903,
                     "moduleId": 0,
-                    "start": 3933,
+                    "start": 3898,
                     "type": "TagDeclarator",
                     "value": "line2"
                   },
@@ -1878,10 +1882,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                     -0.4
                   ],
                   "tag": {
-                    "commentStart": 4050,
-                    "end": 4055,
+                    "commentStart": 4015,
+                    "end": 4020,
                     "moduleId": 0,
-                    "start": 4050,
+                    "start": 4015,
                     "type": "TagDeclarator",
                     "value": "line3"
                   },
@@ -1902,10 +1906,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                     0.0
                   ],
                   "tag": {
-                    "commentStart": 4163,
-                    "end": 4168,
+                    "commentStart": 4128,
+                    "end": 4133,
                     "moduleId": 0,
-                    "start": 4163,
+                    "start": 4128,
                     "type": "TagDeclarator",
                     "value": "line4"
                   },
@@ -1918,17 +1922,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 51,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": 50.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -1994,39 +1998,6 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
     },
     "constrainable": false
   },
-  "firstShelfSketch": {
-    "type": "Plane",
-    "value": {
-      "artifactId": "[uuid]",
-      "id": "[uuid]",
-      "kind": "Custom",
-      "objectId": 51,
-      "origin": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 50.0,
-        "units": "mm"
-      },
-      "xAxis": {
-        "x": 1.0,
-        "y": 0.0,
-        "z": 0.0,
-        "units": null
-      },
-      "yAxis": {
-        "x": 0.0,
-        "y": 1.0,
-        "z": 0.0,
-        "units": null
-      },
-      "zAxis": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 1.0,
-        "units": null
-      }
-    }
-  },
   "hidden001": {
     "type": "Sketch",
     "value": {
@@ -2043,10 +2014,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             0.0
           ],
           "tag": {
-            "commentStart": 3068,
-            "end": 3073,
+            "commentStart": 3084,
+            "end": 3089,
             "moduleId": 0,
-            "start": 3068,
+            "start": 3084,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -2067,10 +2038,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             -0.37
           ],
           "tag": {
-            "commentStart": 3145,
-            "end": 3150,
+            "commentStart": 3161,
+            "end": 3166,
             "moduleId": 0,
-            "start": 3145,
+            "start": 3161,
             "type": "TagDeclarator",
             "value": "line2"
           },
@@ -2091,10 +2062,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             -0.37
           ],
           "tag": {
-            "commentStart": 3264,
-            "end": 3269,
+            "commentStart": 3280,
+            "end": 3285,
             "moduleId": 0,
-            "start": 3264,
+            "start": 3280,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -2115,10 +2086,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             0.0
           ],
           "tag": {
-            "commentStart": 3378,
-            "end": 3383,
+            "commentStart": 3394,
+            "end": 3399,
             "moduleId": 0,
-            "start": 3378,
+            "start": 3394,
             "type": "TagDeclarator",
             "value": "line4"
           },
@@ -2131,17 +2102,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 31,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 0.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -2217,10 +2188,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             0.0
           ],
           "tag": {
-            "commentStart": 3857,
-            "end": 3862,
+            "commentStart": 3822,
+            "end": 3827,
             "moduleId": 0,
-            "start": 3857,
+            "start": 3822,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -2241,10 +2212,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             -0.4
           ],
           "tag": {
-            "commentStart": 3933,
-            "end": 3938,
+            "commentStart": 3898,
+            "end": 3903,
             "moduleId": 0,
-            "start": 3933,
+            "start": 3898,
             "type": "TagDeclarator",
             "value": "line2"
           },
@@ -2265,10 +2236,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             -0.4
           ],
           "tag": {
-            "commentStart": 4050,
-            "end": 4055,
+            "commentStart": 4015,
+            "end": 4020,
             "moduleId": 0,
-            "start": 4050,
+            "start": 4015,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -2289,10 +2260,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             0.0
           ],
           "tag": {
-            "commentStart": 4163,
-            "end": 4168,
+            "commentStart": 4128,
+            "end": 4133,
             "moduleId": 0,
-            "start": 4163,
+            "start": 4128,
             "type": "TagDeclarator",
             "value": "line4"
           },
@@ -2305,17 +2276,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 51,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 50.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -2391,10 +2362,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             -0.4
           ],
           "tag": {
-            "commentStart": 1787,
-            "end": 1792,
+            "commentStart": 1803,
+            "end": 1808,
             "moduleId": 0,
-            "start": 1787,
+            "start": 1803,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -2415,10 +2386,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             -0.4
           ],
           "tag": {
-            "commentStart": 1865,
-            "end": 1870,
+            "commentStart": 1881,
+            "end": 1886,
             "moduleId": 0,
-            "start": 1865,
+            "start": 1881,
             "type": "TagDeclarator",
             "value": "line2"
           },
@@ -2439,10 +2410,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             0.0
           ],
           "tag": {
-            "commentStart": 1941,
-            "end": 1946,
+            "commentStart": 1957,
+            "end": 1962,
             "moduleId": 0,
-            "start": 1941,
+            "start": 1957,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -2463,10 +2434,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             0.0
           ],
           "tag": {
-            "commentStart": 2013,
-            "end": 2018,
+            "commentStart": 2029,
+            "end": 2034,
             "moduleId": 0,
-            "start": 2013,
+            "start": 2029,
             "type": "TagDeclarator",
             "value": "line4"
           },
@@ -2479,17 +2450,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 0,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 0.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -2594,10 +2565,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             0.0
           ],
           "tag": {
-            "commentStart": 3068,
-            "end": 3073,
+            "commentStart": 3084,
+            "end": 3089,
             "moduleId": 0,
-            "start": 3068,
+            "start": 3084,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -2618,10 +2589,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             -0.37
           ],
           "tag": {
-            "commentStart": 3145,
-            "end": 3150,
+            "commentStart": 3161,
+            "end": 3166,
             "moduleId": 0,
-            "start": 3145,
+            "start": 3161,
             "type": "TagDeclarator",
             "value": "line2"
           },
@@ -2642,10 +2613,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             -0.37
           ],
           "tag": {
-            "commentStart": 3264,
-            "end": 3269,
+            "commentStart": 3280,
+            "end": 3285,
             "moduleId": 0,
-            "start": 3264,
+            "start": 3280,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -2666,10 +2637,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             0.0
           ],
           "tag": {
-            "commentStart": 3378,
-            "end": 3383,
+            "commentStart": 3394,
+            "end": 3399,
             "moduleId": 0,
-            "start": 3378,
+            "start": 3394,
             "type": "TagDeclarator",
             "value": "line4"
           },
@@ -2682,17 +2653,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 31,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 0.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -2748,8 +2719,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "m"
+      "units": "m",
+      "isClosed": "explicitly"
     }
   },
   "region002": {
@@ -2768,10 +2739,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             0.0
           ],
           "tag": {
-            "commentStart": 3857,
-            "end": 3862,
+            "commentStart": 3822,
+            "end": 3827,
             "moduleId": 0,
-            "start": 3857,
+            "start": 3822,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -2792,10 +2763,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             -0.4
           ],
           "tag": {
-            "commentStart": 3933,
-            "end": 3938,
+            "commentStart": 3898,
+            "end": 3903,
             "moduleId": 0,
-            "start": 3933,
+            "start": 3898,
             "type": "TagDeclarator",
             "value": "line2"
           },
@@ -2816,10 +2787,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             -0.4
           ],
           "tag": {
-            "commentStart": 4050,
-            "end": 4055,
+            "commentStart": 4015,
+            "end": 4020,
             "moduleId": 0,
-            "start": 4050,
+            "start": 4015,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -2840,10 +2811,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             0.0
           ],
           "tag": {
-            "commentStart": 4163,
-            "end": 4168,
+            "commentStart": 4128,
+            "end": 4133,
             "moduleId": 0,
-            "start": 4163,
+            "start": 4128,
             "type": "TagDeclarator",
             "value": "line4"
           },
@@ -2856,17 +2827,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 51,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 50.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -2922,8 +2893,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "m"
+      "units": "m",
+      "isClosed": "explicitly"
     }
   },
   "shelfBoardCount": {
@@ -2988,6 +2959,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -2995,10 +2968,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 3857,
-                "end": 3862,
+                "commentStart": 3822,
+                "end": 3827,
                 "moduleId": 0,
-                "start": 3857,
+                "start": 3822,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -3009,10 +2982,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 3933,
-                "end": 3938,
+                "commentStart": 3898,
+                "end": 3903,
                 "moduleId": 0,
-                "start": 3933,
+                "start": 3898,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -3023,10 +2996,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 4050,
-                "end": 4055,
+                "commentStart": 4015,
+                "end": 4020,
                 "moduleId": 0,
-                "start": 4050,
+                "start": 4015,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -3037,10 +3010,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 4163,
-                "end": 4168,
+                "commentStart": 4128,
+                "end": 4133,
                 "moduleId": 0,
-                "start": 4163,
+                "start": 4128,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -3062,10 +3035,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 3857,
-                  "end": 3862,
+                  "commentStart": 3822,
+                  "end": 3827,
                   "moduleId": 0,
-                  "start": 3857,
+                  "start": 3822,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -3086,10 +3059,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   -0.4
                 ],
                 "tag": {
-                  "commentStart": 3933,
-                  "end": 3938,
+                  "commentStart": 3898,
+                  "end": 3903,
                   "moduleId": 0,
-                  "start": 3933,
+                  "start": 3898,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -3110,10 +3083,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   -0.4
                 ],
                 "tag": {
-                  "commentStart": 4050,
-                  "end": 4055,
+                  "commentStart": 4015,
+                  "end": 4020,
                   "moduleId": 0,
-                  "start": 4050,
+                  "start": 4015,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -3134,10 +3107,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 4163,
-                  "end": 4168,
+                  "commentStart": 4128,
+                  "end": 4133,
                   "moduleId": 0,
-                  "start": 4163,
+                  "start": 4128,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -3150,17 +3123,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "Custom",
               "objectId": 51,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 50.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -3216,8 +3189,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "originSketchId": "[uuid]",
-            "units": "m"
+            "units": "m",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -3230,6 +3203,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -3237,10 +3212,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 3857,
-                "end": 3862,
+                "commentStart": 3822,
+                "end": 3827,
                 "moduleId": 0,
-                "start": 3857,
+                "start": 3822,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -3251,10 +3226,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 3933,
-                "end": 3938,
+                "commentStart": 3898,
+                "end": 3903,
                 "moduleId": 0,
-                "start": 3933,
+                "start": 3898,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -3265,10 +3240,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 4050,
-                "end": 4055,
+                "commentStart": 4015,
+                "end": 4020,
                 "moduleId": 0,
-                "start": 4050,
+                "start": 4015,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -3279,10 +3254,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 4163,
-                "end": 4168,
+                "commentStart": 4128,
+                "end": 4133,
                 "moduleId": 0,
-                "start": 4163,
+                "start": 4128,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -3304,10 +3279,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 3857,
-                  "end": 3862,
+                  "commentStart": 3822,
+                  "end": 3827,
                   "moduleId": 0,
-                  "start": 3857,
+                  "start": 3822,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -3328,10 +3303,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   -0.4
                 ],
                 "tag": {
-                  "commentStart": 3933,
-                  "end": 3938,
+                  "commentStart": 3898,
+                  "end": 3903,
                   "moduleId": 0,
-                  "start": 3933,
+                  "start": 3898,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -3352,10 +3327,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   -0.4
                 ],
                 "tag": {
-                  "commentStart": 4050,
-                  "end": 4055,
+                  "commentStart": 4015,
+                  "end": 4020,
                   "moduleId": 0,
-                  "start": 4050,
+                  "start": 4015,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -3376,10 +3351,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 4163,
-                  "end": 4168,
+                  "commentStart": 4128,
+                  "end": 4133,
                   "moduleId": 0,
-                  "start": 4163,
+                  "start": 4128,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -3392,17 +3367,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "Custom",
               "objectId": 51,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 50.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -3458,8 +3433,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "originSketchId": "[uuid]",
-            "units": "m"
+            "units": "m",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -3472,6 +3447,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -3479,10 +3456,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 3857,
-                "end": 3862,
+                "commentStart": 3822,
+                "end": 3827,
                 "moduleId": 0,
-                "start": 3857,
+                "start": 3822,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -3493,10 +3470,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 3933,
-                "end": 3938,
+                "commentStart": 3898,
+                "end": 3903,
                 "moduleId": 0,
-                "start": 3933,
+                "start": 3898,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -3507,10 +3484,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 4050,
-                "end": 4055,
+                "commentStart": 4015,
+                "end": 4020,
                 "moduleId": 0,
-                "start": 4050,
+                "start": 4015,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -3521,10 +3498,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 4163,
-                "end": 4168,
+                "commentStart": 4128,
+                "end": 4133,
                 "moduleId": 0,
-                "start": 4163,
+                "start": 4128,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -3546,10 +3523,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 3857,
-                  "end": 3862,
+                  "commentStart": 3822,
+                  "end": 3827,
                   "moduleId": 0,
-                  "start": 3857,
+                  "start": 3822,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -3570,10 +3547,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   -0.4
                 ],
                 "tag": {
-                  "commentStart": 3933,
-                  "end": 3938,
+                  "commentStart": 3898,
+                  "end": 3903,
                   "moduleId": 0,
-                  "start": 3933,
+                  "start": 3898,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -3594,10 +3571,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   -0.4
                 ],
                 "tag": {
-                  "commentStart": 4050,
-                  "end": 4055,
+                  "commentStart": 4015,
+                  "end": 4020,
                   "moduleId": 0,
-                  "start": 4050,
+                  "start": 4015,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -3618,10 +3595,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 4163,
-                  "end": 4168,
+                  "commentStart": 4128,
+                  "end": 4133,
                   "moduleId": 0,
-                  "start": 4163,
+                  "start": 4128,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -3634,17 +3611,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "Custom",
               "objectId": 51,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 50.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -3700,8 +3677,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "originSketchId": "[uuid]",
-            "units": "m"
+            "units": "m",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -3714,6 +3691,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -3721,10 +3700,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 3857,
-                "end": 3862,
+                "commentStart": 3822,
+                "end": 3827,
                 "moduleId": 0,
-                "start": 3857,
+                "start": 3822,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -3735,10 +3714,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 3933,
-                "end": 3938,
+                "commentStart": 3898,
+                "end": 3903,
                 "moduleId": 0,
-                "start": 3933,
+                "start": 3898,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -3749,10 +3728,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 4050,
-                "end": 4055,
+                "commentStart": 4015,
+                "end": 4020,
                 "moduleId": 0,
-                "start": 4050,
+                "start": 4015,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -3763,10 +3742,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 4163,
-                "end": 4168,
+                "commentStart": 4128,
+                "end": 4133,
                 "moduleId": 0,
-                "start": 4163,
+                "start": 4128,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -3788,10 +3767,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 3857,
-                  "end": 3862,
+                  "commentStart": 3822,
+                  "end": 3827,
                   "moduleId": 0,
-                  "start": 3857,
+                  "start": 3822,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -3812,10 +3791,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   -0.4
                 ],
                 "tag": {
-                  "commentStart": 3933,
-                  "end": 3938,
+                  "commentStart": 3898,
+                  "end": 3903,
                   "moduleId": 0,
-                  "start": 3933,
+                  "start": 3898,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -3836,10 +3815,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   -0.4
                 ],
                 "tag": {
-                  "commentStart": 4050,
-                  "end": 4055,
+                  "commentStart": 4015,
+                  "end": 4020,
                   "moduleId": 0,
-                  "start": 4050,
+                  "start": 4015,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -3860,10 +3839,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 4163,
-                  "end": 4168,
+                  "commentStart": 4128,
+                  "end": 4133,
                   "moduleId": 0,
-                  "start": 4163,
+                  "start": 4128,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -3876,17 +3855,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "Custom",
               "objectId": 51,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 50.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -3942,8 +3921,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "originSketchId": "[uuid]",
-            "units": "m"
+            "units": "m",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -3956,6 +3935,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -3963,10 +3944,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 3857,
-                "end": 3862,
+                "commentStart": 3822,
+                "end": 3827,
                 "moduleId": 0,
-                "start": 3857,
+                "start": 3822,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -3977,10 +3958,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 3933,
-                "end": 3938,
+                "commentStart": 3898,
+                "end": 3903,
                 "moduleId": 0,
-                "start": 3933,
+                "start": 3898,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -3991,10 +3972,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 4050,
-                "end": 4055,
+                "commentStart": 4015,
+                "end": 4020,
                 "moduleId": 0,
-                "start": 4050,
+                "start": 4015,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -4005,10 +3986,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 4163,
-                "end": 4168,
+                "commentStart": 4128,
+                "end": 4133,
                 "moduleId": 0,
-                "start": 4163,
+                "start": 4128,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -4030,10 +4011,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 3857,
-                  "end": 3862,
+                  "commentStart": 3822,
+                  "end": 3827,
                   "moduleId": 0,
-                  "start": 3857,
+                  "start": 3822,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -4054,10 +4035,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   -0.4
                 ],
                 "tag": {
-                  "commentStart": 3933,
-                  "end": 3938,
+                  "commentStart": 3898,
+                  "end": 3903,
                   "moduleId": 0,
-                  "start": 3933,
+                  "start": 3898,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -4078,10 +4059,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   -0.4
                 ],
                 "tag": {
-                  "commentStart": 4050,
-                  "end": 4055,
+                  "commentStart": 4015,
+                  "end": 4020,
                   "moduleId": 0,
-                  "start": 4050,
+                  "start": 4015,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -4102,10 +4083,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 4163,
-                  "end": 4168,
+                  "commentStart": 4128,
+                  "end": 4133,
                   "moduleId": 0,
-                  "start": 4163,
+                  "start": 4128,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -4118,17 +4099,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "Custom",
               "objectId": 51,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 50.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -4184,8 +4165,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "originSketchId": "[uuid]",
-            "units": "m"
+            "units": "m",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -4198,6 +4179,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -4205,10 +4188,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 3857,
-                "end": 3862,
+                "commentStart": 3822,
+                "end": 3827,
                 "moduleId": 0,
-                "start": 3857,
+                "start": 3822,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -4219,10 +4202,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 3933,
-                "end": 3938,
+                "commentStart": 3898,
+                "end": 3903,
                 "moduleId": 0,
-                "start": 3933,
+                "start": 3898,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -4233,10 +4216,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 4050,
-                "end": 4055,
+                "commentStart": 4015,
+                "end": 4020,
                 "moduleId": 0,
-                "start": 4050,
+                "start": 4015,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -4247,10 +4230,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 4163,
-                "end": 4168,
+                "commentStart": 4128,
+                "end": 4133,
                 "moduleId": 0,
-                "start": 4163,
+                "start": 4128,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -4272,10 +4255,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 3857,
-                  "end": 3862,
+                  "commentStart": 3822,
+                  "end": 3827,
                   "moduleId": 0,
-                  "start": 3857,
+                  "start": 3822,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -4296,10 +4279,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   -0.4
                 ],
                 "tag": {
-                  "commentStart": 3933,
-                  "end": 3938,
+                  "commentStart": 3898,
+                  "end": 3903,
                   "moduleId": 0,
-                  "start": 3933,
+                  "start": 3898,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -4320,10 +4303,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   -0.4
                 ],
                 "tag": {
-                  "commentStart": 4050,
-                  "end": 4055,
+                  "commentStart": 4015,
+                  "end": 4020,
                   "moduleId": 0,
-                  "start": 4050,
+                  "start": 4015,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -4344,10 +4327,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 4163,
-                  "end": 4168,
+                  "commentStart": 4128,
+                  "end": 4133,
                   "moduleId": 0,
-                  "start": 4163,
+                  "start": 4128,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -4360,17 +4343,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "Custom",
               "objectId": 51,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 50.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -4426,8 +4409,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "originSketchId": "[uuid]",
-            "units": "m"
+            "units": "m",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -4442,6 +4425,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -4449,10 +4434,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1787,
-            "end": 1792,
+            "commentStart": 1803,
+            "end": 1808,
             "moduleId": 0,
-            "start": 1787,
+            "start": 1803,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -4463,10 +4448,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1865,
-            "end": 1870,
+            "commentStart": 1881,
+            "end": 1886,
             "moduleId": 0,
-            "start": 1865,
+            "start": 1881,
             "type": "TagDeclarator",
             "value": "line2"
           },
@@ -4477,10 +4462,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1941,
-            "end": 1946,
+            "commentStart": 1957,
+            "end": 1962,
             "moduleId": 0,
-            "start": 1941,
+            "start": 1957,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -4491,10 +4476,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2013,
-            "end": 2018,
+            "commentStart": 2029,
+            "end": 2034,
             "moduleId": 0,
-            "start": 2013,
+            "start": 2029,
             "type": "TagDeclarator",
             "value": "line4"
           },
@@ -4516,10 +4501,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               -0.4
             ],
             "tag": {
-              "commentStart": 1787,
-              "end": 1792,
+              "commentStart": 1803,
+              "end": 1808,
               "moduleId": 0,
-              "start": 1787,
+              "start": 1803,
               "type": "TagDeclarator",
               "value": "line1"
             },
@@ -4540,10 +4525,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               -0.4
             ],
             "tag": {
-              "commentStart": 1865,
-              "end": 1870,
+              "commentStart": 1881,
+              "end": 1886,
               "moduleId": 0,
-              "start": 1865,
+              "start": 1881,
               "type": "TagDeclarator",
               "value": "line2"
             },
@@ -4564,10 +4549,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               0.0
             ],
             "tag": {
-              "commentStart": 1941,
-              "end": 1946,
+              "commentStart": 1957,
+              "end": 1962,
               "moduleId": 0,
-              "start": 1941,
+              "start": 1957,
               "type": "TagDeclarator",
               "value": "line3"
             },
@@ -4588,10 +4573,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               0.0
             ],
             "tag": {
-              "commentStart": 2013,
-              "end": 2018,
+              "commentStart": 2029,
+              "end": 2034,
               "moduleId": 0,
-              "start": 2013,
+              "start": 2029,
               "type": "TagDeclarator",
               "value": "line4"
             },
@@ -4604,17 +4589,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 0,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -4670,8 +4655,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "m"
+        "units": "m",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -5311,10 +5296,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                     -0.4
                   ],
                   "tag": {
-                    "commentStart": 1787,
-                    "end": 1792,
+                    "commentStart": 1803,
+                    "end": 1808,
                     "moduleId": 0,
-                    "start": 1787,
+                    "start": 1803,
                     "type": "TagDeclarator",
                     "value": "line1"
                   },
@@ -5335,10 +5320,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                     -0.4
                   ],
                   "tag": {
-                    "commentStart": 1865,
-                    "end": 1870,
+                    "commentStart": 1881,
+                    "end": 1886,
                     "moduleId": 0,
-                    "start": 1865,
+                    "start": 1881,
                     "type": "TagDeclarator",
                     "value": "line2"
                   },
@@ -5359,10 +5344,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                     0.0
                   ],
                   "tag": {
-                    "commentStart": 1941,
-                    "end": 1946,
+                    "commentStart": 1957,
+                    "end": 1962,
                     "moduleId": 0,
-                    "start": 1941,
+                    "start": 1957,
                     "type": "TagDeclarator",
                     "value": "line3"
                   },
@@ -5383,10 +5368,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                     0.0
                   ],
                   "tag": {
-                    "commentStart": 2013,
-                    "end": 2018,
+                    "commentStart": 2029,
+                    "end": 2034,
                     "moduleId": 0,
-                    "start": 2013,
+                    "start": 2029,
                     "type": "TagDeclarator",
                     "value": "line4"
                   },
@@ -5399,17 +5384,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 0,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": 0.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -5491,10 +5476,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             -0.4
           ],
           "tag": {
-            "commentStart": 1787,
-            "end": 1792,
+            "commentStart": 1803,
+            "end": 1808,
             "moduleId": 0,
-            "start": 1787,
+            "start": 1803,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -5515,10 +5500,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             -0.4
           ],
           "tag": {
-            "commentStart": 1865,
-            "end": 1870,
+            "commentStart": 1881,
+            "end": 1886,
             "moduleId": 0,
-            "start": 1865,
+            "start": 1881,
             "type": "TagDeclarator",
             "value": "line2"
           },
@@ -5539,10 +5524,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             0.0
           ],
           "tag": {
-            "commentStart": 1941,
-            "end": 1946,
+            "commentStart": 1957,
+            "end": 1962,
             "moduleId": 0,
-            "start": 1941,
+            "start": 1957,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -5563,10 +5548,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             0.0
           ],
           "tag": {
-            "commentStart": 2013,
-            "end": 2018,
+            "commentStart": 2029,
+            "end": 2034,
             "moduleId": 0,
-            "start": 2013,
+            "start": 2029,
             "type": "TagDeclarator",
             "value": "line4"
           },
@@ -5579,17 +5564,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 0,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 0.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -5645,8 +5630,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "m"
+      "units": "m",
+      "isClosed": "explicitly"
     }
   },
   "sidePanels": {
@@ -5657,6 +5642,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -5664,10 +5651,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 1787,
-                "end": 1792,
+                "commentStart": 1803,
+                "end": 1808,
                 "moduleId": 0,
-                "start": 1787,
+                "start": 1803,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -5678,10 +5665,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 1865,
-                "end": 1870,
+                "commentStart": 1881,
+                "end": 1886,
                 "moduleId": 0,
-                "start": 1865,
+                "start": 1881,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -5692,10 +5679,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 1941,
-                "end": 1946,
+                "commentStart": 1957,
+                "end": 1962,
                 "moduleId": 0,
-                "start": 1941,
+                "start": 1957,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -5706,10 +5693,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 2013,
-                "end": 2018,
+                "commentStart": 2029,
+                "end": 2034,
                 "moduleId": 0,
-                "start": 2013,
+                "start": 2029,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -5731,10 +5718,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   -0.4
                 ],
                 "tag": {
-                  "commentStart": 1787,
-                  "end": 1792,
+                  "commentStart": 1803,
+                  "end": 1808,
                   "moduleId": 0,
-                  "start": 1787,
+                  "start": 1803,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -5755,10 +5742,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   -0.4
                 ],
                 "tag": {
-                  "commentStart": 1865,
-                  "end": 1870,
+                  "commentStart": 1881,
+                  "end": 1886,
                   "moduleId": 0,
-                  "start": 1865,
+                  "start": 1881,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -5779,10 +5766,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 1941,
-                  "end": 1946,
+                  "commentStart": 1957,
+                  "end": 1962,
                   "moduleId": 0,
-                  "start": 1941,
+                  "start": 1957,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -5803,10 +5790,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 2013,
-                  "end": 2018,
+                  "commentStart": 2029,
+                  "end": 2034,
                   "moduleId": 0,
-                  "start": 2013,
+                  "start": 2029,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -5819,17 +5806,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "Custom",
               "objectId": 0,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 0.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -5885,8 +5872,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "originSketchId": "[uuid]",
-            "units": "m"
+            "units": "m",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",
@@ -5899,6 +5886,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
         "value": {
           "type": "Solid",
           "id": "[uuid]",
+          "originalId": "[uuid]",
+          "topologyId": "[uuid]",
           "artifactId": "[uuid]",
           "value": [
             {
@@ -5906,10 +5895,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 1787,
-                "end": 1792,
+                "commentStart": 1803,
+                "end": 1808,
                 "moduleId": 0,
-                "start": 1787,
+                "start": 1803,
                 "type": "TagDeclarator",
                 "value": "line1"
               },
@@ -5920,10 +5909,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 1865,
-                "end": 1870,
+                "commentStart": 1881,
+                "end": 1886,
                 "moduleId": 0,
-                "start": 1865,
+                "start": 1881,
                 "type": "TagDeclarator",
                 "value": "line2"
               },
@@ -5934,10 +5923,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 1941,
-                "end": 1946,
+                "commentStart": 1957,
+                "end": 1962,
                 "moduleId": 0,
-                "start": 1941,
+                "start": 1957,
                 "type": "TagDeclarator",
                 "value": "line3"
               },
@@ -5948,10 +5937,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 2013,
-                "end": 2018,
+                "commentStart": 2029,
+                "end": 2034,
                 "moduleId": 0,
-                "start": 2013,
+                "start": 2029,
                 "type": "TagDeclarator",
                 "value": "line4"
               },
@@ -5973,10 +5962,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   -0.4
                 ],
                 "tag": {
-                  "commentStart": 1787,
-                  "end": 1792,
+                  "commentStart": 1803,
+                  "end": 1808,
                   "moduleId": 0,
-                  "start": 1787,
+                  "start": 1803,
                   "type": "TagDeclarator",
                   "value": "line1"
                 },
@@ -5997,10 +5986,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   -0.4
                 ],
                 "tag": {
-                  "commentStart": 1865,
-                  "end": 1870,
+                  "commentStart": 1881,
+                  "end": 1886,
                   "moduleId": 0,
-                  "start": 1865,
+                  "start": 1881,
                   "type": "TagDeclarator",
                   "value": "line2"
                 },
@@ -6021,10 +6010,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 1941,
-                  "end": 1946,
+                  "commentStart": 1957,
+                  "end": 1962,
                   "moduleId": 0,
-                  "start": 1941,
+                  "start": 1957,
                   "type": "TagDeclarator",
                   "value": "line3"
                 },
@@ -6045,10 +6034,10 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 2013,
-                  "end": 2018,
+                  "commentStart": 2029,
+                  "end": 2034,
                   "moduleId": 0,
-                  "start": 2013,
+                  "start": 2029,
                   "type": "TagDeclarator",
                   "value": "line4"
                 },
@@ -6061,17 +6050,17 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
               }
             ],
             "on": {
+              "type": "plane",
               "artifactId": "[uuid]",
               "id": "[uuid]",
-              "kind": "Custom",
               "objectId": 0,
+              "kind": "Custom",
               "origin": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 0.0,
                 "units": "mm"
               },
-              "type": "plane",
               "xAxis": {
                 "x": 1.0,
                 "y": 0.0,
@@ -6127,8 +6116,8 @@ description: Variables in memory after executing parametric-shelf-unit.kcl
             },
             "artifactId": "[uuid]",
             "originalId": "[uuid]",
-            "originSketchId": "[uuid]",
-            "units": "m"
+            "units": "m",
+            "isClosed": "explicitly"
           },
           "startCapId": "[uuid]",
           "endCapId": "[uuid]",

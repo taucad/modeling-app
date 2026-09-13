@@ -3,11 +3,11 @@ import type { Expr } from "./Expr.js";
 import type { Identifier } from "./Identifier.js";
 import type { Node } from "./Node.js";
 
-export type VariableDeclarator = { "type": "VariableDeclarator", 
+export type VariableDeclarator = { "type": "VariableDeclarator",
 /**
  * The identifier of the variable.
  */
-id: Node<Identifier>, 
+id: Node<Identifier>,
 /**
  * The value of the variable.
  */

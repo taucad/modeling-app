@@ -47,7 +47,16 @@ export interface KclExpressionWithVariable extends KclExpression {
 }
 export type KclCommandValue = KclExpression | KclExpressionWithVariable
 export type CommandInputType = INPUT_TYPE[number]
-type CommandStatus = 'active' | 'development' | 'inactive' | 'experimental'
+type CommandStatus =
+  | 'active'
+  | 'development'
+  | 'inactive'
+  | 'experimental'
+  | 'deprecated'
+type CommandArgumentStatus = Extract<
+  CommandStatus,
+  'experimental' | 'deprecated'
+>
 type CommandArgumentRequired<C> =
   | boolean
   | ((
@@ -60,7 +69,7 @@ type CommandArgumentStatusAndRequired<C> =
       required: false
     }
   | {
-      status?: undefined
+      status?: Extract<CommandStatus, 'deprecated'> | undefined
       required: CommandArgumentRequired<C>
     }
 export type CommandSelectionType =
@@ -76,6 +85,8 @@ export type FileFilter = {
   extensions: string[]
 }
 export type FiltersConfig = FileFilter[]
+
+export type CommandScopes = readonly [string, ...string[]]
 
 export type StateMachineCommandSetSchema<T extends AnyStateMachine> = Partial<{
   [EventType in EventFrom<T>['type']]: Record<string, any>
@@ -96,6 +107,16 @@ export type StateMachineCommandSetConfig<
     | CommandConfig<T, EventFrom<T>['type'], Schema[EventType]>[]
 }>
 
+export type CommandReviewValidationDetails = {
+  type: 'codemod'
+  currentCode: string
+  proposedCode: string
+}
+
+export type CommandReviewValidationError = Error & {
+  reviewDetails?: CommandReviewValidationDetails
+}
+
 export type Command<
   T extends AnyStateMachine = AnyStateMachine,
   CommandName extends EventFrom<T>['type'] = EventFrom<T>['type'],
@@ -112,7 +133,7 @@ export type Command<
   reviewValidation?: (
     context: CommandBarContext,
     machineActor?: ActorRefFrom<T>
-  ) => Promise<undefined | Error>
+  ) => Promise<undefined | CommandReviewValidationError>
   machineActor?: Actor<T>
   onSubmit: (data?: CommandSchema, wasmInstance?: ModuleType) => unknown
   onCancel?: () => void
@@ -124,9 +145,10 @@ export type Command<
   icon?: Icon
   hide?: TARGET[number]
   hideFromSearch?: boolean
+  /** App contexts where the command palette and keymap may expose this command. */
+  scopes: CommandScopes
   disabled?: boolean
   status?: CommandStatus
-  mlBranding?: boolean
 }
 
 export type CommandConfig<
@@ -136,10 +158,17 @@ export type CommandConfig<
     StateMachineCommandSetSchema<T>[CommandName] = StateMachineCommandSetSchema<T>[CommandName],
 > = Omit<
   Command<T, CommandName, CommandSchema>,
-  'name' | 'groupId' | 'onSubmit' | 'onCancel' | 'args' | 'needsReview'
+  | 'name'
+  | 'groupId'
+  | 'onSubmit'
+  | 'onCancel'
+  | 'args'
+  | 'needsReview'
+  | 'scopes'
 > & {
   needsReview?: boolean
   status?: CommandStatus
+  scopes?: CommandScopes
   args?: {
     [ArgName in keyof CommandSchema]: CommandArgumentConfig<
       CommandSchema[ArgName],
@@ -154,7 +183,8 @@ export type CommandArgumentConfig<
 > = {
   displayName?: string
   description?: string
-  status?: Extract<CommandStatus, 'experimental'>
+  status?: CommandArgumentStatus
+  statusMessage?: string
   required: CommandArgumentRequired<C>
   /** If `true`, arg is used as passed-through data, never for user input */
   hidden?:
@@ -342,7 +372,8 @@ export type CommandArgument<
 > = {
   displayName?: string
   description?: string
-  status?: Extract<CommandStatus, 'experimental'>
+  status?: CommandArgumentStatus
+  statusMessage?: string
   required:
     | boolean
     | ((
@@ -541,6 +572,7 @@ export type CommandArgumentWithName<
 
 export type CommandArgumentOption<A> = {
   readonly name: string
+  readonly description?: string
   readonly isCurrent?: boolean
   readonly disabled?: boolean
   readonly value: A

@@ -10,6 +10,7 @@ node_modules
 
 # production
 build
+*.log
 
 # misc
 .DS_Store
@@ -71,3 +72,24 @@ venv
 .biome/
 .million
 .cursor
+
+SPECIFICATION.txt
+
+# OS metadata
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+*.swo

@@ -8,31 +8,31 @@ import type { Point3d } from "./Point3d.js";
 /**
  * A face.
  */
-export type Face = { 
+export type Face = {
 /**
  * The id of the face.
  */
-id: string, 
+id: string,
 /**
  * The artifact ID.
  */
-artifactId: ArtifactId, 
+artifactId: ArtifactId,
 /**
  * The scene object ID.
  */
-objectId: ApiObjectId, 
+objectId: ApiObjectId,
 /**
  * The tag of the face.
  */
-value: string, 
+value: string,
 /**
  * What should the face's X axis be?
  */
-xAxis: Point3d, 
+xAxis: Point3d,
 /**
  * What should the face's Y axis be?
  */
-yAxis: Point3d, 
+yAxis: Point3d,
 /**
  * The solid the face is on.
  */

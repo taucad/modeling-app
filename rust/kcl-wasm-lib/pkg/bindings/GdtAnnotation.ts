@@ -3,7 +3,7 @@
 /**
  * A GD&T annotation.
  */
-export type GdtAnnotation = { "type": "GdtAnnotation", 
+export type GdtAnnotation = { "type": "GdtAnnotation",
 /**
  * The engine ID.
  */

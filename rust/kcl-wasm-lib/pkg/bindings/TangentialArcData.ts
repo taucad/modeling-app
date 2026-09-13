@@ -4,12 +4,12 @@ import type { TyF64 } from "./TyF64.js";
 /**
  * Data to draw a tangential arc.
  */
-export type TangentialArcData = { 
+export type TangentialArcData = {
 /**
  * Radius of the arc.
  * Not to be confused with Raiders of the Lost Ark.
  */
-radius: TyF64, 
+radius: TyF64,
 /**
  * Offset of the arc, in degrees.
  */

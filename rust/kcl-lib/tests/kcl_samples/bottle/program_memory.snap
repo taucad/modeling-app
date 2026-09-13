@@ -56,7 +56,8 @@ description: Variables in memory after executing bottle.kcl
       },
       "parentSolid": {
         "solidId": "[uuid]",
-        "creatorSketchId": "[uuid]"
+        "creatorSketchId": "[uuid]",
+        "creatorSketchIsClosed": "explicitly"
       },
       "units": "mm"
     }
@@ -66,6 +67,8 @@ description: Variables in memory after executing bottle.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -73,10 +76,10 @@ description: Variables in memory after executing bottle.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 716,
-            "end": 724,
+            "commentStart": 745,
+            "end": 753,
             "moduleId": 0,
-            "start": 716,
+            "start": 745,
             "type": "TagDeclarator",
             "value": "leftSide"
           },
@@ -87,10 +90,10 @@ description: Variables in memory after executing bottle.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 805,
-            "end": 811,
+            "commentStart": 834,
+            "end": 840,
             "moduleId": 0,
-            "start": 805,
+            "start": 834,
             "type": "TagDeclarator",
             "value": "topArc"
           },
@@ -101,10 +104,10 @@ description: Variables in memory after executing bottle.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 924,
-            "end": 933,
+            "commentStart": 953,
+            "end": 962,
             "moduleId": 0,
-            "start": 924,
+            "start": 953,
             "type": "TagDeclarator",
             "value": "rightSide"
           },
@@ -115,10 +118,10 @@ description: Variables in memory after executing bottle.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 1012,
-            "end": 1021,
+            "commentStart": 1041,
+            "end": 1050,
             "moduleId": 0,
-            "start": 1012,
+            "start": 1041,
             "type": "TagDeclarator",
             "value": "bottomArc"
           },
@@ -136,20 +139,20 @@ description: Variables in memory after executing bottle.kcl
               "sourceRange": []
             },
             "from": [
-              -62.500000000022034,
-              -26.669999999996705
+              -62.4999999999962,
+              -26.670000000000762
             ],
             "tag": {
-              "commentStart": 716,
-              "end": 724,
+              "commentStart": 745,
+              "end": 753,
               "moduleId": 0,
-              "start": 716,
+              "start": 745,
               "type": "TagDeclarator",
               "value": "leftSide"
             },
             "to": [
-              -62.500000000023924,
-              26.66333333333638
+              -62.49999999999587,
+              26.66333333333257
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -161,25 +164,25 @@ description: Variables in memory after executing bottle.kcl
             },
             "ccw": false,
             "center": [
-              0.0000000000027213786779611837,
-              -112.59441187335123
+              -0.0000000000007176481631177012,
+              -112.59441187317721
             ],
             "from": [
-              -62.500000000023924,
-              26.66333333333638
+              -62.49999999999587,
+              26.66333333333257
             ],
-            "radius": 152.64000000017708,
+            "radius": 152.64000000000195,
             "tag": {
-              "commentStart": 805,
-              "end": 811,
+              "commentStart": 834,
+              "end": 840,
               "moduleId": 0,
-              "start": 805,
+              "start": 834,
               "type": "TagDeclarator",
               "value": "topArc"
             },
             "to": [
-              62.49999999998902,
-              26.663333333354487
+              62.50000000000163,
+              26.663333333329334
             ],
             "type": "Arc",
             "units": "mm"
@@ -190,20 +193,20 @@ description: Variables in memory after executing bottle.kcl
               "sourceRange": []
             },
             "from": [
-              62.49999999998902,
-              26.663333333354487
+              62.50000000000163,
+              26.663333333329334
             ],
             "tag": {
-              "commentStart": 924,
-              "end": 933,
+              "commentStart": 953,
+              "end": 962,
               "moduleId": 0,
-              "start": 924,
+              "start": 953,
               "type": "TagDeclarator",
               "value": "rightSide"
             },
             "to": [
-              62.49999999997797,
-              -26.670000000010017
+              62.5000000000038,
+              -26.66999999999857
             ],
             "type": "ToPoint",
             "units": "mm"
@@ -215,42 +218,42 @@ description: Variables in memory after executing bottle.kcl
             },
             "ccw": false,
             "center": [
-              -0.0000000000055493387662863825,
-              113.14656733030625
+              0.0000000000007744915819785092,
+              113.14656733020234
             ],
             "from": [
-              62.49999999997797,
-              -26.670000000010017
+              62.5000000000038,
+              -26.66999999999857
             ],
-            "radius": 153.15000000010056,
+            "radius": 153.15000000000322,
             "tag": {
-              "commentStart": 1012,
-              "end": 1021,
+              "commentStart": 1041,
+              "end": 1050,
               "moduleId": 0,
-              "start": 1012,
+              "start": 1041,
               "type": "TagDeclarator",
               "value": "bottomArc"
             },
             "to": [
-              -62.500000000022084,
-              -26.66999999999524
+              -62.499999999996405,
+              -26.67000000000118
             ],
             "type": "Arc",
             "units": "mm"
           }
         ],
         "on": {
+          "type": "plane",
           "artifactId": "[uuid]",
           "id": "[uuid]",
-          "kind": "Custom",
           "objectId": 0,
+          "kind": "Custom",
           "origin": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0,
             "units": "mm"
           },
-          "type": "plane",
           "xAxis": {
             "x": 1.0,
             "y": 0.0,
@@ -272,12 +275,12 @@ description: Variables in memory after executing bottle.kcl
         },
         "start": {
           "from": [
-            -62.500000000022034,
-            -26.669999999996705
+            -62.4999999999962,
+            -26.670000000000762
           ],
           "to": [
-            -62.500000000022034,
-            -26.669999999996705
+            -62.4999999999962,
+            -26.670000000000762
           ],
           "units": "mm",
           "tag": null,
@@ -306,8 +309,8 @@ description: Variables in memory after executing bottle.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
@@ -327,20 +330,20 @@ description: Variables in memory after executing bottle.kcl
             "sourceRange": []
           },
           "from": [
-            -62.500000000022034,
-            -26.669999999996705
+            -62.4999999999962,
+            -26.670000000000762
           ],
           "tag": {
-            "commentStart": 716,
-            "end": 724,
+            "commentStart": 745,
+            "end": 753,
             "moduleId": 0,
-            "start": 716,
+            "start": 745,
             "type": "TagDeclarator",
             "value": "leftSide"
           },
           "to": [
-            -62.500000000023924,
-            26.66333333333638
+            -62.49999999999587,
+            26.66333333333257
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -352,25 +355,25 @@ description: Variables in memory after executing bottle.kcl
           },
           "ccw": false,
           "center": [
-            0.0000000000027213786779611837,
-            -112.59441187335123
+            -0.0000000000007176481631177012,
+            -112.59441187317721
           ],
           "from": [
-            -62.500000000023924,
-            26.66333333333638
+            -62.49999999999587,
+            26.66333333333257
           ],
-          "radius": 152.64000000017708,
+          "radius": 152.64000000000195,
           "tag": {
-            "commentStart": 805,
-            "end": 811,
+            "commentStart": 834,
+            "end": 840,
             "moduleId": 0,
-            "start": 805,
+            "start": 834,
             "type": "TagDeclarator",
             "value": "topArc"
           },
           "to": [
-            62.49999999998902,
-            26.663333333354487
+            62.50000000000163,
+            26.663333333329334
           ],
           "type": "Arc",
           "units": "mm"
@@ -381,20 +384,20 @@ description: Variables in memory after executing bottle.kcl
             "sourceRange": []
           },
           "from": [
-            62.49999999998902,
-            26.663333333354487
+            62.50000000000163,
+            26.663333333329334
           ],
           "tag": {
-            "commentStart": 924,
-            "end": 933,
+            "commentStart": 953,
+            "end": 962,
             "moduleId": 0,
-            "start": 924,
+            "start": 953,
             "type": "TagDeclarator",
             "value": "rightSide"
           },
           "to": [
-            62.49999999997797,
-            -26.670000000010017
+            62.5000000000038,
+            -26.66999999999857
           ],
           "type": "ToPoint",
           "units": "mm"
@@ -406,42 +409,42 @@ description: Variables in memory after executing bottle.kcl
           },
           "ccw": false,
           "center": [
-            -0.0000000000055493387662863825,
-            113.14656733030625
+            0.0000000000007744915819785092,
+            113.14656733020234
           ],
           "from": [
-            62.49999999997797,
-            -26.670000000010017
+            62.5000000000038,
+            -26.66999999999857
           ],
-          "radius": 153.15000000010056,
+          "radius": 153.15000000000322,
           "tag": {
-            "commentStart": 1012,
-            "end": 1021,
+            "commentStart": 1041,
+            "end": 1050,
             "moduleId": 0,
-            "start": 1012,
+            "start": 1041,
             "type": "TagDeclarator",
             "value": "bottomArc"
           },
           "to": [
-            -62.500000000022084,
-            -26.66999999999524
+            -62.499999999996405,
+            -26.67000000000118
           ],
           "type": "Arc",
           "units": "mm"
         }
       ],
       "on": {
+        "type": "plane",
         "artifactId": "[uuid]",
         "id": "[uuid]",
-        "kind": "Custom",
         "objectId": 0,
+        "kind": "Custom",
         "origin": {
           "x": 0.0,
           "y": 0.0,
           "z": 0.0,
           "units": "mm"
         },
-        "type": "plane",
         "xAxis": {
           "x": 1.0,
           "y": 0.0,
@@ -463,12 +466,12 @@ description: Variables in memory after executing bottle.kcl
       },
       "start": {
         "from": [
-          -62.500000000022034,
-          -26.669999999996705
+          -62.4999999999962,
+          -26.670000000000762
         ],
         "to": [
-          -62.500000000022034,
-          -26.669999999996705
+          -62.4999999999962,
+          -26.670000000000762
         ],
         "units": "mm",
         "tag": null,
@@ -497,8 +500,8 @@ description: Variables in memory after executing bottle.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "bottleFootprint": {
@@ -516,7 +519,7 @@ description: Variables in memory after executing bottle.kcl
                   "arc": {
                     "start": [
                       {
-                        "n": -62.50000000001993,
+                        "n": -62.49999999999652,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -524,7 +527,7 @@ description: Variables in memory after executing bottle.kcl
                         }
                       },
                       {
-                        "n": -26.669999999995785,
+                        "n": -26.670000000000744,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -534,7 +537,7 @@ description: Variables in memory after executing bottle.kcl
                     ],
                     "end": [
                       {
-                        "n": 62.4999999999801,
+                        "n": 62.500000000003475,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -542,7 +545,7 @@ description: Variables in memory after executing bottle.kcl
                         }
                       },
                       {
-                        "n": -26.67000000001063,
+                        "n": -26.669999999998577,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -552,7 +555,7 @@ description: Variables in memory after executing bottle.kcl
                     ],
                     "center": [
                       {
-                        "n": -0.000000000003425871287772008,
+                        "n": 0.000000000000400880136022314,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -560,7 +563,7 @@ description: Variables in memory after executing bottle.kcl
                         }
                       },
                       {
-                        "n": 113.14656733030566,
+                        "n": 113.1465673302023,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -668,7 +671,7 @@ description: Variables in memory after executing bottle.kcl
                   "line": {
                     "start": [
                       {
-                        "n": -62.500000000020115,
+                        "n": -62.499999999996525,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -676,7 +679,7 @@ description: Variables in memory after executing bottle.kcl
                         }
                       },
                       {
-                        "n": -26.67000000000045,
+                        "n": -26.670000000000012,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -686,7 +689,7 @@ description: Variables in memory after executing bottle.kcl
                     ],
                     "end": [
                       {
-                        "n": 62.499999999979906,
+                        "n": 62.500000000003475,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -694,7 +697,7 @@ description: Variables in memory after executing bottle.kcl
                         }
                       },
                       {
-                        "n": -26.670000000005565,
+                        "n": -26.669999999999295,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -789,7 +792,7 @@ description: Variables in memory after executing bottle.kcl
                   "line": {
                     "start": [
                       {
-                        "n": -0.0000000000002676148970191827,
+                        "n": -0.00000000000006988251477243714,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -797,7 +800,7 @@ description: Variables in memory after executing bottle.kcl
                         }
                       },
                       {
-                        "n": -112.59441187335231,
+                        "n": -112.59441187317724,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -807,7 +810,7 @@ description: Variables in memory after executing bottle.kcl
                     ],
                     "end": [
                       {
-                        "n": -0.00000000000185256734811564,
+                        "n": 0.00000000000016541746237477752,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -815,7 +818,7 @@ description: Variables in memory after executing bottle.kcl
                         }
                       },
                       {
-                        "n": 113.14656733030563,
+                        "n": 113.1465673302023,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -910,7 +913,7 @@ description: Variables in memory after executing bottle.kcl
                   "line": {
                     "start": [
                       {
-                        "n": -62.500000000022034,
+                        "n": -62.4999999999962,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -918,7 +921,7 @@ description: Variables in memory after executing bottle.kcl
                         }
                       },
                       {
-                        "n": -26.669999999996705,
+                        "n": -26.670000000000762,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -928,7 +931,7 @@ description: Variables in memory after executing bottle.kcl
                     ],
                     "end": [
                       {
-                        "n": -62.500000000023924,
+                        "n": -62.49999999999587,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -936,7 +939,7 @@ description: Variables in memory after executing bottle.kcl
                         }
                       },
                       {
-                        "n": 26.66333333333638,
+                        "n": 26.66333333333257,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1033,20 +1036,20 @@ description: Variables in memory after executing bottle.kcl
                     "sourceRange": []
                   },
                   "from": [
-                    -62.500000000022034,
-                    -26.669999999996705
+                    -62.4999999999962,
+                    -26.670000000000762
                   ],
                   "tag": {
-                    "commentStart": 716,
-                    "end": 724,
+                    "commentStart": 745,
+                    "end": 753,
                     "moduleId": 0,
-                    "start": 716,
+                    "start": 745,
                     "type": "TagDeclarator",
                     "value": "leftSide"
                   },
                   "to": [
-                    -62.500000000023924,
-                    26.66333333333638
+                    -62.49999999999587,
+                    26.66333333333257
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -1058,25 +1061,25 @@ description: Variables in memory after executing bottle.kcl
                   },
                   "ccw": false,
                   "center": [
-                    0.0000000000027213786779611837,
-                    -112.59441187335123
+                    -0.0000000000007176481631177012,
+                    -112.59441187317721
                   ],
                   "from": [
-                    -62.500000000023924,
-                    26.66333333333638
+                    -62.49999999999587,
+                    26.66333333333257
                   ],
-                  "radius": 152.64000000017708,
+                  "radius": 152.64000000000195,
                   "tag": {
-                    "commentStart": 805,
-                    "end": 811,
+                    "commentStart": 834,
+                    "end": 840,
                     "moduleId": 0,
-                    "start": 805,
+                    "start": 834,
                     "type": "TagDeclarator",
                     "value": "topArc"
                   },
                   "to": [
-                    62.49999999998902,
-                    26.663333333354487
+                    62.50000000000163,
+                    26.663333333329334
                   ],
                   "type": "Arc",
                   "units": "mm"
@@ -1087,20 +1090,20 @@ description: Variables in memory after executing bottle.kcl
                     "sourceRange": []
                   },
                   "from": [
-                    62.49999999998902,
-                    26.663333333354487
+                    62.50000000000163,
+                    26.663333333329334
                   ],
                   "tag": {
-                    "commentStart": 924,
-                    "end": 933,
+                    "commentStart": 953,
+                    "end": 962,
                     "moduleId": 0,
-                    "start": 924,
+                    "start": 953,
                     "type": "TagDeclarator",
                     "value": "rightSide"
                   },
                   "to": [
-                    62.49999999997797,
-                    -26.670000000010017
+                    62.5000000000038,
+                    -26.66999999999857
                   ],
                   "type": "ToPoint",
                   "units": "mm"
@@ -1112,42 +1115,42 @@ description: Variables in memory after executing bottle.kcl
                   },
                   "ccw": false,
                   "center": [
-                    -0.0000000000055493387662863825,
-                    113.14656733030625
+                    0.0000000000007744915819785092,
+                    113.14656733020234
                   ],
                   "from": [
-                    62.49999999997797,
-                    -26.670000000010017
+                    62.5000000000038,
+                    -26.66999999999857
                   ],
-                  "radius": 153.15000000010056,
+                  "radius": 153.15000000000322,
                   "tag": {
-                    "commentStart": 1012,
-                    "end": 1021,
+                    "commentStart": 1041,
+                    "end": 1050,
                     "moduleId": 0,
-                    "start": 1012,
+                    "start": 1041,
                     "type": "TagDeclarator",
                     "value": "bottomArc"
                   },
                   "to": [
-                    -62.500000000022084,
-                    -26.66999999999524
+                    -62.499999999996405,
+                    -26.67000000000118
                   ],
                   "type": "Arc",
                   "units": "mm"
                 }
               ],
               "on": {
+                "type": "plane",
                 "artifactId": "[uuid]",
                 "id": "[uuid]",
-                "kind": "Custom",
                 "objectId": 0,
+                "kind": "Custom",
                 "origin": {
                   "x": 0.0,
                   "y": 0.0,
                   "z": 0.0,
                   "units": "mm"
                 },
-                "type": "plane",
                 "xAxis": {
                   "x": 1.0,
                   "y": 0.0,
@@ -1169,12 +1172,12 @@ description: Variables in memory after executing bottle.kcl
               },
               "start": {
                 "from": [
-                  -62.500000000022034,
-                  -26.669999999996705
+                  -62.4999999999962,
+                  -26.670000000000762
                 ],
                 "to": [
-                  -62.500000000022034,
-                  -26.669999999996705
+                  -62.4999999999962,
+                  -26.670000000000762
                 ],
                 "units": "mm",
                 "tag": null,
@@ -1222,7 +1225,7 @@ description: Variables in memory after executing bottle.kcl
                   "line": {
                     "start": [
                       {
-                        "n": 62.49999999997606,
+                        "n": 62.50000000000413,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1230,7 +1233,7 @@ description: Variables in memory after executing bottle.kcl
                         }
                       },
                       {
-                        "n": 26.66333333332377,
+                        "n": 26.66333333333477,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1240,7 +1243,7 @@ description: Variables in memory after executing bottle.kcl
                     ],
                     "end": [
                       {
-                        "n": 62.49999999997797,
+                        "n": 62.5000000000038,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1248,7 +1251,7 @@ description: Variables in memory after executing bottle.kcl
                         }
                       },
                       {
-                        "n": -26.670000000010017,
+                        "n": -26.66999999999857,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1342,7 +1345,7 @@ description: Variables in memory after executing bottle.kcl
                   "arc": {
                     "start": [
                       {
-                        "n": 62.49999999997438,
+                        "n": 62.50000000000446,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1350,7 +1353,7 @@ description: Variables in memory after executing bottle.kcl
                         }
                       },
                       {
-                        "n": 26.663333333324573,
+                        "n": 26.66333333333478,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1360,7 +1363,7 @@ description: Variables in memory after executing bottle.kcl
                     ],
                     "end": [
                       {
-                        "n": -62.50000000002559,
+                        "n": -62.49999999999554,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1368,7 +1371,7 @@ description: Variables in memory after executing bottle.kcl
                         }
                       },
                       {
-                        "n": 26.663333333335363,
+                        "n": 26.66333333333255,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1378,7 +1381,7 @@ description: Variables in memory after executing bottle.kcl
                     ],
                     "center": [
                       {
-                        "n": 0.0000000000010458380919641831,
+                        "n": -0.00000000000037511941024186255,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1386,7 +1389,7 @@ description: Variables in memory after executing bottle.kcl
                         }
                       },
                       {
-                        "n": -112.59441187335226,
+                        "n": -112.59441187317724,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1494,7 +1497,7 @@ description: Variables in memory after executing bottle.kcl
                   "line": {
                     "start": [
                       {
-                        "n": -62.50000000002585,
+                        "n": -62.499999999995545,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1502,7 +1505,7 @@ description: Variables in memory after executing bottle.kcl
                         }
                       },
                       {
-                        "n": 26.66333333333175,
+                        "n": 26.66333333333329,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1512,7 +1515,7 @@ description: Variables in memory after executing bottle.kcl
                     ],
                     "end": [
                       {
-                        "n": 62.49999999997414,
+                        "n": 62.500000000004455,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1520,7 +1523,7 @@ description: Variables in memory after executing bottle.kcl
                         }
                       },
                       {
-                        "n": 26.66333333332814,
+                        "n": 26.663333333334034,
                         "ty": {
                           "mm": null,
                           "type": "Known",
@@ -1629,6 +1632,8 @@ description: Variables in memory after executing bottle.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -1636,10 +1641,10 @@ description: Variables in memory after executing bottle.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2805,
-            "end": 2815,
+            "commentStart": 2856,
+            "end": 2866,
             "moduleId": 0,
-            "start": 2805,
+            "start": 2856,
             "type": "TagDeclarator",
             "value": "neckCircle"
           },
@@ -1650,16 +1655,22 @@ description: Variables in memory after executing bottle.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3457,
-            "end": 3465,
+            "commentStart": 3508,
+            "end": 3516,
             "moduleId": 0,
-            "start": 3457,
+            "start": 3508,
             "type": "TagDeclarator",
             "value": "neckTop"
           },
           "type": "extrudePlane"
         }
       ],
+      "faces": {
+        "neckTop": {
+          "type": "TagIdentifier",
+          "value": "neckTop"
+        }
+      },
       "sketch": {
         "creatorType": "sketch",
         "type": "Sketch",
@@ -1681,10 +1692,10 @@ description: Variables in memory after executing bottle.kcl
             ],
             "radius": 22.5,
             "tag": {
-              "commentStart": 2805,
-              "end": 2815,
+              "commentStart": 2856,
+              "end": 2866,
               "moduleId": 0,
-              "start": 2805,
+              "start": 2856,
               "type": "TagDeclarator",
               "value": "neckCircle"
             },
@@ -1716,7 +1727,8 @@ description: Variables in memory after executing bottle.kcl
           },
           "parentSolid": {
             "solidId": "[uuid]",
-            "creatorSketchId": "[uuid]"
+            "creatorSketchId": "[uuid]",
+            "creatorSketchIsClosed": "explicitly"
           },
           "units": "mm"
         },
@@ -1748,8 +1760,8 @@ description: Variables in memory after executing bottle.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": null,
       "endCapId": "[uuid]",
@@ -1762,6 +1774,8 @@ description: Variables in memory after executing bottle.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -1769,10 +1783,10 @@ description: Variables in memory after executing bottle.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2805,
-            "end": 2815,
+            "commentStart": 2856,
+            "end": 2866,
             "moduleId": 0,
-            "start": 2805,
+            "start": 2856,
             "type": "TagDeclarator",
             "value": "neckCircle"
           },
@@ -1783,16 +1797,22 @@ description: Variables in memory after executing bottle.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3457,
-            "end": 3465,
+            "commentStart": 3508,
+            "end": 3516,
             "moduleId": 0,
-            "start": 3457,
+            "start": 3508,
             "type": "TagDeclarator",
             "value": "neckTop"
           },
           "type": "extrudePlane"
         }
       ],
+      "faces": {
+        "neckTop": {
+          "type": "TagIdentifier",
+          "value": "neckTop"
+        }
+      },
       "sketch": {
         "creatorType": "sketch",
         "type": "Sketch",
@@ -1814,10 +1834,10 @@ description: Variables in memory after executing bottle.kcl
             ],
             "radius": 22.5,
             "tag": {
-              "commentStart": 2805,
-              "end": 2815,
+              "commentStart": 2856,
+              "end": 2866,
               "moduleId": 0,
-              "start": 2805,
+              "start": 2856,
               "type": "TagDeclarator",
               "value": "neckCircle"
             },
@@ -1849,7 +1869,8 @@ description: Variables in memory after executing bottle.kcl
           },
           "parentSolid": {
             "solidId": "[uuid]",
-            "creatorSketchId": "[uuid]"
+            "creatorSketchId": "[uuid]",
+            "creatorSketchIsClosed": "explicitly"
           },
           "units": "mm"
         },
@@ -1881,8 +1902,8 @@ description: Variables in memory after executing bottle.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": null,
       "endCapId": "[uuid]",
@@ -1904,6 +1925,8 @@ description: Variables in memory after executing bottle.kcl
     "value": {
       "type": "Solid",
       "id": "[uuid]",
+      "originalId": "[uuid]",
+      "topologyId": "[uuid]",
       "artifactId": "[uuid]",
       "value": [
         {
@@ -1911,10 +1934,10 @@ description: Variables in memory after executing bottle.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2805,
-            "end": 2815,
+            "commentStart": 2856,
+            "end": 2866,
             "moduleId": 0,
-            "start": 2805,
+            "start": 2856,
             "type": "TagDeclarator",
             "value": "neckCircle"
           },
@@ -1925,16 +1948,22 @@ description: Variables in memory after executing bottle.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3457,
-            "end": 3465,
+            "commentStart": 3508,
+            "end": 3516,
             "moduleId": 0,
-            "start": 3457,
+            "start": 3508,
             "type": "TagDeclarator",
             "value": "neckTop"
           },
           "type": "extrudePlane"
         }
       ],
+      "faces": {
+        "neckTop": {
+          "type": "TagIdentifier",
+          "value": "neckTop"
+        }
+      },
       "sketch": {
         "creatorType": "sketch",
         "type": "Sketch",
@@ -1956,10 +1985,10 @@ description: Variables in memory after executing bottle.kcl
             ],
             "radius": 22.5,
             "tag": {
-              "commentStart": 2805,
-              "end": 2815,
+              "commentStart": 2856,
+              "end": 2866,
               "moduleId": 0,
-              "start": 2805,
+              "start": 2856,
               "type": "TagDeclarator",
               "value": "neckCircle"
             },
@@ -1991,7 +2020,8 @@ description: Variables in memory after executing bottle.kcl
           },
           "parentSolid": {
             "solidId": "[uuid]",
-            "creatorSketchId": "[uuid]"
+            "creatorSketchId": "[uuid]",
+            "creatorSketchIsClosed": "explicitly"
           },
           "units": "mm"
         },
@@ -2023,8 +2053,8 @@ description: Variables in memory after executing bottle.kcl
         },
         "artifactId": "[uuid]",
         "originalId": "[uuid]",
-        "originSketchId": "[uuid]",
-        "units": "mm"
+        "units": "mm",
+        "isClosed": "explicitly"
       },
       "startCapId": null,
       "endCapId": "[uuid]",
@@ -2111,10 +2141,10 @@ description: Variables in memory after executing bottle.kcl
                   ],
                   "radius": 22.5,
                   "tag": {
-                    "commentStart": 2805,
-                    "end": 2815,
+                    "commentStart": 2856,
+                    "end": 2866,
                     "moduleId": 0,
-                    "start": 2805,
+                    "start": 2856,
                     "type": "TagDeclarator",
                     "value": "neckCircle"
                   },
@@ -2146,7 +2176,8 @@ description: Variables in memory after executing bottle.kcl
                 },
                 "parentSolid": {
                   "solidId": "[uuid]",
-                  "creatorSketchId": "[uuid]"
+                  "creatorSketchId": "[uuid]",
+                  "creatorSketchIsClosed": "explicitly"
                 },
                 "units": "mm"
               },
@@ -2280,7 +2311,8 @@ description: Variables in memory after executing bottle.kcl
                   },
                   "parentSolid": {
                     "solidId": "[uuid]",
-                    "creatorSketchId": "[uuid]"
+                    "creatorSketchId": "[uuid]",
+                    "creatorSketchIsClosed": "explicitly"
                   },
                   "units": "mm"
                 },
@@ -2394,7 +2426,8 @@ description: Variables in memory after executing bottle.kcl
                   },
                   "parentSolid": {
                     "solidId": "[uuid]",
-                    "creatorSketchId": "[uuid]"
+                    "creatorSketchId": "[uuid]",
+                    "creatorSketchIsClosed": "explicitly"
                   },
                   "units": "mm"
                 },
@@ -2442,10 +2475,10 @@ description: Variables in memory after executing bottle.kcl
           ],
           "radius": 22.5,
           "tag": {
-            "commentStart": 2805,
-            "end": 2815,
+            "commentStart": 2856,
+            "end": 2866,
             "moduleId": 0,
-            "start": 2805,
+            "start": 2856,
             "type": "TagDeclarator",
             "value": "neckCircle"
           },
@@ -2477,7 +2510,8 @@ description: Variables in memory after executing bottle.kcl
         },
         "parentSolid": {
           "solidId": "[uuid]",
-          "creatorSketchId": "[uuid]"
+          "creatorSketchId": "[uuid]",
+          "creatorSketchIsClosed": "explicitly"
         },
         "units": "mm"
       },
@@ -2509,8 +2543,8 @@ description: Variables in memory after executing bottle.kcl
       },
       "artifactId": "[uuid]",
       "originalId": "[uuid]",
-      "originSketchId": "[uuid]",
-      "units": "mm"
+      "units": "mm",
+      "isClosed": "explicitly"
     }
   },
   "neckTop": {

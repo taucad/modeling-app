@@ -39,11 +39,15 @@ use crate::TypedPath;
 use crate::errors::CompilationIssue;
 use crate::errors::Severity;
 use crate::errors::Tag;
+use crate::execution::annotations::ADDED_IN;
+use crate::execution::annotations::DEPRECATED;
 use crate::execution::annotations::DEPRECATED_SINCE;
 use crate::execution::annotations::EXPERIMENTAL;
+use crate::execution::annotations::REMOVED_IN;
 use crate::execution::annotations::VersionConstraint;
 use crate::execution::annotations::{self};
 use crate::execution::types::ArrayLen;
+use crate::import_format::import_format_from_path;
 use crate::parsing::PIPE_OPERATOR;
 use crate::parsing::PIPE_SUBSTITUTION_OPERATOR;
 use crate::parsing::ast::types::Annotation;
@@ -59,6 +63,8 @@ use crate::parsing::ast::types::CallExpressionKw;
 use crate::parsing::ast::types::CommentStyle;
 use crate::parsing::ast::types::DefaultParamVal;
 use crate::parsing::ast::types::ElseIf;
+use crate::parsing::ast::types::EnumDeclaration;
+use crate::parsing::ast::types::EnumVariant;
 use crate::parsing::ast::types::Expr;
 use crate::parsing::ast::types::ExpressionStatement;
 use crate::parsing::ast::types::FunctionExpression;
@@ -94,6 +100,7 @@ use crate::parsing::ast::types::SketchVar;
 use crate::parsing::ast::types::TagDeclarator;
 use crate::parsing::ast::types::Type;
 use crate::parsing::ast::types::TypeDeclaration;
+use crate::parsing::ast::types::TypeDeclarationDefinition;
 use crate::parsing::ast::types::UnaryExpression;
 use crate::parsing::ast::types::UnaryOperator;
 use crate::parsing::ast::types::VariableDeclaration;
@@ -124,8 +131,6 @@ const MAX_RECURSIVE_PARSER_DEPTH: u16 = 128;
 const MAX_NESTING_DEPTH_MESSAGE: &str = "Exceeded the maximum nesting limit while parsing this file. Try defining intermediate variables instead of deeply nesting expressions.";
 const ERR_INVALID_ASSIGNMENT_IN_SKETCH_BLOCK: &str =
     "The left-hand side of the = cannot have a value assigned to it. Maybe you meant to use ==?";
-
-const KEYWORD_EXPECTING_IDENTIFIER: &str = "Expected an identifier, but found a reserved keyword.";
 
 pub fn run_parser(i: TokenSlice) -> super::ParseResult {
     let _stats = crate::log::LogPerfStats::new("Parsing");
@@ -801,7 +806,7 @@ fn numeric_literal(i: &mut TokenSlice) -> ModalResult<Node<NumericLiteral>> {
 
 fn literal(i: &mut TokenSlice) -> ModalResult<BoxNode<Literal>> {
     alt((string_literal, unsigned_number_literal, bool_value))
-        .map(Box::new)
+        .map(BoxNode::new)
         .context(expected("a KCL literal, like 'myPart' or 3"))
         .parse_next(i)
 }
@@ -915,7 +920,7 @@ fn sketch_var(i: &mut TokenSlice) -> ModalResult<Node<SketchVar>> {
 
     Ok(Node::new(
         SketchVar {
-            initial: literal.map(Box::new),
+            initial: literal.map(BoxNode::new),
             digest: None,
         },
         var_token.start,
@@ -1115,9 +1120,9 @@ pub enum NonCodeOr<T> {
 /// Parse a KCL array of elements.
 fn array(i: &mut TokenSlice) -> ModalResult<Expr> {
     alt((
-        array_empty.map(Box::new).map(Expr::ArrayExpression),
-        array_end_start.map(Box::new).map(Expr::ArrayRangeExpression),
-        array_elem_by_elem.map(Box::new).map(Expr::ArrayExpression),
+        array_empty.map(BoxNode::new).map(Expr::ArrayExpression),
+        array_end_start.map(BoxNode::new).map(Expr::ArrayRangeExpression),
+        array_elem_by_elem.map(BoxNode::new).map(Expr::ArrayExpression),
     ))
     .parse_next(i)
 }
@@ -1287,7 +1292,7 @@ fn object_property_same_key_and_val(i: &mut TokenSlice) -> ModalResult<Node<Obje
     let module_id = key.module_id;
     Ok(Node::new(
         ObjectProperty {
-            value: Expr::Name(Box::new(key.clone().into())),
+            value: Expr::Name(BoxNode::new(key.clone().into())),
             key,
             digest: None,
         },
@@ -1329,16 +1334,9 @@ fn object_property(i: &mut TokenSlice) -> ModalResult<Node<ObjectProperty>> {
     };
 
     // Now that we've verified that we can parse everything, ensure that the key
-    // is valid.  If not, we can cut.
-    let key = Node::<Identifier>::try_from(key_token).map_err(|comp_err| {
-        ErrMode::Cut(ContextError {
-            context: Default::default(),
-            cause: Some(CompilationIssue::err(
-                comp_err.source_range,
-                KEYWORD_EXPECTING_IDENTIFIER,
-            )),
-        })
-    })?;
+    // is valid.  A non-identifier key (e.g. a reserved keyword) is a hard error;
+    // the conversion already reports what was found, so propagate it as a cut.
+    let key = Node::<Identifier>::try_from(key_token).map_err(|e| ErrMode::Cut(e.into()))?;
 
     let start = key.start;
     let end = expr.end();
@@ -1572,7 +1570,7 @@ fn else_if(i: &mut TokenSlice) -> ModalResult<Node<ElseIf>> {
     let then_val = program
         .verify(|block| block.ends_with_expr())
         .parse_next(i)
-        .map(Box::new)?;
+        .map(BoxNode::new)?;
     ignore_whitespace(i);
     let end = close_brace(i)?.end;
     ignore_whitespace(i);
@@ -1611,7 +1609,7 @@ fn if_expr(i: &mut TokenSlice) -> ModalResult<BoxNode<IfExpression>> {
         .verify(|block| block.ends_with_expr())
         .parse_next(i)
         .map_err(|e| e.cut())
-        .map(Box::new)?;
+        .map(BoxNode::new)?;
     ignore_whitespace(i);
     let _ = close_brace(i)?;
     ignore_whitespace(i);
@@ -1663,7 +1661,7 @@ fn if_expr(i: &mut TokenSlice) -> ModalResult<BoxNode<IfExpression>> {
         return if_with_no_else(cond, then_val, else_ifs);
     }
     ignore_whitespace(i);
-    let Ok(final_else) = program.parse_next(i).map(Box::new) else {
+    let Ok(final_else) = program.parse_next(i).map(BoxNode::new) else {
         ParseContext::err(CompilationIssue::err(else_range, IF_ELSE_CANNOT_BE_EMPTY));
         let _ = opt(close_brace).parse_next(i);
         return if_with_no_else(cond, then_val, else_ifs);
@@ -1708,7 +1706,7 @@ fn function_expr(i: &mut TokenSlice) -> ModalResult<Expr> {
         let err = CompilationIssue::fatal(result.as_source_range(), "Anonymous function requires `fn` before `(`");
         return Err(ErrMode::Cut(err.into()));
     }
-    Ok(Expr::FunctionExpression(Box::new(result)))
+    Ok(Expr::FunctionExpression(BoxNode::new(result)))
 }
 
 // Looks like
@@ -1774,7 +1772,7 @@ fn member_expression_dot(i: &mut TokenSlice) -> ModalResult<(Expr, usize, bool)>
         .map(|p| {
             let ni: Node<Identifier> = *p;
             let nn: Node<Name> = ni.into();
-            Expr::Name(Box::new(nn))
+            Expr::Name(BoxNode::new(nn))
         })
         .parse_next(i)?;
     let end = property.end();
@@ -1829,7 +1827,7 @@ fn build_member_expression(object: Expr, mut members: Vec<(Expr, usize, bool)>) 
         .fold(initial_member_expression, |accumulated, (property, end, computed)| {
             Node::new(
                 MemberExpression {
-                    object: Expr::MemberExpression(Box::new(accumulated)),
+                    object: Expr::MemberExpression(BoxNode::new(accumulated)),
                     computed,
                     property,
                     digest: None,
@@ -1971,6 +1969,23 @@ impl WithinFunction {
 }
 
 fn body_items_within_function(i: &mut TokenSlice) -> ModalResult<WithinFunction> {
+    // A reserved keyword followed by `=` cannot begin a valid statement. Commit to
+    // this error before trying other statement forms so the parser keeps the useful
+    // keyword location instead of reporting a later token.
+    if let Ok(keyword) = peek(terminated(any_keyword, (opt(whitespace), equals))).parse_next(i) {
+        let alternative = format!("{}Value", keyword.value);
+        return Err(ErrMode::Cut(
+            CompilationIssue::fatal(
+                keyword.as_source_range(),
+                format!(
+                    "`{}` is a reserved keyword and cannot be used as a variable name. Use a different name, such as `{alternative}`.",
+                    keyword.value
+                ),
+            )
+            .into(),
+        ));
+    }
+
     // Any of the body item variants, each of which can optionally be followed by a comment.
     // If there is a comment, it may be preceded by whitespace.
     let item = dispatch! {peek(any);
@@ -2431,7 +2446,7 @@ fn validate_path_string(path_string: String, var_name: bool, path_range: SourceR
             return Err(ErrMode::Cut(
                 CompilationIssue::fatal(
                     path_range,
-                    "import path may not start with '..'. Cannot traverse to something outside the bounds of your project. If this path is inside your project please find a better way to reference it.",
+                    "import path may not start with '..'. Cannot reference a parent module or anything outside the bounds of your project.",
                 )
                 .into(),
             ));
@@ -2447,7 +2462,7 @@ fn validate_path_string(path_string: String, var_name: bool, path_range: SourceR
             return Err(ErrMode::Cut(
                 CompilationIssue::fatal(
                     path_range,
-                    "import path may not start with '/' or '\\'. Cannot traverse to something outside the bounds of your project. If this path is inside your project please find a better way to reference it.",
+                    "import path may not start with '/' or '\\'. Cannot traverse to something outside the bounds of your project. If this path is inside your project, use a relative path.",
                 )
                 .into(),
             ));
@@ -2500,8 +2515,7 @@ fn validate_path_string(path_string: String, var_name: bool, path_range: SourceR
 
         ImportPath::Std { path: segments }
     } else if path_string.contains('.') {
-        let extn = std::path::Path::new(&path_string).extension().unwrap_or_default();
-        if !IMPORT_FILE_EXTENSIONS.contains(&extn.to_string_lossy().to_lowercase()) {
+        if import_format_from_path(&path_string).is_none() {
             ParseContext::warn(CompilationIssue::err(
                 path_range,
                 format!(
@@ -2660,7 +2674,7 @@ fn expression_but_not_pipe(i: &mut TokenSlice) -> ModalResult<Expr> {
 
     let start = i.checkpoint();
     let mut expr = alt((
-        unary_expression.map(Box::new).map(Expr::UnaryExpression),
+        unary_expression.map(BoxNode::new).map(Expr::UnaryExpression),
         expr_allowed_in_pipe_expr,
     ))
     .context(expected("a KCL value"))
@@ -2668,16 +2682,18 @@ fn expression_but_not_pipe(i: &mut TokenSlice) -> ModalResult<Expr> {
 
     if has_binary_operator_after_optional_ascription(i) {
         i.reset(&start);
-        expr = Expr::BinaryExpression(Box::new(binary_expression.parse_next(i)?));
+        expr = Expr::BinaryExpression(BoxNode::new(binary_expression.parse_next(i)?));
     }
 
     let ty = opt((colon, opt(whitespace), type_)).parse_next(i)?;
     if let Some((_, _, ty)) = ty {
-        expr = Expr::AscribedExpression(Box::new(AscribedExpression::new(expr, ty)))
+        expr = Expr::AscribedExpression(BoxNode::new(AscribedExpression::new(expr, ty)))
     }
     let label = opt(label).parse_next(i)?;
     match label {
-        Some(label) => Ok(Expr::LabelledExpression(Box::new(LabelledExpression::new(expr, label)))),
+        Some(label) => Ok(Expr::LabelledExpression(BoxNode::new(LabelledExpression::new(
+            expr, label,
+        )))),
         None => Ok(expr),
     }
 }
@@ -2709,15 +2725,15 @@ fn unnecessarily_bracketed(i: &mut TokenSlice) -> ModalResult<Expr> {
 fn expr_allowed_in_pipe_expr(i: &mut TokenSlice) -> ModalResult<Expr> {
     let parsed_expr = alt((
         alt((
-            bool_value.map(Box::new).map(Expr::Literal),
-            tag.map(Box::new).map(Expr::TagDeclarator),
+            bool_value.map(BoxNode::new).map(Expr::Literal),
+            tag.map(BoxNode::new).map(Expr::TagDeclarator),
             literal.map(Expr::Literal),
-            sketch_var.map(Box::new).map(Expr::SketchVar),
+            sketch_var.map(BoxNode::new).map(Expr::SketchVar),
             fn_call_or_sketch_block,
-            name.map(Box::new).map(Expr::Name),
+            name.map(BoxNode::new).map(Expr::Name),
             array,
-            object.map(Box::new).map(Expr::ObjectExpression),
-            pipe_sub.map(Box::new).map(Expr::PipeSubstitution),
+            object.map(BoxNode::new).map(Expr::ObjectExpression),
+            pipe_sub.map(BoxNode::new).map(Expr::PipeSubstitution),
         )),
         alt((function_expr, if_expr.map(Expr::IfExpression), unnecessarily_bracketed)),
     ))
@@ -2726,7 +2742,7 @@ fn expr_allowed_in_pipe_expr(i: &mut TokenSlice) -> ModalResult<Expr> {
 
     if let Ok(Some(members)) = opt(find_members).parse_next(i) {
         let mem = build_member_expression(parsed_expr, members);
-        return Ok(Expr::MemberExpression(Box::new(mem)));
+        return Ok(Expr::MemberExpression(BoxNode::new(mem)));
     }
     Ok(parsed_expr)
 }
@@ -2736,17 +2752,17 @@ fn possible_operands(i: &mut TokenSlice) -> ModalResult<Expr> {
     let mut expr = alt((
         alt((
             if_expr.map(Expr::IfExpression),
-            unary_expression.map(Box::new).map(Expr::UnaryExpression),
-            bool_value.map(Box::new).map(Expr::Literal),
+            unary_expression.map(BoxNode::new).map(Expr::UnaryExpression),
+            bool_value.map(BoxNode::new).map(Expr::Literal),
             literal.map(Expr::Literal),
-            sketch_var.map(Box::new).map(Expr::SketchVar),
+            sketch_var.map(BoxNode::new).map(Expr::SketchVar),
             fn_call_or_sketch_block,
-            name.map(Box::new).map(Expr::Name),
+            name.map(BoxNode::new).map(Expr::Name),
             array,
-            object.map(Box::new).map(Expr::ObjectExpression),
+            object.map(BoxNode::new).map(Expr::ObjectExpression),
         )),
         alt((
-            binary_expr_in_parens.map(Box::new).map(Expr::BinaryExpression),
+            binary_expr_in_parens.map(BoxNode::new).map(Expr::BinaryExpression),
             unnecessarily_bracketed,
         )),
     ))
@@ -2756,12 +2772,12 @@ fn possible_operands(i: &mut TokenSlice) -> ModalResult<Expr> {
     .parse_next(i)?;
     if let Ok(Some(members)) = opt(find_members).parse_next(i) {
         let mem = build_member_expression(expr, members);
-        expr = Expr::MemberExpression(Box::new(mem));
+        expr = Expr::MemberExpression(BoxNode::new(mem));
     }
 
     let ty = opt((colon, opt(whitespace), type_)).parse_next(i)?;
     if let Some((_, _, ty)) = ty {
-        expr = Expr::AscribedExpression(Box::new(AscribedExpression::new(expr, ty)))
+        expr = Expr::AscribedExpression(BoxNode::new(AscribedExpression::new(expr, ty)))
     }
 
     Ok(expr)
@@ -2826,7 +2842,7 @@ fn declaration(i: &mut TokenSlice) -> ModalResult<BoxNode<VariableDeclaration>> 
                     func.name = Some(id.clone());
                     func
                 })
-                .map(Box::new)
+                .map(BoxNode::new)
                 .map(Expr::FunctionExpression)
                 .context(expected("a KCL function expression, like () { return 1 }"))
                 .parse_next(i);
@@ -2856,8 +2872,8 @@ fn declaration(i: &mut TokenSlice) -> ModalResult<BoxNode<VariableDeclaration>> 
                                 "Define a function with `fn name()` instead of assigning the function to a variable",
                             )
                             .with_suggestion(
-                                format!("Use `fn {}`", &id.name),
-                                format!("fn {}", &id.name),
+                                format!("Use `fn {}`", id.name),
+                                format!("fn {}", id.name),
                                 Some(SourceRange::new(start, fn_end, id.module_id)),
                                 Tag::None,
                             ),
@@ -2942,20 +2958,23 @@ fn ty_decl(i: &mut TokenSlice) -> ModalResult<BoxNode<TypeDeclaration>> {
     .parse_next(i)?;
     let mut end = name.end;
 
+    let mut args_range = None;
     let args = if peek((opt(whitespace), open_paren)).parse_next(i).is_ok() {
         ignore_whitespace(i);
-        open_paren(i)?;
+        let args_start = open_paren(i)?.start;
         ignore_whitespace(i);
         let args: Vec<_> = separated(0.., identifier, comma_sep).parse_next(i)?;
         ignore_trailing_comma(i);
         ignore_whitespace(i);
-        end = close_paren(i)?.end;
+        let close = close_paren(i)?;
+        end = close.end;
+        args_range = Some(SourceRange::new(args_start, close.end, close.module_id));
         Some(args)
     } else {
         None
     };
 
-    let alias = if peek((opt(whitespace), equals)).parse_next(i).is_ok() {
+    let definition = if peek((opt(whitespace), equals)).parse_next(i).is_ok() {
         ignore_whitespace(i);
         equals(i)?;
         ignore_whitespace(i);
@@ -2963,9 +2982,19 @@ fn ty_decl(i: &mut TokenSlice) -> ModalResult<BoxNode<TypeDeclaration>> {
 
         ParseContext::experimental("type aliases", ty.as_source_range());
 
-        Some(ty)
+        TypeDeclarationDefinition::Alias { ty: BoxNode::new(ty) }
+    } else if peek((opt(whitespace), open_brace)).parse_next(i).is_ok() {
+        ignore_whitespace(i);
+        if let Some(args_range) = args_range {
+            return Err(ErrMode::Cut(
+                CompilationIssue::fatal(args_range, "Generic enum declarations are not supported yet").into(),
+            ));
+        }
+        let (enum_def, close_end) = enum_definition(i)?;
+        end = close_end;
+        TypeDeclarationDefinition::Enum(Box::new(enum_def))
     } else {
-        None
+        TypeDeclarationDefinition::Bare
     };
 
     let module_id = name.module_id;
@@ -2976,15 +3005,285 @@ fn ty_decl(i: &mut TokenSlice) -> ModalResult<BoxNode<TypeDeclaration>> {
         TypeDeclaration {
             name,
             args,
-            alias,
+            definition,
             visibility,
             digest: None,
         },
     );
 
-    ParseContext::experimental("type declarations", result.as_source_range());
+    if matches!(result.definition, TypeDeclarationDefinition::Enum(_)) {
+        ParseContext::experimental("enum declarations", result.as_source_range());
+    } else {
+        ParseContext::experimental("type declarations", result.as_source_range());
+    }
 
     Ok(result)
+}
+
+/// Parse the body of an enum type declaration, from `{` through `}`, e.g.
+/// `{ | Red | Green }`. An enum with no variants keeps the standalone arm
+/// marker which classifies the body as a nominal sum: `{ | }`.
+///
+/// Returns the declaration and the source offset just past the closing brace.
+/// The caller has already committed to the `{...}` definition form, so every
+/// syntax error in here is fatal rather than a backtrack, keeping diagnostics
+/// focused on the enum body.
+fn enum_definition(i: &mut TokenSlice) -> ModalResult<(EnumDeclaration, usize)> {
+    let open = open_brace(i)?;
+    let module_id = open.module_id;
+
+    let mut variants: NodeList<EnumVariant> = Vec::new();
+    let mut non_code_meta = NonCodeMeta::default();
+    // Comments and blank lines seen since the last variant (or the `{`), not
+    // yet attached to a variant's pre-comments or to `non_code_meta`.
+    let mut pending_non_code: Vec<Node<NonCodeNode>> = Vec::new();
+    // End of the most recently consumed token, for errors at end of file.
+    let mut last_pos = open.end;
+
+    macro_rules! peek_token {
+        () => {
+            match peek(any).parse_next(i) {
+                Ok(token) => token,
+                Err(ErrMode::Backtrack(_)) => {
+                    return Err(ErrMode::Cut(
+                        CompilationIssue::fatal(
+                            SourceRange::new(last_pos, last_pos, module_id),
+                            "This enum body is never closed; expected `}`",
+                        )
+                        .into(),
+                    ));
+                }
+                Err(e) => return Err(e),
+            }
+        };
+    }
+
+    // The first token of the body must be the `|` of the first variant arm,
+    // or the standalone marker of an enum with no variants.
+    enum_body_non_code(i, false, &mut pending_non_code, &mut last_pos)?;
+    let token = peek_token!();
+    let mut bar = match (&token.token_type, token.value.as_str()) {
+        (TokenType::Operator, "|") => any.parse_next(i)?,
+        (TokenType::Brace, "}") => {
+            return Err(ErrMode::Cut(
+                CompilationIssue::fatal(
+                    token.as_source_range(),
+                    "An enum without variants still needs its arm marker; write it as `{ | }`",
+                )
+                .into(),
+            ));
+        }
+        (TokenType::At, _) => return reject_variant_annotation(i),
+        _ => {
+            return Err(ErrMode::Cut(
+                CompilationIssue::fatal(token.as_source_range(), "Enum variants must each begin with `|`").into(),
+            ));
+        }
+    };
+    last_pos = bar.end;
+    // `}` may directly follow only the standalone first `|`.
+    let mut zero_variants_ok = true;
+
+    loop {
+        // Expect the variant name for the arm opened by `bar`.
+        enum_body_non_code(i, false, &mut pending_non_code, &mut last_pos)?;
+        let token = peek_token!();
+        match (&token.token_type, token.value.as_str()) {
+            (TokenType::Word, _) => {
+                let name = identifier(i)?;
+                last_pos = name.end;
+                let mut variant = Node::new(EnumVariant { name, digest: None }, bar.start, last_pos, bar.module_id);
+                attach_enum_non_code(
+                    &mut pending_non_code,
+                    Some(&mut variant),
+                    variants.len(),
+                    &mut non_code_meta,
+                );
+                variants.push(variant);
+            }
+            (TokenType::Brace, "}") if zero_variants_ok => break,
+            (TokenType::At, _) => return reject_variant_annotation(i),
+            _ => {
+                return Err(ErrMode::Cut(
+                    CompilationIssue::fatal(token.as_source_range(), "Expected a variant name after `|`").into(),
+                ));
+            }
+        }
+
+        // After a variant: `|` opens the next arm, `}` ends the body.
+        enum_body_non_code(i, true, &mut pending_non_code, &mut last_pos)?;
+        let token = peek_token!();
+        match (&token.token_type, token.value.as_str()) {
+            (TokenType::Operator, "|") => {
+                bar = any.parse_next(i)?;
+                last_pos = bar.end;
+                zero_variants_ok = false;
+            }
+            (TokenType::Brace, "}") => break,
+            (TokenType::Comma, _) => {
+                return Err(ErrMode::Cut(
+                    CompilationIssue::fatal(
+                        token.as_source_range(),
+                        "Commas are not used between enum variants; each variant begins with `|`",
+                    )
+                    .with_suggestion("Replace `,` with `|`", " |", None, Tag::None)
+                    .into(),
+                ));
+            }
+            (TokenType::Brace, "(") => {
+                return Err(ErrMode::Cut(
+                    CompilationIssue::fatal(
+                        token.as_source_range(),
+                        "Enum variants with payloads are not supported yet",
+                    )
+                    .into(),
+                ));
+            }
+            (TokenType::Word, _) => {
+                return Err(ErrMode::Cut(
+                    CompilationIssue::fatal(token.as_source_range(), "Enum variants must each begin with `|`").into(),
+                ));
+            }
+            (TokenType::At, _) => return reject_variant_annotation(i),
+            _ => {
+                return Err(ErrMode::Cut(
+                    CompilationIssue::fatal(token.as_source_range(), "Expected `|` or `}` in the enum body").into(),
+                ));
+            }
+        }
+    }
+
+    let close = close_brace(i)?;
+    attach_enum_non_code(&mut pending_non_code, None, variants.len(), &mut non_code_meta);
+
+    Ok((
+        EnumDeclaration {
+            variants,
+            non_code_meta,
+            digest: None,
+        },
+        close.end,
+    ))
+}
+
+/// Collect whitespace, comments, and blank lines inside an enum body into
+/// `pending`. A comment on the same line as a preceding variant is converted
+/// to an inline comment, like trailing comments on statements.
+fn enum_body_non_code(
+    i: &mut TokenSlice,
+    after_variant: bool,
+    pending: &mut Vec<Node<NonCodeNode>>,
+    last_pos: &mut usize,
+) -> ModalResult<()> {
+    let mut first = true;
+    loop {
+        let ws = opt(whitespace).parse_next(i)?;
+        let mut newline_count = 0;
+        if let Some(ws) = ws {
+            newline_count = ws.iter().map(|token| count_in('\n', &token.value)).sum::<usize>();
+            let (start, end) = (ws.first().unwrap().start, ws.last().unwrap().end);
+            *last_pos = end;
+            if newline_count >= 2 {
+                // A deliberate blank line, preserved like `Program` does.
+                pending.push(Node::new(
+                    NonCodeNode {
+                        value: NonCodeValue::NewLine,
+                        digest: None,
+                    },
+                    start,
+                    end,
+                    ws.first().unwrap().module_id,
+                ));
+            }
+        }
+        match non_code_node_no_leading_whitespace.parse_next(i) {
+            Ok(nc) => {
+                *last_pos = nc.end;
+                let value = match nc.inner.value {
+                    NonCodeValue::BlockComment { value, style } if after_variant && first && newline_count == 0 => {
+                        NonCodeValue::InlineComment { value, style }
+                    }
+                    x => x,
+                };
+                pending.push(Node::new(
+                    NonCodeNode { value, digest: None },
+                    nc.start,
+                    nc.end,
+                    nc.module_id,
+                ));
+                first = false;
+            }
+            Err(ErrMode::Backtrack(_)) => return Ok(()),
+            Err(e) => return Err(e),
+        }
+    }
+}
+
+/// Distribute pending non-code within an enum body: comments strongly
+/// associated with the upcoming variant become its pre-comments; everything
+/// else lands in the declaration's `non_code_meta`, keyed like `Program`'s
+/// comment model (`start_nodes` before the first variant, otherwise keyed by
+/// the previous variant's index).
+fn attach_enum_non_code(
+    pending: &mut Vec<Node<NonCodeNode>>,
+    variant: Option<&mut Node<EnumVariant>>,
+    variants_len: usize,
+    non_code_meta: &mut NonCodeMeta,
+) {
+    if pending.is_empty() {
+        return;
+    }
+    // A blank line between comments and the variant dissociates them from it.
+    let force_disoc = matches!(&pending.last().unwrap().inner.value, NonCodeValue::NewLine);
+    let can_attach = variant.is_some() && !force_disoc;
+    let mut comments = Vec::new();
+    let mut comment_start = None;
+    for nc in pending.drain(..) {
+        match nc.inner.value {
+            NonCodeValue::BlockComment { value, style } if can_attach => {
+                comment_start.get_or_insert(nc.start);
+                comments.push(style.render_comment(&value));
+            }
+            NonCodeValue::NewLine if can_attach && !comments.is_empty() => {
+                comments.push(String::new());
+                comments.push(String::new());
+            }
+            _ => {
+                if variants_len == 0 {
+                    non_code_meta.start_nodes.push(nc);
+                } else {
+                    non_code_meta.insert(variants_len - 1, nc);
+                }
+            }
+        }
+    }
+    if let Some(variant) = variant
+        && !comments.is_empty()
+    {
+        let start = comment_start.unwrap_or(variant.start);
+        variant.set_comments(comments, start);
+    }
+}
+
+/// Consume an `@` and produce the focused error for variant annotations,
+/// which are planned (`@repr(...)`) but not part of this round.
+fn reject_variant_annotation<T>(i: &mut TokenSlice) -> ModalResult<T> {
+    let at = at_sign(i)?;
+    let mut end = at.end;
+    let name: ModalResult<Token> = peek(any).parse_next(i);
+    if let Ok(token) = name
+        && token.token_type == TokenType::Word
+        && token.start == at.end
+    {
+        end = token.end;
+    }
+    Err(ErrMode::Cut(
+        CompilationIssue::fatal(
+            SourceRange::new(at.start, end, at.module_id),
+            "Annotations on enum variants, such as `@repr(...)`, are not supported yet",
+        )
+        .into(),
+    ))
 }
 
 impl TryFrom<Token> for Node<Identifier> {
@@ -2992,7 +3291,7 @@ impl TryFrom<Token> for Node<Identifier> {
 
     fn try_from(token: Token) -> Result<Self, Self::Error> {
         if token.token_type == TokenType::Word {
-            Ok(Node::new(
+            return Ok(Node::new(
                 Identifier {
                     name: token.value,
                     digest: None,
@@ -3000,16 +3299,24 @@ impl TryFrom<Token> for Node<Identifier> {
                 token.start,
                 token.end,
                 token.module_id,
-            ))
-        } else {
-            Err(CompilationIssue::fatal(
-                token.as_source_range(),
-                format!(
-                    "Cannot assign a variable to a reserved keyword: {}",
-                    token.value.as_str()
-                ),
-            ))
+            ));
         }
+
+        // Only `Keyword` tokens are reserved keywords; name what was actually found
+        // for anything else, so a comment or brace is not mislabelled as a keyword.
+        let message = match token.token_type {
+            TokenType::Keyword => {
+                format!(
+                    "Expected an identifier, but found the reserved keyword `{}`.",
+                    token.value
+                )
+            }
+            TokenType::LineComment | TokenType::BlockComment => {
+                "Expected an identifier, but found a comment.".to_owned()
+            }
+            _ => format!("Expected an identifier, but found `{}`.", token.value),
+        };
+        Err(CompilationIssue::fatal(token.as_source_range(), message))
     }
 }
 
@@ -3587,12 +3894,12 @@ fn primitive_type(i: &mut TokenSlice) -> ModalResult<Node<PrimitiveType>> {
                 if let Some((args, ret)) = tys {
                     if let Some((unnamed, named)) = args {
                         if let Some(unnamed) = unnamed {
-                            ft.unnamed_arg = Some(Box::new(unnamed));
+                            ft.unnamed_arg = Some(BoxNode::new(unnamed));
                         }
                         ft.named_args = named;
                     }
                     if let Some((_, _, ty)) = ret {
-                        ft.return_type = Some(Box::new(ty));
+                        ft.return_type = Some(BoxNode::new(ty));
                     }
                 }
 
@@ -3612,6 +3919,9 @@ fn primitive_type(i: &mut TokenSlice) -> ModalResult<Node<PrimitiveType>> {
 
             if *result == PrimitiveType::None {
                 ParseContext::experimental("none type", result.as_source_range());
+            }
+            if *result == PrimitiveType::Never {
+                ParseContext::experimental("never type", result.as_source_range());
             }
 
             result
@@ -3722,7 +4032,7 @@ fn parameter(i: &mut TokenSlice) -> ModalResult<ParamDescription> {
         arg_name,
         type_,
         default_value: match (question_mark.is_some(), default_literal) {
-            (true, Some(lit)) => Some(DefaultParamVal::Literal(*lit)),
+            (true, Some(lit)) => Some(DefaultParamVal::Literal(lit.into_node())),
             (true, None) => Some(DefaultParamVal::none()),
             (false, None) => None,
             (false, Some(lit)) => {
@@ -3762,12 +4072,53 @@ fn parameters(i: &mut TokenSlice) -> ModalResult<Vec<Parameter>> {
                     identifier.pre_comments = comments.inner;
                 }
                 let mut experimental = false;
+                let mut added_in = None;
+                let mut deprecated = false;
                 let mut deprecated_since = None;
+                let mut removed_in = None;
                 if let Some(attr) = attr {
                     if let Some(property) = attr.property(EXPERIMENTAL)
                         && let Some(value) = property.value.literal_bool()
                     {
                         experimental = value;
+                    }
+                    if let Some(property) = attr.property(ADDED_IN) {
+                        if let Some(s) = property.value.literal_str()
+                            && let Some(version) = VersionConstraint::parse(s)
+                        {
+                            added_in = Some(version);
+                        } else {
+                            ParseContext::err(CompilationIssue::fatal(
+                                SourceRange::from(&property.value),
+                                format!(
+                                    "Invalid value for `{ADDED_IN}`; expected a dotted integer version string, e.g., \"3.0\"",
+                                ),
+                            ));
+                        }
+                        if !labeled {
+                            ParseContext::err(CompilationIssue::fatal(
+                                SourceRange::from(&attr),
+                                format!(
+                                    "`{ADDED_IN}` cannot be used on the unlabeled parameter; only labeled parameters can be added in a later version"
+                                ),
+                            ));
+                        } else if default_value.is_none() {
+                            // A caller on an older version cannot pass the
+                            // parameter, so the function body must be able to
+                            // run with its default value.
+                            ParseContext::err(CompilationIssue::fatal(
+                                SourceRange::from(&identifier),
+                                format!(
+                                    "A parameter with `{ADDED_IN}` must be optional; add `?` after `{}`",
+                                    identifier.name
+                                ),
+                            ));
+                        }
+                    }
+                    if let Some(property) = attr.property(DEPRECATED)
+                        && let Some(value) = property.value.literal_bool()
+                    {
+                        deprecated = value;
                     }
                     if let Some(property) = attr.property(DEPRECATED_SINCE) {
                         if let Some(s) = property.value.literal_str()
@@ -3783,12 +4134,80 @@ fn parameters(i: &mut TokenSlice) -> ModalResult<Vec<Parameter>> {
                             ));
                         }
                     }
+                    if deprecated && deprecated_since.is_some() {
+                        ParseContext::err(CompilationIssue::fatal(
+                            SourceRange::from(&attr),
+                            format!("A parameter cannot set both `{DEPRECATED}` and `{DEPRECATED_SINCE}`; only one may be specified"),
+                        ));
+                    }
+                    if let Some(property) = attr.property(REMOVED_IN) {
+                        if let Some(s) = property.value.literal_str()
+                            && let Some(version) = VersionConstraint::parse(s)
+                        {
+                            removed_in = Some(version);
+                        } else {
+                            ParseContext::err(CompilationIssue::fatal(
+                                SourceRange::from(&property.value),
+                                format!(
+                                    "Invalid value for `{REMOVED_IN}`; expected a dotted integer version string, e.g., \"3.0\"",
+                                ),
+                            ));
+                        }
+                        if !labeled {
+                            ParseContext::err(CompilationIssue::fatal(
+                                SourceRange::from(&attr),
+                                format!(
+                                    "`{REMOVED_IN}` cannot be used on the unlabeled parameter; only labeled parameters can be removed"
+                                ),
+                            ));
+                        } else if default_value.is_none() {
+                            // A caller on the removed version cannot pass the
+                            // parameter, so the function body must be able to
+                            // run with its default value.
+                            ParseContext::err(CompilationIssue::fatal(
+                                SourceRange::from(&identifier),
+                                format!(
+                                    "A parameter with `{REMOVED_IN}` must be optional; add `?` after `{}`",
+                                    identifier.name
+                                ),
+                            ));
+                        }
+                    }
+                    // A parameter cannot be deprecated before it exists, nor
+                    // removed in the version that added it. These are mistakes
+                    // in the declaration's metadata that do not prevent the
+                    // program from running, so they are not fatal.
+                    if let Some(added) = &added_in {
+                        if let Some(since) = &deprecated_since
+                            && since.is_before(added)
+                            && let Some(property) = attr.property(DEPRECATED_SINCE)
+                        {
+                            ParseContext::err(CompilationIssue::err(
+                                SourceRange::from(&property.value),
+                                format!(
+                                    "`{DEPRECATED_SINCE}` (KCL {since}) must not be earlier than `{ADDED_IN}` (KCL {added})"
+                                ),
+                            ));
+                        }
+                        if let Some(removed) = &removed_in
+                            && !added.is_before(removed)
+                            && let Some(property) = attr.property(REMOVED_IN)
+                        {
+                            ParseContext::err(CompilationIssue::err(
+                                SourceRange::from(&property.value),
+                                format!("`{REMOVED_IN}` (KCL {removed}) must be later than `{ADDED_IN}` (KCL {added})"),
+                            ));
+                        }
+                    }
                     identifier.outer_attrs.push(attr);
                 }
 
                 Ok(Parameter {
                     experimental,
+                    added_in,
+                    deprecated,
                     deprecated_since,
+                    removed_in,
                     identifier,
                     param_type: type_,
                     default_value,
@@ -3854,7 +4273,7 @@ fn binding_name(i: &mut TokenSlice) -> ModalResult<Node<Identifier>> {
     if !is_safe_binding_name(&ident.name) {
         ParseContext::err(CompilationIssue::err(
             SourceRange::new(ident.start, ident.end, ident.module_id),
-            format!("`{}` is a reserved name and cannot be defined.", &ident.name),
+            format!("`{}` is a reserved name and cannot be defined.", ident.name),
         ));
     }
 
@@ -3866,7 +4285,9 @@ fn labelled_fn_call(i: &mut TokenSlice) -> ModalResult<Expr> {
 
     let label = opt(label).parse_next(i)?;
     match label {
-        Some(label) => Ok(Expr::LabelledExpression(Box::new(LabelledExpression::new(expr, label)))),
+        Some(label) => Ok(Expr::LabelledExpression(BoxNode::new(LabelledExpression::new(
+            expr, label,
+        )))),
         None => Ok(expr),
     }
 }
@@ -3909,7 +4330,7 @@ fn fn_call_or_sketch_block(i: &mut TokenSlice) -> ModalResult<Expr> {
                     callee: _,
                     unlabeled,
                     mut arguments,
-                    non_code_meta,
+                    mut non_code_meta,
                     digest: _,
                 },
         } = fn_call;
@@ -3922,6 +4343,14 @@ fn fn_call_or_sketch_block(i: &mut TokenSlice) -> ModalResult<Expr> {
                         arg: unlabeled,
                     },
                 );
+                // The shorthand argument now occupies the first slot of the
+                // argument sequence, so shift the non-code nodes (e.g.
+                // comments) to keep them positioned after it.
+                non_code_meta.non_code_nodes = non_code_meta
+                    .non_code_nodes
+                    .into_iter()
+                    .map(|(index, nodes)| (index + 1, nodes))
+                    .collect();
             } else {
                 ParseContext::err(CompilationIssue::err(
                     unlabeled.into(),
@@ -3929,7 +4358,7 @@ fn fn_call_or_sketch_block(i: &mut TokenSlice) -> ModalResult<Expr> {
                 ));
             }
         }
-        return Ok(Expr::SketchBlock(Box::new(Node {
+        return Ok(Expr::SketchBlock(BoxNode::new(Node {
             start,
             end,
             module_id,
@@ -3946,7 +4375,7 @@ fn fn_call_or_sketch_block(i: &mut TokenSlice) -> ModalResult<Expr> {
             },
         })));
     }
-    Ok(Expr::CallExpressionKw(Box::new(fn_call)))
+    Ok(Expr::CallExpressionKw(BoxNode::new(fn_call)))
 }
 
 fn fn_call_kw(i: &mut TokenSlice) -> ModalResult<Node<CallExpressionKw>> {
@@ -4163,21 +4592,31 @@ mod tests {
     }
 
     fn assert_reserved(word: &str) {
-        // Try to use it as a variable name.
-        let code = format!(r#"{word} = 0"#);
-        let result = crate::parsing::top_level_parse(code.as_str());
-        let err = &result.unwrap_errs().next().unwrap();
-        // Which token causes the error may change.  In "return = 0", for
-        // example, "return" is the problem.
-        assert!(
-            err.message.starts_with("Unexpected token: ")
-                || err.message.starts_with("= is not")
-                || err
-                    .message
-                    .starts_with("Cannot assign a variable to a reserved keyword: "),
-            "Error message is: `{}`",
-            err.message,
+        let alternative = format!("{word}Value");
+        let expected_message = format!(
+            "`{word}` is a reserved keyword and cannot be used as a variable name. Use a different name, such as `{alternative}`."
         );
+
+        for code in [format!("{word} = 0"), format!("sketch() {{\n  {word} = 0\n}}")] {
+            let expected_start = code.find(word).unwrap();
+            let expected_end = expected_start + word.len();
+            let result = crate::parsing::top_level_parse(&code);
+            let errors: Vec<_> = result.unwrap_errs().collect();
+
+            assert_eq!(errors.len(), 1, "Unexpected errors for `{code}`: {errors:#?}");
+            assert_eq!(errors[0].message, expected_message, "Incorrect error for `{code}`");
+            assert_eq!(
+                errors[0].source_range,
+                SourceRange::new(expected_start, expected_end, ModuleId::default()),
+                "Incorrect error range for `{code}`",
+            );
+
+            let corrected = format!("{}{}{}", &code[..expected_start], alternative, &code[expected_end..]);
+            assert!(
+                crate::parsing::top_level_parse(&corrected).is_ok(),
+                "Suggested alternative should parse: `{corrected}`",
+            );
+        }
     }
 
     #[test]
@@ -4232,7 +4671,6 @@ e
         for word in crate::parsing::token::RESERVED_WORDS.keys().sorted() {
             assert_reserved(word);
         }
-        assert_reserved("import");
     }
 
     #[test]
@@ -4279,7 +4717,7 @@ e
         let Expr::MemberExpression(expr) = in_ctx(|| expression.parse(tokens)).unwrap() else {
             panic!();
         };
-        let Expr::BinaryExpression(be) = expr.inner.property else {
+        let Expr::BinaryExpression(be) = expr.into_node().inner.property else {
             panic!();
         };
         assert_eq!(be.inner.operator, BinaryOperator::Add);
@@ -4525,11 +4963,11 @@ mySk1 = startSketchOn(XY)
         let BodyItem::VariableDeclaration(item) = body.remove(0) else {
             panic!("expected vardec");
         };
-        let val = item.inner.declaration.inner.init;
+        let val = item.into_node().inner.declaration.inner.init;
         let Expr::PipeExpression(pipe) = val else {
             panic!("expected pipe");
         };
-        let mut noncode = pipe.inner.non_code_meta;
+        let mut noncode = pipe.into_node().inner.non_code_meta;
         assert_eq!(noncode.non_code_nodes.len(), 1);
         let comment = noncode.non_code_nodes.remove(&0).unwrap().pop().unwrap();
         assert_eq!(
@@ -4583,7 +5021,10 @@ mySk1 = startSketchOn(XY)
 
         let tokens = crate::parsing::token::lex(test_input, ModuleId::default()).unwrap();
         let (body, non_code_meta) = match in_ctx(|| expression.parse_next(&mut tokens.as_slice())).unwrap() {
-            Expr::PipeExpression(e) => (e.inner.body, e.inner.non_code_meta),
+            Expr::PipeExpression(e) => {
+                let e = e.into_node();
+                (e.inner.body, e.inner.non_code_meta)
+            }
             _ => panic!(),
         };
 
@@ -4830,7 +5271,7 @@ mySk1 = startSketchOn(XY)
         };
 
         assert_eq!(middle.operator, BinaryOperator::Div);
-        let BinaryPart::BinaryExpression(inner) = middle.inner.left else {
+        let BinaryPart::BinaryExpression(inner) = middle.into_node().inner.left else {
             panic!("expected nested binary expression");
         };
         assert_eq!(inner.operator, BinaryOperator::Sub);
@@ -5093,7 +5534,10 @@ mySk1 = startSketchOn(XY)
         let cause = err.cause.unwrap();
         // This is the token `let`
         assert_eq!(cause.source_range, SourceRange::new(1, 4, ModuleId::from_usize(2)));
-        assert_eq!(cause.message, "Cannot assign a variable to a reserved keyword: let");
+        assert_eq!(
+            cause.message,
+            "Expected an identifier, but found the reserved keyword `let`."
+        );
     }
 
     #[test]
@@ -5248,7 +5692,7 @@ mySk1 = startSketchOn(XY)
             },
             BinaryExpression {
                 operator: BinaryOperator::Add,
-                left: BinaryPart::Literal(Box::new(Node::with_node_path(
+                left: BinaryPart::Literal(BoxNode::new(Node::with_node_path(
                     Literal {
                         value: LiteralValue::Number {
                             value: 5.0,
@@ -5268,7 +5712,7 @@ mySk1 = startSketchOn(XY)
                         ],
                     },
                 ))),
-                right: BinaryPart::Literal(Box::new(Node::with_node_path(
+                right: BinaryPart::Literal(BoxNode::new(Node::with_node_path(
                     Literal {
                         value: "a".into(),
                         raw: r#""a""#.to_owned(),
@@ -5323,7 +5767,7 @@ mySk1 = startSketchOn(XY)
                                 ],
                             },
                             BinaryExpression {
-                                left: BinaryPart::Literal(Box::new(Node::with_node_path(
+                                left: BinaryPart::Literal(BoxNode::new(Node::with_node_path(
                                     Literal {
                                         value: LiteralValue::Number {
                                             value: 5.0,
@@ -5344,7 +5788,7 @@ mySk1 = startSketchOn(XY)
                                     },
                                 ))),
                                 operator: BinaryOperator::Add,
-                                right: BinaryPart::Literal(Box::new(Node::with_node_path(
+                                right: BinaryPart::Literal(BoxNode::new(Node::with_node_path(
                                     Literal {
                                         value: LiteralValue::Number {
                                             value: 6.0,
@@ -5542,6 +5986,230 @@ height = [obj["a"] -1, 0]"#;
     }
 
     #[test]
+    fn test_param_deprecated_annotation() {
+        crate::parsing::top_level_parse(
+            r#"fn foo(
+  @(deprecated = true)
+  x?: number,
+) {
+  return x
+}"#,
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn test_param_deprecated_and_deprecated_since_conflict() {
+        assert_err_contains(
+            r#"fn foo(
+  @(deprecated = true, deprecated_since = "2.0")
+  x?: number,
+) {
+  return x
+}"#,
+            "cannot set both `deprecated` and `deprecated_since`",
+        );
+    }
+
+    #[test]
+    fn test_param_removed_in_annotation() {
+        let tokens = crate::parsing::token::lex(
+            r#"fn foo(
+  @(deprecated_since = "2.0", removed_in = "3.0")
+  x?: number,
+) {
+  return x
+}"#,
+            ModuleId::default(),
+        )
+        .unwrap();
+        let mut body = in_ctx(|| program.parse(tokens.as_slice())).unwrap().inner.body;
+        let BodyItem::VariableDeclaration(item) = body.remove(0) else {
+            panic!("expected function declaration");
+        };
+        let Expr::FunctionExpression(func) = item.into_node().inner.declaration.inner.init else {
+            panic!("expected function expression");
+        };
+        let param = &func.params[0];
+        assert_eq!(param.deprecated_since, VersionConstraint::parse("2.0"));
+        assert_eq!(param.removed_in, VersionConstraint::parse("3.0"));
+    }
+
+    #[test]
+    fn test_param_removed_in_invalid_value() {
+        assert_err_contains(
+            r#"fn foo(
+  @(removed_in = "3.x")
+  x?: number,
+) {
+  return x
+}"#,
+            "Invalid value for `removed_in`",
+        );
+    }
+
+    #[test]
+    fn test_param_removed_in_on_unlabeled_param() {
+        assert_err_contains(
+            r#"fn foo(
+  @(removed_in = "3.0")
+  @x: number,
+) {
+  return x
+}"#,
+            "`removed_in` cannot be used on the unlabeled parameter",
+        );
+    }
+
+    #[test]
+    fn test_param_removed_in_requires_optional_param() {
+        assert_err(
+            r#"fn foo(
+  @(removed_in = "3.0")
+  x: number,
+) {
+  return x
+}"#,
+            "A parameter with `removed_in` must be optional; add `?` after `x`",
+            [34, 35],
+        );
+    }
+
+    #[test]
+    fn test_param_removed_in_allows_optional_param_with_default() {
+        crate::parsing::top_level_parse(
+            r#"fn foo(
+  @(removed_in = "3.0")
+  x?: number = 7,
+) {
+  return x
+}"#,
+        )
+        .unwrap();
+    }
+
+    /// The first parameter of the function declared by the program's first
+    /// statement.
+    fn first_fn_param(mut program: Node<Program>) -> Parameter {
+        let BodyItem::VariableDeclaration(item) = program.inner.body.remove(0) else {
+            panic!("expected function declaration");
+        };
+        let Expr::FunctionExpression(func) = item.into_node().inner.declaration.inner.init else {
+            panic!("expected function expression");
+        };
+        func.params[0].clone()
+    }
+
+    #[test]
+    fn test_param_added_in_annotation() {
+        // `added_in` may equal `deprecated_since`: a parameter can arrive
+        // already deprecated.
+        let (program, _) = assert_no_err(
+            r#"fn foo(
+  @(added_in = "2.0", deprecated_since = "2.0", removed_in = "3.0")
+  x?: number,
+) {
+  return x
+}"#,
+        );
+        let param = first_fn_param(program);
+        assert_eq!(param.added_in, VersionConstraint::parse("2.0"));
+        assert_eq!(param.deprecated_since, VersionConstraint::parse("2.0"));
+        assert_eq!(param.removed_in, VersionConstraint::parse("3.0"));
+    }
+
+    #[test]
+    fn test_param_added_in_invalid_value() {
+        assert_err_contains(
+            r#"fn foo(
+  @(added_in = "3.x")
+  x?: number,
+) {
+  return x
+}"#,
+            "Invalid value for `added_in`",
+        );
+    }
+
+    #[test]
+    fn test_param_added_in_on_unlabeled_param() {
+        assert_err_contains(
+            r#"fn foo(
+  @(added_in = "3.0")
+  @x: number,
+) {
+  return x
+}"#,
+            "`added_in` cannot be used on the unlabeled parameter",
+        );
+    }
+
+    #[test]
+    fn test_param_added_in_requires_optional_param() {
+        assert_err(
+            r#"fn foo(
+  @(added_in = "3.0")
+  x: number,
+) {
+  return x
+}"#,
+            "A parameter with `added_in` must be optional; add `?` after `x`",
+            [32, 33],
+        );
+    }
+
+    #[test]
+    fn test_param_added_in_allows_optional_param_with_default() {
+        assert_no_err(
+            r#"fn foo(
+  @(added_in = "3.0")
+  x?: number = 7,
+) {
+  return x
+}"#,
+        );
+    }
+
+    #[test]
+    fn test_param_added_in_later_than_deprecated_since_is_nonfatal_error() {
+        // The declaration's metadata is inconsistent, but the program can
+        // still run, so the error is not fatal and the AST is kept.
+        let (program, issues) = assert_no_fatal(
+            r#"fn foo(
+  @(added_in = "3.0", deprecated_since = "2.0")
+  x?: number,
+) {
+  return x
+}"#,
+        );
+        let errors: Vec<_> = issues.iter().filter(|e| e.severity == Severity::Error).collect();
+        assert_eq!(errors.len(), 1, "found: {issues:#?}");
+        assert_eq!(
+            errors[0].message,
+            "`deprecated_since` (KCL 2.0) must not be earlier than `added_in` (KCL 3.0)"
+        );
+        assert_eq!(first_fn_param(program).added_in, VersionConstraint::parse("3.0"));
+    }
+
+    #[test]
+    fn test_param_added_in_not_before_removed_in_is_nonfatal_error() {
+        let (_, issues) = assert_no_fatal(
+            r#"fn foo(
+  @(added_in = "3.0", removed_in = "3.0")
+  x?: number,
+) {
+  return x
+}"#,
+        );
+        let errors: Vec<_> = issues.iter().filter(|e| e.severity == Severity::Error).collect();
+        assert_eq!(errors.len(), 1, "found: {issues:#?}");
+        assert_eq!(
+            errors[0].message,
+            "`removed_in` (KCL 3.0) must be later than `added_in` (KCL 3.0)"
+        );
+    }
+
+    #[test]
     fn test_anon_fn_no_fn() {
         assert_err_contains("foo(42, (x) { return x + 1 })", "Anonymous function requires `fn`");
     }
@@ -5662,7 +6330,10 @@ e
             (
                 vec![Parameter {
                     experimental: Default::default(),
+                    added_in: None,
+                    deprecated: false,
                     deprecated_since: None,
+                    removed_in: None,
                     identifier: Node::no_src(Identifier {
                         name: "a".to_owned(),
                         digest: None,
@@ -5677,7 +6348,10 @@ e
             (
                 vec![Parameter {
                     experimental: Default::default(),
+                    added_in: None,
+                    deprecated: false,
                     deprecated_since: None,
+                    removed_in: None,
                     identifier: Node::no_src(Identifier {
                         name: "a".to_owned(),
                         digest: None,
@@ -5693,7 +6367,10 @@ e
                 vec![
                     Parameter {
                         experimental: Default::default(),
+                        added_in: None,
+                        deprecated: false,
                         deprecated_since: None,
+                        removed_in: None,
                         identifier: Node::no_src(Identifier {
                             name: "a".to_owned(),
                             digest: None,
@@ -5705,7 +6382,10 @@ e
                     },
                     Parameter {
                         experimental: Default::default(),
+                        added_in: None,
+                        deprecated: false,
                         deprecated_since: None,
+                        removed_in: None,
                         identifier: Node::no_src(Identifier {
                             name: "b".to_owned(),
                             digest: None,
@@ -5722,7 +6402,10 @@ e
                 vec![
                     Parameter {
                         experimental: Default::default(),
+                        added_in: None,
+                        deprecated: false,
                         deprecated_since: None,
+                        removed_in: None,
                         identifier: Node::no_src(Identifier {
                             name: "a".to_owned(),
                             digest: None,
@@ -5734,7 +6417,10 @@ e
                     },
                     Parameter {
                         experimental: Default::default(),
+                        added_in: None,
+                        deprecated: false,
                         deprecated_since: None,
+                        removed_in: None,
                         identifier: Node::no_src(Identifier {
                             name: "b".to_owned(),
                             digest: None,
@@ -5784,7 +6470,7 @@ e
     fn test_error_keyword_in_variable() {
         assert_err(
             r#"const let = "thing""#,
-            "Cannot assign a variable to a reserved keyword: let",
+            "Expected an identifier, but found the reserved keyword `let`.",
             [6, 9],
         );
     }
@@ -5793,7 +6479,7 @@ e
     fn test_error_keyword_in_fn_name() {
         assert_err(
             r#"fn let = () {}"#,
-            "Cannot assign a variable to a reserved keyword: let",
+            "Expected an identifier, but found the reserved keyword `let`.",
             [3, 6],
         );
     }
@@ -5804,7 +6490,7 @@ e
             r#"fn thing = (let) => {
     return 1
 }"#,
-            "Cannot assign a variable to a reserved keyword: let",
+            "Expected an identifier, but found the reserved keyword `let`.",
             [12, 15],
         )
     }
@@ -5813,17 +6499,17 @@ e
     fn bad_imports() {
         assert_err(
             r#"import cube from "../cube.kcl""#,
-            "import path may not start with '..'. Cannot traverse to something outside the bounds of your project. If this path is inside your project please find a better way to reference it.",
+            "import path may not start with '..'. Cannot reference a parent module or anything outside the bounds of your project.",
             [17, 30],
         );
         assert_err(
             r#"import cube from "/cube.kcl""#,
-            "import path may not start with '/' or '\\'. Cannot traverse to something outside the bounds of your project. If this path is inside your project please find a better way to reference it.",
+            "import path may not start with '/' or '\\'. Cannot traverse to something outside the bounds of your project. If this path is inside your project, use a relative path.",
             [17, 28],
         );
         assert_err(
             r#"import cube from "C:\cube.kcl""#,
-            "import path may not start with '/' or '\\'. Cannot traverse to something outside the bounds of your project. If this path is inside your project please find a better way to reference it.",
+            "import path may not start with '/' or '\\'. Cannot traverse to something outside the bounds of your project. If this path is inside your project, use a relative path.",
             [17, 30],
         );
         assert_err(
@@ -5866,6 +6552,13 @@ e
             "Import path is not a valid identifier and must be aliased using `as someName`. For example: `import \"my-part.kcl\" as myPart`",
             [7, 20],
         );
+    }
+
+    #[test]
+    fn creo_import_paths() {
+        for path in ["part.prt", "part.prt.1", "parts/part.PRT.23"] {
+            assert_no_err(&format!(r#"import "{path}" as part"#));
+        }
     }
 
     #[test]
@@ -6282,6 +6975,325 @@ type foo = fn(fn, f: fn(number(_))): [fn([any]): string]
     }
 
     #[test]
+    fn never_type_is_experimental() {
+        let code = "fn stop(): never {}";
+        assert_err(
+            code,
+            "Use of never type is experimental and may change or be removed.",
+            [11, 16],
+        );
+
+        let code = "fn accept(@stop: fn(): never) {}";
+        assert_err(
+            code,
+            "Use of never type is experimental and may change or be removed.",
+            [23, 28],
+        );
+
+        let code = r#"@settings(experimentalFeatures = allow)
+fn stop(): never {}"#;
+        assert_no_err(code);
+
+        let code = r#"@settings(experimentalFeatures = warn)
+fn stop(): never {}"#;
+        let (_, errs) = assert_no_err(code);
+        assert_eq!(errs.len(), 1);
+        assert_eq!(
+            errs[0].message,
+            "Use of never type is experimental and may change or be removed."
+        );
+    }
+
+    fn assert_enum(program: &Node<Program>, index: usize) -> (&Node<TypeDeclaration>, &EnumDeclaration) {
+        let BodyItem::TypeDeclaration(decl) = &program.body[index] else {
+            panic!("expected a type declaration, found {:?}", program.body[index]);
+        };
+        let TypeDeclarationDefinition::Enum(e) = &decl.definition else {
+            panic!("expected an enum definition, found {:?}", decl.definition);
+        };
+        (decl, e)
+    }
+
+    #[test]
+    fn parse_enum_basic() {
+        let code = r#"@settings(experimentalFeatures = allow)
+type Color { | Red | Green | Blue }
+"#;
+        let (program, _) = assert_no_err(code);
+        let (decl, e) = assert_enum(&program, 0);
+        assert_eq!(decl.name.name, "Color");
+        assert_eq!(decl.visibility, ItemVisibility::Default);
+        let names: Vec<_> = e.variants.iter().map(|v| v.name.name.as_str()).collect();
+        assert_eq!(names, ["Red", "Green", "Blue"]);
+        assert!(e.non_code_meta.is_empty());
+        // A variant's range covers its arm, from `|` through the name.
+        let red = &e.variants[0];
+        assert_eq!(&code[red.start..red.end], "| Red");
+        // The declaration's range covers the whole body.
+        assert_eq!(&code[decl.start..decl.end], "type Color { | Red | Green | Blue }");
+    }
+
+    #[test]
+    fn parse_enum_export() {
+        let code = r#"@settings(experimentalFeatures = allow)
+export type Color { | Red }
+"#;
+        let (program, _) = assert_no_err(code);
+        let (decl, e) = assert_enum(&program, 0);
+        assert_eq!(decl.visibility, ItemVisibility::Export);
+        assert_eq!(e.variants.len(), 1);
+    }
+
+    #[test]
+    fn parse_enum_no_variants() {
+        let code = r#"@settings(experimentalFeatures = allow)
+type Empty { | }
+"#;
+        let (program, _) = assert_no_err(code);
+        let (_, e) = assert_enum(&program, 0);
+        assert!(e.variants.is_empty());
+        assert!(e.non_code_meta.is_empty());
+    }
+
+    #[test]
+    fn parse_enum_no_variants_with_comments() {
+        let code = r#"@settings(experimentalFeatures = allow)
+type Empty { /* a */ | /* b */ }
+"#;
+        let (program, _) = assert_no_err(code);
+        let (_, e) = assert_enum(&program, 0);
+        assert!(e.variants.is_empty());
+        let comments: Vec<_> = e
+            .non_code_meta
+            .start_nodes
+            .iter()
+            .map(|nc| match &nc.value {
+                NonCodeValue::BlockComment { value, .. } => value.as_str(),
+                other => panic!("expected a block comment, found {other:?}"),
+            })
+            .collect();
+        assert_eq!(comments, ["a", "b"]);
+    }
+
+    #[test]
+    fn parse_enum_brace_on_next_line() {
+        // Like a type alias' `=`, the enum body may start on a later line.
+        let code = "@settings(experimentalFeatures = allow)
+type Color
+{ | Red }
+";
+        let (program, _) = assert_no_err(code);
+        let (_, e) = assert_enum(&program, 0);
+        assert_eq!(e.variants.len(), 1);
+    }
+
+    #[test]
+    fn parse_enum_followed_by_code() {
+        let code = r#"@settings(experimentalFeatures = allow)
+type Color { | Red | Green }
+x = 1
+"#;
+        let (program, _) = assert_no_err(code);
+        assert_enum(&program, 0);
+        assert_eq!(program.body.len(), 2);
+    }
+
+    #[test]
+    fn parse_enum_comments() {
+        let code = r#"@settings(experimentalFeatures = allow)
+type Color {
+  // before red
+  | Red // after red
+  | /* inside green arm */ Green
+
+  | Blue
+  // trailing
+}
+"#;
+        let (program, _) = assert_no_err(code);
+        let (_, e) = assert_enum(&program, 0);
+        let names: Vec<_> = e.variants.iter().map(|v| v.name.name.as_str()).collect();
+        assert_eq!(names, ["Red", "Green", "Blue"]);
+
+        // Comments directly above an arm, or between its `|` and name, are
+        // strongly associated with the variant.
+        assert_eq!(e.variants[0].pre_comments, vec!["// before red".to_owned()]);
+        assert_eq!(e.variants[1].pre_comments, vec!["/* inside green arm */".to_owned()]);
+        assert!(e.variants[2].pre_comments.is_empty());
+
+        // A comment on the same line as a variant stays inline with it.
+        let after_red = &e.non_code_meta.non_code_nodes[&0];
+        assert!(
+            matches!(&after_red[0].value, NonCodeValue::InlineComment { value, .. } if value == "after red"),
+            "found {after_red:?}"
+        );
+        // The deliberate blank line between Green and Blue is preserved.
+        let after_green = &e.non_code_meta.non_code_nodes[&1];
+        assert!(
+            matches!(&after_green[0].value, NonCodeValue::NewLine),
+            "found {after_green:?}"
+        );
+        // A comment after the last variant belongs to the declaration.
+        let after_blue = &e.non_code_meta.non_code_nodes[&2];
+        assert!(
+            matches!(&after_blue[0].value, NonCodeValue::BlockComment { value, .. } if value == "trailing"),
+            "found {after_blue:?}"
+        );
+    }
+
+    #[test]
+    fn enum_declarations_are_experimental() {
+        let code = "type Color { | Red }";
+        assert_err(code, "Use of enum declarations is experimental", [0, 20]);
+
+        let code = r#"@settings(experimentalFeatures = allow)
+type Color { | Red }
+"#;
+        assert_no_err(code);
+
+        let code = r#"@settings(experimentalFeatures = warn)
+type Color { | Red }
+"#;
+        let (_, errs) = assert_no_err(code);
+        // Exactly one diagnostic: the enum one, without an additional generic
+        // type-declaration diagnostic at the same range.
+        assert_eq!(errs.len(), 1);
+        assert_eq!(
+            errs[0].message,
+            "Use of enum declarations is experimental and may change or be removed."
+        );
+    }
+
+    #[test]
+    fn enum_body_rejections() {
+        // An empty body still needs the arm marker which classifies the
+        // declaration as an enum.
+        assert_err(
+            "type Empty { }",
+            "An enum without variants still needs its arm marker; write it as `{ | }`",
+            [13, 14],
+        );
+
+        // The first variant must have its arm marker.
+        assert_err("type Color { Red }", "Enum variants must each begin with `|`", [13, 16]);
+
+        // Commas do not separate variants.
+        assert_err(
+            "type Color { | Red, Green }",
+            "Commas are not used between enum variants; each variant begins with `|`",
+            [18, 19],
+        );
+
+        // Every later variant must have its arm marker too.
+        assert_err(
+            "type Color { | Red Green }",
+            "Enum variants must each begin with `|`",
+            [19, 24],
+        );
+
+        // Payload variants are planned, but not part of enum V1.
+        assert_err(
+            "type Color { | Red(1) }",
+            "Enum variants with payloads are not supported yet",
+            [18, 19],
+        );
+
+        // Variant annotations (`@repr`) follow in a later round.
+        assert_err(
+            "type Color { | @repr(1) Red }",
+            "Annotations on enum variants, such as `@repr(...)`, are not supported yet",
+            [15, 20],
+        );
+
+        // Generic enum declarations follow with parametric polymorphism.
+        assert_err(
+            "type Option(T) { | None }",
+            "Generic enum declarations are not supported yet",
+            [11, 14],
+        );
+
+        // An arm marker must be followed by a variant name; only the
+        // standalone marker of an empty enum stands alone.
+        assert_err("type Color { | | }", "Expected a variant name after `|`", [15, 16]);
+        assert_err("type Color { | Red | }", "Expected a variant name after `|`", [21, 22]);
+
+        // An unclosed enum body.
+        assert_err(
+            "type Color { | Red",
+            "This enum body is never closed; expected `}`",
+            [18, 18],
+        );
+    }
+
+    #[test]
+    fn enum_outer_comment_rejections() {
+        // Comments between `type` and the name are rejected, exactly as for
+        // alias and bare type declarations.
+        assert_err(
+            "type /* c */ Color { | Red }",
+            "Expected an identifier, but found a comment.",
+            [5, 12],
+        );
+
+        // A comment between the name and the body stops definition detection
+        // (alias and enum alike), leaving a bare declaration followed by an
+        // unparsable `{...}` statement.
+        let code = r#"@settings(experimentalFeatures = allow)
+type Color /* c */ { | Red }
+"#;
+        assert_err(code, "Unexpected token: {", [59, 60]);
+    }
+
+    #[test]
+    fn identifier_from_keyword_token_names_the_keyword() {
+        // The keyword branch reports which reserved keyword was found.
+        let token = Token::from_range(0..3, ModuleId::from_usize(0), TokenType::Keyword, "let".to_owned());
+        let err = Node::<Identifier>::try_from(token).unwrap_err();
+        assert_eq!(
+            err.message,
+            "Expected an identifier, but found the reserved keyword `let`."
+        );
+    }
+
+    #[test]
+    fn identifier_from_comment_token_reports_a_comment() {
+        // A comment is never a keyword; the old fallback quoted the comment body
+        // as if it were the keyword's name. Regression test for `type /* c */ Color`.
+        for token_type in [TokenType::BlockComment, TokenType::LineComment] {
+            let token = Token::from_range(0..7, ModuleId::from_usize(0), token_type, "/* c */".to_owned());
+            let err = Node::<Identifier>::try_from(token).unwrap_err();
+            assert_eq!(err.message, "Expected an identifier, but found a comment.");
+        }
+    }
+
+    #[test]
+    fn identifier_from_other_token_names_what_was_found() {
+        // Any other non-word token names the offending value rather than claiming
+        // a reserved keyword.
+        for (token_type, value) in [
+            (TokenType::Number, "42"),
+            (TokenType::Brace, "{"),
+            (TokenType::Operator, "+"),
+        ] {
+            let token = Token::from_range(0..value.len(), ModuleId::from_usize(0), token_type, value.to_owned());
+            let err = Node::<Identifier>::try_from(token).unwrap_err();
+            assert_eq!(err.message, format!("Expected an identifier, but found `{value}`."));
+        }
+    }
+
+    #[test]
+    fn bare_type_decl_followed_by_object_literal_is_an_enum_error() {
+        // A `{` after a type declaration's name is committed to as an enum
+        // body (like `=` commits to an alias), even across a newline, so it
+        // cannot be a separate object-literal expression statement.
+        assert_err(
+            "type Foo\n{ a = 1 }",
+            "Enum variants must each begin with `|`",
+            [11, 12],
+        );
+    }
+
+    #[test]
     fn test_parse_tag_starting_with_bang() {
         let some_program_string = r#"startSketchOn(XY)
     |> startProfile(at = [0, 0])
@@ -6689,7 +7701,10 @@ bar = 1
         let expected_src_start = source.find("type").unwrap();
         let cause = must_fail_compilation(source);
         assert!(cause.was_fatal);
-        assert_eq!(cause.err.message, KEYWORD_EXPECTING_IDENTIFIER);
+        assert_eq!(
+            cause.err.message,
+            "Expected an identifier, but found the reserved keyword `type`."
+        );
         assert_eq!(cause.err.source_range.start(), expected_src_start);
     }
 
