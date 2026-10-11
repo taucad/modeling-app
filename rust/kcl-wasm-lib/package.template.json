@@ -1,0 +1,41 @@
+{
+  "name": "@taucad/kcl-wasm-lib",
+  "private": false,
+  "description": "WebAssembly bindings for the KittyCAD Language engine",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/taucad/modeling-app.git",
+    "directory": "rust/kcl-wasm-lib"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "bindings",
+    "kcl_wasm_lib.d.ts",
+    "kcl_wasm_lib.js",
+    "kcl_wasm_lib_bg.wasm",
+    "kcl_wasm_lib_bg.wasm.d.ts"
+  ],
+  "exports": {
+    ".": {
+      "types": "./kcl_wasm_lib.d.ts",
+      "import": "./kcl_wasm_lib.js",
+      "default": "./kcl_wasm_lib.js"
+    },
+    "./kcl.wasm": {
+      "default": "./kcl_wasm_lib_bg.wasm"
+    },
+    "./bindings/*": {
+      "types": "./bindings/*.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "kcl_wasm_lib.js",
+  "types": "kcl_wasm_lib.d.ts",
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  }
+}
