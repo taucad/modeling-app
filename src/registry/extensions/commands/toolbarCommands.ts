@@ -5,11 +5,8 @@ import {
 } from '@src/lang/queryAst'
 import { isCursorInSketchCommandRange } from '@src/lang/util'
 import type { Command } from '@src/lib/commandTypes'
-import {
-  EXPERIMENTAL_POINT_AND_CLICK_FLAG,
-  LEGACY_SKETCH_MODE_FEATURE_FLAG,
-} from '@src/lib/constants'
-import { selectSketchPlane } from '@src/lib/selections'
+import { EXPERIMENTAL_POINT_AND_CLICK_FLAG } from '@src/lib/constants'
+import { selectSketchPlane } from '@src/lib/selectSketchPlane'
 import type { CommandBarContext } from '@src/machines/commandBarMachine'
 import type {
   ModelingMachineEvent,
@@ -28,55 +25,13 @@ import {
   MODE_SKETCH_SOLVE_COMMAND_SCOPE,
   MODE_SKETCHING_COMMAND_SCOPE,
 } from '@src/registry/contracts/commands'
+import { TOOLBAR_COMMAND_IDS } from '@src/registry/extensions/commands/toolbarCommandIds'
 import type { StateFrom } from 'xstate'
 
 const TOOLBAR_COMMAND_GROUP_ID = 'toolbar'
 const SKETCH_TOOL_NONE: SketchTool = 'none'
 
-export const TOOLBAR_COMMAND_IDS = {
-  modeling: {
-    sketch: 'zds.toolbar.modeling.sketch',
-  },
-  sketching: {
-    exit: 'zds.toolbar.sketchLegacy.exit',
-    cancelTool: 'zds.toolbar.sketchLegacy.cancelTool',
-    line: 'zds.toolbar.sketchLegacy.line',
-    threePointArc: 'zds.toolbar.sketchLegacy.threePointArc',
-    tangentialArc: 'zds.toolbar.sketchLegacy.tangentialArc',
-    circleCenter: 'zds.toolbar.sketchLegacy.circleCenter',
-    circleThreePoints: 'zds.toolbar.sketchLegacy.circleThreePoints',
-    cornerRectangle: 'zds.toolbar.sketchLegacy.cornerRectangle',
-    centerRectangle: 'zds.toolbar.sketchLegacy.centerRectangle',
-  },
-  sketchSolve: {
-    exit: 'zds.toolbar.sketch.exit',
-    cancel: 'zds.toolbar.sketch.cancel',
-    toolPicker: 'zds.toolbar.sketch.toolPicker',
-    line: 'zds.toolbar.sketch.line',
-    point: 'zds.toolbar.sketch.point',
-    spline: 'zds.toolbar.sketch.spline',
-    circleCenter: 'zds.toolbar.sketch.circleCenter',
-    centerArc: 'zds.toolbar.sketch.centerArc',
-    threePointArc: 'zds.toolbar.sketch.threePointArc',
-    tangentialArc: 'zds.toolbar.sketch.tangentialArc',
-    trim: 'zds.toolbar.sketch.trim',
-    cornerRectangle: 'zds.toolbar.sketch.cornerRectangle',
-    centerRectangle: 'zds.toolbar.sketch.centerRectangle',
-    angledRectangle: 'zds.toolbar.sketch.angledRectangle',
-    coincident: 'zds.toolbar.sketch.coincident',
-    midpoint: 'zds.toolbar.sketch.midpoint',
-    tangent: 'zds.toolbar.sketch.tangent',
-    parallel: 'zds.toolbar.sketch.parallel',
-    perpendicular: 'zds.toolbar.sketch.perpendicular',
-    equal: 'zds.toolbar.sketch.equal',
-    symmetric: 'zds.toolbar.sketch.symmetric',
-    vertical: 'zds.toolbar.sketch.vertical',
-    horizontal: 'zds.toolbar.sketch.horizontal',
-    fixed: 'zds.toolbar.sketch.fixed',
-    dimension: 'zds.toolbar.sketch.dimension',
-    construction: 'zds.toolbar.sketch.construction',
-  },
-} as const
+export { TOOLBAR_COMMAND_IDS }
 
 type ModelingState = StateFrom<typeof modelingMachine>
 type ToolbarCommandSubmit = { context: CommandBarContext }
@@ -175,12 +130,6 @@ function hasSketchExperimentalFeatures(input: unknown): boolean {
   return (
     getUserFeatures(input)?.has(EXPERIMENTAL_POINT_AND_CLICK_FLAG, false) ??
     false
-  )
-}
-
-function hasLegacySketchMode(input: unknown): boolean {
-  return (
-    getUserFeatures(input)?.has(LEGACY_SKETCH_MODE_FEATURE_FLAG, false) ?? false
   )
 }
 
@@ -320,20 +269,19 @@ async function enterSketch(input: unknown) {
         kclManager.artifactGraph,
         state.context.selectionRanges
       )
-  const isSketchBlock = isSketchBlockSelected(state.context.selectionRanges)
+  const isSketchBlock = isSketchBlockSelected(
+    state.context.selectionRanges,
+    state.context.kclManager.artifactGraph
+  )
   const selectedSketchTarget = getSelectedSketchTarget(
     state.context.selectionRanges
   )
 
-  if ((kclManager.editorView.hasFocus && sketchPathId) || isSketchBlock) {
-    if (
-      kclManager.editorView.hasFocus &&
-      sketchPathId &&
-      !isSketchBlock &&
-      !hasLegacySketchMode(input)
-    ) {
-      return
-    }
+  // Legacy KCL 1.0 sketch editing is no longer supported.
+  if (kclManager.editorView.hasFocus && sketchPathId && !isSketchBlock) {
+    return
+  }
+  if (isSketchBlock) {
     return sendModelingEvent(input, { type: 'Enter sketch' })
   }
 

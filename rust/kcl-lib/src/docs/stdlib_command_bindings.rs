@@ -17,6 +17,10 @@ struct StdLibCommandShape {
     qual_name: String,
     module_name: String,
     return_type: Option<String>,
+    added_in: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    summary: Option<String>,
     deprecated: bool,
     deprecated_since: Option<String>,
     experimental: bool,
@@ -56,6 +60,8 @@ fn export_bindings_stdlib_commands() {
                     qual_name: func.qual_name.clone(),
                     module_name: func.module_name.clone(),
                     return_type: func.return_type.clone(),
+                    added_in: func.properties.added_in.as_ref().map(ToString::to_string),
+                    summary: func.summary.clone(),
                     deprecated: func.properties.deprecated,
                     deprecated_since: func.properties.deprecated_since.as_ref().map(ToString::to_string),
                     experimental: func.properties.experimental,

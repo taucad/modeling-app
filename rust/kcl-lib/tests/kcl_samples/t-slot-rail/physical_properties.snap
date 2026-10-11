@@ -5,12 +5,12 @@ description: Physical properties t-slot-rail.kcl
 {
   "bounding_box": {
     "center": {
-      "x": -8.25500000000001,
+      "x": -19.05,
       "y": 304.8,
       "z": 19.05
     },
     "dimensions": {
-      "x": 67.31000000000003,
+      "x": 45.72000000000005,
       "y": 609.6,
       "z": 45.720000000000034
     },
@@ -18,12 +18,12 @@ description: Physical properties t-slot-rail.kcl
   },
   "surface_area": {
     "unit": "mm2",
-    "value": 206708.0137946391
+    "value": 206708.01828045215
   },
   "weight": {
     "material_density": 1000.0,
     "material_density_unit": "kg:m3",
     "unit": "g",
-    "value": 374.6941635469625
+    "value": 374.6942489032771
   }
 }

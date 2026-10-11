@@ -64,6 +64,10 @@ export class Context {
      */
     edit_sketch(project_json: string, file_json: string, version_json: string, sketch_json: string, settings: string): Promise<any>;
     /**
+     * Evaluate an input expression in the current model's context without contacting the engine.
+     */
+    evaluateExpression(program_ast_json: string, settings: string): Promise<any>;
+    /**
      * Execute a program.
      */
     execute(program_ast_json: string, path: string | null | undefined, settings: string): Promise<any>;
@@ -91,7 +95,7 @@ export class Context {
      * development purposes only.
      */
     hack_set_program(program_ast_json: string, settings: string): Promise<any>;
-    constructor(engine_manager: any, fs_manager: any, execution_callbacks?: any | null);
+    constructor(engine_manager: any, fs_manager: any, execution_callbacks?: any | null, geometry_only?: boolean | null);
     /**
      * Create new sketch and enter sketch mode.
      */
@@ -264,9 +268,19 @@ export function import_file_extensions(): string[];
  */
 export function is_kcl_empty_or_only_settings(code: string): any;
 
+/**
+ * Check argument availability using the same version rules as the executor.
+ */
+export function is_kcl_version_available(version: string, added_in?: string | null, removed_in?: string | null): boolean;
+
 export function is_points_ccw(points: Float64Array): number;
 
-export function kcl_lint(program_ast_json: string, enable_z0006: boolean): Promise<any>;
+/**
+ * Resolve the entrypoint language version before connecting to the engine.
+ */
+export function kcl_language_version(program_json: string): any;
+
+export function kcl_lint(program_ast_json: string): Promise<any>;
 
 /**
  * Takes a parsed KCL program and returns the Meta settings.  If it's not
@@ -325,37 +339,6 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
     readonly memory: WebAssembly.Memory;
-    readonly context_add_constraint: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => any;
-    readonly context_add_file: (a: number, b: number, c: number, d: number) => any;
-    readonly context_add_segment: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number) => any;
-    readonly context_chain_segment: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number) => any;
-    readonly context_clear_sketch_checkpoints: (a: number) => any;
-    readonly context_delete_objects: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number) => any;
-    readonly context_delete_sketch: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => any;
-    readonly context_edit_angle_constraint: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number) => any;
-    readonly context_edit_constraint_value: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number) => any;
-    readonly context_edit_distance_constraint: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number) => any;
-    readonly context_edit_distance_constraint_label_position: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number, o: number) => any;
-    readonly context_edit_segments: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number, o: number, p: number, q: number) => any;
-    readonly context_edit_sketch: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => any;
-    readonly context_execute_trim: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => any;
-    readonly context_exit_sketch: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => any;
-    readonly context_get_file: (a: number, b: number, c: number) => any;
-    readonly context_get_project: (a: number, b: number) => any;
-    readonly context_hack_set_program: (a: number, b: number, c: number, d: number, e: number) => any;
-    readonly context_new_sketch: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => any;
-    readonly context_open_project: (a: number, b: number, c: number, d: number, e: number) => any;
-    readonly context_refresh: (a: number, b: number) => any;
-    readonly context_remove_file: (a: number, b: number, c: number) => any;
-    readonly context_restore_sketch_checkpoint: (a: number, b: number, c: number) => any;
-    readonly context_sketch_execute_mock: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => any;
-    readonly context_switch_file: (a: number, b: number, c: number) => any;
-    readonly context_update_file: (a: number, b: number, c: number, d: number, e: number) => any;
-    readonly sketch_checkpoint_limit: () => number;
-    readonly __wbg_lspserverconfig_free: (a: number, b: number) => void;
-    readonly lsp_run_copilot: (a: number, b: number, c: number, d: number, e: number) => any;
-    readonly lsp_run_kcl: (a: number, b: number, c: number, d: number, e: number) => any;
-    readonly lspserverconfig_new: (a: any, b: any, c: any) => number;
     readonly __wbg_context_free: (a: number, b: number) => void;
     readonly __wbg_get_tangentialarcinfooutputwasm_arc_length: (a: number) => number;
     readonly __wbg_get_tangentialarcinfooutputwasm_arc_mid_point_x: (a: number) => number;
@@ -387,7 +370,7 @@ export interface InitOutput {
     readonly context_execute: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => any;
     readonly context_executeMock: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => any;
     readonly context_export: (a: number, b: number, c: number, d: number, e: number) => any;
-    readonly context_new: (a: any, b: any, c: number) => [number, number, number];
+    readonly context_new: (a: any, b: any, c: number, d: number) => [number, number, number];
     readonly context_sendResponse: (a: number, b: any) => any;
     readonly default_app_settings: () => [number, number, number];
     readonly default_project_settings: () => [number, number, number];
@@ -398,8 +381,10 @@ export interface InitOutput {
     readonly human_display_number: (a: number, b: number, c: number) => [number, number, number, number];
     readonly import_file_extensions: () => [number, number, number, number];
     readonly is_kcl_empty_or_only_settings: (a: number, b: number) => [number, number, number];
+    readonly is_kcl_version_available: (a: number, b: number, c: number, d: number, e: number, f: number) => [number, number, number];
     readonly is_points_ccw: (a: number, b: number) => number;
-    readonly kcl_lint: (a: number, b: number, c: number) => any;
+    readonly kcl_language_version: (a: number, b: number) => [number, number, number];
+    readonly kcl_lint: (a: number, b: number) => any;
     readonly kcl_settings: (a: number, b: number) => [number, number, number];
     readonly node_path_from_range: (a: number, b: number, c: number, d: number) => any;
     readonly parse_app_settings: (a: number, b: number) => [number, number, number];
@@ -411,32 +396,64 @@ export interface InitOutput {
     readonly serialize_configuration: (a: any) => [number, number, number];
     readonly serialize_project_configuration: (a: any) => [number, number, number];
     readonly set_kcl_runtime_flags: (a: number, b: number) => [number, number];
-    readonly __wbg_get_wasmcircleparams_center_x: (a: number) => number;
-    readonly __wbg_get_wasmcircleparams_center_y: (a: number) => number;
-    readonly __wbg_get_wasmcircleparams_radius: (a: number) => number;
     readonly __wbg_set_wasmcircleparams_center_x: (a: number, b: number) => void;
     readonly __wbg_set_wasmcircleparams_center_y: (a: number, b: number) => void;
     readonly __wbg_set_wasmcircleparams_radius: (a: number, b: number) => void;
+    readonly __wbg_get_wasmcircleparams_center_x: (a: number) => number;
+    readonly __wbg_get_wasmcircleparams_center_y: (a: number) => number;
+    readonly __wbg_get_wasmcircleparams_radius: (a: number) => number;
+    readonly context_add_constraint: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => any;
+    readonly context_add_file: (a: number, b: number, c: number, d: number) => any;
+    readonly context_add_segment: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number) => any;
+    readonly context_chain_segment: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number) => any;
+    readonly context_clear_sketch_checkpoints: (a: number) => any;
+    readonly context_delete_objects: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number) => any;
+    readonly context_delete_sketch: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => any;
+    readonly context_edit_angle_constraint: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number) => any;
+    readonly context_edit_constraint_value: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number) => any;
+    readonly context_edit_distance_constraint: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number) => any;
+    readonly context_edit_distance_constraint_label_position: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number, o: number) => any;
+    readonly context_edit_segments: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number, o: number, p: number, q: number) => any;
+    readonly context_edit_sketch: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => any;
+    readonly context_evaluateExpression: (a: number, b: number, c: number, d: number, e: number) => any;
+    readonly context_execute_trim: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => any;
+    readonly context_exit_sketch: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => any;
+    readonly context_get_file: (a: number, b: number, c: number) => any;
+    readonly context_get_project: (a: number, b: number) => any;
+    readonly context_hack_set_program: (a: number, b: number, c: number, d: number, e: number) => any;
+    readonly context_new_sketch: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => any;
+    readonly context_open_project: (a: number, b: number, c: number, d: number, e: number) => any;
+    readonly context_refresh: (a: number, b: number) => any;
+    readonly context_remove_file: (a: number, b: number, c: number) => any;
+    readonly context_restore_sketch_checkpoint: (a: number, b: number, c: number) => any;
+    readonly context_sketch_execute_mock: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => any;
+    readonly context_switch_file: (a: number, b: number, c: number) => any;
+    readonly context_update_file: (a: number, b: number, c: number, d: number, e: number) => any;
+    readonly sketch_checkpoint_limit: () => number;
+    readonly __wbg_lspserverconfig_free: (a: number, b: number) => void;
+    readonly lsp_run_copilot: (a: number, b: number, c: number, d: number, e: number) => any;
+    readonly lsp_run_kcl: (a: number, b: number, c: number, d: number, e: number) => any;
+    readonly lspserverconfig_new: (a: any, b: any, c: any) => number;
     readonly __wbg_responsecontext_free: (a: number, b: number) => void;
     readonly responsecontext_new: () => number;
     readonly responsecontext_send_response: (a: number, b: any) => any;
-    readonly __wbg_intounderlyingsource_free: (a: number, b: number) => void;
-    readonly intounderlyingsource_cancel: (a: number) => void;
-    readonly intounderlyingsource_pull: (a: number, b: any) => any;
-    readonly __wbg_intounderlyingbytesource_free: (a: number, b: number) => void;
     readonly __wbg_intounderlyingsink_free: (a: number, b: number) => void;
+    readonly intounderlyingsink_abort: (a: number, b: any) => any;
+    readonly intounderlyingsink_close: (a: number) => any;
+    readonly intounderlyingsink_write: (a: number, b: any) => any;
+    readonly __wbg_intounderlyingbytesource_free: (a: number, b: number) => void;
+    readonly __wbg_intounderlyingsource_free: (a: number, b: number) => void;
     readonly intounderlyingbytesource_autoAllocateChunkSize: (a: number) => number;
     readonly intounderlyingbytesource_cancel: (a: number) => void;
     readonly intounderlyingbytesource_pull: (a: number, b: any) => any;
     readonly intounderlyingbytesource_start: (a: number, b: any) => void;
     readonly intounderlyingbytesource_type: (a: number) => number;
-    readonly intounderlyingsink_abort: (a: number, b: any) => any;
-    readonly intounderlyingsink_close: (a: number) => any;
-    readonly intounderlyingsink_write: (a: number, b: any) => any;
-    readonly wasm_bindgen_5e49c4f3f794a5ec___convert__closures_____invoke___wasm_bindgen_5e49c4f3f794a5ec___JsValue__core_ed718c3d60ebd546___result__Result_____wasm_bindgen_5e49c4f3f794a5ec___JsError___true_: (a: number, b: number, c: any) => [number, number];
-    readonly wasm_bindgen_5e49c4f3f794a5ec___convert__closures_____invoke___js_sys_53b05edd4cb2ed1f___IteratorNext__core_ed718c3d60ebd546___result__Result_____wasm_bindgen_5e49c4f3f794a5ec___JsError___true_: (a: number, b: number, c: any) => [number, number];
-    readonly wasm_bindgen_5e49c4f3f794a5ec___convert__closures_____invoke___js_sys_53b05edd4cb2ed1f___Function_fn_wasm_bindgen_5e49c4f3f794a5ec___JsValue_____wasm_bindgen_5e49c4f3f794a5ec___sys__Undefined___js_sys_53b05edd4cb2ed1f___Function_fn_wasm_bindgen_5e49c4f3f794a5ec___JsValue_____wasm_bindgen_5e49c4f3f794a5ec___sys__Undefined_______true_: (a: number, b: number, c: any, d: any) => void;
-    readonly wasm_bindgen_5e49c4f3f794a5ec___convert__closures_____invoke_______true_: (a: number, b: number) => void;
+    readonly intounderlyingsource_cancel: (a: number) => void;
+    readonly intounderlyingsource_pull: (a: number, b: any) => any;
+    readonly wasm_bindgen_83e6868219aa0616___convert__closures_____invoke___wasm_bindgen_83e6868219aa0616___JsValue__core_608f92abc48d28da___result__Result_____wasm_bindgen_83e6868219aa0616___JsError___true_: (a: number, b: number, c: any) => [number, number];
+    readonly wasm_bindgen_83e6868219aa0616___convert__closures_____invoke___js_sys_296f227be7bb5e3c___IteratorNext__core_608f92abc48d28da___result__Result_____wasm_bindgen_83e6868219aa0616___JsError___true_: (a: number, b: number, c: any) => [number, number];
+    readonly wasm_bindgen_83e6868219aa0616___convert__closures_____invoke___js_sys_296f227be7bb5e3c___Function_fn_wasm_bindgen_83e6868219aa0616___JsValue_____wasm_bindgen_83e6868219aa0616___sys__Undefined___js_sys_296f227be7bb5e3c___Function_fn_wasm_bindgen_83e6868219aa0616___JsValue_____wasm_bindgen_83e6868219aa0616___sys__Undefined_______true_: (a: number, b: number, c: any, d: any) => void;
+    readonly wasm_bindgen_83e6868219aa0616___convert__closures_____invoke_______true_: (a: number, b: number) => void;
     readonly __wbindgen_malloc: (a: number, b: number) => number;
     readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
     readonly __externref_table_alloc: () => number;

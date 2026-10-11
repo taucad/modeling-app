@@ -13,8 +13,8 @@ vi.mock('react-hot-toast', () => ({
 }))
 
 import type { CameraViewState } from '@kittycad/lib'
-import type { ModulePath } from '@rust/kcl-lib/bindings/ModulePath'
 import { signal } from '@preact/signals-core'
+import type { ModulePath } from '@rust/kcl-lib/bindings/ModulePath'
 
 import type { KclManager } from '@src/lang/KclManager'
 import type { KclNamedView } from '@src/lang/std/kclNamedViews'
@@ -316,6 +316,50 @@ describe('activateNamedView', () => {
     expect(activeViewSignal.value).toEqual({ name: 'Front', moduleKey: 'Main' })
   })
 
+  it('sends every newly nameable artifact kind to the engine', async () => {
+    setFlag(true)
+    const f = fakes()
+    const artifacts: Artifact[] = [
+      {
+        type: 'plane',
+        id: 'plane-1',
+        pathIds: [],
+        codeRef: CODE_REF,
+      },
+      {
+        type: 'helix',
+        id: 'helix-1',
+        axisId: null,
+        trajectorySweepId: null,
+        consumed: false,
+        codeRef: CODE_REF,
+      },
+      {
+        type: 'importedGeometry',
+        id: 'imported-1',
+        consumed: false,
+        codeRef: CODE_REF,
+      },
+    ]
+    for (const artifact of artifacts) {
+      f.raw.execState.artifactGraph.set(artifact.id, artifact)
+    }
+
+    await activateNamedView({
+      target: { kind: 'declared', view: declaredView('Front') },
+      kclManager: f.kclManager,
+    })
+
+    expect(f.setObjectsHidden).toHaveBeenCalledWith(
+      new Map([
+        ['body-1', false],
+        ['plane-1', false],
+        ['helix-1', false],
+        ['imported-1', false],
+      ])
+    )
+  })
+
   it('sends no camera of its own for Default View', async () => {
     setFlag(true)
     const f = fakes()
@@ -611,6 +655,34 @@ describe('reapplying the active view after a reconnection', () => {
       target: undefined,
       distance: undefined,
     })
+  })
+
+  it('restores visibility without replacing a preserved reconnect camera', async () => {
+    const f = fakes()
+    await activateFront(f)
+    f.setCameraToAxis.mockClear()
+    const moved = await reapplyActiveViewAfterReconnect(f.kclManager, {
+      restoreCamera: false,
+    })
+    expect(moved).toBe(false)
+    expect(f.setObjectsHidden).toHaveBeenCalledWith(
+      new Map([['body-1', false]])
+    )
+    expect(f.setCameraToAxis).not.toHaveBeenCalled()
+    expect(f.setCameraView).not.toHaveBeenCalled()
+  })
+
+  it('keeps the preserved camera when an active named view disappears', async () => {
+    const f = fakes()
+    await activateFront(f)
+    f.raw.execState = execStateWith({ views: [] })
+    const moved = await reapplyActiveViewAfterReconnect(f.kclManager, {
+      restoreCamera: false,
+    })
+    expect(moved).toBe(false)
+    expect(f.setCameraView).not.toHaveBeenCalled()
+    expect(activeViewSignal.value).toBeNull()
+    expect(mockToast.error).toHaveBeenCalledOnce()
   })
 
   it('leaves the camera to the caller while Default View is active', async () => {

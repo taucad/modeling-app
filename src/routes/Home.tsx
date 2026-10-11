@@ -26,7 +26,6 @@ import {
 import { BillingTransition } from '@src/lib/billing'
 import { useApp, useSingletons } from '@src/lib/boot'
 import { createRouteCommands } from '@src/lib/commandBarConfigs/routeCommandConfig'
-import { OPFS_CLOUD_FEATURE_FLAG } from '@src/lib/constants'
 import { removeDragPreviewElement, setDragPreview } from '@src/lib/dragPreview'
 import { getHomeProjectDisplayName } from '@src/lib/homeProjects'
 import { isDesktop } from '@src/lib/isDesktop'
@@ -50,6 +49,7 @@ import {
 import { SystemIOMachineStates } from '@src/machines/systemIO/utils'
 import type { WebContentSendPayload } from '@src/menu/channels'
 import { HOME_COMMAND_SCOPE } from '@src/registry/contracts/commands'
+import type { FileOperationsRegistryService } from '@src/registry/contracts/fileOperations'
 import {
   type HomeProjectActionsService,
   type HomeProjectEntry,
@@ -289,7 +289,7 @@ function useProjectLibraryDrag({
 const Home = () => {
   useSignals()
   const app = useApp()
-  const { auth, billing, commands, settings, registry, userFeatures } = app
+  const { auth, billing, commands, settings, registry } = app
   const keymap = registry.optional(keymapService)
   const { kclManager } = useSingletons()
   const settingsActor = settings.actor
@@ -341,10 +341,6 @@ const Home = () => {
     .join('|')
   const homeProjectActions = registry.get(homeProjectActionsService)
   const session = registry.get(projectSession)
-  const hasCloudSyncFeature = userFeatures.useHas(
-    OPFS_CLOUD_FEATURE_FLAG,
-    false
-  )
   const { libraryId } = useParams()
   const routeSelectedProjectLibrary = libraryId
     ? projectLibraries.find((library) => library.id === libraryId)
@@ -772,7 +768,8 @@ const Home = () => {
             sort={sort}
             projectStatuses={projectStatuses}
             projectActions={homeProjectActions}
-            showCloudSyncUi={hasCloudSyncFeature}
+            fileOperations={app.fileOperations}
+            showCloudSyncUi
             showSourceStatusBadges={false}
             onMoveToLibrary={moveProjectToLibrary}
             projectLibraryEmptyTestId="project-library-empty"
@@ -788,7 +785,8 @@ const Home = () => {
             sort={sort}
             projectStatuses={projectStatuses}
             projectActions={homeProjectActions}
-            showCloudSyncUi={hasCloudSyncFeature}
+            fileOperations={app.fileOperations}
+            showCloudSyncUi
             onMoveToLibrary={moveProjectToLibrary}
             projectLibraryDrag={projectLibraryDrag}
             projectLibraryTypes={projectLibraryTypes}
@@ -802,7 +800,6 @@ const Home = () => {
           ...defaultGlobalStatusBarItems({
             autoUpdateDownloadProgress,
             autoUpdateReady,
-            hasCloudSyncFeature,
             onRestartToUpdate: () => {
               window.electron?.appRestart()
             },
@@ -833,6 +830,7 @@ interface ProjectLibraryOverviewProps extends HTMLProps<HTMLDivElement> {
   sort: string
   projectStatuses: Map<string, ProjectStatus>
   projectActions: HomeProjectActionsService
+  fileOperations: FileOperationsRegistryService
   showCloudSyncUi: boolean
   onMoveToLibrary: (project: HomeProjectEntry) => void
   projectLibraryDrag?: ProjectLibraryDragController
@@ -857,6 +855,7 @@ function ProjectLibraryOverview({
   sort,
   projectStatuses,
   projectActions,
+  fileOperations,
   showCloudSyncUi,
   onMoveToLibrary,
   projectLibraryDrag,
@@ -911,6 +910,7 @@ function ProjectLibraryOverview({
                   query={query}
                   projectStatuses={projectStatuses}
                   projectActions={projectActions}
+                  fileOperations={fileOperations}
                   showCloudSyncUi={showCloudSyncUi}
                   onMoveToLibrary={onMoveToLibrary}
                   projectLibraryDrag={projectLibraryDrag}
@@ -976,6 +976,7 @@ interface ProjectGridProps extends HTMLProps<HTMLDivElement> {
   sort: string
   projectStatuses: Map<string, ProjectStatus>
   projectActions: HomeProjectActionsService
+  fileOperations: FileOperationsRegistryService
   showCloudSyncUi: boolean
   onMoveToLibrary: (project: HomeProjectEntry) => void
   showSourceStatusBadges?: boolean
@@ -990,6 +991,7 @@ function ProjectGrid({
   sort,
   projectStatuses,
   projectActions,
+  fileOperations,
   showCloudSyncUi,
   onMoveToLibrary,
   showSourceStatusBadges = true,
@@ -1015,6 +1017,7 @@ function ProjectGrid({
               projects={sortedSearchResults}
               projectStatuses={projectStatuses}
               projectActions={projectActions}
+              fileOperations={fileOperations}
               showCloudSyncUi={showCloudSyncUi}
               onMoveToLibrary={onMoveToLibrary}
               showSourceStatusBadges={showSourceStatusBadges}

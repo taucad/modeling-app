@@ -12,7 +12,8 @@ import {
 import { useSignals } from '@preact/signals-react/runtime'
 import { LayoutPanel, LayoutPanelHeader } from '@src/components/layout/Panel'
 import { Spinner } from '@src/components/Spinner'
-import type { KclManager, ZDSProject } from '@src/lang/KclManager'
+import type { KclManager } from '@src/lang/KclManager'
+import type { ZDSProject } from '@src/lib/projectSession'
 import type { BillingRegistryService } from '@src/lib/billing'
 import { DefaultLayoutPaneID } from '@src/lib/layout/configs/default'
 import { AreaType, type AreaTypeComponentProps } from '@src/lib/layout/types'
@@ -21,12 +22,17 @@ import type {
   ZookeeperSessionController,
   ZookeeperSessionControllerDependencies,
 } from '@src/lib/zookeeper/registry/controller'
+import { makeProjectZookeeperConversationStore } from '@src/lib/zookeeper/zookeeperConversationStore'
 import { zookeeperPromptRunningSignal } from '@src/lib/zookeeper/zookeeperPromptState'
 import {
   type AuthRegistryService,
   authService,
 } from '@src/registry/contracts/auth'
 import { billingService } from '@src/registry/contracts/billing'
+import {
+  type FileOperationsRegistryService,
+  fileOperationsService,
+} from '@src/registry/contracts/fileOperations'
 import {
   layoutAreaLibraryValueSpec,
   layoutService,
@@ -44,6 +50,7 @@ import {
   systemIOService,
 } from '@src/registry/contracts/systemIO'
 import { lazy, Suspense } from 'react'
+import env, { getEnvironmentNameFromEnv } from '@src/env'
 
 const ZookeeperConversationPaneWrapper = lazy(async () => {
   const { ZookeeperConversationPaneWrapper } = await import(
@@ -57,6 +64,7 @@ type ZookeeperRuntime = ReturnType<typeof createZookeeperRuntime>
 type ZookeeperRuntimeServices = {
   auth: ReadonlySignal<AuthRegistryService | undefined>
   billing: ReadonlySignal<BillingRegistryService | undefined>
+  fileOperations: ReadonlySignal<FileOperationsRegistryService | undefined>
   projectSession: ReadonlySignal<ProjectSessionService | undefined>
   settings: ReadonlySignal<SettingsRegistryService | undefined>
   systemIO: ReadonlySignal<SystemIORegistryService | undefined>
@@ -208,6 +216,7 @@ export function createZookeeperRuntime(
 
     const auth = services.auth.value
     const billing = services.billing.value
+    const fileOperations = services.fileOperations.value
     const settings = services.settings.value
     const systemIO = services.systemIO.value
     const project = currentZdsProject.value
@@ -273,6 +282,7 @@ export function createZookeeperRuntime(
       !isLoggedIn ||
       !apiToken.trim() ||
       !billing ||
+      !fileOperations ||
       !systemIO
     ) {
       return
@@ -295,6 +305,12 @@ export function createZookeeperRuntime(
         const controller = createZookeeperSessionController({
           apiToken: next.apiToken,
           billing,
+          conversationStore: makeProjectZookeeperConversationStore(
+            fileOperations,
+            next.projectPath,
+            getEnvironmentNameFromEnv(env())
+          ),
+          fileOperations,
           kclManager: next.kclManager,
           project: next.project,
           projectId: next.projectId,
@@ -404,6 +420,7 @@ export const zookeeperRuntimeRegistryItem = defineRegistryItemFactory((ctx) => {
   const runtime = createZookeeperRuntime({
     auth: ctx.services.signal(authService),
     billing: ctx.services.signal(billingService),
+    fileOperations: ctx.services.signal(fileOperationsService),
     projectSession: ctx.services.signal(projectSession),
     settings: ctx.services.signal(settingsService),
     systemIO: ctx.services.signal(systemIOService),

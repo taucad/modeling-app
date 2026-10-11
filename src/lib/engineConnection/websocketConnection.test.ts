@@ -1,10 +1,11 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const reportClientError = vi.hoisted(() => vi.fn())
+const reportClientError = vi.hoisted(() => vi.fn(async () => {}))
 
 vi.mock('@src/lib/clientErrors', () => ({
   ClientErrorCode: {
     EngineBackendDisconnect: 'engine_backend_disconnect',
+    EnginePingPongTiming: 'engine_ping_pong_timing',
   },
   reportClientError,
 }))
@@ -14,16 +15,19 @@ import { createOnWebSocketMessage } from '@src/lib/engineConnection/websocketCon
 
 const disconnectAll = vi.fn()
 const tearDownManager = vi.fn()
+const getConnectionContext = vi.fn()
 
 const createMessageHandler = (
   cloudProjectId?: string,
-  requestReconnect = vi.fn()
+  requestReconnect = vi.fn(),
+  ping = vi.fn()
 ) =>
   createOnWebSocketMessage({
     disconnectAll,
     setPong: vi.fn(),
     dispatchEvent: vi.fn(() => true),
-    ping: vi.fn(),
+    ping,
+    setPing: vi.fn(),
     createPeerConnection: vi.fn(),
     send: vi.fn(),
     setSdpAnswer: vi.fn(),
@@ -34,6 +38,7 @@ const createMessageHandler = (
     sdpAnswerReject: vi.fn(),
     setApiCallId: vi.fn(),
     getCloudProjectId: () => cloudProjectId,
+    getConnectionContext,
     tearDownManager,
     requestReconnect,
   })
@@ -52,8 +57,67 @@ const dispatchFailureMessage = (message: string, cloudProjectId?: string) => {
 describe('createOnWebSocketMessage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    getConnectionContext.mockReturnValue({
+      connectionId: 'local-attempt',
+      modelingApiCallId: 'server-session',
+    })
     vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.spyOn(console, 'warn').mockImplementation(() => {})
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.restoreAllMocks()
+  })
+
+  it('reports the first ping-pong and later ones only when they exceed 10 seconds', () => {
+    vi.useFakeTimers()
+    const ping = vi.fn()
+    const handler = createMessageHandler(undefined, vi.fn(), ping)
+    const pong = new MessageEvent('message', {
+      data: JSON.stringify({
+        success: true,
+        request_id: null,
+        resp: { type: 'pong', data: {} },
+      }),
+    })
+
+    // An unsolicited pong does not consume the first completed ping-pong.
+    ping.mockReturnValueOnce(undefined)
+    handler(pong)
+    expect(reportClientError).not.toHaveBeenCalled()
+
+    for (const [now, sentAt] of [
+      [1_000, 950],
+      [14_000, 4_000],
+      [26_001, 16_000],
+    ]) {
+      vi.setSystemTime(now)
+      ping.mockReturnValueOnce(sentAt)
+      handler(pong)
+    }
+
+    expect(reportClientError).toHaveBeenCalledTimes(2)
+    expect(reportClientError).toHaveBeenNthCalledWith(1, {
+      code: 'engine_ping_pong_timing',
+      message: 'Engine ping-pong timing',
+      extra: {
+        connectionId: 'local-attempt',
+        modelingApiCallId: 'server-session',
+        pingPongNumber: 1,
+        durationMs: 50,
+      },
+    })
+    expect(reportClientError).toHaveBeenNthCalledWith(2, {
+      code: 'engine_ping_pong_timing',
+      message: 'Engine ping-pong timing',
+      extra: {
+        connectionId: 'local-attempt',
+        modelingApiCallId: 'server-session',
+        pingPongNumber: 3,
+        durationMs: 10_001,
+      },
+    })
   })
 
   it('requests reconnection for a reconnect response without reporting a failure', () => {
@@ -89,7 +153,13 @@ describe('createOnWebSocketMessage', () => {
     expect(requestReconnect).not.toHaveBeenCalled()
   })
 
-  it('reports backend Engine disconnect failures with the cloud project ID', () => {
+  it('reports backend Engine disconnect identity captured before teardown', () => {
+    tearDownManager.mockImplementationOnce(() => {
+      getConnectionContext.mockReturnValue({
+        connectionId: 'replacement-attempt',
+        modelingApiCallId: 'replacement-session',
+      })
+    })
     dispatchFailureMessage(
       'modeling connection interrupted; please reconnect and retry',
       'cloud-project-123'
@@ -97,7 +167,8 @@ describe('createOnWebSocketMessage', () => {
 
     expect(reportClientError).toHaveBeenCalledOnce()
     expect(tearDownManager).toHaveBeenCalledWith({
-      websocketClosed: true,
+      route: 'backend-shutdown',
+      initiatedBy: 'unknown',
       connectionError: {
         kind: EngineConnectionErrorKind.BackendDisconnect,
         message: 'modeling connection interrupted; please reconnect and retry',
@@ -108,6 +179,8 @@ describe('createOnWebSocketMessage', () => {
       code: 'engine_backend_disconnect',
       message: 'modeling connection interrupted; please reconnect and retry',
       extra: {
+        connectionId: 'local-attempt',
+        modelingApiCallId: 'server-session',
         source: 'EngineWebSocket',
         errorCode: 'internal_api',
         cloudProjectId: 'cloud-project-123',
@@ -124,6 +197,8 @@ describe('createOnWebSocketMessage', () => {
       code: 'engine_backend_disconnect',
       message: 'modeling connection interrupted; please reconnect and retry',
       extra: {
+        connectionId: 'local-attempt',
+        modelingApiCallId: 'server-session',
         source: 'EngineWebSocket',
         errorCode: 'internal_api',
       },

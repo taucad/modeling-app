@@ -21,6 +21,8 @@ import { reportRejection } from '@src/lib/trap'
 
 const MODELING_BACKEND_DISCONNECTED_MESSAGE =
   'modeling connection interrupted; please reconnect and retry'
+// Grafana's "average worst" WebRTC RTT is about 2 seconds; report larger outliers.
+const SLOW_PING_PONG_MS = 10_000
 
 /**
  * 4 different event listeners to clean up
@@ -94,6 +96,7 @@ export const createOnWebSocketMessage = ({
   setPong,
   dispatchEvent,
   ping,
+  setPing,
   createPeerConnection,
   send,
   setSdpAnswer,
@@ -104,6 +107,7 @@ export const createOnWebSocketMessage = ({
   sdpAnswerReject,
   setApiCallId,
   getCloudProjectId,
+  getConnectionContext,
   tearDownManager,
   requestReconnect,
 }: {
@@ -111,6 +115,7 @@ export const createOnWebSocketMessage = ({
   setPong: (pong: number) => void
   dispatchEvent: (event: Event) => boolean
   ping: () => number | undefined
+  setPing: (pong: number | undefined) => void
   createPeerConnection: () => RTCPeerConnection | undefined
   send: (message: WebSocketRequest) => void
   setSdpAnswer: (answer: RTCSessionDescriptionInit) => void
@@ -121,9 +126,14 @@ export const createOnWebSocketMessage = ({
   sdpAnswerReject: (value: any) => void
   setApiCallId: (apiCallId: string) => void
   getCloudProjectId: () => string | undefined
-  tearDownManager: (options?: ManagerTearDown) => void
+  getConnectionContext: () => {
+    connectionId: string
+    modelingApiCallId: string | null
+  }
+  tearDownManager: (options: ManagerTearDown) => void
   requestReconnect: () => void
 }) => {
+  let pingPongNumber = 0
   const onWebSocketMessage = (event: MessageEvent<any>) => {
     // In the EngineConnection, we're looking for messages to/from
     // the server that relate to the ICE handshake, or WebRTC
@@ -149,12 +159,18 @@ export const createOnWebSocketMessage = ({
           message: backendDisconnectError.message,
           terminal: true,
         }
-        tearDownManager({ websocketClosed: true, connectionError })
+        const connectionContext = getConnectionContext()
+        tearDownManager({
+          route: 'backend-shutdown',
+          initiatedBy: 'unknown',
+          connectionError,
+        })
         const cloudProjectId = getCloudProjectId()
         void reportClientError({
           code: ClientErrorCode.EngineBackendDisconnect,
           message: backendDisconnectError.message,
           extra: {
+            ...connectionContext,
             source: 'EngineWebSocket',
             errorCode: backendDisconnectError.error_code,
             requestId: message.request_id,
@@ -206,15 +222,33 @@ export const createOnWebSocketMessage = ({
 
     // Message is successful, lets process the websocket message
     switch (resp.type) {
-      case 'pong':
+      case 'pong': {
         const pong = Date.now()
         setPong(pong)
+        const sentAt = ping()
+        if (sentAt !== undefined) {
+          pingPongNumber += 1
+          const durationMs = pong - sentAt
+          if (pingPongNumber === 1 || durationMs > SLOW_PING_PONG_MS) {
+            void reportClientError({
+              code: ClientErrorCode.EnginePingPongTiming,
+              message: 'Engine ping-pong timing',
+              extra: {
+                ...getConnectionContext(),
+                pingPongNumber,
+                durationMs,
+              },
+            }).catch(reportRejection)
+          }
+        }
         dispatchEvent(
           new CustomEvent(EngineConnectionEvents.PingPongChanged, {
-            detail: Math.min(999, Math.floor(pong - (ping() ?? 0))),
+            detail: Math.min(999, Math.floor(pong - (sentAt ?? 0))),
           })
         )
+        setPing(undefined)
         break
+      }
       case 'modeling_session_data':
         const apiCallId = resp.data.session.api_call_id
         setApiCallId(apiCallId)
@@ -432,6 +466,11 @@ export const createOnWebSocketMessage = ({
       case 'reconnect':
         requestReconnect()
         return
+      case 'debug':
+      case 'modeling':
+      case 'export':
+      case 'modeling_batch':
+        break
     }
   }
 
@@ -451,11 +490,12 @@ export const createOnWebSocketClose = ({
   onWebSocketOpen: (event: Event) => void
   onWebSocketError: (event: Event) => void
   onWebSocketMessage: (event: MessageEvent<any>) => void
-  tearDownManager: (options?: ManagerTearDown) => void
+  tearDownManager: (options: ManagerTearDown) => void
   dispatchEvent: (event: Event) => boolean
   getReconnectRequested: () => boolean
 }) => {
   const onDataChannelClose = (event: CloseEvent) => {
+    const reconnectRequested = getReconnectRequested()
     websocket.removeEventListener('open', onWebSocketOpen)
     websocket.removeEventListener('error', onWebSocketError)
     websocket.removeEventListener('message', onWebSocketMessage)
@@ -465,9 +505,11 @@ export const createOnWebSocketClose = ({
       })
     )
     tearDownManager({
-      websocketClosed: true,
+      route: 'websocket-closed',
+      initiatedBy: reconnectRequested ? 'api' : 'unknown',
       code: event.code.toString(),
-      reconnectRequested: getReconnectRequested(),
+      reason: event.reason,
+      reconnectRequested,
     })
   }
   return onDataChannelClose

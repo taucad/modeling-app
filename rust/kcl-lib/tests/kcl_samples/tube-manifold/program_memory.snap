@@ -133,11 +133,9 @@ description: Variables in memory after executing tube-manifold.kcl
   },
   "baseLine": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "baseLine"
   },
   "beadArc": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "beadArc"
   },
@@ -146,8 +144,10 @@ description: Variables in memory after executing tube-manifold.kcl
     "value": 1.0,
     "ty": {
       "type": "Default",
-      "len": "in",
-      "angle": "degrees"
+      "value": {
+        "len": "in",
+        "angle": "degrees"
+      }
     }
   },
   "beadRadius": {
@@ -155,8 +155,10 @@ description: Variables in memory after executing tube-manifold.kcl
     "value": 0.2,
     "ty": {
       "type": "Default",
-      "len": "in",
-      "angle": "degrees"
+      "value": {
+        "len": "in",
+        "angle": "degrees"
+      }
     }
   },
   "body": {
@@ -173,10 +175,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2274,
-            "end": 2283,
+            "commentStart": 2280,
+            "end": 2289,
             "moduleId": 0,
-            "start": 2274,
+            "start": 2280,
             "type": "TagDeclarator",
             "value": "frontWall"
           },
@@ -187,10 +189,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2351,
-            "end": 2364,
+            "commentStart": 2357,
+            "end": 2370,
             "moduleId": 0,
-            "start": 2351,
+            "start": 2357,
             "type": "TagDeclarator",
             "value": "frontOuterRun"
           },
@@ -201,10 +203,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2432,
-            "end": 2439,
+            "commentStart": 2438,
+            "end": 2445,
             "moduleId": 0,
-            "start": 2432,
+            "start": 2438,
             "type": "TagDeclarator",
             "value": "beadArc"
           },
@@ -215,10 +217,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2541,
-            "end": 2553,
+            "commentStart": 2547,
+            "end": 2559,
             "moduleId": 0,
-            "start": 2541,
+            "start": 2547,
             "type": "TagDeclarator",
             "value": "mainOuterRun"
           },
@@ -229,10 +231,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2625,
-            "end": 2636,
+            "commentStart": 2631,
+            "end": 2642,
             "moduleId": 0,
-            "start": 2625,
+            "start": 2631,
             "type": "TagDeclarator",
             "value": "outerEndArc"
           },
@@ -243,10 +245,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2817,
-            "end": 2828,
+            "commentStart": 2823,
+            "end": 2834,
             "moduleId": 0,
-            "start": 2817,
+            "start": 2823,
             "type": "TagDeclarator",
             "value": "innerEndArc"
           },
@@ -257,10 +259,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2930,
-            "end": 2942,
+            "commentStart": 2936,
+            "end": 2948,
             "moduleId": 0,
-            "start": 2930,
+            "start": 2936,
             "type": "TagDeclarator",
             "value": "mainInnerRun"
           },
@@ -282,10 +284,10 @@ description: Variables in memory after executing tube-manifold.kcl
               2.7
             ],
             "tag": {
-              "commentStart": 2274,
-              "end": 2283,
+              "commentStart": 2280,
+              "end": 2289,
               "moduleId": 0,
-              "start": 2274,
+              "start": 2280,
               "type": "TagDeclarator",
               "value": "frontWall"
             },
@@ -306,10 +308,10 @@ description: Variables in memory after executing tube-manifold.kcl
               2.9
             ],
             "tag": {
-              "commentStart": 2351,
-              "end": 2364,
+              "commentStart": 2357,
+              "end": 2370,
               "moduleId": 0,
-              "start": 2351,
+              "start": 2357,
               "type": "TagDeclarator",
               "value": "frontOuterRun"
             },
@@ -336,10 +338,10 @@ description: Variables in memory after executing tube-manifold.kcl
             ],
             "radius": 0.20000000000000018,
             "tag": {
-              "commentStart": 2432,
-              "end": 2439,
+              "commentStart": 2438,
+              "end": 2445,
               "moduleId": 0,
-              "start": 2432,
+              "start": 2438,
               "type": "TagDeclarator",
               "value": "beadArc"
             },
@@ -360,10 +362,10 @@ description: Variables in memory after executing tube-manifold.kcl
               2.9
             ],
             "tag": {
-              "commentStart": 2541,
-              "end": 2553,
+              "commentStart": 2547,
+              "end": 2559,
               "moduleId": 0,
-              "start": 2541,
+              "start": 2547,
               "type": "TagDeclarator",
               "value": "mainOuterRun"
             },
@@ -390,10 +392,10 @@ description: Variables in memory after executing tube-manifold.kcl
             ],
             "radius": 2.9,
             "tag": {
-              "commentStart": 2625,
-              "end": 2636,
+              "commentStart": 2631,
+              "end": 2642,
               "moduleId": 0,
-              "start": 2625,
+              "start": 2631,
               "type": "TagDeclarator",
               "value": "outerEndArc"
             },
@@ -414,10 +416,10 @@ description: Variables in memory after executing tube-manifold.kcl
               0.00000000000000035514757175273243
             ],
             "tag": {
-              "commentStart": 2738,
-              "end": 2745,
+              "commentStart": 2744,
+              "end": 2751,
               "moduleId": 0,
-              "start": 2738,
+              "start": 2744,
               "type": "TagDeclarator",
               "value": "wallRun"
             },
@@ -444,10 +446,10 @@ description: Variables in memory after executing tube-manifold.kcl
             ],
             "radius": 2.6999999999999993,
             "tag": {
-              "commentStart": 2817,
-              "end": 2828,
+              "commentStart": 2823,
+              "end": 2834,
               "moduleId": 0,
-              "start": 2817,
+              "start": 2823,
               "type": "TagDeclarator",
               "value": "innerEndArc"
             },
@@ -468,10 +470,10 @@ description: Variables in memory after executing tube-manifold.kcl
               2.699999999999999
             ],
             "tag": {
-              "commentStart": 2930,
-              "end": 2942,
+              "commentStart": 2936,
+              "end": 2948,
               "moduleId": 0,
-              "start": 2930,
+              "start": 2936,
               "type": "TagDeclarator",
               "value": "mainInnerRun"
             },
@@ -589,10 +591,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2274,
-            "end": 2283,
+            "commentStart": 2280,
+            "end": 2289,
             "moduleId": 0,
-            "start": 2274,
+            "start": 2280,
             "type": "TagDeclarator",
             "value": "frontWall"
           },
@@ -603,10 +605,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2351,
-            "end": 2364,
+            "commentStart": 2357,
+            "end": 2370,
             "moduleId": 0,
-            "start": 2351,
+            "start": 2357,
             "type": "TagDeclarator",
             "value": "frontOuterRun"
           },
@@ -617,10 +619,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2432,
-            "end": 2439,
+            "commentStart": 2438,
+            "end": 2445,
             "moduleId": 0,
-            "start": 2432,
+            "start": 2438,
             "type": "TagDeclarator",
             "value": "beadArc"
           },
@@ -631,10 +633,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2541,
-            "end": 2553,
+            "commentStart": 2547,
+            "end": 2559,
             "moduleId": 0,
-            "start": 2541,
+            "start": 2547,
             "type": "TagDeclarator",
             "value": "mainOuterRun"
           },
@@ -645,10 +647,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2625,
-            "end": 2636,
+            "commentStart": 2631,
+            "end": 2642,
             "moduleId": 0,
-            "start": 2625,
+            "start": 2631,
             "type": "TagDeclarator",
             "value": "outerEndArc"
           },
@@ -659,10 +661,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2817,
-            "end": 2828,
+            "commentStart": 2823,
+            "end": 2834,
             "moduleId": 0,
-            "start": 2817,
+            "start": 2823,
             "type": "TagDeclarator",
             "value": "innerEndArc"
           },
@@ -673,10 +675,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 2930,
-            "end": 2942,
+            "commentStart": 2936,
+            "end": 2948,
             "moduleId": 0,
-            "start": 2930,
+            "start": 2936,
             "type": "TagDeclarator",
             "value": "mainInnerRun"
           },
@@ -698,10 +700,10 @@ description: Variables in memory after executing tube-manifold.kcl
               2.7
             ],
             "tag": {
-              "commentStart": 2274,
-              "end": 2283,
+              "commentStart": 2280,
+              "end": 2289,
               "moduleId": 0,
-              "start": 2274,
+              "start": 2280,
               "type": "TagDeclarator",
               "value": "frontWall"
             },
@@ -722,10 +724,10 @@ description: Variables in memory after executing tube-manifold.kcl
               2.9
             ],
             "tag": {
-              "commentStart": 2351,
-              "end": 2364,
+              "commentStart": 2357,
+              "end": 2370,
               "moduleId": 0,
-              "start": 2351,
+              "start": 2357,
               "type": "TagDeclarator",
               "value": "frontOuterRun"
             },
@@ -752,10 +754,10 @@ description: Variables in memory after executing tube-manifold.kcl
             ],
             "radius": 0.20000000000000018,
             "tag": {
-              "commentStart": 2432,
-              "end": 2439,
+              "commentStart": 2438,
+              "end": 2445,
               "moduleId": 0,
-              "start": 2432,
+              "start": 2438,
               "type": "TagDeclarator",
               "value": "beadArc"
             },
@@ -776,10 +778,10 @@ description: Variables in memory after executing tube-manifold.kcl
               2.9
             ],
             "tag": {
-              "commentStart": 2541,
-              "end": 2553,
+              "commentStart": 2547,
+              "end": 2559,
               "moduleId": 0,
-              "start": 2541,
+              "start": 2547,
               "type": "TagDeclarator",
               "value": "mainOuterRun"
             },
@@ -806,10 +808,10 @@ description: Variables in memory after executing tube-manifold.kcl
             ],
             "radius": 2.9,
             "tag": {
-              "commentStart": 2625,
-              "end": 2636,
+              "commentStart": 2631,
+              "end": 2642,
               "moduleId": 0,
-              "start": 2625,
+              "start": 2631,
               "type": "TagDeclarator",
               "value": "outerEndArc"
             },
@@ -830,10 +832,10 @@ description: Variables in memory after executing tube-manifold.kcl
               0.00000000000000035514757175273243
             ],
             "tag": {
-              "commentStart": 2738,
-              "end": 2745,
+              "commentStart": 2744,
+              "end": 2751,
               "moduleId": 0,
-              "start": 2738,
+              "start": 2744,
               "type": "TagDeclarator",
               "value": "wallRun"
             },
@@ -860,10 +862,10 @@ description: Variables in memory after executing tube-manifold.kcl
             ],
             "radius": 2.6999999999999993,
             "tag": {
-              "commentStart": 2817,
-              "end": 2828,
+              "commentStart": 2823,
+              "end": 2834,
               "moduleId": 0,
-              "start": 2817,
+              "start": 2823,
               "type": "TagDeclarator",
               "value": "innerEndArc"
             },
@@ -884,10 +886,10 @@ description: Variables in memory after executing tube-manifold.kcl
               2.699999999999999
             ],
             "tag": {
-              "commentStart": 2930,
-              "end": 2942,
+              "commentStart": 2936,
+              "end": 2948,
               "moduleId": 0,
-              "start": 2930,
+              "start": 2936,
               "type": "TagDeclarator",
               "value": "mainInnerRun"
             },
@@ -1506,10 +1508,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 6501,
-            "end": 6514,
+            "commentStart": 6549,
+            "end": 6562,
             "moduleId": 0,
-            "start": 6501,
+            "start": 6549,
             "type": "TagDeclarator",
             "value": "bodyCutCircle"
           },
@@ -1537,10 +1539,10 @@ description: Variables in memory after executing tube-manifold.kcl
             ],
             "radius": 2.9,
             "tag": {
-              "commentStart": 6501,
-              "end": 6514,
+              "commentStart": 6549,
+              "end": 6562,
               "moduleId": 0,
-              "start": 6501,
+              "start": 6549,
               "type": "TagDeclarator",
               "value": "bodyCutCircle"
             },
@@ -1618,7 +1620,6 @@ description: Variables in memory after executing tube-manifold.kcl
   },
   "bodyCutCircle": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "bodyCutCircle"
   },
   "bodyCutRegion": {
@@ -1643,10 +1644,10 @@ description: Variables in memory after executing tube-manifold.kcl
           ],
           "radius": 2.9,
           "tag": {
-            "commentStart": 6501,
-            "end": 6514,
+            "commentStart": 6549,
+            "end": 6562,
             "moduleId": 0,
-            "start": 6501,
+            "start": 6549,
             "type": "TagDeclarator",
             "value": "bodyCutCircle"
           },
@@ -1734,17 +1735,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 2.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -1752,17 +1757,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -1854,17 +1863,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -1872,17 +1885,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 2.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -1986,10 +2003,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   ],
                   "radius": 2.9,
                   "tag": {
-                    "commentStart": 6501,
-                    "end": 6514,
+                    "commentStart": 6549,
+                    "end": 6562,
                     "moduleId": 0,
-                    "start": 6501,
+                    "start": 6549,
                     "type": "TagDeclarator",
                     "value": "bodyCutCircle"
                   },
@@ -2071,8 +2088,10 @@ description: Variables in memory after executing tube-manifold.kcl
     "value": 5.8,
     "ty": {
       "type": "Default",
-      "len": "in",
-      "angle": "degrees"
+      "value": {
+        "len": "in",
+        "angle": "degrees"
+      }
     }
   },
   "bodyProfile": {
@@ -2092,17 +2111,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 5.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -2110,17 +2133,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 4.6,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -2128,17 +2155,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 4.8,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -2244,17 +2275,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 4.8,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -2262,17 +2297,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 5.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -2365,17 +2404,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 5.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -2383,17 +2426,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 4.6,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -2486,17 +2533,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -2504,17 +2555,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -20.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -2607,17 +2662,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -2625,17 +2684,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 6.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -2728,17 +2791,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 6.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -2746,17 +2813,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 6.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.7,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -2849,17 +2920,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 6.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -2867,17 +2942,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 5.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -2969,17 +3048,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 6.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.7,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -2987,17 +3070,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 6.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -3089,17 +3176,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -20.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.7,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -3107,17 +3198,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -22.7,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -3125,17 +3220,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -20.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -3241,17 +3340,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -20.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -3259,17 +3362,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -22.7,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -3362,17 +3469,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -20.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -3380,17 +3491,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -20.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.7,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -3483,17 +3598,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -20.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.7,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -3501,17 +3620,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 6.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.7,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -3603,17 +3726,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 4.6,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -3621,17 +3748,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -20.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -3728,10 +3859,10 @@ description: Variables in memory after executing tube-manifold.kcl
                     2.7
                   ],
                   "tag": {
-                    "commentStart": 2274,
-                    "end": 2283,
+                    "commentStart": 2280,
+                    "end": 2289,
                     "moduleId": 0,
-                    "start": 2274,
+                    "start": 2280,
                     "type": "TagDeclarator",
                     "value": "frontWall"
                   },
@@ -3752,10 +3883,10 @@ description: Variables in memory after executing tube-manifold.kcl
                     2.9
                   ],
                   "tag": {
-                    "commentStart": 2351,
-                    "end": 2364,
+                    "commentStart": 2357,
+                    "end": 2370,
                     "moduleId": 0,
-                    "start": 2351,
+                    "start": 2357,
                     "type": "TagDeclarator",
                     "value": "frontOuterRun"
                   },
@@ -3782,10 +3913,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   ],
                   "radius": 0.20000000000000018,
                   "tag": {
-                    "commentStart": 2432,
-                    "end": 2439,
+                    "commentStart": 2438,
+                    "end": 2445,
                     "moduleId": 0,
-                    "start": 2432,
+                    "start": 2438,
                     "type": "TagDeclarator",
                     "value": "beadArc"
                   },
@@ -3806,10 +3937,10 @@ description: Variables in memory after executing tube-manifold.kcl
                     2.9
                   ],
                   "tag": {
-                    "commentStart": 2541,
-                    "end": 2553,
+                    "commentStart": 2547,
+                    "end": 2559,
                     "moduleId": 0,
-                    "start": 2541,
+                    "start": 2547,
                     "type": "TagDeclarator",
                     "value": "mainOuterRun"
                   },
@@ -3836,10 +3967,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   ],
                   "radius": 2.9,
                   "tag": {
-                    "commentStart": 2625,
-                    "end": 2636,
+                    "commentStart": 2631,
+                    "end": 2642,
                     "moduleId": 0,
-                    "start": 2625,
+                    "start": 2631,
                     "type": "TagDeclarator",
                     "value": "outerEndArc"
                   },
@@ -3860,10 +3991,10 @@ description: Variables in memory after executing tube-manifold.kcl
                     0.00000000000000035514757175273243
                   ],
                   "tag": {
-                    "commentStart": 2738,
-                    "end": 2745,
+                    "commentStart": 2744,
+                    "end": 2751,
                     "moduleId": 0,
-                    "start": 2738,
+                    "start": 2744,
                     "type": "TagDeclarator",
                     "value": "wallRun"
                   },
@@ -3890,10 +4021,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   ],
                   "radius": 2.6999999999999993,
                   "tag": {
-                    "commentStart": 2817,
-                    "end": 2828,
+                    "commentStart": 2823,
+                    "end": 2834,
                     "moduleId": 0,
-                    "start": 2817,
+                    "start": 2823,
                     "type": "TagDeclarator",
                     "value": "innerEndArc"
                   },
@@ -3914,10 +4045,10 @@ description: Variables in memory after executing tube-manifold.kcl
                     2.699999999999999
                   ],
                   "tag": {
-                    "commentStart": 2930,
-                    "end": 2942,
+                    "commentStart": 2936,
+                    "end": 2948,
                     "moduleId": 0,
-                    "start": 2930,
+                    "start": 2936,
                     "type": "TagDeclarator",
                     "value": "mainInnerRun"
                   },
@@ -4033,17 +4164,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -20.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -4051,17 +4186,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -22.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -4069,17 +4208,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -20.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -4185,17 +4328,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -20.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -4203,17 +4350,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -22.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -4306,17 +4457,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -20.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -4324,17 +4479,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -20.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 2.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -4427,17 +4586,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -22.9,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -4445,17 +4608,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": -22.7,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -4552,10 +4719,10 @@ description: Variables in memory after executing tube-manifold.kcl
             2.7
           ],
           "tag": {
-            "commentStart": 2274,
-            "end": 2283,
+            "commentStart": 2280,
+            "end": 2289,
             "moduleId": 0,
-            "start": 2274,
+            "start": 2280,
             "type": "TagDeclarator",
             "value": "frontWall"
           },
@@ -4576,10 +4743,10 @@ description: Variables in memory after executing tube-manifold.kcl
             2.9
           ],
           "tag": {
-            "commentStart": 2351,
-            "end": 2364,
+            "commentStart": 2357,
+            "end": 2370,
             "moduleId": 0,
-            "start": 2351,
+            "start": 2357,
             "type": "TagDeclarator",
             "value": "frontOuterRun"
           },
@@ -4606,10 +4773,10 @@ description: Variables in memory after executing tube-manifold.kcl
           ],
           "radius": 0.20000000000000018,
           "tag": {
-            "commentStart": 2432,
-            "end": 2439,
+            "commentStart": 2438,
+            "end": 2445,
             "moduleId": 0,
-            "start": 2432,
+            "start": 2438,
             "type": "TagDeclarator",
             "value": "beadArc"
           },
@@ -4630,10 +4797,10 @@ description: Variables in memory after executing tube-manifold.kcl
             2.9
           ],
           "tag": {
-            "commentStart": 2541,
-            "end": 2553,
+            "commentStart": 2547,
+            "end": 2559,
             "moduleId": 0,
-            "start": 2541,
+            "start": 2547,
             "type": "TagDeclarator",
             "value": "mainOuterRun"
           },
@@ -4660,10 +4827,10 @@ description: Variables in memory after executing tube-manifold.kcl
           ],
           "radius": 2.9,
           "tag": {
-            "commentStart": 2625,
-            "end": 2636,
+            "commentStart": 2631,
+            "end": 2642,
             "moduleId": 0,
-            "start": 2625,
+            "start": 2631,
             "type": "TagDeclarator",
             "value": "outerEndArc"
           },
@@ -4684,10 +4851,10 @@ description: Variables in memory after executing tube-manifold.kcl
             0.00000000000000035514757175273243
           ],
           "tag": {
-            "commentStart": 2738,
-            "end": 2745,
+            "commentStart": 2744,
+            "end": 2751,
             "moduleId": 0,
-            "start": 2738,
+            "start": 2744,
             "type": "TagDeclarator",
             "value": "wallRun"
           },
@@ -4714,10 +4881,10 @@ description: Variables in memory after executing tube-manifold.kcl
           ],
           "radius": 2.6999999999999993,
           "tag": {
-            "commentStart": 2817,
-            "end": 2828,
+            "commentStart": 2823,
+            "end": 2834,
             "moduleId": 0,
-            "start": 2817,
+            "start": 2823,
             "type": "TagDeclarator",
             "value": "innerEndArc"
           },
@@ -4738,10 +4905,10 @@ description: Variables in memory after executing tube-manifold.kcl
             2.699999999999999
           ],
           "tag": {
-            "commentStart": 2930,
-            "end": 2942,
+            "commentStart": 2936,
+            "end": 2948,
             "moduleId": 0,
-            "start": 2930,
+            "start": 2936,
             "type": "TagDeclarator",
             "value": "mainInnerRun"
           },
@@ -4842,16 +5009,13 @@ description: Variables in memory after executing tube-manifold.kcl
   },
   "centerAxis": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "centerAxis"
   },
   "frontOuterRun": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "frontOuterRun"
   },
   "frontWall": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "frontWall"
   },
@@ -4981,26 +5145,21 @@ description: Variables in memory after executing tube-manifold.kcl
   },
   "innerEndArc": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "innerEndArc"
   },
   "lowerWall": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "lowerWall"
   },
   "mainInnerRun": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "mainInnerRun"
   },
   "mainOuterRun": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "mainOuterRun"
   },
   "outerEndArc": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "outerEndArc"
   },
@@ -5018,10 +5177,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7372,
-            "end": 7378,
+            "commentStart": 7426,
+            "end": 7432,
             "moduleId": 0,
-            "start": 7372,
+            "start": 7426,
             "type": "TagDeclarator",
             "value": "topCap"
           },
@@ -5032,10 +5191,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7444,
-            "end": 7453,
+            "commentStart": 7498,
+            "end": 7507,
             "moduleId": 0,
-            "start": 7444,
+            "start": 7498,
             "type": "TagDeclarator",
             "value": "upperWall"
           },
@@ -5046,10 +5205,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7521,
-            "end": 7528,
+            "commentStart": 7575,
+            "end": 7582,
             "moduleId": 0,
-            "start": 7521,
+            "start": 7575,
             "type": "TagDeclarator",
             "value": "beadArc"
           },
@@ -5060,10 +5219,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7630,
-            "end": 7639,
+            "commentStart": 7684,
+            "end": 7693,
             "moduleId": 0,
-            "start": 7630,
+            "start": 7684,
             "type": "TagDeclarator",
             "value": "lowerWall"
           },
@@ -5074,10 +5233,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7709,
-            "end": 7717,
+            "commentStart": 7763,
+            "end": 7771,
             "moduleId": 0,
-            "start": 7709,
+            "start": 7763,
             "type": "TagDeclarator",
             "value": "baseLine"
           },
@@ -5099,10 +5258,10 @@ description: Variables in memory after executing tube-manifold.kcl
               6.0
             ],
             "tag": {
-              "commentStart": 7372,
-              "end": 7378,
+              "commentStart": 7426,
+              "end": 7432,
               "moduleId": 0,
-              "start": 7372,
+              "start": 7426,
               "type": "TagDeclarator",
               "value": "topCap"
             },
@@ -5123,10 +5282,10 @@ description: Variables in memory after executing tube-manifold.kcl
               6.0
             ],
             "tag": {
-              "commentStart": 7444,
-              "end": 7453,
+              "commentStart": 7498,
+              "end": 7507,
               "moduleId": 0,
-              "start": 7444,
+              "start": 7498,
               "type": "TagDeclarator",
               "value": "upperWall"
             },
@@ -5153,10 +5312,10 @@ description: Variables in memory after executing tube-manifold.kcl
             ],
             "radius": 0.20000000000000018,
             "tag": {
-              "commentStart": 7521,
-              "end": 7528,
+              "commentStart": 7575,
+              "end": 7582,
               "moduleId": 0,
-              "start": 7521,
+              "start": 7575,
               "type": "TagDeclarator",
               "value": "beadArc"
             },
@@ -5177,10 +5336,10 @@ description: Variables in memory after executing tube-manifold.kcl
               4.6
             ],
             "tag": {
-              "commentStart": 7630,
-              "end": 7639,
+              "commentStart": 7684,
+              "end": 7693,
               "moduleId": 0,
-              "start": 7630,
+              "start": 7684,
               "type": "TagDeclarator",
               "value": "lowerWall"
             },
@@ -5201,10 +5360,10 @@ description: Variables in memory after executing tube-manifold.kcl
               0.0
             ],
             "tag": {
-              "commentStart": 7709,
-              "end": 7717,
+              "commentStart": 7763,
+              "end": 7771,
               "moduleId": 0,
-              "start": 7709,
+              "start": 7763,
               "type": "TagDeclarator",
               "value": "baseLine"
             },
@@ -5225,10 +5384,10 @@ description: Variables in memory after executing tube-manifold.kcl
               0.0
             ],
             "tag": {
-              "commentStart": 7783,
-              "end": 7793,
+              "commentStart": 7837,
+              "end": 7847,
               "moduleId": 0,
-              "start": 7783,
+              "start": 7837,
               "type": "TagDeclarator",
               "value": "centerAxis"
             },
@@ -5325,7 +5484,6 @@ description: Variables in memory after executing tube-manifold.kcl
     }
   },
   "portBore": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "portBore"
   },
@@ -5544,17 +5702,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 1.2,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -5562,17 +5724,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -5664,17 +5830,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -5682,17 +5852,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 1.2,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -5779,8 +5953,10 @@ description: Variables in memory after executing tube-manifold.kcl
     "value": 4.0,
     "ty": {
       "type": "Default",
-      "len": "in",
-      "angle": "degrees"
+      "value": {
+        "len": "in",
+        "angle": "degrees"
+      }
     }
   },
   "portDiameter": {
@@ -5788,8 +5964,10 @@ description: Variables in memory after executing tube-manifold.kcl
     "value": 2.8,
     "ty": {
       "type": "Default",
-      "len": "in",
-      "angle": "degrees"
+      "value": {
+        "len": "in",
+        "angle": "degrees"
+      }
     }
   },
   "portHeight": {
@@ -5797,8 +5975,10 @@ description: Variables in memory after executing tube-manifold.kcl
     "value": 6.0,
     "ty": {
       "type": "Default",
-      "len": "in",
-      "angle": "degrees"
+      "value": {
+        "len": "in",
+        "angle": "degrees"
+      }
     }
   },
   "portProfile": {
@@ -5818,17 +5998,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 1.4,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -5836,17 +6020,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -5938,17 +6126,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 1.4,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 4.6,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -5956,17 +6148,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 1.4,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 5.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -5974,17 +6170,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 1.4,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 4.8,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -6090,17 +6290,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 1.4,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 4.8,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -6108,17 +6312,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 1.4,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 5.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -6211,17 +6419,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 1.4,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 4.6,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -6229,17 +6441,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 1.4,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 5.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -6332,17 +6548,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -6350,17 +6570,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 6.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -6452,17 +6676,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 1.4,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 4.6,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -6470,17 +6698,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 1.4,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -6577,10 +6809,10 @@ description: Variables in memory after executing tube-manifold.kcl
                     6.0
                   ],
                   "tag": {
-                    "commentStart": 7372,
-                    "end": 7378,
+                    "commentStart": 7426,
+                    "end": 7432,
                     "moduleId": 0,
-                    "start": 7372,
+                    "start": 7426,
                     "type": "TagDeclarator",
                     "value": "topCap"
                   },
@@ -6601,10 +6833,10 @@ description: Variables in memory after executing tube-manifold.kcl
                     6.0
                   ],
                   "tag": {
-                    "commentStart": 7444,
-                    "end": 7453,
+                    "commentStart": 7498,
+                    "end": 7507,
                     "moduleId": 0,
-                    "start": 7444,
+                    "start": 7498,
                     "type": "TagDeclarator",
                     "value": "upperWall"
                   },
@@ -6631,10 +6863,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   ],
                   "radius": 0.20000000000000018,
                   "tag": {
-                    "commentStart": 7521,
-                    "end": 7528,
+                    "commentStart": 7575,
+                    "end": 7582,
                     "moduleId": 0,
-                    "start": 7521,
+                    "start": 7575,
                     "type": "TagDeclarator",
                     "value": "beadArc"
                   },
@@ -6655,10 +6887,10 @@ description: Variables in memory after executing tube-manifold.kcl
                     4.6
                   ],
                   "tag": {
-                    "commentStart": 7630,
-                    "end": 7639,
+                    "commentStart": 7684,
+                    "end": 7693,
                     "moduleId": 0,
-                    "start": 7630,
+                    "start": 7684,
                     "type": "TagDeclarator",
                     "value": "lowerWall"
                   },
@@ -6679,10 +6911,10 @@ description: Variables in memory after executing tube-manifold.kcl
                     0.0
                   ],
                   "tag": {
-                    "commentStart": 7709,
-                    "end": 7717,
+                    "commentStart": 7763,
+                    "end": 7771,
                     "moduleId": 0,
-                    "start": 7709,
+                    "start": 7763,
                     "type": "TagDeclarator",
                     "value": "baseLine"
                   },
@@ -6703,10 +6935,10 @@ description: Variables in memory after executing tube-manifold.kcl
                     0.0
                   ],
                   "tag": {
-                    "commentStart": 7783,
-                    "end": 7793,
+                    "commentStart": 7837,
+                    "end": 7847,
                     "moduleId": 0,
-                    "start": 7783,
+                    "start": 7837,
                     "type": "TagDeclarator",
                     "value": "centerAxis"
                   },
@@ -6814,17 +7046,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 6.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -6832,17 +7068,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 1.4,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 6.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -6934,17 +7174,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 1.4,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 6.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -6952,17 +7196,21 @@ description: Variables in memory after executing tube-manifold.kcl
                       {
                         "n": 1.4,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       },
                       {
                         "n": 5.0,
                         "ty": {
-                          "in": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "in"
+                          }
                         }
                       }
                     ],
@@ -7059,10 +7307,10 @@ description: Variables in memory after executing tube-manifold.kcl
             6.0
           ],
           "tag": {
-            "commentStart": 7372,
-            "end": 7378,
+            "commentStart": 7426,
+            "end": 7432,
             "moduleId": 0,
-            "start": 7372,
+            "start": 7426,
             "type": "TagDeclarator",
             "value": "topCap"
           },
@@ -7083,10 +7331,10 @@ description: Variables in memory after executing tube-manifold.kcl
             6.0
           ],
           "tag": {
-            "commentStart": 7444,
-            "end": 7453,
+            "commentStart": 7498,
+            "end": 7507,
             "moduleId": 0,
-            "start": 7444,
+            "start": 7498,
             "type": "TagDeclarator",
             "value": "upperWall"
           },
@@ -7113,10 +7361,10 @@ description: Variables in memory after executing tube-manifold.kcl
           ],
           "radius": 0.20000000000000018,
           "tag": {
-            "commentStart": 7521,
-            "end": 7528,
+            "commentStart": 7575,
+            "end": 7582,
             "moduleId": 0,
-            "start": 7521,
+            "start": 7575,
             "type": "TagDeclarator",
             "value": "beadArc"
           },
@@ -7137,10 +7385,10 @@ description: Variables in memory after executing tube-manifold.kcl
             4.6
           ],
           "tag": {
-            "commentStart": 7630,
-            "end": 7639,
+            "commentStart": 7684,
+            "end": 7693,
             "moduleId": 0,
-            "start": 7630,
+            "start": 7684,
             "type": "TagDeclarator",
             "value": "lowerWall"
           },
@@ -7161,10 +7409,10 @@ description: Variables in memory after executing tube-manifold.kcl
             0.0
           ],
           "tag": {
-            "commentStart": 7709,
-            "end": 7717,
+            "commentStart": 7763,
+            "end": 7771,
             "moduleId": 0,
-            "start": 7709,
+            "start": 7763,
             "type": "TagDeclarator",
             "value": "baseLine"
           },
@@ -7185,10 +7433,10 @@ description: Variables in memory after executing tube-manifold.kcl
             0.0
           ],
           "tag": {
-            "commentStart": 7783,
-            "end": 7793,
+            "commentStart": 7837,
+            "end": 7847,
             "moduleId": 0,
-            "start": 7783,
+            "start": 7837,
             "type": "TagDeclarator",
             "value": "centerAxis"
           },
@@ -7293,10 +7541,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7372,
-            "end": 7378,
+            "commentStart": 7426,
+            "end": 7432,
             "moduleId": 0,
-            "start": 7372,
+            "start": 7426,
             "type": "TagDeclarator",
             "value": "topCap"
           },
@@ -7307,10 +7555,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7444,
-            "end": 7453,
+            "commentStart": 7498,
+            "end": 7507,
             "moduleId": 0,
-            "start": 7444,
+            "start": 7498,
             "type": "TagDeclarator",
             "value": "upperWall"
           },
@@ -7321,10 +7569,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7521,
-            "end": 7528,
+            "commentStart": 7575,
+            "end": 7582,
             "moduleId": 0,
-            "start": 7521,
+            "start": 7575,
             "type": "TagDeclarator",
             "value": "beadArc"
           },
@@ -7335,10 +7583,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7630,
-            "end": 7639,
+            "commentStart": 7684,
+            "end": 7693,
             "moduleId": 0,
-            "start": 7630,
+            "start": 7684,
             "type": "TagDeclarator",
             "value": "lowerWall"
           },
@@ -7349,10 +7597,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7709,
-            "end": 7717,
+            "commentStart": 7763,
+            "end": 7771,
             "moduleId": 0,
-            "start": 7709,
+            "start": 7763,
             "type": "TagDeclarator",
             "value": "baseLine"
           },
@@ -7374,10 +7622,10 @@ description: Variables in memory after executing tube-manifold.kcl
               6.0
             ],
             "tag": {
-              "commentStart": 7372,
-              "end": 7378,
+              "commentStart": 7426,
+              "end": 7432,
               "moduleId": 0,
-              "start": 7372,
+              "start": 7426,
               "type": "TagDeclarator",
               "value": "topCap"
             },
@@ -7398,10 +7646,10 @@ description: Variables in memory after executing tube-manifold.kcl
               6.0
             ],
             "tag": {
-              "commentStart": 7444,
-              "end": 7453,
+              "commentStart": 7498,
+              "end": 7507,
               "moduleId": 0,
-              "start": 7444,
+              "start": 7498,
               "type": "TagDeclarator",
               "value": "upperWall"
             },
@@ -7428,10 +7676,10 @@ description: Variables in memory after executing tube-manifold.kcl
             ],
             "radius": 0.20000000000000018,
             "tag": {
-              "commentStart": 7521,
-              "end": 7528,
+              "commentStart": 7575,
+              "end": 7582,
               "moduleId": 0,
-              "start": 7521,
+              "start": 7575,
               "type": "TagDeclarator",
               "value": "beadArc"
             },
@@ -7452,10 +7700,10 @@ description: Variables in memory after executing tube-manifold.kcl
               4.6
             ],
             "tag": {
-              "commentStart": 7630,
-              "end": 7639,
+              "commentStart": 7684,
+              "end": 7693,
               "moduleId": 0,
-              "start": 7630,
+              "start": 7684,
               "type": "TagDeclarator",
               "value": "lowerWall"
             },
@@ -7476,10 +7724,10 @@ description: Variables in memory after executing tube-manifold.kcl
               0.0
             ],
             "tag": {
-              "commentStart": 7709,
-              "end": 7717,
+              "commentStart": 7763,
+              "end": 7771,
               "moduleId": 0,
-              "start": 7709,
+              "start": 7763,
               "type": "TagDeclarator",
               "value": "baseLine"
             },
@@ -7500,10 +7748,10 @@ description: Variables in memory after executing tube-manifold.kcl
               0.0
             ],
             "tag": {
-              "commentStart": 7783,
-              "end": 7793,
+              "commentStart": 7837,
+              "end": 7847,
               "moduleId": 0,
-              "start": 7783,
+              "start": 7837,
               "type": "TagDeclarator",
               "value": "centerAxis"
             },
@@ -7604,8 +7852,10 @@ description: Variables in memory after executing tube-manifold.kcl
     "value": 5.0,
     "ty": {
       "type": "Default",
-      "len": "in",
-      "angle": "degrees"
+      "value": {
+        "len": "in",
+        "angle": "degrees"
+      }
     }
   },
   "portTrimmed": {
@@ -7622,10 +7872,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7372,
-            "end": 7378,
+            "commentStart": 7426,
+            "end": 7432,
             "moduleId": 0,
-            "start": 7372,
+            "start": 7426,
             "type": "TagDeclarator",
             "value": "topCap"
           },
@@ -7636,10 +7886,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7444,
-            "end": 7453,
+            "commentStart": 7498,
+            "end": 7507,
             "moduleId": 0,
-            "start": 7444,
+            "start": 7498,
             "type": "TagDeclarator",
             "value": "upperWall"
           },
@@ -7650,10 +7900,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7521,
-            "end": 7528,
+            "commentStart": 7575,
+            "end": 7582,
             "moduleId": 0,
-            "start": 7521,
+            "start": 7575,
             "type": "TagDeclarator",
             "value": "beadArc"
           },
@@ -7664,10 +7914,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7630,
-            "end": 7639,
+            "commentStart": 7684,
+            "end": 7693,
             "moduleId": 0,
-            "start": 7630,
+            "start": 7684,
             "type": "TagDeclarator",
             "value": "lowerWall"
           },
@@ -7678,10 +7928,10 @@ description: Variables in memory after executing tube-manifold.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7709,
-            "end": 7717,
+            "commentStart": 7763,
+            "end": 7771,
             "moduleId": 0,
-            "start": 7709,
+            "start": 7763,
             "type": "TagDeclarator",
             "value": "baseLine"
           },
@@ -7703,10 +7953,10 @@ description: Variables in memory after executing tube-manifold.kcl
               6.0
             ],
             "tag": {
-              "commentStart": 7372,
-              "end": 7378,
+              "commentStart": 7426,
+              "end": 7432,
               "moduleId": 0,
-              "start": 7372,
+              "start": 7426,
               "type": "TagDeclarator",
               "value": "topCap"
             },
@@ -7727,10 +7977,10 @@ description: Variables in memory after executing tube-manifold.kcl
               6.0
             ],
             "tag": {
-              "commentStart": 7444,
-              "end": 7453,
+              "commentStart": 7498,
+              "end": 7507,
               "moduleId": 0,
-              "start": 7444,
+              "start": 7498,
               "type": "TagDeclarator",
               "value": "upperWall"
             },
@@ -7757,10 +8007,10 @@ description: Variables in memory after executing tube-manifold.kcl
             ],
             "radius": 0.20000000000000018,
             "tag": {
-              "commentStart": 7521,
-              "end": 7528,
+              "commentStart": 7575,
+              "end": 7582,
               "moduleId": 0,
-              "start": 7521,
+              "start": 7575,
               "type": "TagDeclarator",
               "value": "beadArc"
             },
@@ -7781,10 +8031,10 @@ description: Variables in memory after executing tube-manifold.kcl
               4.6
             ],
             "tag": {
-              "commentStart": 7630,
-              "end": 7639,
+              "commentStart": 7684,
+              "end": 7693,
               "moduleId": 0,
-              "start": 7630,
+              "start": 7684,
               "type": "TagDeclarator",
               "value": "lowerWall"
             },
@@ -7805,10 +8055,10 @@ description: Variables in memory after executing tube-manifold.kcl
               0.0
             ],
             "tag": {
-              "commentStart": 7709,
-              "end": 7717,
+              "commentStart": 7763,
+              "end": 7771,
               "moduleId": 0,
-              "start": 7709,
+              "start": 7763,
               "type": "TagDeclarator",
               "value": "baseLine"
             },
@@ -7829,10 +8079,10 @@ description: Variables in memory after executing tube-manifold.kcl
               0.0
             ],
             "tag": {
-              "commentStart": 7783,
-              "end": 7793,
+              "commentStart": 7837,
+              "end": 7847,
               "moduleId": 0,
-              "start": 7783,
+              "start": 7837,
               "type": "TagDeclarator",
               "value": "centerAxis"
             },
@@ -7945,10 +8195,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7372,
-                "end": 7378,
+                "commentStart": 7426,
+                "end": 7432,
                 "moduleId": 0,
-                "start": 7372,
+                "start": 7426,
                 "type": "TagDeclarator",
                 "value": "topCap"
               },
@@ -7959,10 +8209,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7444,
-                "end": 7453,
+                "commentStart": 7498,
+                "end": 7507,
                 "moduleId": 0,
-                "start": 7444,
+                "start": 7498,
                 "type": "TagDeclarator",
                 "value": "upperWall"
               },
@@ -7973,10 +8223,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7521,
-                "end": 7528,
+                "commentStart": 7575,
+                "end": 7582,
                 "moduleId": 0,
-                "start": 7521,
+                "start": 7575,
                 "type": "TagDeclarator",
                 "value": "beadArc"
               },
@@ -7987,10 +8237,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7630,
-                "end": 7639,
+                "commentStart": 7684,
+                "end": 7693,
                 "moduleId": 0,
-                "start": 7630,
+                "start": 7684,
                 "type": "TagDeclarator",
                 "value": "lowerWall"
               },
@@ -8001,10 +8251,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7709,
-                "end": 7717,
+                "commentStart": 7763,
+                "end": 7771,
                 "moduleId": 0,
-                "start": 7709,
+                "start": 7763,
                 "type": "TagDeclarator",
                 "value": "baseLine"
               },
@@ -8026,10 +8276,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   6.0
                 ],
                 "tag": {
-                  "commentStart": 7372,
-                  "end": 7378,
+                  "commentStart": 7426,
+                  "end": 7432,
                   "moduleId": 0,
-                  "start": 7372,
+                  "start": 7426,
                   "type": "TagDeclarator",
                   "value": "topCap"
                 },
@@ -8050,10 +8300,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   6.0
                 ],
                 "tag": {
-                  "commentStart": 7444,
-                  "end": 7453,
+                  "commentStart": 7498,
+                  "end": 7507,
                   "moduleId": 0,
-                  "start": 7444,
+                  "start": 7498,
                   "type": "TagDeclarator",
                   "value": "upperWall"
                 },
@@ -8080,10 +8330,10 @@ description: Variables in memory after executing tube-manifold.kcl
                 ],
                 "radius": 0.20000000000000018,
                 "tag": {
-                  "commentStart": 7521,
-                  "end": 7528,
+                  "commentStart": 7575,
+                  "end": 7582,
                   "moduleId": 0,
-                  "start": 7521,
+                  "start": 7575,
                   "type": "TagDeclarator",
                   "value": "beadArc"
                 },
@@ -8104,10 +8354,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   4.6
                 ],
                 "tag": {
-                  "commentStart": 7630,
-                  "end": 7639,
+                  "commentStart": 7684,
+                  "end": 7693,
                   "moduleId": 0,
-                  "start": 7630,
+                  "start": 7684,
                   "type": "TagDeclarator",
                   "value": "lowerWall"
                 },
@@ -8128,10 +8378,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 7709,
-                  "end": 7717,
+                  "commentStart": 7763,
+                  "end": 7771,
                   "moduleId": 0,
-                  "start": 7709,
+                  "start": 7763,
                   "type": "TagDeclarator",
                   "value": "baseLine"
                 },
@@ -8152,10 +8402,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 7783,
-                  "end": 7793,
+                  "commentStart": 7837,
+                  "end": 7847,
                   "moduleId": 0,
-                  "start": 7783,
+                  "start": 7837,
                   "type": "TagDeclarator",
                   "value": "centerAxis"
                 },
@@ -8265,10 +8515,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7372,
-                "end": 7378,
+                "commentStart": 7426,
+                "end": 7432,
                 "moduleId": 0,
-                "start": 7372,
+                "start": 7426,
                 "type": "TagDeclarator",
                 "value": "topCap"
               },
@@ -8279,10 +8529,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7444,
-                "end": 7453,
+                "commentStart": 7498,
+                "end": 7507,
                 "moduleId": 0,
-                "start": 7444,
+                "start": 7498,
                 "type": "TagDeclarator",
                 "value": "upperWall"
               },
@@ -8293,10 +8543,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7521,
-                "end": 7528,
+                "commentStart": 7575,
+                "end": 7582,
                 "moduleId": 0,
-                "start": 7521,
+                "start": 7575,
                 "type": "TagDeclarator",
                 "value": "beadArc"
               },
@@ -8307,10 +8557,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7630,
-                "end": 7639,
+                "commentStart": 7684,
+                "end": 7693,
                 "moduleId": 0,
-                "start": 7630,
+                "start": 7684,
                 "type": "TagDeclarator",
                 "value": "lowerWall"
               },
@@ -8321,10 +8571,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7709,
-                "end": 7717,
+                "commentStart": 7763,
+                "end": 7771,
                 "moduleId": 0,
-                "start": 7709,
+                "start": 7763,
                 "type": "TagDeclarator",
                 "value": "baseLine"
               },
@@ -8346,10 +8596,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   6.0
                 ],
                 "tag": {
-                  "commentStart": 7372,
-                  "end": 7378,
+                  "commentStart": 7426,
+                  "end": 7432,
                   "moduleId": 0,
-                  "start": 7372,
+                  "start": 7426,
                   "type": "TagDeclarator",
                   "value": "topCap"
                 },
@@ -8370,10 +8620,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   6.0
                 ],
                 "tag": {
-                  "commentStart": 7444,
-                  "end": 7453,
+                  "commentStart": 7498,
+                  "end": 7507,
                   "moduleId": 0,
-                  "start": 7444,
+                  "start": 7498,
                   "type": "TagDeclarator",
                   "value": "upperWall"
                 },
@@ -8400,10 +8650,10 @@ description: Variables in memory after executing tube-manifold.kcl
                 ],
                 "radius": 0.20000000000000018,
                 "tag": {
-                  "commentStart": 7521,
-                  "end": 7528,
+                  "commentStart": 7575,
+                  "end": 7582,
                   "moduleId": 0,
-                  "start": 7521,
+                  "start": 7575,
                   "type": "TagDeclarator",
                   "value": "beadArc"
                 },
@@ -8424,10 +8674,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   4.6
                 ],
                 "tag": {
-                  "commentStart": 7630,
-                  "end": 7639,
+                  "commentStart": 7684,
+                  "end": 7693,
                   "moduleId": 0,
-                  "start": 7630,
+                  "start": 7684,
                   "type": "TagDeclarator",
                   "value": "lowerWall"
                 },
@@ -8448,10 +8698,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 7709,
-                  "end": 7717,
+                  "commentStart": 7763,
+                  "end": 7771,
                   "moduleId": 0,
-                  "start": 7709,
+                  "start": 7763,
                   "type": "TagDeclarator",
                   "value": "baseLine"
                 },
@@ -8472,10 +8722,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 7783,
-                  "end": 7793,
+                  "commentStart": 7837,
+                  "end": 7847,
                   "moduleId": 0,
-                  "start": 7783,
+                  "start": 7837,
                   "type": "TagDeclarator",
                   "value": "centerAxis"
                 },
@@ -8585,10 +8835,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7372,
-                "end": 7378,
+                "commentStart": 7426,
+                "end": 7432,
                 "moduleId": 0,
-                "start": 7372,
+                "start": 7426,
                 "type": "TagDeclarator",
                 "value": "topCap"
               },
@@ -8599,10 +8849,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7444,
-                "end": 7453,
+                "commentStart": 7498,
+                "end": 7507,
                 "moduleId": 0,
-                "start": 7444,
+                "start": 7498,
                 "type": "TagDeclarator",
                 "value": "upperWall"
               },
@@ -8613,10 +8863,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7521,
-                "end": 7528,
+                "commentStart": 7575,
+                "end": 7582,
                 "moduleId": 0,
-                "start": 7521,
+                "start": 7575,
                 "type": "TagDeclarator",
                 "value": "beadArc"
               },
@@ -8627,10 +8877,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7630,
-                "end": 7639,
+                "commentStart": 7684,
+                "end": 7693,
                 "moduleId": 0,
-                "start": 7630,
+                "start": 7684,
                 "type": "TagDeclarator",
                 "value": "lowerWall"
               },
@@ -8641,10 +8891,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7709,
-                "end": 7717,
+                "commentStart": 7763,
+                "end": 7771,
                 "moduleId": 0,
-                "start": 7709,
+                "start": 7763,
                 "type": "TagDeclarator",
                 "value": "baseLine"
               },
@@ -8666,10 +8916,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   6.0
                 ],
                 "tag": {
-                  "commentStart": 7372,
-                  "end": 7378,
+                  "commentStart": 7426,
+                  "end": 7432,
                   "moduleId": 0,
-                  "start": 7372,
+                  "start": 7426,
                   "type": "TagDeclarator",
                   "value": "topCap"
                 },
@@ -8690,10 +8940,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   6.0
                 ],
                 "tag": {
-                  "commentStart": 7444,
-                  "end": 7453,
+                  "commentStart": 7498,
+                  "end": 7507,
                   "moduleId": 0,
-                  "start": 7444,
+                  "start": 7498,
                   "type": "TagDeclarator",
                   "value": "upperWall"
                 },
@@ -8720,10 +8970,10 @@ description: Variables in memory after executing tube-manifold.kcl
                 ],
                 "radius": 0.20000000000000018,
                 "tag": {
-                  "commentStart": 7521,
-                  "end": 7528,
+                  "commentStart": 7575,
+                  "end": 7582,
                   "moduleId": 0,
-                  "start": 7521,
+                  "start": 7575,
                   "type": "TagDeclarator",
                   "value": "beadArc"
                 },
@@ -8744,10 +8994,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   4.6
                 ],
                 "tag": {
-                  "commentStart": 7630,
-                  "end": 7639,
+                  "commentStart": 7684,
+                  "end": 7693,
                   "moduleId": 0,
-                  "start": 7630,
+                  "start": 7684,
                   "type": "TagDeclarator",
                   "value": "lowerWall"
                 },
@@ -8768,10 +9018,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 7709,
-                  "end": 7717,
+                  "commentStart": 7763,
+                  "end": 7771,
                   "moduleId": 0,
-                  "start": 7709,
+                  "start": 7763,
                   "type": "TagDeclarator",
                   "value": "baseLine"
                 },
@@ -8792,10 +9042,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 7783,
-                  "end": 7793,
+                  "commentStart": 7837,
+                  "end": 7847,
                   "moduleId": 0,
-                  "start": 7783,
+                  "start": 7837,
                   "type": "TagDeclarator",
                   "value": "centerAxis"
                 },
@@ -8905,10 +9155,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7372,
-                "end": 7378,
+                "commentStart": 7426,
+                "end": 7432,
                 "moduleId": 0,
-                "start": 7372,
+                "start": 7426,
                 "type": "TagDeclarator",
                 "value": "topCap"
               },
@@ -8919,10 +9169,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7444,
-                "end": 7453,
+                "commentStart": 7498,
+                "end": 7507,
                 "moduleId": 0,
-                "start": 7444,
+                "start": 7498,
                 "type": "TagDeclarator",
                 "value": "upperWall"
               },
@@ -8933,10 +9183,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7521,
-                "end": 7528,
+                "commentStart": 7575,
+                "end": 7582,
                 "moduleId": 0,
-                "start": 7521,
+                "start": 7575,
                 "type": "TagDeclarator",
                 "value": "beadArc"
               },
@@ -8947,10 +9197,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7630,
-                "end": 7639,
+                "commentStart": 7684,
+                "end": 7693,
                 "moduleId": 0,
-                "start": 7630,
+                "start": 7684,
                 "type": "TagDeclarator",
                 "value": "lowerWall"
               },
@@ -8961,10 +9211,10 @@ description: Variables in memory after executing tube-manifold.kcl
               "id": "[uuid]",
               "sourceRange": [],
               "tag": {
-                "commentStart": 7709,
-                "end": 7717,
+                "commentStart": 7763,
+                "end": 7771,
                 "moduleId": 0,
-                "start": 7709,
+                "start": 7763,
                 "type": "TagDeclarator",
                 "value": "baseLine"
               },
@@ -8986,10 +9236,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   6.0
                 ],
                 "tag": {
-                  "commentStart": 7372,
-                  "end": 7378,
+                  "commentStart": 7426,
+                  "end": 7432,
                   "moduleId": 0,
-                  "start": 7372,
+                  "start": 7426,
                   "type": "TagDeclarator",
                   "value": "topCap"
                 },
@@ -9010,10 +9260,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   6.0
                 ],
                 "tag": {
-                  "commentStart": 7444,
-                  "end": 7453,
+                  "commentStart": 7498,
+                  "end": 7507,
                   "moduleId": 0,
-                  "start": 7444,
+                  "start": 7498,
                   "type": "TagDeclarator",
                   "value": "upperWall"
                 },
@@ -9040,10 +9290,10 @@ description: Variables in memory after executing tube-manifold.kcl
                 ],
                 "radius": 0.20000000000000018,
                 "tag": {
-                  "commentStart": 7521,
-                  "end": 7528,
+                  "commentStart": 7575,
+                  "end": 7582,
                   "moduleId": 0,
-                  "start": 7521,
+                  "start": 7575,
                   "type": "TagDeclarator",
                   "value": "beadArc"
                 },
@@ -9064,10 +9314,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   4.6
                 ],
                 "tag": {
-                  "commentStart": 7630,
-                  "end": 7639,
+                  "commentStart": 7684,
+                  "end": 7693,
                   "moduleId": 0,
-                  "start": 7630,
+                  "start": 7684,
                   "type": "TagDeclarator",
                   "value": "lowerWall"
                 },
@@ -9088,10 +9338,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 7709,
-                  "end": 7717,
+                  "commentStart": 7763,
+                  "end": 7771,
                   "moduleId": 0,
-                  "start": 7709,
+                  "start": 7763,
                   "type": "TagDeclarator",
                   "value": "baseLine"
                 },
@@ -9112,10 +9362,10 @@ description: Variables in memory after executing tube-manifold.kcl
                   0.0
                 ],
                 "tag": {
-                  "commentStart": 7783,
-                  "end": 7793,
+                  "commentStart": 7837,
+                  "end": 7847,
                   "moduleId": 0,
-                  "start": 7783,
+                  "start": 7837,
                   "type": "TagDeclarator",
                   "value": "centerAxis"
                 },
@@ -9215,16 +9465,13 @@ description: Variables in memory after executing tube-manifold.kcl
   },
   "topCap": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "topCap"
   },
   "upperWall": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "upperWall"
   },
   "wallRun": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "wallRun"
   },
@@ -9233,8 +9480,10 @@ description: Variables in memory after executing tube-manifold.kcl
     "value": 0.2,
     "ty": {
       "type": "Default",
-      "len": "in",
-      "angle": "degrees"
+      "value": {
+        "len": "in",
+        "angle": "degrees"
+      }
     }
   }
 }

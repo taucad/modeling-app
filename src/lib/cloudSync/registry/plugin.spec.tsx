@@ -16,8 +16,9 @@ import {
   cloudSyncProjectLibraryType,
   getCloudSyncStatusBarPresentation,
 } from '@src/lib/cloudSync/registry/plugin'
-import { OPFS_CLOUD_FEATURE_FLAG } from '@src/lib/constants'
+import { testFileOperations } from '@src/lib/fileSystem/testRuntime'
 import fsZds from '@src/lib/fs-zds'
+import { fsZdsConstants } from '@src/lib/fs-zds/constants'
 import { homeProjectEntryFromProject } from '@src/lib/homeProjects'
 import { webSafeJoin, webSafePathSplit } from '@src/lib/pathUtils'
 import type { Project } from '@src/lib/project'
@@ -35,6 +36,7 @@ import {
   cloudProjectRelationshipsService,
   cloudSyncService,
 } from '@src/registry/contracts/cloudSync'
+import { fileOperationsService } from '@src/registry/contracts/fileOperations'
 import type { HomeProjectEntry } from '@src/registry/contracts/homeProjects'
 import {
   getProjectLibraryCreateProjectOperation,
@@ -199,6 +201,10 @@ const projectWellFormed = {
 
 const CLOUD_SYNC_PLUGIN_ID = 'cloud-sync'
 const originalElectron = window.electron
+const fileOperationsTestItem = defineRegistryItem({
+  id: 'test-file-operations',
+  providesServices: [provideService(fileOperationsService, testFileOperations)],
+})
 
 type TestSettings = {
   app: {
@@ -356,7 +362,7 @@ function createSettingsService({
 }
 
 function createUserFeaturesService(
-  featureIds: Set<Feature> = new Set([OPFS_CLOUD_FEATURE_FLAG])
+  featureIds: Set<Feature> = new Set()
 ): UserFeaturesRegistryService {
   const context = signal({
     featureIds,
@@ -1030,45 +1036,6 @@ describe('cloud sync project library', () => {
     }
   })
 
-  test('keeps the cloud project library default gated by feature flag and platform', () => {
-    const registry = new Registry()
-    const userFeaturesExtension = defineRegistryItem({
-      id: 'test-user-features-service',
-      providesServices: [
-        provideService(
-          userFeaturesService,
-          createUserFeaturesService(new Set())
-        ),
-      ],
-    })
-    registry.configure([userFeaturesExtension, cloudSyncProjectLibraryType])
-
-    try {
-      const defaultPolicies = registry.get(
-        projectLibrarySettingDefaultPoliciesValueSpec
-      )
-      const personalCloudPolicy = defaultPolicies.find(
-        (policy) =>
-          policy.id === 'cloud-sync.personal-cloud-library-default-policy'
-      )
-
-      expect(
-        personalCloudPolicy?.getDefaultLibraries({
-          initialDefaultDir: '/projects',
-          isDesktop: false,
-        })
-      ).toBeUndefined()
-      expect(
-        personalCloudPolicy?.getDefaultLibraries({
-          initialDefaultDir: '/projects',
-          isDesktop: true,
-        })
-      ).toBeUndefined()
-    } finally {
-      registry[Symbol.dispose]()
-    }
-  })
-
   test('does not synthesize a personal cloud library row when toggled', () => {
     const registry = new Registry()
     registry.configure([cloudSyncProjectLibraryType, cloudSyncPlugin])
@@ -1161,9 +1128,9 @@ describe('cloud sync project library', () => {
 
   test('uses the project title for a moved cloud directory', async () => {
     const registry = new Registry()
-    registry.configure([cloudSyncProjectLibraryType])
+    registry.configure([fileOperationsTestItem, cloudSyncProjectLibraryType])
     vi.spyOn(fsZds, 'readFile').mockResolvedValue(
-      'title = "Aquarium Test Project"\n' as never
+      new TextEncoder().encode('title = "Aquarium Test Project"\n')
     )
     vi.spyOn(fsZds, 'readdir').mockResolvedValue([])
     vi.spyOn(fsZds, 'mkdir').mockResolvedValue(undefined)
@@ -1175,6 +1142,12 @@ describe('cloud sync project library', () => {
     )
     vi.spyOn(fsZds, 'relative').mockReturnValue('main.kcl')
     vi.spyOn(fsZds, 'resolve').mockImplementation((path) => `/${path}`)
+    vi.spyOn(fsZds, 'stat').mockImplementation(async (path) => {
+      if (path === '/projects/untitled-3') {
+        return { mode: fsZdsConstants.S_IFDIR } as never
+      }
+      return Promise.reject('ENOENT')
+    })
     const rename = vi.spyOn(fsZds, 'rename').mockResolvedValue(undefined)
 
     try {
@@ -1791,6 +1764,7 @@ describe('cloud sync project relationships', () => {
     })
 
     registry.configure([
+      fileOperationsTestItem,
       cloudSyncServiceExtension,
       projectRealizationsExtension,
       cloudSyncPlugin,

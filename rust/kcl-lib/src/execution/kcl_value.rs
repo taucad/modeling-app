@@ -9,6 +9,7 @@ use serde::Serializer;
 
 use crate::CompilationIssue;
 use crate::KclError;
+use crate::KclVersion;
 use crate::ModuleId;
 use crate::SourceRange;
 use crate::errors::KclErrorDetails;
@@ -17,6 +18,7 @@ use crate::execution::BoundedEdge;
 use crate::execution::CameraView;
 use crate::execution::EnvironmentRef;
 use crate::execution::ExecState;
+use crate::execution::ExecutorContext;
 use crate::execution::Face;
 use crate::execution::GdtAnnotation;
 use crate::execution::Geometry;
@@ -245,23 +247,49 @@ pub(crate) enum ParamUnavailable<'a> {
     Removed(&'a VersionConstraint),
 }
 
+fn param_unavailable_reason<'a>(
+    version: KclVersion,
+    added_in: Option<&'a VersionConstraint>,
+    removed_in: Option<&'a VersionConstraint>,
+) -> Option<ParamUnavailable<'a>> {
+    let version = version.as_str();
+    if let Some(added) = added_in
+        && !annotations::version_ge(version, added)
+    {
+        return Some(ParamUnavailable::NotYetAdded(added));
+    }
+    if let Some(removed) = removed_in
+        && annotations::version_ge(version, removed)
+    {
+        return Some(ParamUnavailable::Removed(removed));
+    }
+    None
+}
+
+/// Whether a parameter is available on this KCL version. `added_in` is inclusive
+/// and `removed_in` is exclusive; preview versions count as their release.
+/// Returns an error for malformed version boundaries.
+pub fn is_kcl_version_available(version: KclVersion, added_in: Option<&str>, removed_in: Option<&str>) -> Result<bool> {
+    let parse = |value: &str| {
+        VersionConstraint::parse(value).ok_or_else(|| {
+            anyhow::anyhow!("Invalid KCL version boundary: `{value}`; expected a dotted integer version")
+        })
+    };
+    let added_in = added_in.map(parse).transpose()?;
+    let removed_in = removed_in.map(parse).transpose()?;
+    Ok(param_unavailable_reason(version, added_in.as_ref(), removed_in.as_ref()).is_none())
+}
+
 impl NamedParam {
     /// Why this parameter cannot be passed on the KCL version governing the
     /// current execution, or `None` if it can. A pre-release version such as
     /// "3.0-preview" counts as the release it precedes.
     pub(crate) fn unavailable_reason(&self, exec_state: &ExecState) -> Option<ParamUnavailable<'_>> {
-        let version = exec_state.kcl_version().as_str();
-        if let Some(added) = &self.added_in
-            && !crate::execution::annotations::version_ge(version, added)
-        {
-            return Some(ParamUnavailable::NotYetAdded(added));
-        }
-        if let Some(removed) = &self.removed_in
-            && crate::execution::annotations::version_ge(version, removed)
-        {
-            return Some(ParamUnavailable::Removed(removed));
-        }
-        None
+        param_unavailable_reason(
+            exec_state.kcl_version(),
+            self.added_in.as_ref(),
+            self.removed_in.as_ref(),
+        )
     }
 
     /// Whether a caller may pass this parameter on the KCL version governing
@@ -414,13 +442,17 @@ impl FunctionSource {
     /// and perform no name resolution of their own. A name that does not
     /// resolve is an error at the declaration, and an experimental type warns
     /// here, once, rather than at every call.
-    pub(crate) fn resolve_signature_types(&mut self, exec_state: &mut ExecState) -> Result<(), KclError> {
+    pub(crate) async fn resolve_signature_types(
+        &mut self,
+        exec_state: &mut ExecState,
+        ctx: &ExecutorContext,
+    ) -> Result<(), KclError> {
         for param in &self.ast.params {
             let Some(ty) = &param.param_type else {
                 continue;
             };
-            let resolved = RuntimeType::from_parsed(ty.inner.clone(), exec_state, ty.as_source_range(), false, false)
-                .map_err(|e| KclError::new_semantic(e.into()))?;
+            let resolved =
+                RuntimeType::from_parsed(ty.inner.clone(), exec_state, ctx, ty.as_source_range(), false, false).await?;
             if param.labeled {
                 if let Some(named) = self.named_args.get_mut(&param.identifier.name) {
                     named.resolved_ty = Some(resolved);
@@ -432,8 +464,15 @@ impl FunctionSource {
 
         if let Some(ret_ty) = &self.return_type {
             self.resolved_return_ty = Some(
-                RuntimeType::from_parsed(ret_ty.inner.clone(), exec_state, ret_ty.as_source_range(), false, false)
-                    .map_err(|e| KclError::new_semantic(e.into()))?,
+                RuntimeType::from_parsed(
+                    ret_ty.inner.clone(),
+                    exec_state,
+                    ctx,
+                    ret_ty.as_source_range(),
+                    false,
+                    false,
+                )
+                .await?,
             );
         }
 
@@ -458,6 +497,19 @@ pub enum TypeDef {
     /// one declaration object, and so that reading the type out of memory,
     /// which clones the `KclValue`, does not copy the variant list.
     Enum(Arc<EnumTypeDef>),
+}
+
+impl TypeDef {
+    /// Converts a stored type definition into the type used for runtime checks.
+    /// Enum definitions reduce to their nominal identity, so callers that need
+    /// constructor metadata must retain the `Enum` definition instead.
+    pub(super) fn into_runtime_type(self) -> RuntimeType {
+        match self {
+            Self::RustRepr(ty, _) => RuntimeType::Primitive(ty),
+            Self::Alias(ty) => ty,
+            Self::Enum(def) => RuntimeType::Enum(def.id().clone()),
+        }
+    }
 }
 
 /// The nominal identity of an enum.
@@ -497,6 +549,8 @@ impl EnumTypeId {
 pub struct EnumTypeDef {
     id: EnumTypeId,
     variants: Vec<String>,
+    // The declaration's annotation must remain available through type aliases.
+    experimental: bool,
 }
 
 /// Two variants of one enum declared under the same name, e.g.
@@ -522,8 +576,11 @@ impl EnumTypeDef {
     /// collapsing duplicates would deny the user a diagnostic naming the variant
     /// they typed twice.
     ///
+    /// `experimental` records the declaration's annotation for variant uses
+    /// reached through type aliases.
+    ///
     /// Reports the earliest repeat when a declaration contains several.
-    pub fn new(id: EnumTypeId, variants: Vec<String>) -> Result<Self, DuplicateVariant> {
+    pub fn new(id: EnumTypeId, variants: Vec<String>, experimental: bool) -> Result<Self, DuplicateVariant> {
         for (duplicate_index, variant) in variants.iter().enumerate() {
             if let Some(first_index) = variants[..duplicate_index].iter().position(|v| v == variant) {
                 return Err(DuplicateVariant {
@@ -534,7 +591,11 @@ impl EnumTypeDef {
             }
         }
 
-        Ok(Self { id, variants })
+        Ok(Self {
+            id,
+            variants,
+            experimental,
+        })
     }
 
     pub fn id(&self) -> &EnumTypeId {
@@ -543,6 +604,10 @@ impl EnumTypeDef {
 
     pub fn variants(&self) -> &[String] {
         &self.variants
+    }
+
+    pub fn is_experimental(&self) -> bool {
+        self.experimental
     }
 
     pub fn has_variant(&self, name: &str) -> bool {
@@ -1539,6 +1604,7 @@ mod tests {
             EnumTypeDef::new(
                 EnumTypeId::new(ModuleId::default(), "Color"),
                 vec!["Red".to_owned(), "Green".to_owned()],
+                false,
             )
             .unwrap(),
         )
@@ -1607,6 +1673,7 @@ mod tests {
         let def = EnumTypeDef::new(
             EnumTypeId::new(ModuleId::default(), "Color"),
             vec!["Red".to_owned(), "Green".to_owned()],
+            false,
         )
         .unwrap();
 
@@ -1620,6 +1687,7 @@ mod tests {
             EnumTypeDef::new(
                 EnumTypeId::new(ModuleId::from_usize(1), "Color"),
                 vec!["Red".to_owned(), "Green".to_owned()],
+                false,
             )
             .unwrap()
             .id()
@@ -1631,6 +1699,7 @@ mod tests {
         let err = EnumTypeDef::new(
             EnumTypeId::new(ModuleId::default(), "Color"),
             vec!["Red".to_owned(), "Green".to_owned(), "Red".to_owned()],
+            false,
         )
         .unwrap_err();
 
@@ -1657,6 +1726,7 @@ mod tests {
                 "Green".to_owned(),
                 "Red".to_owned(),
             ],
+            false,
         )
         .unwrap_err();
 

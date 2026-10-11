@@ -6,24 +6,24 @@ description: Physical properties focusrite-scarlett-mounting-bracket.kcl
   "bounding_box": {
     "center": {
       "x": 0.0,
-      "y": 0.8333333335166699,
+      "y": 0.00000000016666490409988907,
       "z": 22.5
     },
     "dimensions": {
       "x": 178.4,
-      "y": 96.33333333296667,
+      "y": 94.66666666626666,
       "z": 53.0
     },
     "unit": "mm"
   },
   "surface_area": {
     "unit": "mm2",
-    "value": 52675.56096368686
+    "value": 52675.56094004355
   },
   "weight": {
     "material_density": 1000.0,
     "material_density_unit": "kg:m3",
     "unit": "g",
-    "value": 94.97382887957428
+    "value": 94.97383682136966
   }
 }

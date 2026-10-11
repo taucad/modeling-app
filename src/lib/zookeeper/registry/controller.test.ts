@@ -71,7 +71,7 @@ vi.mock('@src/lib/zookeeper/registry/ZookeeperFileRequestProcessor', () => ({
   },
 }))
 
-import type { ZDSProject } from '@src/lang/KclManager'
+import type { ZDSProject } from '@src/lib/projectSession'
 import { BillingTransition } from '@src/lib/billing'
 import type { Project } from '@src/lib/project'
 import {
@@ -250,6 +250,9 @@ function createHarness({
     apiToken,
     billing: { send: billingSend },
     conversationStore,
+    fileOperations: {
+      readFile: vi.fn(async () => new Uint8Array()),
+    },
     kclManager,
     project: projectSignal,
     projectId: initialProjectId,
@@ -396,6 +399,9 @@ describe('Zookeeper session controller', () => {
     expect(controller.queue.value).toHaveLength(0)
     expect(projectFilesMocks.collect).toHaveBeenCalledWith({
       fileNames: kclManager.execState.filenames,
+      fileOperations: expect.objectContaining({
+        readFile: expect.any(Function),
+      }),
       projectContext: project,
       selectedFileContents: kclManager.code,
       selectedFilePath: kclManager.path,
@@ -580,6 +586,22 @@ describe('Zookeeper session controller', () => {
     expect(
       sentEvents(actor, ZookeeperManagerTransitions.CacheSetupAndConnect)
     ).toHaveLength(0)
+  })
+
+  it('starts without a saved conversation when its lookup fails', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const lookup = deferred<string | undefined>()
+    const { actor, controller } = createHarness({
+      actorState: 'ready-await',
+      storeGet: lookup.promise,
+    })
+    lookup.reject(new Error('Cannot read project.toml'))
+    await flushPromises()
+    expect(controller.showManualConnect.value).toBe(false)
+    expect(
+      sentEvents(actor, ZookeeperManagerTransitions.CacheSetupAndConnect)
+    ).toEqual([expect.objectContaining({ conversationId: undefined })])
+    consoleError.mockRestore()
   })
 
   it('does not repeat setup while the actor waits for auth hydration', async () => {

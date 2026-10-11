@@ -134,41 +134,33 @@ description: Variables in memory after executing food-service-spatula.kcl
   },
   "arc2": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "arc2"
   },
   "arc4": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "arc4"
   },
   "arc6": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "arc6"
   },
   "arc8": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "arc8"
   },
   "centerSlotArc2": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "centerSlotArc2"
   },
   "centerSlotArc4": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "centerSlotArc4"
   },
   "centerSlotLine1": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "centerSlotLine1"
   },
   "centerSlotLine3": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "centerSlotLine3"
   },
@@ -958,36 +950,6 @@ description: Variables in memory after executing food-service-spatula.kcl
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
-      "edgeCuts": [
-        {
-          "type": "fillet",
-          "id": "[uuid]",
-          "radius": {
-            "n": 5.0,
-            "ty": {
-              "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
-            }
-          },
-          "edgeId": "[uuid]",
-          "tag": null
-        },
-        {
-          "type": "fillet",
-          "id": "[uuid]",
-          "radius": {
-            "n": 5.0,
-            "ty": {
-              "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
-            }
-          },
-          "edgeId": "[uuid]",
-          "tag": null
-        }
-      ],
       "units": "mm",
       "sectional": false
     }
@@ -1787,8 +1749,10 @@ description: Variables in memory after executing food-service-spatula.kcl
     "value": 5.0,
     "ty": {
       "type": "Default",
-      "len": "mm",
-      "angle": "degrees"
+      "value": {
+        "len": "mm",
+        "angle": "degrees"
+      }
     }
   },
   "flipperRegion": {
@@ -2360,17 +2324,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -70.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 32.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -2378,17 +2346,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -70.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -32.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -2396,17 +2368,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 35.242576935,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -2512,17 +2488,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -55.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 5.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -2530,17 +2510,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -55.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -5.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -2548,17 +2532,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -55.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -2664,17 +2652,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -25.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -5.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -2682,17 +2674,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -25.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 5.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -2700,17 +2696,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -25.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -2816,17 +2816,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -25.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 5.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -2834,17 +2838,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -55.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 5.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -2936,17 +2944,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -55.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -5.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -2954,17 +2966,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -25.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -5.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3056,17 +3072,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -70.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -32.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3074,17 +3094,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -30.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3176,17 +3200,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -30.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3194,17 +3222,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 30.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3296,17 +3328,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 30.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3314,17 +3350,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -70.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 32.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3416,17 +3456,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -55.166574151,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -14.002775465,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3434,17 +3478,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -54.833425849,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -23.997224535,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3452,17 +3500,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -55.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -19.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3568,17 +3620,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -24.833425849,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -22.997224535,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3586,17 +3642,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -25.166574151,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -13.002775465,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3604,17 +3664,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -25.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -18.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3720,17 +3784,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -25.166574151,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -13.002775465,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3738,17 +3806,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -55.166574151,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -14.002775465,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3840,17 +3912,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -54.833425849,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -23.997224535,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3858,17 +3934,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -24.833425849,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -22.997224535,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -4569,17 +4649,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -54.833425849,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 23.997224535,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -4587,17 +4671,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -55.166574151,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 14.002775465,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -4605,17 +4693,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -55.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 19.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -4721,17 +4813,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -25.166574151,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 13.002775465,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -4739,17 +4835,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -24.833425849,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 22.997224535,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -4757,17 +4857,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -25.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 18.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -4873,17 +4977,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -24.833425849,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 22.997224535,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -4891,17 +4999,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -54.833425849,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 23.997224535,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -4993,17 +5105,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -55.166574151,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 14.002775465,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -5011,17 +5127,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -25.166574151,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 13.002775465,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -5107,8 +5227,10 @@ description: Variables in memory after executing food-service-spatula.kcl
     "value": 3.5,
     "ty": {
       "type": "Default",
-      "len": "mm",
-      "angle": "degrees"
+      "value": {
+        "len": "mm",
+        "angle": "degrees"
+      }
     }
   },
   "grip": {
@@ -5125,10 +5247,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 5525,
-            "end": 5530,
+            "commentStart": 5563,
+            "end": 5568,
             "moduleId": 0,
-            "start": 5525,
+            "start": 5563,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -5139,10 +5261,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 5616,
-            "end": 5620,
+            "commentStart": 5654,
+            "end": 5658,
             "moduleId": 0,
-            "start": 5616,
+            "start": 5654,
             "type": "TagDeclarator",
             "value": "arc2"
           },
@@ -5153,10 +5275,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 5743,
-            "end": 5748,
+            "commentStart": 5781,
+            "end": 5786,
             "moduleId": 0,
-            "start": 5743,
+            "start": 5781,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -5167,10 +5289,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 5831,
-            "end": 5835,
+            "commentStart": 5869,
+            "end": 5873,
             "moduleId": 0,
-            "start": 5831,
+            "start": 5869,
             "type": "TagDeclarator",
             "value": "arc4"
           },
@@ -5181,10 +5303,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 5955,
-            "end": 5960,
+            "commentStart": 5993,
+            "end": 5998,
             "moduleId": 0,
-            "start": 5955,
+            "start": 5993,
             "type": "TagDeclarator",
             "value": "line5"
           },
@@ -5195,10 +5317,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 6044,
-            "end": 6048,
+            "commentStart": 6082,
+            "end": 6086,
             "moduleId": 0,
-            "start": 6044,
+            "start": 6082,
             "type": "TagDeclarator",
             "value": "arc6"
           },
@@ -5209,10 +5331,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 6168,
-            "end": 6173,
+            "commentStart": 6206,
+            "end": 6211,
             "moduleId": 0,
-            "start": 6168,
+            "start": 6206,
             "type": "TagDeclarator",
             "value": "line7"
           },
@@ -5223,10 +5345,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 6256,
-            "end": 6260,
+            "commentStart": 6294,
+            "end": 6298,
             "moduleId": 0,
-            "start": 6256,
+            "start": 6294,
             "type": "TagDeclarator",
             "value": "arc8"
           },
@@ -5248,10 +5370,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               -10.0
             ],
             "tag": {
-              "commentStart": 5525,
-              "end": 5530,
+              "commentStart": 5563,
+              "end": 5568,
               "moduleId": 0,
-              "start": 5525,
+              "start": 5563,
               "type": "TagDeclarator",
               "value": "line1"
             },
@@ -5278,10 +5400,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             ],
             "radius": 3.0,
             "tag": {
-              "commentStart": 5616,
-              "end": 5620,
+              "commentStart": 5654,
+              "end": 5658,
               "moduleId": 0,
-              "start": 5616,
+              "start": 5654,
               "type": "TagDeclarator",
               "value": "arc2"
             },
@@ -5302,10 +5424,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               -7.0
             ],
             "tag": {
-              "commentStart": 5743,
-              "end": 5748,
+              "commentStart": 5781,
+              "end": 5786,
               "moduleId": 0,
-              "start": 5743,
+              "start": 5781,
               "type": "TagDeclarator",
               "value": "line3"
             },
@@ -5332,10 +5454,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             ],
             "radius": 3.0,
             "tag": {
-              "commentStart": 5831,
-              "end": 5835,
+              "commentStart": 5869,
+              "end": 5873,
               "moduleId": 0,
-              "start": 5831,
+              "start": 5869,
               "type": "TagDeclarator",
               "value": "arc4"
             },
@@ -5356,10 +5478,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               10.0
             ],
             "tag": {
-              "commentStart": 5955,
-              "end": 5960,
+              "commentStart": 5993,
+              "end": 5998,
               "moduleId": 0,
-              "start": 5955,
+              "start": 5993,
               "type": "TagDeclarator",
               "value": "line5"
             },
@@ -5386,10 +5508,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             ],
             "radius": 3.0,
             "tag": {
-              "commentStart": 6044,
-              "end": 6048,
+              "commentStart": 6082,
+              "end": 6086,
               "moduleId": 0,
-              "start": 6044,
+              "start": 6082,
               "type": "TagDeclarator",
               "value": "arc6"
             },
@@ -5410,10 +5532,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               7.0
             ],
             "tag": {
-              "commentStart": 6168,
-              "end": 6173,
+              "commentStart": 6206,
+              "end": 6211,
               "moduleId": 0,
-              "start": 6168,
+              "start": 6206,
               "type": "TagDeclarator",
               "value": "line7"
             },
@@ -5440,10 +5562,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             ],
             "radius": 3.0,
             "tag": {
-              "commentStart": 6256,
-              "end": 6260,
+              "commentStart": 6294,
+              "end": 6298,
               "moduleId": 0,
-              "start": 6256,
+              "start": 6294,
               "type": "TagDeclarator",
               "value": "arc8"
             },
@@ -5561,10 +5683,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 5525,
-            "end": 5530,
+            "commentStart": 5563,
+            "end": 5568,
             "moduleId": 0,
-            "start": 5525,
+            "start": 5563,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -5575,10 +5697,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 5616,
-            "end": 5620,
+            "commentStart": 5654,
+            "end": 5658,
             "moduleId": 0,
-            "start": 5616,
+            "start": 5654,
             "type": "TagDeclarator",
             "value": "arc2"
           },
@@ -5589,10 +5711,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 5743,
-            "end": 5748,
+            "commentStart": 5781,
+            "end": 5786,
             "moduleId": 0,
-            "start": 5743,
+            "start": 5781,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -5603,10 +5725,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 5831,
-            "end": 5835,
+            "commentStart": 5869,
+            "end": 5873,
             "moduleId": 0,
-            "start": 5831,
+            "start": 5869,
             "type": "TagDeclarator",
             "value": "arc4"
           },
@@ -5617,10 +5739,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 5955,
-            "end": 5960,
+            "commentStart": 5993,
+            "end": 5998,
             "moduleId": 0,
-            "start": 5955,
+            "start": 5993,
             "type": "TagDeclarator",
             "value": "line5"
           },
@@ -5631,10 +5753,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 6044,
-            "end": 6048,
+            "commentStart": 6082,
+            "end": 6086,
             "moduleId": 0,
-            "start": 6044,
+            "start": 6082,
             "type": "TagDeclarator",
             "value": "arc6"
           },
@@ -5645,10 +5767,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 6168,
-            "end": 6173,
+            "commentStart": 6206,
+            "end": 6211,
             "moduleId": 0,
-            "start": 6168,
+            "start": 6206,
             "type": "TagDeclarator",
             "value": "line7"
           },
@@ -5659,10 +5781,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 6256,
-            "end": 6260,
+            "commentStart": 6294,
+            "end": 6298,
             "moduleId": 0,
-            "start": 6256,
+            "start": 6294,
             "type": "TagDeclarator",
             "value": "arc8"
           },
@@ -5684,10 +5806,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               -10.0
             ],
             "tag": {
-              "commentStart": 5525,
-              "end": 5530,
+              "commentStart": 5563,
+              "end": 5568,
               "moduleId": 0,
-              "start": 5525,
+              "start": 5563,
               "type": "TagDeclarator",
               "value": "line1"
             },
@@ -5714,10 +5836,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             ],
             "radius": 3.0,
             "tag": {
-              "commentStart": 5616,
-              "end": 5620,
+              "commentStart": 5654,
+              "end": 5658,
               "moduleId": 0,
-              "start": 5616,
+              "start": 5654,
               "type": "TagDeclarator",
               "value": "arc2"
             },
@@ -5738,10 +5860,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               -7.0
             ],
             "tag": {
-              "commentStart": 5743,
-              "end": 5748,
+              "commentStart": 5781,
+              "end": 5786,
               "moduleId": 0,
-              "start": 5743,
+              "start": 5781,
               "type": "TagDeclarator",
               "value": "line3"
             },
@@ -5768,10 +5890,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             ],
             "radius": 3.0,
             "tag": {
-              "commentStart": 5831,
-              "end": 5835,
+              "commentStart": 5869,
+              "end": 5873,
               "moduleId": 0,
-              "start": 5831,
+              "start": 5869,
               "type": "TagDeclarator",
               "value": "arc4"
             },
@@ -5792,10 +5914,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               10.0
             ],
             "tag": {
-              "commentStart": 5955,
-              "end": 5960,
+              "commentStart": 5993,
+              "end": 5998,
               "moduleId": 0,
-              "start": 5955,
+              "start": 5993,
               "type": "TagDeclarator",
               "value": "line5"
             },
@@ -5822,10 +5944,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             ],
             "radius": 3.0,
             "tag": {
-              "commentStart": 6044,
-              "end": 6048,
+              "commentStart": 6082,
+              "end": 6086,
               "moduleId": 0,
-              "start": 6044,
+              "start": 6082,
               "type": "TagDeclarator",
               "value": "arc6"
             },
@@ -5846,10 +5968,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               7.0
             ],
             "tag": {
-              "commentStart": 6168,
-              "end": 6173,
+              "commentStart": 6206,
+              "end": 6211,
               "moduleId": 0,
-              "start": 6168,
+              "start": 6206,
               "type": "TagDeclarator",
               "value": "line7"
             },
@@ -5876,10 +5998,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             ],
             "radius": 3.0,
             "tag": {
-              "commentStart": 6256,
-              "end": 6260,
+              "commentStart": 6294,
+              "end": 6298,
               "moduleId": 0,
-              "start": 6256,
+              "start": 6294,
               "type": "TagDeclarator",
               "value": "arc8"
             },
@@ -5988,8 +6110,10 @@ description: Variables in memory after executing food-service-spatula.kcl
     "value": 3.0,
     "ty": {
       "type": "Default",
-      "len": "mm",
-      "angle": "degrees"
+      "value": {
+        "len": "mm",
+        "angle": "degrees"
+      }
     }
   },
   "gripHole": {
@@ -6006,10 +6130,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7012,
-            "end": 7017,
+            "commentStart": 7050,
+            "end": 7055,
             "moduleId": 0,
-            "start": 7012,
+            "start": 7050,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -6020,10 +6144,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7083,
-            "end": 7087,
+            "commentStart": 7121,
+            "end": 7125,
             "moduleId": 0,
-            "start": 7083,
+            "start": 7121,
             "type": "TagDeclarator",
             "value": "arc2"
           },
@@ -6034,10 +6158,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7186,
-            "end": 7191,
+            "commentStart": 7224,
+            "end": 7229,
             "moduleId": 0,
-            "start": 7186,
+            "start": 7224,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -6048,10 +6172,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7259,
-            "end": 7263,
+            "commentStart": 7297,
+            "end": 7301,
             "moduleId": 0,
-            "start": 7259,
+            "start": 7297,
             "type": "TagDeclarator",
             "value": "arc4"
           },
@@ -6073,10 +6197,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               4.0
             ],
             "tag": {
-              "commentStart": 7012,
-              "end": 7017,
+              "commentStart": 7050,
+              "end": 7055,
               "moduleId": 0,
-              "start": 7012,
+              "start": 7050,
               "type": "TagDeclarator",
               "value": "line1"
             },
@@ -6103,10 +6227,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             ],
             "radius": 4.0,
             "tag": {
-              "commentStart": 7083,
-              "end": 7087,
+              "commentStart": 7121,
+              "end": 7125,
               "moduleId": 0,
-              "start": 7083,
+              "start": 7121,
               "type": "TagDeclarator",
               "value": "arc2"
             },
@@ -6127,10 +6251,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               -4.0
             ],
             "tag": {
-              "commentStart": 7186,
-              "end": 7191,
+              "commentStart": 7224,
+              "end": 7229,
               "moduleId": 0,
-              "start": 7186,
+              "start": 7224,
               "type": "TagDeclarator",
               "value": "line3"
             },
@@ -6157,10 +6281,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             ],
             "radius": 4.0,
             "tag": {
-              "commentStart": 7259,
-              "end": 7263,
+              "commentStart": 7297,
+              "end": 7301,
               "moduleId": 0,
-              "start": 7259,
+              "start": 7297,
               "type": "TagDeclarator",
               "value": "arc4"
             },
@@ -6259,8 +6383,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 190.56114818,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           },
           {
@@ -6268,8 +6394,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 0.0,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           },
           {
@@ -6277,8 +6405,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 90.43648769,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           }
         ]
@@ -6291,8 +6421,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 0.939692712639,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           },
           {
@@ -6300,8 +6432,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 0.0,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           },
           {
@@ -6309,8 +6443,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 0.342019890961,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           }
         ]
@@ -6323,8 +6459,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 0.0,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           },
           {
@@ -6332,8 +6470,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 1.0,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           },
           {
@@ -6341,8 +6481,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 0.0,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           }
         ]
@@ -6355,8 +6497,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": -0.342019890961,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           },
           {
@@ -6364,8 +6508,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 0.0,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           },
           {
@@ -6373,8 +6519,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 0.939692712639,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           }
         ]
@@ -6399,17 +6547,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -10.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 4.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6417,17 +6569,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -10.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -4.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6435,17 +6591,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -10.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6551,17 +6711,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -4.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6569,17 +6733,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 4.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6587,17 +6755,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6703,17 +6875,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 4.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6721,17 +6897,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -10.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 4.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6823,17 +7003,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -10.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -4.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6841,17 +7025,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -4.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6948,10 +7136,10 @@ description: Variables in memory after executing food-service-spatula.kcl
                     4.0
                   ],
                   "tag": {
-                    "commentStart": 7012,
-                    "end": 7017,
+                    "commentStart": 7050,
+                    "end": 7055,
                     "moduleId": 0,
-                    "start": 7012,
+                    "start": 7050,
                     "type": "TagDeclarator",
                     "value": "line1"
                   },
@@ -6978,10 +7166,10 @@ description: Variables in memory after executing food-service-spatula.kcl
                   ],
                   "radius": 4.0,
                   "tag": {
-                    "commentStart": 7083,
-                    "end": 7087,
+                    "commentStart": 7121,
+                    "end": 7125,
                     "moduleId": 0,
-                    "start": 7083,
+                    "start": 7121,
                     "type": "TagDeclarator",
                     "value": "arc2"
                   },
@@ -7002,10 +7190,10 @@ description: Variables in memory after executing food-service-spatula.kcl
                     -4.0
                   ],
                   "tag": {
-                    "commentStart": 7186,
-                    "end": 7191,
+                    "commentStart": 7224,
+                    "end": 7229,
                     "moduleId": 0,
-                    "start": 7186,
+                    "start": 7224,
                     "type": "TagDeclarator",
                     "value": "line3"
                   },
@@ -7032,10 +7220,10 @@ description: Variables in memory after executing food-service-spatula.kcl
                   ],
                   "radius": 4.0,
                   "tag": {
-                    "commentStart": 7259,
-                    "end": 7263,
+                    "commentStart": 7297,
+                    "end": 7301,
                     "moduleId": 0,
-                    "start": 7259,
+                    "start": 7297,
                     "type": "TagDeclarator",
                     "value": "arc4"
                   },
@@ -7129,8 +7317,10 @@ description: Variables in memory after executing food-service-spatula.kcl
     "value": 150.0,
     "ty": {
       "type": "Default",
-      "len": "mm",
-      "angle": "degrees"
+      "value": {
+        "len": "mm",
+        "angle": "degrees"
+      }
     }
   },
   "gripSketch": {
@@ -7150,17 +7340,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -22.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -10.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7168,17 +7362,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -19.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -7.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7186,17 +7384,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -22.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -7.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7302,17 +7504,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -19.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 7.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7320,17 +7526,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -22.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 10.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7338,17 +7548,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -22.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 7.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7454,17 +7668,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -26.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 10.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7472,17 +7690,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -29.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 7.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7490,17 +7712,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -26.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 7.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7606,17 +7832,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -29.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -7.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7624,17 +7854,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -26.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -10.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7642,17 +7876,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -26.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -7.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7758,17 +7996,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -26.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -10.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7776,17 +8018,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -22.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -10.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7878,17 +8124,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -19.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -7.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7896,17 +8146,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -19.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 7.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7998,17 +8252,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -22.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 10.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -8016,17 +8274,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -26.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 10.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -8118,17 +8380,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -29.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 7.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -8136,17 +8402,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -29.806746,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -7.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -8243,10 +8513,10 @@ description: Variables in memory after executing food-service-spatula.kcl
                     -10.0
                   ],
                   "tag": {
-                    "commentStart": 5525,
-                    "end": 5530,
+                    "commentStart": 5563,
+                    "end": 5568,
                     "moduleId": 0,
-                    "start": 5525,
+                    "start": 5563,
                     "type": "TagDeclarator",
                     "value": "line1"
                   },
@@ -8273,10 +8543,10 @@ description: Variables in memory after executing food-service-spatula.kcl
                   ],
                   "radius": 3.0,
                   "tag": {
-                    "commentStart": 5616,
-                    "end": 5620,
+                    "commentStart": 5654,
+                    "end": 5658,
                     "moduleId": 0,
-                    "start": 5616,
+                    "start": 5654,
                     "type": "TagDeclarator",
                     "value": "arc2"
                   },
@@ -8297,10 +8567,10 @@ description: Variables in memory after executing food-service-spatula.kcl
                     -7.0
                   ],
                   "tag": {
-                    "commentStart": 5743,
-                    "end": 5748,
+                    "commentStart": 5781,
+                    "end": 5786,
                     "moduleId": 0,
-                    "start": 5743,
+                    "start": 5781,
                     "type": "TagDeclarator",
                     "value": "line3"
                   },
@@ -8327,10 +8597,10 @@ description: Variables in memory after executing food-service-spatula.kcl
                   ],
                   "radius": 3.0,
                   "tag": {
-                    "commentStart": 5831,
-                    "end": 5835,
+                    "commentStart": 5869,
+                    "end": 5873,
                     "moduleId": 0,
-                    "start": 5831,
+                    "start": 5869,
                     "type": "TagDeclarator",
                     "value": "arc4"
                   },
@@ -8351,10 +8621,10 @@ description: Variables in memory after executing food-service-spatula.kcl
                     10.0
                   ],
                   "tag": {
-                    "commentStart": 5955,
-                    "end": 5960,
+                    "commentStart": 5993,
+                    "end": 5998,
                     "moduleId": 0,
-                    "start": 5955,
+                    "start": 5993,
                     "type": "TagDeclarator",
                     "value": "line5"
                   },
@@ -8381,10 +8651,10 @@ description: Variables in memory after executing food-service-spatula.kcl
                   ],
                   "radius": 3.0,
                   "tag": {
-                    "commentStart": 6044,
-                    "end": 6048,
+                    "commentStart": 6082,
+                    "end": 6086,
                     "moduleId": 0,
-                    "start": 6044,
+                    "start": 6082,
                     "type": "TagDeclarator",
                     "value": "arc6"
                   },
@@ -8405,10 +8675,10 @@ description: Variables in memory after executing food-service-spatula.kcl
                     7.0
                   ],
                   "tag": {
-                    "commentStart": 6168,
-                    "end": 6173,
+                    "commentStart": 6206,
+                    "end": 6211,
                     "moduleId": 0,
-                    "start": 6168,
+                    "start": 6206,
                     "type": "TagDeclarator",
                     "value": "line7"
                   },
@@ -8435,10 +8705,10 @@ description: Variables in memory after executing food-service-spatula.kcl
                   ],
                   "radius": 3.0,
                   "tag": {
-                    "commentStart": 6256,
-                    "end": 6260,
+                    "commentStart": 6294,
+                    "end": 6298,
                     "moduleId": 0,
-                    "start": 6256,
+                    "start": 6294,
                     "type": "TagDeclarator",
                     "value": "arc8"
                   },
@@ -8548,8 +8818,10 @@ description: Variables in memory after executing food-service-spatula.kcl
     "value": 8.0,
     "ty": {
       "type": "Default",
-      "len": "mm",
-      "angle": "degrees"
+      "value": {
+        "len": "mm",
+        "angle": "degrees"
+      }
     }
   },
   "handle": {
@@ -8566,10 +8838,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 4117,
-            "end": 4122,
+            "commentStart": 4136,
+            "end": 4141,
             "moduleId": 0,
-            "start": 4117,
+            "start": 4136,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -8580,10 +8852,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 4204,
-            "end": 4209,
+            "commentStart": 4223,
+            "end": 4228,
             "moduleId": 0,
-            "start": 4204,
+            "start": 4223,
             "type": "TagDeclarator",
             "value": "line2"
           },
@@ -8594,10 +8866,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 4306,
-            "end": 4311,
+            "commentStart": 4325,
+            "end": 4330,
             "moduleId": 0,
-            "start": 4306,
+            "start": 4325,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -8608,10 +8880,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 4409,
-            "end": 4414,
+            "commentStart": 4428,
+            "end": 4433,
             "moduleId": 0,
-            "start": 4409,
+            "start": 4428,
             "type": "TagDeclarator",
             "value": "line4"
           },
@@ -8622,10 +8894,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 4510,
-            "end": 4515,
+            "commentStart": 4529,
+            "end": 4534,
             "moduleId": 0,
-            "start": 4510,
+            "start": 4529,
             "type": "TagDeclarator",
             "value": "line5"
           },
@@ -8636,10 +8908,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 4609,
-            "end": 4614,
+            "commentStart": 4628,
+            "end": 4633,
             "moduleId": 0,
-            "start": 4609,
+            "start": 4628,
             "type": "TagDeclarator",
             "value": "line6"
           },
@@ -8661,10 +8933,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               3.5
             ],
             "tag": {
-              "commentStart": 4117,
-              "end": 4122,
+              "commentStart": 4136,
+              "end": 4141,
               "moduleId": 0,
-              "start": 4117,
+              "start": 4136,
               "type": "TagDeclarator",
               "value": "line1"
             },
@@ -8685,10 +8957,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               35.319805
             ],
             "tag": {
-              "commentStart": 4204,
-              "end": 4209,
+              "commentStart": 4223,
+              "end": 4228,
               "moduleId": 0,
-              "start": 4204,
+              "start": 4223,
               "type": "TagDeclarator",
               "value": "line2"
             },
@@ -8709,10 +8981,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               86.622826
             ],
             "tag": {
-              "commentStart": 4306,
-              "end": 4311,
+              "commentStart": 4325,
+              "end": 4330,
               "moduleId": 0,
-              "start": 4306,
+              "start": 4325,
               "type": "TagDeclarator",
               "value": "line3"
             },
@@ -8733,10 +9005,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               91.321289
             ],
             "tag": {
-              "commentStart": 4409,
-              "end": 4414,
+              "commentStart": 4428,
+              "end": 4433,
               "moduleId": 0,
-              "start": 4409,
+              "start": 4428,
               "type": "TagDeclarator",
               "value": "line4"
             },
@@ -8757,10 +9029,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               39.639147
             ],
             "tag": {
-              "commentStart": 4510,
-              "end": 4515,
+              "commentStart": 4529,
+              "end": 4534,
               "moduleId": 0,
-              "start": 4510,
+              "start": 4529,
               "type": "TagDeclarator",
               "value": "line5"
             },
@@ -8781,10 +9053,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               3.499999
             ],
             "tag": {
-              "commentStart": 4609,
-              "end": 4614,
+              "commentStart": 4628,
+              "end": 4633,
               "moduleId": 0,
-              "start": 4609,
+              "start": 4628,
               "type": "TagDeclarator",
               "value": "line6"
             },
@@ -8876,36 +9148,6 @@ description: Variables in memory after executing food-service-spatula.kcl
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
-      "edgeCuts": [
-        {
-          "type": "fillet",
-          "id": "[uuid]",
-          "radius": {
-            "n": 4.0,
-            "ty": {
-              "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
-            }
-          },
-          "edgeId": "[uuid]",
-          "tag": null
-        },
-        {
-          "type": "fillet",
-          "id": "[uuid]",
-          "radius": {
-            "n": 4.0,
-            "ty": {
-              "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
-            }
-          },
-          "edgeId": "[uuid]",
-          "tag": null
-        }
-      ],
       "units": "mm",
       "sectional": false
     }
@@ -8924,10 +9166,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 4117,
-            "end": 4122,
+            "commentStart": 4136,
+            "end": 4141,
             "moduleId": 0,
-            "start": 4117,
+            "start": 4136,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -8938,10 +9180,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 4204,
-            "end": 4209,
+            "commentStart": 4223,
+            "end": 4228,
             "moduleId": 0,
-            "start": 4204,
+            "start": 4223,
             "type": "TagDeclarator",
             "value": "line2"
           },
@@ -8952,10 +9194,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 4306,
-            "end": 4311,
+            "commentStart": 4325,
+            "end": 4330,
             "moduleId": 0,
-            "start": 4306,
+            "start": 4325,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -8966,10 +9208,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 4409,
-            "end": 4414,
+            "commentStart": 4428,
+            "end": 4433,
             "moduleId": 0,
-            "start": 4409,
+            "start": 4428,
             "type": "TagDeclarator",
             "value": "line4"
           },
@@ -8980,10 +9222,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 4510,
-            "end": 4515,
+            "commentStart": 4529,
+            "end": 4534,
             "moduleId": 0,
-            "start": 4510,
+            "start": 4529,
             "type": "TagDeclarator",
             "value": "line5"
           },
@@ -8994,10 +9236,10 @@ description: Variables in memory after executing food-service-spatula.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 4609,
-            "end": 4614,
+            "commentStart": 4628,
+            "end": 4633,
             "moduleId": 0,
-            "start": 4609,
+            "start": 4628,
             "type": "TagDeclarator",
             "value": "line6"
           },
@@ -9019,10 +9261,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               3.5
             ],
             "tag": {
-              "commentStart": 4117,
-              "end": 4122,
+              "commentStart": 4136,
+              "end": 4141,
               "moduleId": 0,
-              "start": 4117,
+              "start": 4136,
               "type": "TagDeclarator",
               "value": "line1"
             },
@@ -9043,10 +9285,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               35.319805
             ],
             "tag": {
-              "commentStart": 4204,
-              "end": 4209,
+              "commentStart": 4223,
+              "end": 4228,
               "moduleId": 0,
-              "start": 4204,
+              "start": 4223,
               "type": "TagDeclarator",
               "value": "line2"
             },
@@ -9067,10 +9309,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               86.622826
             ],
             "tag": {
-              "commentStart": 4306,
-              "end": 4311,
+              "commentStart": 4325,
+              "end": 4330,
               "moduleId": 0,
-              "start": 4306,
+              "start": 4325,
               "type": "TagDeclarator",
               "value": "line3"
             },
@@ -9091,10 +9333,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               91.321289
             ],
             "tag": {
-              "commentStart": 4409,
-              "end": 4414,
+              "commentStart": 4428,
+              "end": 4433,
               "moduleId": 0,
-              "start": 4409,
+              "start": 4428,
               "type": "TagDeclarator",
               "value": "line4"
             },
@@ -9115,10 +9357,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               39.639147
             ],
             "tag": {
-              "commentStart": 4510,
-              "end": 4515,
+              "commentStart": 4529,
+              "end": 4534,
               "moduleId": 0,
-              "start": 4510,
+              "start": 4529,
               "type": "TagDeclarator",
               "value": "line5"
             },
@@ -9139,10 +9381,10 @@ description: Variables in memory after executing food-service-spatula.kcl
               3.499999
             ],
             "tag": {
-              "commentStart": 4609,
-              "end": 4614,
+              "commentStart": 4628,
+              "end": 4633,
               "moduleId": 0,
-              "start": 4609,
+              "start": 4628,
               "type": "TagDeclarator",
               "value": "line6"
             },
@@ -9249,8 +9491,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 208.593833,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           },
           {
@@ -9258,8 +9502,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 0.0,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           },
           {
@@ -9267,8 +9513,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 75.921946,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           }
         ]
@@ -9281,8 +9529,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 0.34202,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           },
           {
@@ -9290,8 +9540,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": -0.0,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           },
           {
@@ -9299,8 +9551,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": -0.939693,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           }
         ]
@@ -9313,8 +9567,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 0.0,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           },
           {
@@ -9322,8 +9578,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 1.0,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           },
           {
@@ -9331,8 +9589,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 0.0,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           }
         ]
@@ -9345,8 +9605,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 0.939693,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           },
           {
@@ -9354,8 +9616,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": -0.0,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           },
           {
@@ -9363,8 +9627,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             "value": 0.34202,
             "ty": {
               "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
+              "value": {
+                "len": "mm",
+                "angle": "degrees"
+              }
             }
           }
         ]
@@ -9388,10 +9654,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             3.5
           ],
           "tag": {
-            "commentStart": 4117,
-            "end": 4122,
+            "commentStart": 4136,
+            "end": 4141,
             "moduleId": 0,
-            "start": 4117,
+            "start": 4136,
             "type": "TagDeclarator",
             "value": "line1"
           },
@@ -9412,10 +9678,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             35.319805
           ],
           "tag": {
-            "commentStart": 4204,
-            "end": 4209,
+            "commentStart": 4223,
+            "end": 4228,
             "moduleId": 0,
-            "start": 4204,
+            "start": 4223,
             "type": "TagDeclarator",
             "value": "line2"
           },
@@ -9436,10 +9702,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             86.622826
           ],
           "tag": {
-            "commentStart": 4306,
-            "end": 4311,
+            "commentStart": 4325,
+            "end": 4330,
             "moduleId": 0,
-            "start": 4306,
+            "start": 4325,
             "type": "TagDeclarator",
             "value": "line3"
           },
@@ -9460,10 +9726,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             91.321289
           ],
           "tag": {
-            "commentStart": 4409,
-            "end": 4414,
+            "commentStart": 4428,
+            "end": 4433,
             "moduleId": 0,
-            "start": 4409,
+            "start": 4428,
             "type": "TagDeclarator",
             "value": "line4"
           },
@@ -9484,10 +9750,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             39.639147
           ],
           "tag": {
-            "commentStart": 4510,
-            "end": 4515,
+            "commentStart": 4529,
+            "end": 4534,
             "moduleId": 0,
-            "start": 4510,
+            "start": 4529,
             "type": "TagDeclarator",
             "value": "line5"
           },
@@ -9508,10 +9774,10 @@ description: Variables in memory after executing food-service-spatula.kcl
             3.499999
           ],
           "tag": {
-            "commentStart": 4609,
-            "end": 4614,
+            "commentStart": 4628,
+            "end": 4633,
             "moduleId": 0,
-            "start": 4609,
+            "start": 4628,
             "type": "TagDeclarator",
             "value": "line6"
           },
@@ -9619,17 +9885,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 3.5,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -9637,17 +9907,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 31.819805,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 35.319805,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -9739,17 +10013,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 31.819805,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 35.319805,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -9757,17 +10035,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 172.773698,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 86.622826,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -9859,17 +10141,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 172.773698,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 86.622826,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -9877,17 +10163,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 171.063597,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 91.321289,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -9979,17 +10269,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 171.063597,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 91.321289,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -9997,17 +10291,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 29.06808,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 39.639147,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -10099,17 +10397,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 29.06808,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 39.639147,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -10117,17 +10419,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -7.071068,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 3.499999,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -10219,17 +10525,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": -7.071068,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 3.499999,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -10237,17 +10547,21 @@ description: Variables in memory after executing food-service-spatula.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 3.5,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -10344,10 +10658,10 @@ description: Variables in memory after executing food-service-spatula.kcl
                     3.5
                   ],
                   "tag": {
-                    "commentStart": 4117,
-                    "end": 4122,
+                    "commentStart": 4136,
+                    "end": 4141,
                     "moduleId": 0,
-                    "start": 4117,
+                    "start": 4136,
                     "type": "TagDeclarator",
                     "value": "line1"
                   },
@@ -10368,10 +10682,10 @@ description: Variables in memory after executing food-service-spatula.kcl
                     35.319805
                   ],
                   "tag": {
-                    "commentStart": 4204,
-                    "end": 4209,
+                    "commentStart": 4223,
+                    "end": 4228,
                     "moduleId": 0,
-                    "start": 4204,
+                    "start": 4223,
                     "type": "TagDeclarator",
                     "value": "line2"
                   },
@@ -10392,10 +10706,10 @@ description: Variables in memory after executing food-service-spatula.kcl
                     86.622826
                   ],
                   "tag": {
-                    "commentStart": 4306,
-                    "end": 4311,
+                    "commentStart": 4325,
+                    "end": 4330,
                     "moduleId": 0,
-                    "start": 4306,
+                    "start": 4325,
                     "type": "TagDeclarator",
                     "value": "line3"
                   },
@@ -10416,10 +10730,10 @@ description: Variables in memory after executing food-service-spatula.kcl
                     91.321289
                   ],
                   "tag": {
-                    "commentStart": 4409,
-                    "end": 4414,
+                    "commentStart": 4428,
+                    "end": 4433,
                     "moduleId": 0,
-                    "start": 4409,
+                    "start": 4428,
                     "type": "TagDeclarator",
                     "value": "line4"
                   },
@@ -10440,10 +10754,10 @@ description: Variables in memory after executing food-service-spatula.kcl
                     39.639147
                   ],
                   "tag": {
-                    "commentStart": 4510,
-                    "end": 4515,
+                    "commentStart": 4529,
+                    "end": 4534,
                     "moduleId": 0,
-                    "start": 4510,
+                    "start": 4529,
                     "type": "TagDeclarator",
                     "value": "line5"
                   },
@@ -10464,10 +10778,10 @@ description: Variables in memory after executing food-service-spatula.kcl
                     3.499999
                   ],
                   "tag": {
-                    "commentStart": 4609,
-                    "end": 4614,
+                    "commentStart": 4628,
+                    "end": 4633,
                     "moduleId": 0,
-                    "start": 4609,
+                    "start": 4628,
                     "type": "TagDeclarator",
                     "value": "line6"
                   },
@@ -10569,82 +10883,69 @@ description: Variables in memory after executing food-service-spatula.kcl
     "value": 15.0,
     "ty": {
       "type": "Default",
-      "len": "mm",
-      "angle": "degrees"
+      "value": {
+        "len": "mm",
+        "angle": "degrees"
+      }
     }
   },
   "line1": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "line1"
   },
   "line2": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "line2"
   },
   "line3": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "line3"
   },
   "line4": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "line4"
   },
   "line5": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "line5"
   },
   "line6": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "line6"
   },
   "line7": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "line7"
   },
   "lowerSlotArc2": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "lowerSlotArc2"
   },
   "lowerSlotArc4": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "lowerSlotArc4"
   },
   "lowerSlotLine1": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "lowerSlotLine1"
   },
   "lowerSlotLine3": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "lowerSlotLine3"
   },
   "upperSlotArc2": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "upperSlotArc2"
   },
   "upperSlotArc4": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "upperSlotArc4"
   },
   "upperSlotLine1": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "upperSlotLine1"
   },
   "upperSlotLine3": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "upperSlotLine3"
   }

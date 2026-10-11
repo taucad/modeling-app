@@ -348,11 +348,9 @@ description: Variables in memory after executing surgical-drill-guide.kcl
   },
   "backFace": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "backFace"
   },
   "base": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "base"
   },
@@ -361,8 +359,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": 7.5,
     "ty": {
       "type": "Default",
-      "len": "mm",
-      "angle": "degrees"
+      "value": {
+        "len": "mm",
+        "angle": "degrees"
+      }
     }
   },
   "bitClearance01": {
@@ -379,10 +379,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 6920,
-            "end": 6927,
+            "commentStart": 6940,
+            "end": 6947,
             "moduleId": 0,
-            "start": 6920,
+            "start": 6940,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -410,10 +410,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 1.0,
             "tag": {
-              "commentStart": 6920,
-              "end": 6927,
+              "commentStart": 6940,
+              "end": 6947,
               "moduleId": 0,
-              "start": 6920,
+              "start": 6940,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -508,10 +508,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 1.0,
           "tag": {
-            "commentStart": 6920,
-            "end": 6927,
+            "commentStart": 6940,
+            "end": 6947,
             "moduleId": 0,
-            "start": 6920,
+            "start": 6940,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -596,17 +596,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -0.000000000453810584430569,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -614,17 +618,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.151270188314314,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -714,17 +722,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 1.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.151270187860504,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -732,17 +744,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.15127018801177,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -842,10 +858,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 1.0,
                   "tag": {
-                    "commentStart": 6920,
-                    "end": 6927,
+                    "commentStart": 6940,
+                    "end": 6947,
                     "moduleId": 0,
-                    "start": 6920,
+                    "start": 6940,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -933,10 +949,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 11224,
-            "end": 11231,
+            "commentStart": 11309,
+            "end": 11316,
             "moduleId": 0,
-            "start": 11224,
+            "start": 11309,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -964,10 +980,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 1.6000000004000001,
             "tag": {
-              "commentStart": 11224,
-              "end": 11231,
+              "commentStart": 11309,
+              "end": 11316,
               "moduleId": 0,
-              "start": 11224,
+              "start": 11309,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -1062,10 +1078,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 1.6000000004000001,
           "tag": {
-            "commentStart": 11224,
-            "end": 11231,
+            "commentStart": 11309,
+            "end": 11316,
             "moduleId": 0,
-            "start": 11224,
+            "start": 11309,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -1150,17 +1166,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.0000000004000000294961478,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -1168,17 +1188,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.0000000008000000593922957,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -1268,17 +1292,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 1.6000000016000002,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -1286,17 +1314,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.0000000012000000900884438,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -1396,10 +1428,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 1.6000000004000001,
                   "tag": {
-                    "commentStart": 11224,
-                    "end": 11231,
+                    "commentStart": 11309,
+                    "end": 11316,
                     "moduleId": 0,
-                    "start": 11224,
+                    "start": 11309,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -1487,10 +1519,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3677,
-            "end": 3684,
+            "commentStart": 3683,
+            "end": 3690,
             "moduleId": 0,
-            "start": 3677,
+            "start": 3683,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -1518,10 +1550,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 15.789473684421054,
             "tag": {
-              "commentStart": 3677,
-              "end": 3684,
+              "commentStart": 3683,
+              "end": 3690,
               "moduleId": 0,
-              "start": 3677,
+              "start": 3683,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -1619,10 +1651,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 15.789473684421054,
           "tag": {
-            "commentStart": 3677,
-            "end": 3684,
+            "commentStart": 3683,
+            "end": 3690,
             "moduleId": 0,
-            "start": 3677,
+            "start": 3683,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -1710,17 +1742,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.00000000021052631670556442,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -0.000000000453810584430569,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -1728,17 +1764,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.00000000042105263362165526,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.151270188314314,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -1831,17 +1871,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 15.789473685052632,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.151270187860504,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -1849,17 +1893,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.0000000006315789509587988,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.15127018801177,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -1962,10 +2010,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 15.789473684421054,
                   "tag": {
-                    "commentStart": 3677,
-                    "end": 3684,
+                    "commentStart": 3683,
+                    "end": 3690,
                     "moduleId": 0,
-                    "start": 3677,
+                    "start": 3683,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -2056,10 +2104,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 4414,
-            "end": 4421,
+            "commentStart": 4420,
+            "end": 4427,
             "moduleId": 0,
-            "start": 4414,
+            "start": 4420,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -2087,10 +2135,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 15.789473684421054,
             "tag": {
-              "commentStart": 4414,
-              "end": 4421,
+              "commentStart": 4420,
+              "end": 4427,
               "moduleId": 0,
-              "start": 4414,
+              "start": 4420,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -2188,10 +2236,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 15.789473684421054,
           "tag": {
-            "commentStart": 4414,
-            "end": 4421,
+            "commentStart": 4420,
+            "end": 4427,
             "moduleId": 0,
-            "start": 4414,
+            "start": 4420,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -2279,17 +2327,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.00000000021052631670556442,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -2297,17 +2349,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.00000000042105263362165526,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -2400,17 +2456,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 15.789473685052632,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -2418,17 +2478,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.0000000006315789509587988,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -2531,10 +2595,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 15.789473684421054,
                   "tag": {
-                    "commentStart": 4414,
-                    "end": 4421,
+                    "commentStart": 4420,
+                    "end": 4427,
                     "moduleId": 0,
-                    "start": 4414,
+                    "start": 4420,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -2616,8 +2680,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": 15.789473684210527,
     "ty": {
       "type": "Default",
-      "len": "mm",
-      "angle": "degrees"
+      "value": {
+        "len": "mm",
+        "angle": "degrees"
+      }
     }
   },
   "bitLength": {
@@ -2625,8 +2691,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": 45.0,
     "ty": {
       "type": "Default",
-      "len": "mm",
-      "angle": "degrees"
+      "value": {
+        "len": "mm",
+        "angle": "degrees"
+      }
     }
   },
   "bitSize01": {
@@ -2634,8 +2702,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": 2.0,
     "ty": {
       "type": "Default",
-      "len": "mm",
-      "angle": "degrees"
+      "value": {
+        "len": "mm",
+        "angle": "degrees"
+      }
     }
   },
   "bitSize02": {
@@ -2643,8 +2713,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": 3.2,
     "ty": {
       "type": "Default",
-      "len": "mm",
-      "angle": "degrees"
+      "value": {
+        "len": "mm",
+        "angle": "degrees"
+      }
     }
   },
   "bitSupport01": {
@@ -2661,10 +2733,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 5245,
-            "end": 5252,
+            "commentStart": 5251,
+            "end": 5258,
             "moduleId": 0,
-            "start": 5245,
+            "start": 5251,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -2692,10 +2764,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 15.789473684421054,
             "tag": {
-              "commentStart": 5245,
-              "end": 5252,
+              "commentStart": 5251,
+              "end": 5258,
               "moduleId": 0,
-              "start": 5245,
+              "start": 5251,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -2793,10 +2865,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 15.789473684421054,
           "tag": {
-            "commentStart": 5245,
-            "end": 5252,
+            "commentStart": 5251,
+            "end": 5258,
             "moduleId": 0,
-            "start": 5245,
+            "start": 5251,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -2884,17 +2956,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.00000000021052631670556442,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -0.000000000453810584430569,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -2902,17 +2978,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.00000000042105263362165526,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.151270188314314,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3005,17 +3085,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 15.789473685052632,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.151270187860504,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3023,17 +3107,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.0000000006315789509587988,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.15127018801177,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3136,10 +3224,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 15.789473684421054,
                   "tag": {
-                    "commentStart": 5245,
-                    "end": 5252,
+                    "commentStart": 5251,
+                    "end": 5258,
                     "moduleId": 0,
-                    "start": 5245,
+                    "start": 5251,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -3230,10 +3318,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 9560,
-            "end": 9567,
+            "commentStart": 9631,
+            "end": 9638,
             "moduleId": 0,
-            "start": 9560,
+            "start": 9631,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -3261,10 +3349,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 15.789473684421054,
             "tag": {
-              "commentStart": 9560,
-              "end": 9567,
+              "commentStart": 9631,
+              "end": 9638,
               "moduleId": 0,
-              "start": 9560,
+              "start": 9631,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -3362,10 +3450,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 15.789473684421054,
           "tag": {
-            "commentStart": 9560,
-            "end": 9567,
+            "commentStart": 9631,
+            "end": 9638,
             "moduleId": 0,
-            "start": 9560,
+            "start": 9631,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -3453,17 +3541,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.00000000021052631670556442,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3471,17 +3563,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.00000000042105263362165526,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3574,17 +3670,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 15.789473685052632,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3592,17 +3692,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.0000000006315789509587988,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -3705,10 +3809,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 15.789473684421054,
                   "tag": {
-                    "commentStart": 9560,
-                    "end": 9567,
+                    "commentStart": 9631,
+                    "end": 9638,
                     "moduleId": 0,
-                    "start": 9560,
+                    "start": 9631,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -3911,10 +4015,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3339,
-            "end": 3351,
+            "commentStart": 3345,
+            "end": 3357,
             "moduleId": 0,
-            "start": 3339,
+            "start": 3345,
             "type": "TagDeclarator",
             "value": "capStart001"
           },
@@ -3925,10 +4029,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3314,
-            "end": 3324,
+            "commentStart": 3320,
+            "end": 3330,
             "moduleId": 0,
-            "start": 3314,
+            "start": 3320,
             "type": "TagDeclarator",
             "value": "capEnd001"
           },
@@ -4257,46 +4361,37 @@ description: Variables in memory after executing surgical-drill-guide.kcl
   },
   "capEnd001": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "capEnd001"
   },
   "capEnd002": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "capEnd002"
   },
   "capEnd003": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "capEnd003"
   },
   "capEnd004": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "capEnd004"
   },
   "capEnd005": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "capEnd005"
   },
   "capStart001": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "capStart001"
   },
   "capStart002": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "capStart002"
   },
   "capStart003": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "capStart003"
   },
   "circle1": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "circle1"
   },
@@ -4305,8 +4400,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": 31.49519052838329,
     "ty": {
       "type": "Default",
-      "len": "mm",
-      "angle": "degrees"
+      "value": {
+        "len": "mm",
+        "angle": "degrees"
+      }
     }
   },
   "firstBitAxisY": {
@@ -4314,17 +4411,17 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": 53.15127018922193,
     "ty": {
       "type": "Default",
-      "len": "mm",
-      "angle": "degrees"
+      "value": {
+        "len": "mm",
+        "angle": "degrees"
+      }
     }
   },
   "frontBend": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "frontBend"
   },
   "frontFace": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "frontFace"
   },
@@ -4342,10 +4439,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7787,
-            "end": 7798,
+            "commentStart": 7807,
+            "end": 7818,
             "moduleId": 0,
-            "start": 7787,
+            "start": 7807,
             "type": "TagDeclarator",
             "value": "outerCircle"
           },
@@ -4356,10 +4453,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 7870,
-            "end": 7881,
+            "commentStart": 7890,
+            "end": 7901,
             "moduleId": 0,
-            "start": 7870,
+            "start": 7890,
             "type": "TagDeclarator",
             "value": "innerCircle"
           },
@@ -4370,10 +4467,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 8881,
-            "end": 8893,
+            "commentStart": 8913,
+            "end": 8925,
             "moduleId": 0,
-            "start": 8881,
+            "start": 8913,
             "type": "TagDeclarator",
             "value": "capStart003"
           },
@@ -4384,10 +4481,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 8856,
-            "end": 8866,
+            "commentStart": 8888,
+            "end": 8898,
             "moduleId": 0,
-            "start": 8856,
+            "start": 8888,
             "type": "TagDeclarator",
             "value": "capEnd005"
           },
@@ -4425,10 +4522,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 16.216216215135134,
             "tag": {
-              "commentStart": 7787,
-              "end": 7798,
+              "commentStart": 7807,
+              "end": 7818,
               "moduleId": 0,
-              "start": 7787,
+              "start": 7807,
               "type": "TagDeclarator",
               "value": "outerCircle"
             },
@@ -4455,10 +4552,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 2.0,
             "tag": {
-              "commentStart": 7870,
-              "end": 7881,
+              "commentStart": 7890,
+              "end": 7901,
               "moduleId": 0,
-              "start": 7870,
+              "start": 7890,
               "type": "TagDeclarator",
               "value": "innerCircle"
             },
@@ -4542,36 +4639,6 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
-      "edgeCuts": [
-        {
-          "type": "fillet",
-          "id": "[uuid]",
-          "radius": {
-            "n": 1.0,
-            "ty": {
-              "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
-            }
-          },
-          "edgeId": "[uuid]",
-          "tag": null
-        },
-        {
-          "type": "fillet",
-          "id": "[uuid]",
-          "radius": {
-            "n": 1.0,
-            "ty": {
-              "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
-            }
-          },
-          "edgeId": "[uuid]",
-          "tag": null
-        }
-      ],
       "units": "mm",
       "sectional": false
     }
@@ -4598,10 +4665,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 16.216216215135134,
           "tag": {
-            "commentStart": 7787,
-            "end": 7798,
+            "commentStart": 7807,
+            "end": 7818,
             "moduleId": 0,
-            "start": 7787,
+            "start": 7807,
             "type": "TagDeclarator",
             "value": "outerCircle"
           },
@@ -4628,10 +4695,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 2.0,
           "tag": {
-            "commentStart": 7870,
-            "end": 7881,
+            "commentStart": 7890,
+            "end": 7901,
             "moduleId": 0,
-            "start": 7870,
+            "start": 7890,
             "type": "TagDeclarator",
             "value": "innerCircle"
           },
@@ -4731,17 +4798,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.00000000043243246574118686,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -0.000000001361431753291707,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -4749,17 +4820,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.0000000008648649319148064,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.15127018649907,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -4852,17 +4927,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 1.9999999987027026,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.151270183776205,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -4870,17 +4949,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.0000000012972973937641007,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.151270184683824,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -4972,17 +5055,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.000000001297297389872208,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.151270184230015,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -4990,17 +5077,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 1.9999999987027026,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.15127018392747,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -5104,10 +5195,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 16.216216215135134,
                   "tag": {
-                    "commentStart": 7787,
-                    "end": 7798,
+                    "commentStart": 7807,
+                    "end": 7818,
                     "moduleId": 0,
-                    "start": 7787,
+                    "start": 7807,
                     "type": "TagDeclarator",
                     "value": "outerCircle"
                   },
@@ -5151,10 +5242,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 2.0,
                   "tag": {
-                    "commentStart": 7870,
-                    "end": 7881,
+                    "commentStart": 7890,
+                    "end": 7901,
                     "moduleId": 0,
-                    "start": 7870,
+                    "start": 7890,
                     "type": "TagDeclarator",
                     "value": "innerCircle"
                   },
@@ -5246,17 +5337,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 16.216216213837836,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.15127018438129,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -5264,17 +5359,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.0000000012972973989532909,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.15127018528891,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -5366,17 +5465,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.0000000017297298724782627,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.1512701848351,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -5384,17 +5487,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 16.21621621405405,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.15127018453256,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -5490,10 +5597,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 12078,
-            "end": 12089,
+            "commentStart": 12163,
+            "end": 12174,
             "moduleId": 0,
-            "start": 12078,
+            "start": 12163,
             "type": "TagDeclarator",
             "value": "outerCircle"
           },
@@ -5504,10 +5611,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 12163,
-            "end": 12174,
+            "commentStart": 12248,
+            "end": 12259,
             "moduleId": 0,
-            "start": 12163,
+            "start": 12248,
             "type": "TagDeclarator",
             "value": "innerCircle"
           },
@@ -5518,10 +5625,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 13152,
-            "end": 13164,
+            "commentStart": 13249,
+            "end": 13261,
             "moduleId": 0,
-            "start": 13152,
+            "start": 13249,
             "type": "TagDeclarator",
             "value": "capStart002"
           },
@@ -5532,10 +5639,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 13177,
-            "end": 13187,
+            "commentStart": 13274,
+            "end": 13284,
             "moduleId": 0,
-            "start": 13177,
+            "start": 13274,
             "type": "TagDeclarator",
             "value": "capEnd002"
           },
@@ -5573,10 +5680,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 16.216216215135134,
             "tag": {
-              "commentStart": 12078,
-              "end": 12089,
+              "commentStart": 12163,
+              "end": 12174,
               "moduleId": 0,
-              "start": 12078,
+              "start": 12163,
               "type": "TagDeclarator",
               "value": "outerCircle"
             },
@@ -5603,10 +5710,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 3.199999999,
             "tag": {
-              "commentStart": 12163,
-              "end": 12174,
+              "commentStart": 12248,
+              "end": 12259,
               "moduleId": 0,
-              "start": 12163,
+              "start": 12248,
               "type": "TagDeclarator",
               "value": "innerCircle"
             },
@@ -5690,36 +5797,6 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       },
       "startCapId": "[uuid]",
       "endCapId": "[uuid]",
-      "edgeCuts": [
-        {
-          "type": "fillet",
-          "id": "[uuid]",
-          "radius": {
-            "n": 1.0,
-            "ty": {
-              "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
-            }
-          },
-          "edgeId": "[uuid]",
-          "tag": null
-        },
-        {
-          "type": "fillet",
-          "id": "[uuid]",
-          "radius": {
-            "n": 1.0,
-            "ty": {
-              "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
-            }
-          },
-          "edgeId": "[uuid]",
-          "tag": null
-        }
-      ],
       "units": "mm",
       "sectional": false
     }
@@ -5746,10 +5823,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 16.216216215135134,
           "tag": {
-            "commentStart": 12078,
-            "end": 12089,
+            "commentStart": 12163,
+            "end": 12174,
             "moduleId": 0,
-            "start": 12078,
+            "start": 12163,
             "type": "TagDeclarator",
             "value": "outerCircle"
           },
@@ -5776,10 +5853,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 3.199999999,
           "tag": {
-            "commentStart": 12163,
-            "end": 12174,
+            "commentStart": 12248,
+            "end": 12259,
             "moduleId": 0,
-            "start": 12163,
+            "start": 12248,
             "type": "TagDeclarator",
             "value": "innerCircle"
           },
@@ -5879,17 +5956,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.0000000008324324852373333,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -5897,17 +5978,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.0000000016648649713070994,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6000,17 +6085,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 3.1999999961027026,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6018,17 +6107,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.0000000028972974793486874,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6120,17 +6213,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.0000000032972975025529426,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6138,17 +6235,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 3.1999999963027026,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6252,10 +6353,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 16.216216215135134,
                   "tag": {
-                    "commentStart": 12078,
-                    "end": 12089,
+                    "commentStart": 12163,
+                    "end": 12174,
                     "moduleId": 0,
-                    "start": 12078,
+                    "start": 12163,
                     "type": "TagDeclarator",
                     "value": "outerCircle"
                   },
@@ -6299,10 +6400,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 3.199999999,
                   "tag": {
-                    "commentStart": 12163,
-                    "end": 12174,
+                    "commentStart": 12248,
+                    "end": 12259,
                     "moduleId": 0,
-                    "start": 12163,
+                    "start": 12248,
                     "type": "TagDeclarator",
                     "value": "innerCircle"
                   },
@@ -6394,17 +6495,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 16.216216212637836,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6412,17 +6517,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.00000000249729745904173,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6514,17 +6623,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.000000002929729928966702,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6532,17 +6645,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 16.21621621285405,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -6629,8 +6746,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": 16.216216216216214,
     "ty": {
       "type": "Default",
-      "len": "mm",
-      "angle": "degrees"
+      "value": {
+        "len": "mm",
+        "angle": "degrees"
+      }
     }
   },
   "handle": {
@@ -6759,10 +6878,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3339,
-            "end": 3351,
+            "commentStart": 3345,
+            "end": 3357,
             "moduleId": 0,
-            "start": 3339,
+            "start": 3345,
             "type": "TagDeclarator",
             "value": "capStart001"
           },
@@ -6773,10 +6892,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 3314,
-            "end": 3324,
+            "commentStart": 3320,
+            "end": 3330,
             "moduleId": 0,
-            "start": 3314,
+            "start": 3320,
             "type": "TagDeclarator",
             "value": "capEnd001"
           },
@@ -7108,8 +7227,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": 150.0,
     "ty": {
       "type": "Default",
-      "len": "mm",
-      "angle": "degrees"
+      "value": {
+        "len": "mm",
+        "angle": "degrees"
+      }
     }
   },
   "handleProfile": {
@@ -7129,17 +7250,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.0000000000000000008548066337835559,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -0.00000000000000005608887222033827,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7147,17 +7272,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.0000000000000000012825218143994724,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 13.5,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7250,17 +7379,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -31.495001273568235,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.050942390266684,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7268,17 +7401,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -36.69115369627487,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 50.050942390266684,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7370,17 +7507,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.0000000000000000004270914531676395,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -0.00000000000000000037082637292001084,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7388,17 +7529,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -0.0000000000000000019694889973277208,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7490,17 +7635,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -6.495001273568235,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 9.749672201044753,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7508,17 +7657,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.000000000000007875791210187682,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 6.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7526,17 +7679,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.000000000000000051110051449533846,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 13.5,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7642,17 +7799,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -0.00000000000000000356963024659249,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7660,17 +7821,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 6.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7762,17 +7927,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -11.691153696274867,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 6.74967220104475,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7780,17 +7949,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.0000000000000000004270914531676372,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 0.00000000000000022791622021627465,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -7798,17 +7971,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.000000000000000048117292640119,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 13.5,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -8218,17 +8395,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -36.69115369627487,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 50.050942390266684,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -8236,17 +8417,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -11.691153696274869,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 6.749672201044749,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -8338,17 +8523,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -6.495001273568236,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 9.749672201044751,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -8356,17 +8545,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -31.495001273568235,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.050942390266684,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -8458,17 +8651,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 6.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -8476,17 +8673,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.000000000000007875791210187682,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 6.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -8878,27 +9079,25 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": 30.0,
     "ty": {
       "type": "Default",
-      "len": "mm",
-      "angle": "degrees"
+      "value": {
+        "len": "mm",
+        "angle": "degrees"
+      }
     }
   },
   "heelArc": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "heelArc"
   },
   "innerCircle": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "innerCircle"
   },
   "outerCircle": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "outerCircle"
   },
   "returnEdge": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "returnEdge"
   },
@@ -8916,10 +9115,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 6009,
-            "end": 6016,
+            "commentStart": 6015,
+            "end": 6022,
             "moduleId": 0,
-            "start": 6009,
+            "start": 6015,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -8930,10 +9129,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 6398,
-            "end": 6408,
+            "commentStart": 6404,
+            "end": 6414,
             "moduleId": 0,
-            "start": 6398,
+            "start": 6404,
             "type": "TagDeclarator",
             "value": "capEnd004"
           },
@@ -8967,10 +9166,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 2.0,
             "tag": {
-              "commentStart": 6009,
-              "end": 6016,
+              "commentStart": 6015,
+              "end": 6022,
               "moduleId": 0,
-              "start": 6009,
+              "start": 6015,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -9040,22 +9239,6 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       },
       "startCapId": null,
       "endCapId": "[uuid]",
-      "edgeCuts": [
-        {
-          "type": "chamfer",
-          "id": "[uuid]",
-          "length": {
-            "n": 0.6666666666666666,
-            "ty": {
-              "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
-            }
-          },
-          "edgeId": "[uuid]",
-          "tag": null
-        }
-      ],
       "units": "mm",
       "sectional": false
     }
@@ -9082,10 +9265,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 2.0,
           "tag": {
-            "commentStart": 6009,
-            "end": 6016,
+            "commentStart": 6015,
+            "end": 6022,
             "moduleId": 0,
-            "start": 6009,
+            "start": 6015,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -9171,17 +9354,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": -0.000000000453810584430569,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -9189,17 +9376,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.151270188314314,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -9286,17 +9477,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 2.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.151270187860504,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -9304,17 +9499,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 53.15127018801177,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -9411,10 +9610,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 2.0,
                   "tag": {
-                    "commentStart": 6009,
-                    "end": 6016,
+                    "commentStart": 6015,
+                    "end": 6022,
                     "moduleId": 0,
-                    "start": 6009,
+                    "start": 6015,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -9499,10 +9698,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 10310,
-            "end": 10317,
+            "commentStart": 10381,
+            "end": 10388,
             "moduleId": 0,
-            "start": 10310,
+            "start": 10381,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -9513,10 +9712,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           "id": "[uuid]",
           "sourceRange": [],
           "tag": {
-            "commentStart": 10701,
-            "end": 10711,
+            "commentStart": 10772,
+            "end": 10782,
             "moduleId": 0,
-            "start": 10701,
+            "start": 10772,
             "type": "TagDeclarator",
             "value": "capEnd003"
           },
@@ -9550,10 +9749,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
             ],
             "radius": 3.1999999998,
             "tag": {
-              "commentStart": 10310,
-              "end": 10317,
+              "commentStart": 10381,
+              "end": 10388,
               "moduleId": 0,
-              "start": 10310,
+              "start": 10381,
               "type": "TagDeclarator",
               "value": "circle1"
             },
@@ -9623,22 +9822,6 @@ description: Variables in memory after executing surgical-drill-guide.kcl
       },
       "startCapId": null,
       "endCapId": "[uuid]",
-      "edgeCuts": [
-        {
-          "type": "chamfer",
-          "id": "[uuid]",
-          "length": {
-            "n": 1.0666666666666667,
-            "ty": {
-              "type": "Default",
-              "len": "mm",
-              "angle": "degrees"
-            }
-          },
-          "edgeId": "[uuid]",
-          "tag": null
-        }
-      ],
       "units": "mm",
       "sectional": false
     }
@@ -9665,10 +9848,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
           ],
           "radius": 3.1999999998,
           "tag": {
-            "commentStart": 10310,
-            "end": 10317,
+            "commentStart": 10381,
+            "end": 10388,
             "moduleId": 0,
-            "start": 10310,
+            "start": 10381,
             "type": "TagDeclarator",
             "value": "circle1"
           },
@@ -9754,17 +9937,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.0000000002000000147480739,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 0.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -9772,17 +9959,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.00000000040000002969614786,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -9869,17 +10060,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": 3.1999999992,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -9887,17 +10082,21 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                       {
                         "n": -0.0000000006000000450442219,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       },
                       {
                         "n": 150.0,
                         "ty": {
-                          "mm": null,
                           "type": "Known",
-                          "type": "Length"
+                          "value": {
+                            "type": "Length",
+                            "value": "mm"
+                          }
                         }
                       }
                     ],
@@ -9994,10 +10193,10 @@ description: Variables in memory after executing surgical-drill-guide.kcl
                   ],
                   "radius": 3.1999999998,
                   "tag": {
-                    "commentStart": 10310,
-                    "end": 10317,
+                    "commentStart": 10381,
+                    "end": 10388,
                     "moduleId": 0,
-                    "start": 10310,
+                    "start": 10381,
                     "type": "TagDeclarator",
                     "value": "circle1"
                   },
@@ -10073,17 +10272,17 @@ description: Variables in memory after executing surgical-drill-guide.kcl
     "value": 6.0,
     "ty": {
       "type": "Default",
-      "len": "mm",
-      "angle": "degrees"
+      "value": {
+        "len": "mm",
+        "angle": "degrees"
+      }
     }
   },
   "supportEdge": {
     "type": "TagIdentifier",
-    "type": "TagIdentifier",
     "value": "supportEdge"
   },
   "topFace": {
-    "type": "TagIdentifier",
     "type": "TagIdentifier",
     "value": "topFace"
   }

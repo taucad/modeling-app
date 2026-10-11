@@ -1,5 +1,4 @@
 import env from '@src/env'
-import { relevantFileExtensions } from '@src/lang/wasmUtils'
 import type { App } from '@src/lib/app'
 import type { Command } from '@src/lib/commandTypes'
 import {
@@ -138,7 +137,7 @@ export function createApplicationCommands({
     needsReview: false,
     icon: 'importFile',
     groupId: 'application',
-    onSubmit(data) {
+    async onSubmit(data) {
       if (data) {
         /** TODO: Make a new machine for models. This is only a temporary location
          * to move it to the global application level. To reduce its footprint
@@ -167,74 +166,56 @@ export function createApplicationCommands({
             })
           }
         } else if (data.source === 'local') {
-          const selectedFilePath = isArray(data.files)
-            ? data.files[0]
-            : data.files
+          const selectedFile = isArray(data.files) ? data.files[0] : data.files
 
-          if (!selectedFilePath) {
+          if (
+            !selectedFile ||
+            !(typeof selectedFile === 'string' || selectedFile instanceof File)
+          ) {
             toast.error(error)
             return
           }
 
           const fileNameWithExtension =
-            getStringAfterLastSeparator(selectedFilePath)
-          const fr = new FileReader()
-          const extension = getEXTNoPeriod(selectedFilePath)
+            selectedFile instanceof File
+              ? selectedFile.name
+              : getStringAfterLastSeparator(selectedFile)
+          const extension = getEXTNoPeriod(fileNameWithExtension)
           const isKCL = extension === 'kcl'
-          fr.addEventListener('load', () => {
-            if (isKCL) {
-              if (typeof fr.result !== 'string') {
-                toast.error(error)
-                return
-              }
+          const fileOperations = app.fileOperations
+          const projectDirectoryPath =
+            app.systemIOActor.getSnapshot().context.projectDirectoryPath
 
+          try {
+            const content =
+              selectedFile instanceof File
+                ? new Uint8Array(await selectedFile.arrayBuffer())
+                : await fileOperations.readFile(selectedFile)
+            if (isKCL) {
               app.systemIOActor.send({
                 type: SystemIOMachineEvents.importFileFromURL,
                 data: {
                   requestedProjectName: uniqueNameIfNeeded,
                   requestedFileNameWithExtension: fileNameWithExtension,
-                  requestedCode: fr.result,
+                  requestedCode: new TextDecoder().decode(content),
                 },
               })
             } else {
-              if (!(fr.result instanceof ArrayBuffer)) {
-                toast.error(error)
-                return
-              }
-
-              const projectDirectoryPath =
-                app.systemIOActor.getSnapshot().context.projectDirectoryPath
-              const fileData = new Uint8Array(fr.result)
-
-              getNextFileName({
+              const { path } = await getNextFileName({
+                fileOperations,
                 entryName: fileNameWithExtension,
                 baseDir: joinOSPaths(projectDirectoryPath, uniqueNameIfNeeded),
                 wasmInstance,
                 preserveUnknownExtension: true,
               })
-                .then(({ path }) => {
-                  return fsZds.writeFile(path, fileData)
-                })
-                .then(() => {
-                  app.systemIOActor.send({
-                    type: SystemIOMachineEvents.readFoldersFromProjectDirectory,
-                  })
-                })
-                .catch(() => toast.error(error))
+              await fileOperations.writeFile(path, content)
+              app.systemIOActor.send({
+                type: SystemIOMachineEvents.readFoldersFromProjectDirectory,
+              })
             }
-          })
-          fsZds
-            .readFile(selectedFilePath)
-            .then((content) => {
-              const blob = new Blob([new Uint8Array(content)])
-              // Read all KCL as text, but anything else is a blob.
-              if (isKCL) {
-                fr.readAsText(blob)
-              } else {
-                fr.readAsArrayBuffer(blob)
-              }
-            })
-            .catch(() => toast.error(error))
+          } catch (cause) {
+            trap(new Error(error, { cause }))
+          }
         } else {
           toast.error(error)
         }
@@ -245,18 +226,13 @@ export function createApplicationCommands({
         inputType: 'options',
         required: true,
         skip: true,
-        defaultValue: window.electron ? undefined : 'kcl-samples',
         options() {
           return [
-            ...(window.electron
-              ? [
-                  {
-                    value: 'local',
-                    name: 'Local Drive',
-                    isCurrent: false,
-                  },
-                ]
-              : []),
+            {
+              value: 'local',
+              name: 'Local Drive',
+              isCurrent: false,
+            },
             {
               value: 'kcl-samples',
               name: 'KCL Samples',
@@ -329,6 +305,9 @@ export function createApplicationCommands({
         skip: true,
         hidden: false,
         valueSummary: (value) => {
+          if (value instanceof File) {
+            return value.name
+          }
           if (typeof value === 'string') {
             return fsZds.basename(value)
           }
@@ -339,16 +318,7 @@ export function createApplicationCommands({
         },
         required: (commandContext) =>
           ['local'].includes(commandContext.argumentsToSubmit.source as string),
-        filters: [
-          {
-            name: `Import ${relevantFileExtensions(wasmInstance).map((f) => ` .${f}`)}`,
-            extensions: relevantFileExtensions(wasmInstance),
-          },
-          {
-            name: 'All files',
-            extensions: ['*'],
-          },
-        ],
+        filters: [],
       },
     },
   }
@@ -472,7 +442,7 @@ export function createApplicationCommands({
         const requestedEnvironmentFormatted = returnSelfOrGetHostNameFromURL(
           data.environment
         )
-        writeEnvironmentFile(requestedEnvironmentFormatted)
+        writeEnvironmentFile(app.fileOperations, requestedEnvironmentFormatted)
           .then(() => {
             // Reload the application and it will trigger the correct sign in workflow for the new environment
             window.location.reload()
@@ -512,6 +482,7 @@ export function createApplicationCommands({
       const environmentName = env().VITE_ZOO_BASE_DOMAIN
       if (environmentName) {
         writeEnvironmentConfigurationKittycadWebSocketUrl(
+          app.fileOperations,
           environmentName,
           data?.url ?? ''
         )
@@ -558,6 +529,7 @@ export function createApplicationCommands({
       const environmentName = env().VITE_ZOO_BASE_DOMAIN
       if (environmentName) {
         writeEnvironmentConfigurationZookeeperWebSocketUrl(
+          app.fileOperations,
           environmentName,
           data?.url ?? ''
         )
@@ -669,6 +641,7 @@ export function createApplicationCommands({
       const wasmInstance = await app.wasmPromise
 
       await exportProjectZip({
+        fileOperations: app.fileOperations,
         project,
         currentFilePath: app.project?.executingPath,
         currentFileContents: executingEditor?.code,
@@ -703,7 +676,6 @@ export function sendAddFileToProjectCommandForCurrentProject(
       argDefaultValues: {
         method: 'existingProject',
         projectName: currentProject?.name,
-        ...(!isDesktop() ? { source: 'kcl-samples' } : {}),
       },
     },
   })

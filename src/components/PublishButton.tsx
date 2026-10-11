@@ -9,7 +9,6 @@ import {
 } from '@src/hooks/useProjectStatus'
 import type { App } from '@src/lib/app'
 import { cloudSyncService } from '@src/lib/cloudSync/registry/contract'
-import { OPFS_CLOUD_FEATURE_FLAG } from '@src/lib/constants'
 import fsZds from '@src/lib/fs-zds'
 import type { Project } from '@src/lib/project'
 import { CLOUD_PROJECT_LIBRARY_TYPE } from '@src/lib/projectLibraries'
@@ -96,12 +95,9 @@ function PublishPopoverContent({
   const publishRequiresUsername = !isCheckingUser && !!token && !username
   const accountUrl = withSiteBaseURL('/account')
   const buttonDisabled = kclEmpty || hasKclErrors
-  const hasCloudSyncFeature = app.userFeatures.useHas(
-    OPFS_CLOUD_FEATURE_FLAG,
-    false
-  )
+  const cloudSync = app.registry.optional(cloudSyncService)
   const willMoveProjectToCloud = Boolean(
-    hasCloudSyncFeature &&
+    cloudSync?.status.value.enabled &&
       project &&
       project.libraryType !== CLOUD_PROJECT_LIBRARY_TYPE
   )
@@ -132,6 +128,7 @@ function PublishPopoverContent({
 
       const wasmInstance = await kclManager.wasmInstancePromise
       const details = await getCurrentProjectPublicationDetails({
+        fileOperations: app.fileOperations,
         token,
         project,
         wasmInstance,
@@ -145,7 +142,7 @@ function PublishPopoverContent({
 
       return details
     },
-    [kclManager, project, token]
+    [app.fileOperations, kclManager, project, token]
   )
 
   useEffect(() => {
@@ -241,7 +238,6 @@ function PublishPopoverContent({
 
       let remoteProjectId: string | undefined
       if (willMoveProjectToCloud) {
-        const cloudSync = app.registry.optional(cloudSyncService)
         if (!cloudSync) {
           toast.error('Cloud sync is unavailable for this project.', {
             duration: 5000,
@@ -261,6 +257,7 @@ function PublishPopoverContent({
       }
 
       const published = await publishCurrentProject({
+        fileOperations: app.fileOperations,
         token,
         project: publicationProject,
         currentFilePath: publicationFilePath,
@@ -294,6 +291,7 @@ function PublishPopoverContent({
     },
     [
       app,
+      cloudSync,
       fetchPublicationDetails,
       fetchedProjectStatus,
       kclManager,

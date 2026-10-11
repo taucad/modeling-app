@@ -1,4 +1,5 @@
 import fsZds, { moduleFsViaModuleImport, StorageName } from '@src/lib/fs-zds'
+import { testFileOperations } from '@src/lib/fileSystem/testRuntime'
 import {
   type DuplicateProjectResult,
   duplicateProjectInDirectory,
@@ -60,6 +61,7 @@ async function duplicateSourceProject({
   currentFileContents?: string
 }) {
   const result = await duplicateProjectInDirectory({
+    fileOperations: testFileOperations,
     source: {
       directoryName,
       displayName: 'Source project',
@@ -116,7 +118,10 @@ describe('duplicateProjectInDirectory', () => {
   })
 
   it('keeps duplicated project metadata even when project.toml is the active file', async () => {
-    const project = await makeProject()
+    const conversationId = 'b9e0a35a-56b8-4cb4-9c67-afc14bdf820f'
+    const project = await makeProject({
+      projectToml: `title = "Source project"\ndefault_file = "main.kcl"\n\n[zookeeper."zoo.dev"]\nconversation_ids = ["${conversationId}"]\n`,
+    })
 
     const { targetPath } = await duplicateSourceProject({
       ...project,
@@ -130,5 +135,11 @@ describe('duplicateProjectInDirectory', () => {
     await expect(
       readText(fsZds.join(targetPath, 'project.toml'))
     ).resolves.not.toContain('Unsaved source metadata edit')
+    await expect(
+      readText(fsZds.join(targetPath, 'project.toml'))
+    ).resolves.not.toContain('zookeeper')
+    await expect(
+      readText(fsZds.join(project.sourcePath, 'project.toml'))
+    ).resolves.toContain(conversationId)
   })
 })

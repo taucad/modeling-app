@@ -12,8 +12,6 @@ import {
   setup,
   waitForWebKitBillingToSettle,
 } from '@e2e/playwright/test-utils'
-import { OPFS_CLOUD_FEATURE_FLAG } from '@src/lib/constants'
-
 const TUTORIAL_PROJECT_ID = '12902000-0000-4000-8000-000000000001'
 
 test(
@@ -34,7 +32,7 @@ test(
     ]
     await mockClientErrorReports(context)
     await routeCloudProjects(context, { remoteProjects })
-    await setup(context, page, testInfo, [OPFS_CLOUD_FEATURE_FLAG])
+    await setup(context, page, testInfo)
     await page.goto('/')
 
     await seedCloudSyncState(page, {
@@ -63,11 +61,11 @@ test(
       )}/onboarding/desktop/scene`
     )
 
-    await expect(page.getByRole('heading', { name: 'Scene' })).toBeVisible()
     await expect(page).toHaveURL(
       /tutorial-project%2Fblank\.kcl\/onboarding\/desktop\/scene/,
       { timeout: 15_000 }
     )
+    await expect(page.getByRole('heading', { name: 'Scene' })).toBeVisible()
     await expect
       .poll(() =>
         opfsPathExists(page, `${PROJECT_DIR}/tutorial-project/blank.kcl`)

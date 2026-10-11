@@ -1,6 +1,13 @@
-import { REGEXP_UUIDV4 } from '@src/lib/constants'
+import { PROJECT_SETTINGS_FILE_NAME, REGEXP_UUIDV4 } from '@src/lib/constants'
 import { getAppSettingsFilePath } from '@src/lib/desktop'
 import fsZds from '@src/lib/fs-zds'
+import type { FileOperationsRegistryService } from '@src/registry/contracts/fileOperations'
+import {
+  getProjectIdFromProjectTomlContents,
+  getZookeeperConversationMetadataFromProjectTomlContents,
+  setZookeeperConversationInProjectTomlContents,
+} from '@src/lib/projectTomlMetadata'
+import { isErr, reportRejection } from '@src/lib/trap'
 
 const ZOOKEEPER_CONVERSATIONS_FILE_NAME = 'ml-conversations.json'
 
@@ -39,42 +46,24 @@ export const jsonToZookeeperConversations = (
   return conversations
 }
 
-export const zookeeperConversationsToJson = (
-  conversations: ZookeeperConversations
-): string => {
-  return JSON.stringify(Object.fromEntries(conversations))
-}
-
 const getZookeeperConversationsFilePath = async () =>
   fsZds.join(
     fsZds.dirname(await getAppSettingsFilePath()),
     ZOOKEEPER_CONVERSATIONS_FILE_NAME
   )
 
-const readZookeeperConversations =
-  async (): Promise<ZookeeperConversations> => {
-    try {
-      const json = await fsZds.readFile(
-        await getZookeeperConversationsFilePath(),
-        {
-          encoding: 'utf-8',
-        }
-      )
-      return jsonToZookeeperConversations(json ?? '')
-    } catch (error) {
-      console.warn('Cannot get Zookeeper conversations', error)
-      return new Map()
-    }
+const readZookeeperConversations = async (
+  fileOperations: FileOperationsRegistryService
+): Promise<ZookeeperConversations> => {
+  try {
+    const json = new TextDecoder().decode(
+      await fileOperations.readFile(await getZookeeperConversationsFilePath())
+    )
+    return jsonToZookeeperConversations(json ?? '')
+  } catch (error) {
+    console.warn('Cannot get Zookeeper conversations', error)
+    return new Map()
   }
-
-const writeZookeeperConversations = async (
-  conversations: ZookeeperConversations
-) => {
-  const te = new TextEncoder()
-  await fsZds.writeFile(
-    await getZookeeperConversationsFilePath(),
-    te.encode(zookeeperConversationsToJson(conversations))
-  )
 }
 
 let pendingOperation = Promise.resolve<unknown>(undefined)
@@ -85,24 +74,81 @@ const serialize = <T>(operation: () => Promise<T>): Promise<T> => {
   return result
 }
 
-export const zookeeperConversationStore: ZookeeperConversationStore = {
-  getProjectConversationId(projectId) {
-    return serialize(async () =>
-      (await readZookeeperConversations()).get(projectId)
+// TODO: Coordinate project.toml updates with settings and cloud writes.
+// https://github.com/KittyCAD/modeling-app/pull/14058#discussion_r4069113804
+export const makeProjectZookeeperConversationStore = (
+  fileOperations: FileOperationsRegistryService,
+  projectPath: string,
+  environmentName: string | undefined
+): ZookeeperConversationStore => {
+  const projectTomlPath = fsZds.join(projectPath, PROJECT_SETTINGS_FILE_NAME)
+  const environment = environmentName ?? ''
+
+  const readProjectToml = async (projectId: string) => {
+    if (!environment) {
+      return Promise.reject(new Error('Missing Zookeeper environment'))
+    }
+    const contents = new TextDecoder().decode(
+      await fileOperations.readFile(projectTomlPath)
     )
-  },
-  saveProjectConversationId({ projectId, conversationId }) {
-    return serialize(async () => {
-      const conversations = await readZookeeperConversations()
-      conversations.set(projectId, conversationId)
-      await writeZookeeperConversations(conversations)
-    })
-  },
-  deleteProjectConversationId(projectId) {
-    return serialize(async () => {
-      const conversations = await readZookeeperConversations()
-      conversations.delete(projectId)
-      await writeZookeeperConversations(conversations)
-    })
-  },
+    if (getProjectIdFromProjectTomlContents(contents) !== projectId) {
+      return Promise.reject(
+        new Error('Project identity changed or project.toml is invalid')
+      )
+    }
+    return contents
+  }
+
+  const saveConversation = async (
+    contents: string,
+    conversationId: string | undefined
+  ) => {
+    const next = setZookeeperConversationInProjectTomlContents(
+      contents,
+      environment,
+      conversationId
+    )
+    if (isErr(next)) {
+      return Promise.reject(next)
+    }
+    if (next !== contents) {
+      await fileOperations.writeFile(projectTomlPath, next)
+    }
+  }
+
+  return {
+    getProjectConversationId(projectId) {
+      return serialize(async () => {
+        const contents = await readProjectToml(projectId)
+        const saved = getZookeeperConversationMetadataFromProjectTomlContents(
+          contents,
+          environment
+        )
+        if (isErr(saved)) {
+          return Promise.reject(saved)
+        }
+        const conversationId = saved.conversationIds.at(-1)
+        if (!saved.canMigrateLegacyConversation) {
+          return conversationId
+        }
+        const legacy = (await readZookeeperConversations(fileOperations)).get(
+          projectId
+        )
+        if (legacy !== undefined) {
+          await saveConversation(contents, legacy).catch(reportRejection)
+        }
+        return legacy
+      })
+    },
+    saveProjectConversationId({ projectId, conversationId }) {
+      return serialize(async () => {
+        await saveConversation(await readProjectToml(projectId), conversationId)
+      })
+    },
+    deleteProjectConversationId(projectId) {
+      return serialize(async () => {
+        await saveConversation(await readProjectToml(projectId), undefined)
+      })
+    },
+  }
 }

@@ -5,12 +5,12 @@ description: Physical properties propeller.kcl
 {
   "bounding_box": {
     "center": {
-      "x": 436.8799999879214,
+      "x": 0.0,
       "y": 0.0,
       "z": 0.0
     },
     "dimensions": {
-      "x": 1310.6400000241597,
+      "x": 311.6616194867398,
       "y": 2299.3684210526317,
       "z": 256.4766229013642
     },
@@ -18,12 +18,12 @@ description: Physical properties propeller.kcl
   },
   "surface_area": {
     "unit": "mm2",
-    "value": 1073766.0459656883
+    "value": 1073766.3673752612
   },
   "weight": {
     "material_density": 1000.0,
     "material_density_unit": "kg:m3",
     "unit": "g",
-    "value": 13900.71078960912
+    "value": 13900.715598420247
   }
 }

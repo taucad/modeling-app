@@ -44,7 +44,8 @@ assert.equal(typeof wasm.Context, 'function')
 const wasmBytes = await readFile(join(packageDirectory, 'kcl_wasm_lib_bg.wasm'))
 await wasm.default({ module_or_path: wasmBytes })
 
-const source = `fn identity(value: number(Length)): number(Length) { return value }
+const source = `@settings(defaultLengthUnit = mm, kclVersion = 3.0)
+fn identity(value: number(Length)): number(Length) { return value }
 length = 12mm
 profile = sketch(on = XY) {
   edge1 = line(start = [var 0mm, var 0mm], end = [var 10mm, var 0mm])
@@ -84,7 +85,7 @@ const context = await new wasm.Context(
   },
 )
 const outcome = await context.executeMock(JSON.stringify(program), 'main.kcl', '{}', false)
-assert.deepEqual(outcome.variables.length.ty, { type: 'Length', mm: null })
+assert.deepEqual(outcome.variables.length.ty, { type: 'Known', value: { type: 'Length', value: 'mm' } })
 assert.equal(outcome.variables.solid.type, 'Solid')
 
 console.log(`Verified ${manifest.name}@${manifest.version}`)

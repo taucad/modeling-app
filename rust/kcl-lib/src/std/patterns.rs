@@ -683,8 +683,10 @@ mod tests {
             .join("tests")
             .join("inputs")
             .join("main.kcl");
-        let ctx = crate::test_server::new_context(true, Some(current_file)).await.unwrap();
         let program = crate::Program::parse_no_errs(code).unwrap();
+        let ctx = crate::test_server::new_context(true, Some(current_file), true, program.language_version().unwrap())
+            .await
+            .unwrap();
         let result = ctx.run_with_caching(program).await.unwrap();
 
         let KclValueView::HomArray { value } = result.variables.get("patterned").unwrap() else {
@@ -969,7 +971,7 @@ async fn inner_pattern_linear_2d(
     let normalized_axis = kcmc::shared::Point2d::from([x / axis_len, y / axis_len]);
     let transforms: Vec<_> = (1..instances)
         .map(|i| {
-            let d = distance.to_mm() * (i as f64);
+            let d = distance.unwrap_to_mm() * (i as f64);
             let translate = (normalized_axis * d).with_z(0.0).map(LengthUnit);
             vec![Transform::builder().translate(translate).build()]
         })
@@ -1046,7 +1048,7 @@ async fn inner_pattern_linear_3d<T: GeometryTrait<Set = Vec<T>>>(
     let normalized_axis = kcmc::shared::Point3d::from([x / axis_len, y / axis_len, z / axis_len]);
     let transforms: Vec<_> = (1..instances)
         .map(|i| {
-            let d = distance.to_mm() * (i as f64);
+            let d = distance.unwrap_to_mm() * (i as f64);
             let translate = (normalized_axis * d).map(LengthUnit);
             vec![Transform::builder().translate(translate).build()]
         })
@@ -1142,8 +1144,12 @@ impl CircularPattern {
 
     pub fn center_mm(&self) -> [f64; 3] {
         match self {
-            CircularPattern::TwoD(lp) => [lp.center[0].to_mm(), lp.center[1].to_mm(), 0.0],
-            CircularPattern::ThreeD(lp) => [lp.center[0].to_mm(), lp.center[1].to_mm(), lp.center[2].to_mm()],
+            CircularPattern::TwoD(lp) => [lp.center[0].unwrap_to_mm(), lp.center[1].unwrap_to_mm(), 0.0],
+            CircularPattern::ThreeD(lp) => [
+                lp.center[0].unwrap_to_mm(),
+                lp.center[1].unwrap_to_mm(),
+                lp.center[2].unwrap_to_mm(),
+            ],
         }
     }
 

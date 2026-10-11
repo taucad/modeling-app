@@ -206,7 +206,7 @@ async fn inner_offset_plane(
     let mut info = PlaneInfo::try_from(plane)?;
 
     let normal = info.x_axis.axes_cross_product(&info.y_axis);
-    info.origin += normal * offset.to_length_units(info.origin.units.unwrap_or(UnitLength::Millimeters));
+    info.origin += normal * offset.unwrap_to_length_units(info.origin.units.unwrap_or(UnitLength::Millimeters));
 
     let id = exec_state.next_uuid();
     let mut plane = Plane {
@@ -265,12 +265,15 @@ async fn make_offset_plane_in_engine(
         .await?;
 
     // Set the color.
-    exec_state
-        .batch_modeling_cmd(
-            ModelingCmdMeta::from_args(exec_state, args),
-            ModelingCmd::from(mcmd::PlaneSetColor::builder().color(color).plane_id(plane.id).build()),
-        )
-        .await?;
+    // PlaneSetColor is blocked on CPU engines until https://github.com/KittyCAD/engine/pull/5127 or similar is merged
+    if !exec_state.geometry_only() {
+        exec_state
+            .batch_modeling_cmd(
+                ModelingCmdMeta::from_args(exec_state, args),
+                ModelingCmd::from(mcmd::PlaneSetColor::builder().color(color).plane_id(plane.id).build()),
+            )
+            .await?;
+    }
 
     // Though offset planes might be derived from standard planes, they are
     // not standard planes themselves.

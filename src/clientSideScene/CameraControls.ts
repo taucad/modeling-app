@@ -35,7 +35,7 @@ import { cameraMouseDragGuards } from '@src/lib/cameraControls'
 import type { SettingsType } from '@src/lib/settings/initialSettings'
 import { Signal as LegacySignal } from '@src/lib/signal'
 import { reportRejection } from '@src/lib/trap'
-import { err } from '@src/lib/trap'
+import { err, isErr } from '@src/lib/trap'
 import {
   getNormalisedCoordinates,
   isReducedMotion,
@@ -45,9 +45,10 @@ import {
 } from '@src/lib/utils'
 import { deg2Rad } from '@src/lib/utils2d'
 import { type ConnectionManager } from '@src/lib/engineConnection/connectionManager'
-import type {
-  Subscription,
-  UnreliableSubscription,
+import {
+  getDimensions,
+  type Subscription,
+  type UnreliableSubscription,
 } from '@src/lib/engineConnection/utils'
 import { degToRad } from 'three/src/math/MathUtils'
 
@@ -120,6 +121,7 @@ export class CameraControls {
   worldDownPosition: Vector3
   cameraDown: Camera
   oldCameraState: undefined | CameraViewState
+  reconnectCameraState: CameraViewState | undefined
   rotationSpeed = 0.3
   enableRotate = true
   enablePan = true
@@ -438,13 +440,30 @@ export class CameraControls {
 
   public readonly cameraChange = new LegacySignal()
 
-  onWindowResize = () => {
-    if (this.camera instanceof PerspectiveCamera) {
-      this.camera.aspect =
-        this.domElement.clientWidth / this.domElement.clientHeight
-    } else if (this.camera instanceof OrthographicCamera) {
-      const aspect = this.domElement.clientWidth / this.domElement.clientHeight
+  /**
+   * The client camera and engine stream must use the same normalized viewport
+   * aspect. Deriving it from the displayed canvas also avoids racing a delayed
+   * engine resize against a camera projection change.
+   */
+  private normalizedViewportAspect = () => {
+    const displayWidth = this.domElement.clientWidth
+    const displayHeight = this.domElement.clientHeight
+    if (displayWidth > 0 && displayHeight > 0) {
+      const { width, height } = getDimensions(displayWidth, displayHeight)
+      return width / height
+    }
 
+    return (
+      this.engineCommandManager.streamDimensions.width /
+      this.engineCommandManager.streamDimensions.height
+    )
+  }
+
+  onWindowResize = () => {
+    const aspect = this.normalizedViewportAspect()
+    if (this.camera instanceof PerspectiveCamera) {
+      this.camera.aspect = aspect
+    } else if (this.camera instanceof OrthographicCamera) {
       this.camera.left = -ORTHOGRAPHIC_CAMERA_SIZE * aspect
       this.camera.right = ORTHOGRAPHIC_CAMERA_SIZE * aspect
       this.camera.top = ORTHOGRAPHIC_CAMERA_SIZE
@@ -653,9 +672,7 @@ export class CameraControls {
     const { x: px, y: py, z: pz } = this.camera.position
     const { x: qx, y: qy, z: qz, w: qw } = this.camera.quaternion
     const oldCamUp = this.camera.up.clone()
-    const aspect =
-      this.engineCommandManager.streamDimensions.width /
-      this.engineCommandManager.streamDimensions.height
+    const aspect = this.normalizedViewportAspect()
     this.lastPerspectiveFov = this.camera.fov
     const { z_near, z_far } = calculateNearFarFromFOV(this.lastPerspectiveFov)
     this.camera = new OrthographicCamera(
@@ -693,8 +710,7 @@ export class CameraControls {
     const previousCamUp = this.camera.up.clone()
     this.camera = new PerspectiveCamera(
       this.lastPerspectiveFov,
-      this.engineCommandManager.streamDimensions.width /
-        this.engineCommandManager.streamDimensions.height,
+      this.normalizedViewportAspect(),
       z_near,
       z_far
     )
@@ -964,11 +980,35 @@ export class CameraControls {
     this.camera.updateMatrixWorld()
   }
 
-  async getCameraView(): Promise<CameraViewState | Error> {
-    const response = await this.engineCommandManager.sendSceneCommand({
+  async getCameraView(signal?: AbortSignal): Promise<CameraViewState | Error> {
+    if (signal?.aborted) {
+      return new Error('Camera capture cancelled')
+    }
+
+    const connection = this.engineCommandManager.connection
+    const cmdId = uuidv4()
+    const request = this.engineCommandManager.sendSceneCommand({
       type: 'modeling_cmd_req',
-      cmd_id: uuidv4(),
+      cmd_id: cmdId,
       cmd: { type: 'default_camera_get_view' },
+    })
+
+    const cancelRequest = () => {
+      if (this.engineCommandManager.connection === connection) {
+        this.engineCommandManager.rejectPendingCommand({
+          cmdId,
+          message: 'Camera capture cancelled',
+        })
+      }
+    }
+
+    signal?.addEventListener('abort', cancelRequest, { once: true })
+    if (signal?.aborted) {
+      cancelRequest()
+    }
+
+    const response = await request.finally(() => {
+      signal?.removeEventListener('abort', cancelRequest)
     })
 
     // Check valid response from the engine.
@@ -1236,6 +1276,33 @@ export class CameraControls {
    */
   clearOldCameraState() {
     this.oldCameraState = undefined
+  }
+
+  async captureCameraForReconnect(
+    signal: AbortSignal
+  ): Promise<undefined | Error> {
+    const connection = this.engineCommandManager.connection
+    if (
+      signal.aborted ||
+      !connection ||
+      connection.websocket?.readyState !== WebSocket.OPEN
+    ) {
+      return
+    }
+
+    this.reconnectCameraState = undefined
+    const view = await this.getCameraView(signal)
+
+    // Ignore the response after capture was cancelled or the connection changed.
+    if (signal.aborted || this.engineCommandManager.connection !== connection) {
+      return
+    }
+
+    if (isErr(view)) {
+      return view
+    }
+
+    this.reconnectCameraState = view
   }
 
   saveRemoteCameraState(): Promise<void> {

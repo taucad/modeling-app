@@ -4,7 +4,8 @@ import {
   signal,
   untracked,
 } from '@preact/signals-core'
-import type { KclManager, ZDSProject } from '@src/lang/KclManager'
+import type { KclManager } from '@src/lang/KclManager'
+import { type ZDSProject } from '@src/lib/projectSession'
 import { BillingTransition } from '@src/lib/billing'
 import type { BillingRegistryService } from '@src/lib/billing/registry/contract'
 import { getParentAbsolutePath } from '@src/lib/paths'
@@ -12,10 +13,7 @@ import type { Project } from '@src/lib/project'
 import { reportRejection, trap } from '@src/lib/trap'
 import { ZookeeperEditPatchHistory } from '@src/lib/zookeeper/registry/ZookeeperEditPatchHistory'
 import { ZookeeperFileRequestProcessor } from '@src/lib/zookeeper/registry/ZookeeperFileRequestProcessor'
-import {
-  type ZookeeperConversationStore,
-  zookeeperConversationStore,
-} from '@src/lib/zookeeper/zookeeperConversationStore'
+import type { ZookeeperConversationStore } from '@src/lib/zookeeper/zookeeperConversationStore'
 import {
   createZookeeperManagerActor,
   hasBeenInterruptedOnLast,
@@ -30,13 +28,15 @@ import { zookeeperPromptRunningSignal } from '@src/lib/zookeeper/zookeeperPrompt
 import { collectProjectFiles } from '@src/machines/systemIO/utils'
 import { S } from '@src/machines/utils'
 import type { SystemIORegistryService } from '@src/registry/contracts/systemIO'
+import type { FileOperationsRegistryService } from '@src/registry/contracts/fileOperations'
 import { NIL as uuidNIL } from 'uuid'
 import type { SnapshotFrom, Subscription } from 'xstate'
 
 export interface ZookeeperSessionControllerDependencies {
   apiToken: string
   billing: BillingRegistryService
-  conversationStore?: ZookeeperConversationStore
+  conversationStore: ZookeeperConversationStore
+  fileOperations: FileOperationsRegistryService
   kclManager: KclManager
   project: ReadonlySignal<ZDSProject | undefined>
   projectId: string | undefined
@@ -126,7 +126,10 @@ class SessionController implements ZookeeperSessionController {
     this.projectId = deps.projectId
     this.projectPath = deps.projectPath
     this.actor = createZookeeperManagerActor(deps.apiToken)
-    this.history = new ZookeeperEditPatchHistory(deps.kclManager)
+    this.history = new ZookeeperEditPatchHistory(
+      deps.kclManager,
+      deps.fileOperations
+    )
     this.fileRequestProcessor = new ZookeeperFileRequestProcessor({
       getProject: () => this.getProject(),
       history: this.history,
@@ -140,6 +143,12 @@ class SessionController implements ZookeeperSessionController {
       isSessionCurrent: () => this.active && this.getZdsProject() !== undefined,
       kclManager: deps.kclManager,
       systemIOActor: deps.systemIO.actor,
+      onEditApplied: (response) => {
+        this.actor.send({
+          type: ZookeeperManagerTransitions.EditApplied,
+          response,
+        })
+      },
     })
 
     this.actorSubscription = this.actor.subscribe((snapshot) => {
@@ -320,9 +329,7 @@ class SessionController implements ZookeeperSessionController {
     try {
       if (projectId !== undefined && projectId !== uuidNIL) {
         await this.trackPersistence(
-          (
-            this.deps.conversationStore ?? zookeeperConversationStore
-          ).deleteProjectConversationId(projectId)
+          this.deps.conversationStore.deleteProjectConversationId(projectId)
         )
       }
     } catch (error: unknown) {
@@ -474,6 +481,7 @@ class SessionController implements ZookeeperSessionController {
     try {
       const promptInputs = await Promise.all([
         collectProjectFiles({
+          fileOperations: this.deps.fileOperations,
           selectedFileContents: editorCode,
           selectedFilePath: editorPath,
           fileNames: kclManager.execState.filenames,
@@ -591,9 +599,7 @@ class SessionController implements ZookeeperSessionController {
     }
 
     this.savingConversationIds.add(conversationId)
-    const operation = (
-      this.deps.conversationStore ?? zookeeperConversationStore
-    )
+    const operation = this.deps.conversationStore
       .saveProjectConversationId({ projectId, conversationId })
       .then(() => {
         this.lastSavedConversationId = conversationId
@@ -637,7 +643,7 @@ class SessionController implements ZookeeperSessionController {
       return
     }
 
-    const lookup = (this.deps.conversationStore ?? zookeeperConversationStore)
+    const lookup = this.deps.conversationStore
       .getProjectConversationId(projectId)
       .then(finish)
       .catch((error: unknown) => {
@@ -737,6 +743,7 @@ class SessionController implements ZookeeperSessionController {
     const editorPath = kclManager.path
     this.isResumingInterruptedTurnSignal.value = resumeInterruptedTurn
     void collectProjectFiles({
+      fileOperations: this.deps.fileOperations,
       selectedFileContents: editorCode,
       selectedFilePath: editorPath,
       fileNames: kclManager.execState.filenames,

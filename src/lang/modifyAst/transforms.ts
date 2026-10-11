@@ -18,6 +18,7 @@ import { getPlaneExprFromSelection } from '@src/lang/modifyAst/faces'
 import { getAxisExpression } from '@src/lang/modifyAst/geometry'
 import {
   getVariableExprsFromSelection,
+  resolveToCodeRef,
   valueOrVariable,
 } from '@src/lang/queryAst'
 import type {
@@ -362,12 +363,20 @@ export function addClone({
     []
   )
 
-  // 3. If edit, we assign the new function call declaration to the existing node,
-  // otherwise just push to the end
-  const declaration = createVariableDeclaration(variableName, call)
-  modifiedAst.body.push(declaration)
-  const toFirstKwarg = false
-  const pathToNode = createPathToNodeForLastVariable(modifiedAst, toFirstKwarg)
+  let pathToNode: PathToNode | Error
+  if (!mNodeToEdit && !vars.pathIfPipe) {
+    modifiedAst.body.push(createVariableDeclaration(variableName, call))
+    pathToNode = createPathToNodeForLastVariable(modifiedAst, false)
+  } else {
+    pathToNode = setCallInAst({
+      ast: modifiedAst,
+      call,
+      pathToEdit: mNodeToEdit,
+      pathIfNewPipe: vars.pathIfPipe,
+      variableIfNewPipe: variableName,
+      wasmInstance,
+    })
+  }
   if (err(pathToNode)) {
     return pathToNode
   }
@@ -488,10 +497,13 @@ function addObjectTransform({
   const modifiedAst = structuredClone(ast)
 
   // 2. Prepare unlabeled arguments
-  // Map the selection into a list of kcl expressions to be passed as unlabelled argument
-  const artifact = objects.graphSelections[0].artifact
+  const firstResolved =
+    objects.graphSelections[0] != null
+      ? resolveToCodeRef(objects.graphSelections[0], artifactGraph)
+      : null
   const lastChildLookup =
-    artifact?.type !== 'helix' && artifact?.type !== 'sketchBlock'
+    firstResolved?.artifact?.type !== 'helix' &&
+    firstResolved?.artifact?.type !== 'sketchBlock'
   const vars = getVariableExprsFromSelection(
     objects,
     artifactGraph,
@@ -611,6 +623,7 @@ export function addMirror3D({
 
     const isEdgeSelection = across.graphSelections.some(
       (selection) =>
+        selection.entityRef?.type === 'edge' ||
         selection.artifact?.type === 'segment' ||
         selection.artifact?.type === 'sweepEdge' ||
         selection.artifact?.type === 'edgeCutEdge'

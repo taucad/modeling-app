@@ -224,6 +224,15 @@ description: Artifact commands sketch_on_chamfer_two_times_different_order_v3.kc
       "cmdId": "[uuid]",
       "range": [],
       "command": {
+        "type": "query_entity_type",
+        "entity_id": "[uuid]"
+      },
+      "omitFromGraph": true
+    },
+    {
+      "cmdId": "[uuid]",
+      "range": [],
+      "command": {
         "type": "solid3d_get_all_edge_faces",
         "object_id": "[uuid]",
         "edge_id": "[uuid]"
@@ -248,7 +257,8 @@ description: Artifact commands sketch_on_chamfer_two_times_different_order_v3.kc
         "tolerance": 0.0000001,
         "strategy": "automatic",
         "extra_face_ids": [],
-        "version": "v2"
+        "version": "v2",
+        "tangent_chain": true
       }
     },
     {
@@ -281,7 +291,8 @@ description: Artifact commands sketch_on_chamfer_two_times_different_order_v3.kc
         "tolerance": 0.0000001,
         "strategy": "automatic",
         "extra_face_ids": [],
-        "version": "v2"
+        "version": "v2",
+        "tangent_chain": true
       }
     },
     {
@@ -314,7 +325,8 @@ description: Artifact commands sketch_on_chamfer_two_times_different_order_v3.kc
         "tolerance": 0.0000001,
         "strategy": "automatic",
         "extra_face_ids": [],
-        "version": "v2"
+        "version": "v2",
+        "tangent_chain": true
       }
     },
     {
