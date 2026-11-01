@@ -1652,6 +1652,53 @@ async fn test_kcl_lsp_semantic_tokens() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn test_kcl_lsp_semantic_tokens_use_utf16_and_column_zero() {
+    let server = kcl_lsp_server(false).await.unwrap();
+    server
+        .did_open(tower_lsp::lsp_types::DidOpenTextDocumentParams {
+            text_document: tower_lsp::lsp_types::TextDocumentItem {
+                uri: "file:///utf16.kcl".try_into().unwrap(),
+                language_id: "kcl".to_string(),
+                version: 1,
+                // The string is 6 bytes and 4 UTF-16 units.
+                text: "label = \"\u{b0}\u{b0}\"\nwidth = 1\n".to_string(),
+            },
+        })
+        .await;
+
+    let semantic_tokens = server
+        .semantic_tokens_full(tower_lsp::lsp_types::SemanticTokensParams {
+            text_document: tower_lsp::lsp_types::TextDocumentIdentifier {
+                uri: "file:///utf16.kcl".try_into().unwrap(),
+            },
+            partial_result_params: Default::default(),
+            work_done_progress_params: Default::default(),
+        })
+        .await
+        .unwrap()
+        .unwrap();
+    let tower_lsp::lsp_types::SemanticTokensResult::Tokens(semantic_tokens) = semantic_tokens else {
+        panic!("Expected semantic tokens");
+    };
+
+    // Decode the relative encoding into (line, start, length).
+    let mut line = 0;
+    let mut start = 0;
+    let mut absolute = vec![];
+    for token in &semantic_tokens.data {
+        if token.delta_line > 0 {
+            line += token.delta_line;
+            start = token.delta_start;
+        } else {
+            start += token.delta_start;
+        }
+        absolute.push((line, start, token.length));
+    }
+    assert!(absolute.contains(&(0, 8, 4)), "string token: {absolute:?}");
+    assert!(absolute.contains(&(1, 0, 5)), "column-0 token: {absolute:?}");
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn test_kcl_lsp_semantic_tokens_large_file() {
     let server = kcl_lsp_server(false).await.unwrap();
     let code = include_str!("../../../kcl-lib/tests/global_tags/input.kcl");

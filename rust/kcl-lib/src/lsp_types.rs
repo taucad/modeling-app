@@ -158,7 +158,7 @@ mod tests {
 
     #[test]
     fn columns_count_utf16_code_units() {
-        // `°` is 2 bytes and 1 UTF-16 unit; `𝑥` is 4 bytes and 2 UTF-16 units.
+        // The degree sign is 2 bytes and 1 UTF-16 unit; MATHEMATICAL ITALIC SMALL X is 4 bytes and 2 UTF-16 units.
         let code = "// 90° turn\n𝑥 = 1 // 𝑥 bad";
         let bad = code.find("bad").unwrap();
         assert_eq!(offset_to_lsp_position(code, bad), Position::new(1, 13));
