@@ -4571,7 +4571,7 @@ async fn test_kcl_lsp_diagnostic_compilation_warnings() {
                 diagnostics.full_document_diagnostic_report.items[0],
                 tower_lsp::lsp_types::Diagnostic {
                     range: tower_lsp::lsp_types::Range {
-                        start: tower_lsp::lsp_types::Position { line: 0, character: 8 },
+                        start: tower_lsp::lsp_types::Position { line: 1, character: 0 },
                         end: tower_lsp::lsp_types::Position { line: 1, character: 33 },
                     },
                     severity: Some(tower_lsp::lsp_types::DiagnosticSeverity::WARNING),

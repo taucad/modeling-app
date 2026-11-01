@@ -683,7 +683,7 @@ mod tests {
         let imported_module = ModuleId::from_usize(1);
         let missing_name_start = imported_code.find("missingName").unwrap();
         let imported_range = SourceRange::new(missing_name_start, missing_name_start + 11, imported_module);
-        let import_stmt_range = SourceRange::new(0, 41, ModuleId::default());
+        let import_stmt_range = SourceRange::new(0, 40, ModuleId::default());
 
         let error = KclError::new_semantic(KclErrorDetails::new(
             "`missingName` is not defined".to_owned(),

@@ -2005,21 +2005,11 @@ fn get_arg_maps_from_stdlib_in_context(
     result
 }
 
-/// Convert a position to a character index from the start of the file.
+/// Convert a position to a byte index from the start of the file.
 fn position_to_char_index(position: Position, code: &str) -> usize {
-    // Get the character position from the start of the file.
-    let mut char_position = 0;
-    for (index, line) in code.lines().enumerate() {
-        if index == position.line as usize {
-            char_position += position.character as usize;
-            break;
-        } else {
-            char_position += line.len() + 1;
-        }
-    }
-
+    let index = kcl_lib::lsp_position_to_offset(code, position);
     let end_of_file = if code.is_empty() { 0 } else { code.len() - 1 };
-    std::cmp::min(char_position, end_of_file)
+    std::cmp::min(index, end_of_file)
 }
 
 async fn with_cached_var<T>(name: &str, f: impl Fn(&KclValue) -> T) -> Option<T> {
@@ -2069,6 +2059,13 @@ return 42"#;
         let position = Position::new(1, 8);
         let index = position_to_char_index(position, code);
         assert_eq!(index, 19);
+    }
+
+    #[test]
+    fn test_position_to_char_counts_utf16_columns() {
+        let code = "// 90° turn\nx = 1";
+        let index = position_to_char_index(Position::new(0, 7), code);
+        assert_eq!(&code[index..index + 4], "turn");
     }
 
     #[test]
