@@ -685,6 +685,7 @@ impl Backend {
 
             let source_range: SourceRange = token.into();
             let position = source_range.start_to_lsp_position(&params.text);
+            let length = params.text[token.start..token.end].encode_utf16().count() as u32;
 
             // Calculate the token modifiers.
             // Get the value at the current position.
@@ -805,28 +806,6 @@ impl Backend {
                 _ => 0,
             };
 
-            // We need to check if we are on the last token of the line.
-            // If we are starting from the end of the last line just add 1 to the line.
-            // Check if we are on the last token of the line.
-            if let Some(line) = params.text.lines().nth(position.line as usize)
-                && line.len() == position.character as usize
-            {
-                // We are on the last token of the line.
-                // We need to add a new line.
-                let semantic_token = SemanticToken {
-                    delta_line: position.line - last_position.line + 1,
-                    delta_start: 0,
-                    length: (token.end - token.start) as u32,
-                    token_type: token_type_index,
-                    token_modifiers_bitset,
-                };
-
-                semantic_tokens.push(semantic_token);
-
-                last_position = Position::new(position.line + 1, 0);
-                continue;
-            }
-
             let semantic_token = SemanticToken {
                 delta_line: position.line - last_position.line,
                 delta_start: if position.line != last_position.line {
@@ -834,7 +813,7 @@ impl Backend {
                 } else {
                     position.character - last_position.character
                 },
-                length: (token.end - token.start) as u32,
+                length,
                 token_type: token_type_index,
                 token_modifiers_bitset,
             };
@@ -1470,7 +1449,7 @@ impl LanguageServer for Backend {
             .unwrap_or(&self.stdlib_signatures);
 
         // Get the character at the position.
-        let Some(ch) = current_code.chars().nth(pos) else {
+        let Some(ch) = current_code[pos..].chars().next() else {
             return Ok(None);
         };
 
@@ -2005,21 +1984,12 @@ fn get_arg_maps_from_stdlib_in_context(
     result
 }
 
-/// Convert a position to a character index from the start of the file.
+/// Convert a position to a byte index from the start of the file.
 fn position_to_char_index(position: Position, code: &str) -> usize {
-    // Get the character position from the start of the file.
-    let mut char_position = 0;
-    for (index, line) in code.lines().enumerate() {
-        if index == position.line as usize {
-            char_position += position.character as usize;
-            break;
-        } else {
-            char_position += line.len() + 1;
-        }
-    }
-
-    let end_of_file = if code.is_empty() { 0 } else { code.len() - 1 };
-    std::cmp::min(char_position, end_of_file)
+    let index = kcl_lib::lsp_position_to_offset(code, position);
+    // The end of the file resolves to the start of its last character.
+    let last_character = code.char_indices().next_back().map_or(0, |(index, _)| index);
+    std::cmp::min(index, last_character)
 }
 
 async fn with_cached_var<T>(name: &str, f: impl Fn(&KclValue) -> T) -> Option<T> {
@@ -2069,6 +2039,21 @@ return 42"#;
         let position = Position::new(1, 8);
         let index = position_to_char_index(position, code);
         assert_eq!(index, 19);
+    }
+
+    #[test]
+    fn test_position_to_char_counts_utf16_columns() {
+        let code = "// 90° turn\nx = 1";
+        let index = position_to_char_index(Position::new(0, 7), code);
+        assert_eq!(&code[index..index + 4], "turn");
+    }
+
+    #[test]
+    fn test_position_to_char_end_of_file_is_a_char_boundary() {
+        let code = "a = \"\u{e9}\"\u{e9}";
+        let index = position_to_char_index(Position::new(0, 7), code);
+        assert!(code.is_char_boundary(index));
+        assert_eq!(&code[index..], "\u{e9}");
     }
 
     #[test]
